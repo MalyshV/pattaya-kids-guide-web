@@ -3,6 +3,26 @@ import { getApprovedEvents } from "@/services/events.service";
 import { mapEventToDto } from "@/mappers/event.mapper";
 import { ok, fail } from "@/lib/api-response";
 
+function parsePositiveInt(
+  value: string | null,
+  defaultValue: number,
+  max?: number,
+): number {
+  if (!value) return defaultValue;
+
+  const parsed = Number(value);
+
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    return defaultValue;
+  }
+
+  if (max && parsed > max) {
+    return max;
+  }
+
+  return parsed;
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -16,8 +36,8 @@ export async function GET(req: NextRequest) {
         ? typeParam
         : undefined;
 
-    const page = pageParam ? Number(pageParam) : 1;
-    const limit = limitParam ? Number(limitParam) : 10;
+    const page = parsePositiveInt(pageParam, 1);
+    const limit = parsePositiveInt(limitParam, 10, 50);
 
     const result = await getApprovedEvents(type ? { type } : undefined, { page, limit });
 
