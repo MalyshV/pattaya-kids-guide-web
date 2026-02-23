@@ -1,17 +1,9 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/db/prisma";
+import { getApprovedEvents } from "@/services/events.service";
 
 export async function GET() {
   try {
-    const events = await prisma.event.findMany({
-      where: {
-        status: "APPROVED",
-      },
-      orderBy: {
-        startDate: "asc",
-      },
-    });
-
+    const events = await getApprovedEvents();
     return NextResponse.json(events);
   } catch (error) {
     console.error("Events fetch error:", error);
