@@ -7,13 +7,28 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
 
-    const type = searchParams.get("type") as "upcoming" | "ongoing" | "past" | null;
+    const typeParam = searchParams.get("type");
+    const pageParam = searchParams.get("page");
+    const limitParam = searchParams.get("limit");
 
-    const events = await getApprovedEvents(type ? { type } : undefined);
+    const type =
+      typeParam === "upcoming" || typeParam === "ongoing" || typeParam === "past"
+        ? typeParam
+        : undefined;
 
-    const dto = events.map(mapEventToDto);
+    const page = pageParam ? Number(pageParam) : 1;
+    const limit = limitParam ? Number(limitParam) : 10;
 
-    return ok(dto, { total: dto.length });
+    const result = await getApprovedEvents(type ? { type } : undefined, { page, limit });
+
+    const dto = result.items.map(mapEventToDto);
+
+    return ok(dto, {
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: Math.ceil(result.total / result.limit),
+    });
   } catch (error) {
     console.error("Events fetch error:", error);
 
