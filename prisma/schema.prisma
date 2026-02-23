@@ -1,0 +1,303 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             String              @id @default(cuid())
+  email          String              @unique
+  displayName    String?
+  reputation     Int                 @default(0)
+  createdAt      DateTime            @default(now())
+  favoriteEvents UserFavoriteEvent[]
+  favoritePlaces UserFavoritePlace[]
+  preferences    UserPreference?
+  visits         UserVisit[]
+}
+
+/// Пользовательские предпочтения (включая "НЕ интересно")
+model UserPreference {
+  id                     String   @id @default(cuid())
+  userId                 String   @unique
+  /// категории, которые НЕ интересны пользователю
+  excludedCategorySlugs  String[]
+  /// интересующие категории (опционально)
+  preferredCategorySlugs String[]
+  user                   User     @relation(fields: [userId], references: [id])
+}
+
+model UserFavoritePlace {
+  id        String   @id @default(cuid())
+  userId    String
+  placeId   String
+  createdAt DateTime @default(now())
+  place     Place    @relation(fields: [placeId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, placeId])
+  @@index([userId])
+  @@index([placeId])
+}
+
+model UserFavoriteEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  eventId   String
+  createdAt DateTime @default(now())
+  event     Event    @relation(fields: [eventId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, eventId])
+  @@index([userId])
+  @@index([eventId])
+}
+
+model UserVisit {
+  id        String   @id @default(cuid())
+  userId    String
+  placeId   String?
+  eventId   String?
+  visitedAt DateTime @default(now())
+  note      String?
+  event     Event?   @relation(fields: [eventId], references: [id])
+  place     Place?   @relation(fields: [placeId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([placeId])
+  @@index([eventId])
+}
+
+model Category {
+  id     String          @id @default(cuid())
+  name   String
+  slug   String          @unique
+  order  Int             @default(0)
+  places PlaceCategory[]
+}
+
+model PlaceCategory {
+  placeId    String
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  place      Place    @relation(fields: [placeId], references: [id])
+
+  @@id([placeId, categoryId])
+}
+
+model AmenityGroup {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  amenities Amenity[]
+}
+
+model Amenity {
+  id         String         @id @default(cuid())
+  name       String
+  slug       String         @unique
+  groupId    String
+  group      AmenityGroup   @relation(fields: [groupId], references: [id])
+  placeLinks PlaceAmenity[]
+}
+
+model PlaceAmenity {
+  placeId   String
+  amenityId String
+  amenity   Amenity @relation(fields: [amenityId], references: [id])
+  place     Place   @relation(fields: [placeId], references: [id])
+
+  @@id([placeId, amenityId])
+}
+
+model AgeGroup {
+  id     String          @id @default(cuid())
+  name   String
+  minAge Int
+  maxAge Int
+  places PlaceAgeGroup[]
+}
+
+model PlaceAgeGroup {
+  placeId    String
+  ageGroupId String
+  ageGroup   AgeGroup @relation(fields: [ageGroupId], references: [id])
+  place      Place    @relation(fields: [placeId], references: [id])
+
+  @@id([placeId, ageGroupId])
+}
+
+model PlaceSchedule {
+  id        String    @id @default(cuid())
+  placeId   String
+  day       DayOfWeek
+  openTime  String
+  closeTime String
+  isClosed  Boolean   @default(false)
+  place     Place     @relation(fields: [placeId], references: [id])
+}
+
+model PlacePricing {
+  id        String          @id @default(cuid())
+  placeId   String
+  priceType PriceType
+  audience  PricingAudience
+  minPrice  Float?
+  maxPrice  Float?
+  currency  String
+  place     Place           @relation(fields: [placeId], references: [id])
+}
+
+model PlaceBirthdayInfo {
+  id              String   @id @default(cuid())
+  placeId         String   @unique
+  hasPackages     Boolean
+  minGuests       Int?
+  maxGuests       Int?
+  depositRequired Boolean
+  preBookingDays  Int?
+  notes           String?
+  lastUpdatedAt   DateTime @updatedAt
+  place           Place    @relation(fields: [placeId], references: [id])
+}
+
+model Place {
+  id                 String              @id @default(cuid())
+  name               String
+  slug               String              @unique
+  description        String?
+  address            String
+  latitude           Float
+  longitude          Float
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  animalContact      Boolean             @default(false)
+  canLeaveChild      Boolean             @default(false)
+  hasFood            Boolean             @default(false)
+  hasWifi            Boolean             @default(false)
+  indoor             Boolean             @default(false)
+  createdByUserId    String?
+  isAnonymous        Boolean             @default(false)
+  /// МОДЕРАЦИЯ + UGC
+  status             PlaceStatus         @default(PENDING)
+  events             Event[]
+  ageGroups          PlaceAgeGroup[]
+  amenities          PlaceAmenity[]
+  birthdayInfo       PlaceBirthdayInfo?
+  categories         PlaceCategory[]
+  pricing            PlacePricing[]
+  schedules          PlaceSchedule[]
+  userFavoritePlaces UserFavoritePlace[]
+  userVisits         UserVisit[]
+}
+
+model EventCategory {
+  id    String              @id @default(cuid())
+  name  String
+  slug  String              @unique
+  links EventCategoryLink[]
+}
+
+model EventCategoryLink {
+  eventId    String
+  categoryId String
+  category   EventCategory @relation(fields: [categoryId], references: [id])
+  event      Event         @relation(fields: [eventId], references: [id])
+
+  @@id([eventId, categoryId])
+}
+
+model Event {
+  id                 String              @id @default(cuid())
+  title              String
+  slug               String              @unique
+  description        String?
+  /// ДАТЫ (поддержка однодневных, многодневных и recurring)
+  startDate          DateTime
+  endDate            DateTime?
+  /// ЛОКАЦИЯ (может существовать без Place)
+  locationName       String?
+  address            String?
+  latitude           Float?
+  longitude          Float?
+  /// ОПЦИОНАЛЬНАЯ связь с Place (ВАЖНОЕ РЕШЕНИЕ)
+  placeId            String?
+  /// UGC + МОДЕРАЦИЯ
+  status             EventStatus         @default(PENDING)
+  sourceType         EventSourceType     @default(USER)
+  createdByUserId    String?
+  isAnonymous        Boolean             @default(false)
+  /// AI & Review (вариант B)
+  aiScore            Float?
+  aiFlags            String?
+  reviewNotes        String?
+  approvedAt         DateTime?
+  /// ЖИЗНЕННЫЙ ЦИКЛ (автоархив)
+  autoArchive        Boolean             @default(true)
+  archivedAt         DateTime?
+  /// МОНОТИЗАЦИЯ (на будущее)
+  isFeatured         Boolean             @default(false)
+  isSponsored        Boolean             @default(false)
+  /// CLAIM БИЗНЕСОМ
+  isClaimed          Boolean             @default(false)
+  organizerName      String?
+  organizerContact   String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  place              Place?              @relation(fields: [placeId], references: [id])
+  categories         EventCategoryLink[]
+  userFavoriteEvents UserFavoriteEvent[]
+  userVisits         UserVisit[]
+
+  @@index([placeId])
+  @@index([status])
+  @@index([startDate])
+  @@index([endDate])
+}
+
+enum PriceType {
+  FREE
+  PAID
+  MIXED
+}
+
+enum PricingAudience {
+  GENERAL
+  THAI_ID
+  THAI_DL
+  EXPAT
+}
+
+enum DayOfWeek {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+enum EventStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  AUTO_APPROVED
+  ARCHIVED
+}
+
+enum PlaceStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum EventSourceType {
+  USER
+  ADMIN
+  BUSINESS
+  IMPORT
+}
