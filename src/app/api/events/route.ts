@@ -1,9 +1,19 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getApprovedEvents } from "@/services/events.service";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const events = await getApprovedEvents();
+    const { searchParams } = new URL(req.url);
+    const type = searchParams.get("type") as
+      | "upcoming"
+      | "ongoing"
+      | "past"
+      | null;
+
+    const events = await getApprovedEvents(
+      type ? { type } : undefined
+    );
+
     return NextResponse.json(events);
   } catch (error) {
     console.error("Events fetch error:", error);
