@@ -9,8 +9,8 @@ export async function getApprovedEvents(filter?: EventsFilter) {
   const now = new Date();
 
   const where: Prisma.EventWhereInput = {
-  status: "APPROVED",
-}
+    status: "APPROVED",
+  };
 
   if (filter?.type === "upcoming") {
     where.startDate = { gt: now };
