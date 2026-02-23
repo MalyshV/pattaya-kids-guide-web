@@ -1,3 +1,5 @@
+# pattaya-kids-guide-web
+SEO-first Next.js frontend for a calm, event-driven parents guide (Prisma + Neon backend)
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
