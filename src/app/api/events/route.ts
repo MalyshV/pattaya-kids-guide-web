@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
 import { getApprovedEvents } from "@/services/events.service";
 import { mapEventToDto } from "@/mappers/event.mapper";
-import { ok, fail } from "@/lib/api-response";
+import { ok } from "@/lib/api-response";
+import { handleError } from "@/lib/errors";
 
 function parsePositiveInt(
   value: string | null,
@@ -50,8 +51,6 @@ export async function GET(req: NextRequest) {
       totalPages: Math.ceil(result.total / result.limit),
     });
   } catch (error) {
-    console.error("Events fetch error:", error);
-
-    return fail("Failed to fetch events", "EVENTS_FETCH_FAILED", 500);
+    return handleError(error);
   }
 }

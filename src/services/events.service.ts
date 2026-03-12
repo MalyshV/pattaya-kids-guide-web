@@ -1,5 +1,5 @@
 import { prisma } from "@/db/prisma";
-import type { Prisma } from "@prisma/client";
+import type { Prisma, Event } from "@prisma/client";
 
 export type EventsFilter = {
   type?: "upcoming" | "ongoing" | "past";
@@ -11,7 +11,7 @@ export type PaginationParams = {
 };
 
 export type PaginatedEventsResult = {
-  items: Awaited<ReturnType<typeof prisma.event.findMany>>;
+  items: Event[];
   total: number;
   page: number;
   limit: number;
@@ -41,6 +41,7 @@ export async function getApprovedEvents(
   }
 
   const page = pagination?.page && pagination.page > 0 ? pagination.page : 1;
+
   const limit = pagination?.limit && pagination.limit > 0 ? pagination.limit : 10;
 
   const skip = (page - 1) * limit;
