@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { getApprovedEvents } from "@/services/events.service";
 import { mapEventToDto } from "@/mappers/event.mapper";
 import { ok } from "@/lib/api-response";
-import { handleError } from "@/lib/errors";
+import { apiHandler } from "@/lib/api-handler";
 import { parseEventType } from "@/lib/parsers";
 
 function parsePositiveInt(
@@ -25,30 +25,26 @@ function parsePositiveInt(
   return parsed;
 }
 
-export async function GET(req: NextRequest) {
-  try {
-    const { searchParams } = new URL(req.url);
+export const GET = apiHandler(async (req: NextRequest) => {
+  const { searchParams } = new URL(req.url);
 
-    const typeParam = searchParams.get("type");
-    const pageParam = searchParams.get("page");
-    const limitParam = searchParams.get("limit");
+  const typeParam = searchParams.get("type");
+  const pageParam = searchParams.get("page");
+  const limitParam = searchParams.get("limit");
 
-    const type = parseEventType(typeParam);
+  const type = parseEventType(typeParam);
 
-    const page = parsePositiveInt(pageParam, 1);
-    const limit = parsePositiveInt(limitParam, 10, 50);
+  const page = parsePositiveInt(pageParam, 1);
+  const limit = parsePositiveInt(limitParam, 10, 50);
 
-    const result = await getApprovedEvents(type ? { type } : undefined, { page, limit });
+  const result = await getApprovedEvents(type ? { type } : undefined, { page, limit });
 
-    const dto = result.items.map(mapEventToDto);
+  const dto = result.items.map(mapEventToDto);
 
-    return ok(dto, {
-      total: result.total,
-      page: result.page,
-      limit: result.limit,
-      totalPages: Math.ceil(result.total / result.limit),
-    });
-  } catch (error) {
-    return handleError(error);
-  }
-}
+  return ok(dto, {
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+    totalPages: Math.ceil(result.total / result.limit),
+  });
+});
