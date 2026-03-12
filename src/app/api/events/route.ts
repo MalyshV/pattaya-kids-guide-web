@@ -3,6 +3,7 @@ import { getApprovedEvents } from "@/services/events.service";
 import { mapEventToDto } from "@/mappers/event.mapper";
 import { ok } from "@/lib/api-response";
 import { handleError } from "@/lib/errors";
+import { parseEventType } from "@/lib/parsers";
 
 function parsePositiveInt(
   value: string | null,
@@ -32,10 +33,7 @@ export async function GET(req: NextRequest) {
     const pageParam = searchParams.get("page");
     const limitParam = searchParams.get("limit");
 
-    const type =
-      typeParam === "upcoming" || typeParam === "ongoing" || typeParam === "past"
-        ? typeParam
-        : undefined;
+    const type = parseEventType(typeParam);
 
     const page = parsePositiveInt(pageParam, 1);
     const limit = parsePositiveInt(limitParam, 10, 50);
