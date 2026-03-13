@@ -65,3 +65,21 @@ export async function getApprovedEvents(
     limit,
   };
 }
+
+export async function getApprovedEventBySlug(slug: string): Promise<Event | null> {
+  const event = await prisma.event.findUnique({
+    where: {
+      slug,
+    },
+  });
+
+  if (!event) {
+    return null;
+  }
+
+  if (event.status !== "APPROVED") {
+    return null;
+  }
+
+  return event;
+}
