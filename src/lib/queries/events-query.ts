@@ -1,6 +1,8 @@
 import { InvalidQueryParamError } from "@/lib/errors";
 import type { EventsFilter, PaginationParams } from "@/services/events.service";
 
+const MAX_EVENTS_LIMIT = 50;
+
 type ParsedEventsListQuery = {
   filter: EventsFilter;
   pagination: PaginationParams;
@@ -45,7 +47,11 @@ export function parseEventsListQuery(
 ): ParsedEventsListQuery {
   const type = parseEventType(searchParams.get("type"));
   const page = parsePositiveInteger(searchParams.get("page"), "page");
-  const limit = parsePositiveInteger(searchParams.get("limit"), "limit", 50);
+  const limit = parsePositiveInteger(
+    searchParams.get("limit"),
+    "limit",
+    MAX_EVENTS_LIMIT,
+  );
 
   return {
     filter: { type },
