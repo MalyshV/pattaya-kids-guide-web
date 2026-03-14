@@ -9,6 +9,7 @@ type ParsedEventsListQuery = {
 function parsePositiveInteger(
   value: string | null,
   paramName: string,
+  max?: number,
 ): number | undefined {
   if (value === null) {
     return undefined;
@@ -18,6 +19,10 @@ function parsePositiveInteger(
 
   if (!Number.isInteger(parsed) || parsed <= 0) {
     throw new InvalidQueryParamError(`Invalid ${paramName} parameter`);
+  }
+
+  if (max !== undefined && parsed > max) {
+    throw new InvalidQueryParamError(`${paramName} exceeds maximum allowed value`);
   }
 
   return parsed;
@@ -40,7 +45,7 @@ export function parseEventsListQuery(
 ): ParsedEventsListQuery {
   const type = parseEventType(searchParams.get("type"));
   const page = parsePositiveInteger(searchParams.get("page"), "page");
-  const limit = parsePositiveInteger(searchParams.get("limit"), "limit");
+  const limit = parsePositiveInteger(searchParams.get("limit"), "limit", 50);
 
   return {
     filter: { type },
