@@ -1,25 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getApprovedEventBySlug } from "@/services/events.service";
+import { getApprovedEvents } from "@/services/events.service";
 import { mapEventToDto } from "@/mappers/event.mapper";
 import { ok } from "@/lib/api-response";
-import { EventNotFoundError, handleError } from "@/lib/errors";
+import { handleError } from "@/lib/errors";
 
-export async function GET(
-  _req: NextRequest,
-  context: { params: Promise<{ slug: string }> },
-): Promise<NextResponse> {
+import { InvalidQueryParamError } from "@/lib/errors";
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    const { slug } = await context.params;
+    const searchParams = req.nextUrl.searchParams;
 
-    const event = await getApprovedEventBySlug(slug);
+    const typeParam = searchParams.get("type");
+    const pageParam = searchParams.get("page");
+    const limitParam = searchParams.get("limit");
 
-    if (!event) {
-      throw new EventNotFoundError();
+    let type: "upcoming" | "ongoing" | "past" | undefined;
+
+    if (typeParam) {
+      if (typeParam === "upcoming" || typeParam === "ongoing" || typeParam === "past") {
+        type = typeParam;
+      } else {
+        throw new InvalidQueryParamError("Invalid type parameter");
+      }
     }
 
-    const dto = mapEventToDto(event);
+    const page = pageParam ? Number(pageParam) : undefined;
+    const limit = limitParam ? Number(limitParam) : undefined;
 
-    return ok(dto);
+    const result = await getApprovedEvents({ type }, { page, limit });
+
+    const data = result.items.map(mapEventToDto);
+
+    return ok({
+      data,
+      meta: {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: Math.ceil(result.total / result.limit),
+      },
+    });
   } catch (error) {
     return handleError(error);
   }

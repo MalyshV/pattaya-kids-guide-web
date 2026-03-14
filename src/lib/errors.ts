@@ -1,47 +1,23 @@
 import { NextResponse } from "next/server";
 
-type ErrorResponseBody = {
-  error: {
-    code: string;
-    message: string;
-  };
-};
+export class EventNotFoundError extends Error {
+  code = "EVENT_NOT_FOUND";
 
-export class ApiError extends Error {
-  public readonly code: string;
-  public readonly status: number;
-
-  constructor(code: string, message: string, status: number) {
-    super(message);
-    this.name = "ApiError";
-    this.code = code;
-    this.status = status;
-  }
-}
-
-export class ValidationError extends ApiError {
-  constructor(message = "Validation failed") {
-    super("VALIDATION_ERROR", message, 400);
-    this.name = "ValidationError";
-  }
-}
-
-export class NotFoundError extends ApiError {
-  constructor(message = "Resource not found") {
-    super("NOT_FOUND", message, 404);
-    this.name = "NotFoundError";
-  }
-}
-
-export class EventNotFoundError extends ApiError {
   constructor(message = "Event not found") {
-    super("EVENT_NOT_FOUND", message, 404);
-    this.name = "EventNotFoundError";
+    super(message);
   }
 }
 
-export function handleError(error: unknown): NextResponse<ErrorResponseBody> {
-  if (error instanceof ApiError) {
+export class InvalidQueryParamError extends Error {
+  code = "INVALID_QUERY_PARAM";
+
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export function handleError(error: unknown): NextResponse {
+  if (error instanceof EventNotFoundError) {
     return NextResponse.json(
       {
         error: {
@@ -49,7 +25,19 @@ export function handleError(error: unknown): NextResponse<ErrorResponseBody> {
           message: error.message,
         },
       },
-      { status: error.status },
+      { status: 404 },
+    );
+  }
+
+  if (error instanceof InvalidQueryParamError) {
+    return NextResponse.json(
+      {
+        error: {
+          code: error.code,
+          message: error.message,
+        },
+      },
+      { status: 400 },
     );
   }
 
