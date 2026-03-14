@@ -17,6 +17,20 @@ export type PaginatedEventsResult = {
   limit: number;
 };
 
+function getEventsOrderBy(
+  type?: EventsFilter["type"],
+): Prisma.EventOrderByWithRelationInput {
+  if (type === "past") {
+    return {
+      startDate: "desc",
+    };
+  }
+
+  return {
+    startDate: "asc",
+  };
+}
+
 export async function getApprovedEvents(
   filter?: EventsFilter,
   pagination?: PaginationParams,
@@ -41,19 +55,17 @@ export async function getApprovedEvents(
   }
 
   const page = pagination?.page && pagination.page > 0 ? pagination.page : 1;
-
   const limit = pagination?.limit && pagination.limit > 0 ? pagination.limit : 10;
-
   const skip = (page - 1) * limit;
+
+  const orderBy = getEventsOrderBy(filter?.type);
 
   const [events, total] = await Promise.all([
     prisma.event.findMany({
       where,
       skip,
       take: limit,
-      orderBy: {
-        startDate: "asc",
-      },
+      orderBy,
     }),
     prisma.event.count({ where }),
   ]);
@@ -67,19 +79,10 @@ export async function getApprovedEvents(
 }
 
 export async function getApprovedEventBySlug(slug: string): Promise<Event | null> {
-  const event = await prisma.event.findUnique({
+  return prisma.event.findFirst({
     where: {
       slug,
+      status: "APPROVED",
     },
   });
-
-  if (!event) {
-    return null;
-  }
-
-  if (event.status !== "APPROVED") {
-    return null;
-  }
-
-  return event;
 }

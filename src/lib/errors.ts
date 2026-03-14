@@ -1,28 +1,55 @@
 import { NextResponse } from "next/server";
 
-export class AppError extends Error {
-  public readonly statusCode: number;
+type ErrorResponseBody = {
+  error: {
+    code: string;
+    message: string;
+  };
+};
+
+export class ApiError extends Error {
   public readonly code: string;
+  public readonly status: number;
 
-  constructor(message: string, code: string, statusCode = 400) {
+  constructor(code: string, message: string, status: number) {
     super(message);
+    this.name = "ApiError";
     this.code = code;
-    this.statusCode = statusCode;
-
-    Object.setPrototypeOf(this, AppError.prototype);
+    this.status = status;
   }
 }
 
-export function handleError(error: unknown) {
-  if (error instanceof AppError) {
+export class ValidationError extends ApiError {
+  constructor(message = "Validation failed") {
+    super("VALIDATION_ERROR", message, 400);
+    this.name = "ValidationError";
+  }
+}
+
+export class NotFoundError extends ApiError {
+  constructor(message = "Resource not found") {
+    super("NOT_FOUND", message, 404);
+    this.name = "NotFoundError";
+  }
+}
+
+export class EventNotFoundError extends ApiError {
+  constructor(message = "Event not found") {
+    super("EVENT_NOT_FOUND", message, 404);
+    this.name = "EventNotFoundError";
+  }
+}
+
+export function handleError(error: unknown): NextResponse<ErrorResponseBody> {
+  if (error instanceof ApiError) {
     return NextResponse.json(
       {
         error: {
-          message: error.message,
           code: error.code,
+          message: error.message,
         },
       },
-      { status: error.statusCode },
+      { status: error.status },
     );
   }
 
@@ -31,8 +58,8 @@ export function handleError(error: unknown) {
   return NextResponse.json(
     {
       error: {
-        message: "Internal server error",
         code: "INTERNAL_ERROR",
+        message: "Internal server error",
       },
     },
     { status: 500 },
