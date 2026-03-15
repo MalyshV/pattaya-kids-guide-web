@@ -2,6 +2,7 @@ import { prisma } from "@/db/prisma";
 import { EVENT_SORTING } from "@/lib/constants/event-sorting";
 import type { EventType } from "@/lib/constants/event-types";
 import type { Prisma, Event } from "@prisma/client";
+import { buildEventLifecycleWhere } from "@/lib/events/event-lifecycle";
 
 export type EventsFilter = {
   type?: EventType;
@@ -35,20 +36,8 @@ export async function getApprovedEvents(
 
   const where: Prisma.EventWhereInput = {
     status: "APPROVED",
+    ...buildEventLifecycleWhere(filter?.type, now),
   };
-
-  if (filter?.type === "upcoming") {
-    where.startDate = { gt: now };
-  }
-
-  if (filter?.type === "ongoing") {
-    where.startDate = { lte: now };
-    where.endDate = { gte: now };
-  }
-
-  if (filter?.type === "past") {
-    where.endDate = { lt: now };
-  }
 
   const page = pagination?.page && pagination.page > 0 ? pagination.page : 1;
   const limit = pagination?.limit && pagination.limit > 0 ? pagination.limit : 10;
