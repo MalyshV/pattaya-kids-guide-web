@@ -1,8 +1,10 @@
 import { prisma } from "@/db/prisma";
+import { EVENT_SORTING } from "@/lib/constants/event-sorting";
+import type { EventType } from "@/lib/constants/event-types";
 import type { Prisma, Event } from "@prisma/client";
 
 export type EventsFilter = {
-  type?: "upcoming" | "ongoing" | "past";
+  type?: EventType;
 };
 
 export type PaginationParams = {
@@ -17,18 +19,12 @@ export type PaginatedEventsResult = {
   limit: number;
 };
 
-function getEventsOrderBy(
-  type?: EventsFilter["type"],
-): Prisma.EventOrderByWithRelationInput {
-  if (type === "past") {
-    return {
-      startDate: "desc",
-    };
+function getEventsOrderBy(type?: EventType): Prisma.EventOrderByWithRelationInput {
+  if (!type) {
+    return EVENT_SORTING.default;
   }
 
-  return {
-    startDate: "asc",
-  };
+  return EVENT_SORTING[type];
 }
 
 export async function getApprovedEvents(
