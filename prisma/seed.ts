@@ -35,77 +35,160 @@ async function main() {
   const now = new Date();
 
   // =========================
-  // [DEMO] UPCOMING EVENT
+  // 2. [DEMO] PLACE
+  // =========================
+  const demoPlace = await prisma.place.upsert({
+    where: { slug: "demo-harbor-kids-club" },
+    update: {
+      name: "[DEMO] Harbor Kids Club",
+      description: "Demo indoor activity place for families in Pattaya.",
+      address: "Demo Address, Pattaya",
+      latitude: 12.934,
+      longitude: 100.889,
+      indoor: true,
+      hasFood: true,
+      hasWifi: true,
+      canLeaveChild: false,
+      animalContact: false,
+      status: "APPROVED",
+    },
+    create: {
+      name: "[DEMO] Harbor Kids Club",
+      slug: "demo-harbor-kids-club",
+      description: "Demo indoor activity place for families in Pattaya.",
+      address: "Demo Address, Pattaya",
+      latitude: 12.934,
+      longitude: 100.889,
+      indoor: true,
+      hasFood: true,
+      hasWifi: true,
+      canLeaveChild: false,
+      animalContact: false,
+      status: "APPROVED",
+    },
+  });
+
+  // =========================
+  // 3. [DEMO] UPCOMING EVENT
   // =========================
   await prisma.event.upsert({
     where: { slug: "kids-art-workshop-pattaya-upcoming" },
     update: {
       title: "[DEMO] Kids Art Workshop – Pattaya",
       description: "Demo event (seed data) for development and lifecycle testing",
+      startDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7),
+      endDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 2),
+      locationName: "Central Festival Pattaya",
+      address: "Central Festival Pattaya Beach, Pattaya",
+      status: "APPROVED",
+      isAnonymous: true,
     },
     create: {
       title: "[DEMO] Kids Art Workshop – Pattaya",
       slug: "kids-art-workshop-pattaya-upcoming",
       description: "Demo event (seed data) for development and lifecycle testing",
-
-      startDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7), // +7 дней
-      endDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 2), // +7 дней +2 часа
-
+      startDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7),
+      endDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 2),
       locationName: "Central Festival Pattaya",
       address: "Central Festival Pattaya Beach, Pattaya",
-
       status: "APPROVED",
       isAnonymous: true,
     },
   });
 
   // =========================
-  // [DEMO] ONGOING EVENT
+  // 4. [DEMO] ONGOING EVENT
   // =========================
   await prisma.event.upsert({
     where: { slug: "weekend-kids-play-zone-ongoing" },
     update: {
       title: "[DEMO] Weekend Kids Play Zone",
       description: "Demo ongoing event to test 'happening now' logic",
+      startDate: new Date(now.getTime() - 1000 * 60 * 60),
+      endDate: new Date(now.getTime() + 1000 * 60 * 60 * 3),
+      locationName: "Terminal 21 Pattaya",
+      address: "Terminal 21, Pattaya",
+      status: "APPROVED",
+      isAnonymous: true,
     },
     create: {
       title: "[DEMO] Weekend Kids Play Zone",
       slug: "weekend-kids-play-zone-ongoing",
       description: "Demo ongoing event to test 'happening now' logic",
-
-      startDate: new Date(now.getTime() - 1000 * 60 * 60), // началось 1 час назад
-      endDate: new Date(now.getTime() + 1000 * 60 * 60 * 3), // закончится через 3 часа
-
+      startDate: new Date(now.getTime() - 1000 * 60 * 60),
+      endDate: new Date(now.getTime() + 1000 * 60 * 60 * 3),
       locationName: "Terminal 21 Pattaya",
       address: "Terminal 21, Pattaya",
-
       status: "APPROVED",
       isAnonymous: true,
     },
   });
 
   // =========================
-  // [DEMO] PAST EVENT (ARCHIVE TEST)
+  // 5. [DEMO] PAST EVENT (ARCHIVE TEST)
   // =========================
   await prisma.event.upsert({
     where: { slug: "kids-festival-pattaya-past" },
     update: {
       title: "[DEMO] Kids Festival – Pattaya (Past)",
       description: "Demo past event to test archive and history logic",
+      startDate: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 10),
+      endDate: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 9),
+      locationName: "City Park Pattaya",
+      address: "Pattaya City Park",
+      status: "APPROVED",
+      isAnonymous: true,
     },
     create: {
       title: "[DEMO] Kids Festival – Pattaya (Past)",
       slug: "kids-festival-pattaya-past",
       description: "Demo past event to test archive and history logic",
-
-      startDate: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 10), // 10 дней назад
-      endDate: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 9), // 9 дней назад
-
+      startDate: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 10),
+      endDate: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 9),
       locationName: "City Park Pattaya",
       address: "Pattaya City Park",
-
       status: "APPROVED",
       isAnonymous: true,
+    },
+  });
+
+  // =========================
+  // 6. [DEMO] UPCOMING EVENT LINKED TO PLACE
+  // =========================
+  await prisma.event.upsert({
+    where: { slug: "demo-weekend-kids-workshop" },
+    update: {
+      title: "[DEMO] Weekend Kids Workshop",
+      description: "Demo event linked to a place.",
+      startDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 3),
+      endDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 60 * 2),
+      locationName: "[DEMO] Harbor Kids Club",
+      address: "Demo Address, Pattaya",
+      placeId: demoPlace.id,
+      status: "APPROVED",
+      sourceType: "ADMIN",
+      isAnonymous: true,
+      autoArchive: true,
+      isFeatured: false,
+      isSponsored: false,
+      isClaimed: false,
+    },
+    create: {
+      title: "[DEMO] Weekend Kids Workshop",
+      slug: "demo-weekend-kids-workshop",
+      description: "Demo event linked to a place.",
+      startDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 3),
+      endDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 60 * 2),
+      locationName: "[DEMO] Harbor Kids Club",
+      address: "Demo Address, Pattaya",
+      placeId: demoPlace.id,
+      status: "APPROVED",
+      sourceType: "ADMIN",
+      isAnonymous: true,
+      autoArchive: true,
+      isFeatured: false,
+      isSponsored: false,
+      isClaimed: false,
     },
   });
 
