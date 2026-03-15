@@ -1,15 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getApprovedEventBySlug } from "@/services/events.service";
-import { mapEventToDto } from "@/mappers/event.mapper";
 import { ok } from "@/lib/api-response";
 import { EventNotFoundError, handleError } from "@/lib/errors";
+import { parseSlugParam } from "@/lib/params/slug";
+import { mapEventToDto } from "@/mappers/event.mapper";
+import { getApprovedEventBySlug } from "@/services/events.service";
+
+type EventRouteContext = {
+  params: Promise<{
+    slug: string;
+  }>;
+};
 
 export async function GET(
   _req: NextRequest,
-  context: { params: Promise<{ slug: string }> },
+  context: EventRouteContext,
 ): Promise<NextResponse> {
   try {
-    const { slug } = await context.params;
+    const { slug: rawSlug } = await context.params;
+    console.log("raw slug:", rawSlug);
+    const slug = parseSlugParam(rawSlug);
 
     const event = await getApprovedEventBySlug(slug);
 
