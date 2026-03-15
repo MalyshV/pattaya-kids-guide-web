@@ -34,6 +34,22 @@ function getEventsOrderBy(type?: EventType): Prisma.EventOrderByWithRelationInpu
   return EVENT_SORTING[type];
 }
 
+function getPaginationDefaults(pagination?: PaginationParams): {
+  page: number;
+  limit: number;
+  skip: number;
+} {
+  const page = pagination?.page && pagination.page > 0 ? pagination.page : 1;
+  const limit = pagination?.limit && pagination.limit > 0 ? pagination.limit : 10;
+  const skip = (page - 1) * limit;
+
+  return {
+    page,
+    limit,
+    skip,
+  };
+}
+
 export async function getApprovedEvents(
   filter?: EventsFilter,
   pagination?: PaginationParams,
@@ -45,10 +61,44 @@ export async function getApprovedEvents(
     ...buildEventLifecycleWhere(filter?.type, now),
   };
 
-  const page = pagination?.page && pagination.page > 0 ? pagination.page : 1;
-  const limit = pagination?.limit && pagination.limit > 0 ? pagination.limit : 10;
-  const skip = (page - 1) * limit;
+  const { page, limit, skip } = getPaginationDefaults(pagination);
+  const orderBy = getEventsOrderBy(filter?.type);
 
+  const [events, total] = await Promise.all([
+    prisma.event.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy,
+    }),
+    prisma.event.count({ where }),
+  ]);
+
+  return {
+    items: events,
+    total,
+    page,
+    limit,
+  };
+}
+
+export async function getApprovedEventsByPlaceSlug(
+  placeSlug: string,
+  filter?: EventsFilter,
+  pagination?: PaginationParams,
+): Promise<PaginatedEventsResult> {
+  const now = new Date();
+
+  const where: Prisma.EventWhereInput = {
+    status: "APPROVED",
+    place: {
+      slug: placeSlug,
+      status: "APPROVED",
+    },
+    ...buildEventLifecycleWhere(filter?.type, now),
+  };
+
+  const { page, limit, skip } = getPaginationDefaults(pagination);
   const orderBy = getEventsOrderBy(filter?.type);
 
   const [events, total] = await Promise.all([
