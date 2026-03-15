@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ok } from "@/lib/api-response";
 import { EventNotFoundError, handleError } from "@/lib/errors";
 import { parseSlugParam } from "@/lib/params/slug";
-import { mapEventToDto } from "@/mappers/event.mapper";
+import { mapEventDetailsToDto } from "@/mappers/event-details.mapper";
 import { getApprovedEventBySlug } from "@/services/events.service";
 
 type EventRouteContext = {
@@ -25,7 +25,7 @@ export async function GET(
       throw new EventNotFoundError();
     }
 
-    return ok(mapEventToDto(event));
+    return ok(mapEventDetailsToDto(event));
   } catch (error) {
     return handleError(error);
   }

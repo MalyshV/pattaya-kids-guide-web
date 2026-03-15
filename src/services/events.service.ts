@@ -1,8 +1,8 @@
 import { prisma } from "@/db/prisma";
 import { EVENT_SORTING } from "@/lib/constants/event-sorting";
 import type { EventType } from "@/lib/constants/event-types";
-import type { Prisma, Event } from "@prisma/client";
 import { buildEventLifecycleWhere } from "@/lib/events/event-lifecycle";
+import type { Prisma, Event } from "@prisma/client";
 
 export type EventsFilter = {
   type?: EventType;
@@ -19,6 +19,12 @@ export type PaginatedEventsResult = {
   page: number;
   limit: number;
 };
+
+export type EventDetailsResult = Prisma.EventGetPayload<{
+  include: {
+    place: true;
+  };
+}>;
 
 function getEventsOrderBy(type?: EventType): Prisma.EventOrderByWithRelationInput {
   if (!type) {
@@ -63,11 +69,16 @@ export async function getApprovedEvents(
   };
 }
 
-export async function getApprovedEventBySlug(slug: string): Promise<Event | null> {
+export async function getApprovedEventBySlug(
+  slug: string,
+): Promise<EventDetailsResult | null> {
   return prisma.event.findFirst({
     where: {
       slug,
       status: "APPROVED",
+    },
+    include: {
+      place: true,
     },
   });
 }
