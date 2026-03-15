@@ -17,7 +17,6 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     const { slug: rawSlug } = await context.params;
-    console.log("raw slug:", rawSlug);
     const slug = parseSlugParam(rawSlug);
 
     const event = await getApprovedEventBySlug(slug);

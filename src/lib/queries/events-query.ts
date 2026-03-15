@@ -1,6 +1,6 @@
-import { InvalidQueryParamError } from "@/lib/errors";
-import type { EventsFilter, PaginationParams } from "@/services/events.service";
 import { MAX_LIMIT, MAX_PAGE } from "@/lib/constants/pagination";
+import { invalidParam, InvalidQueryParamError } from "@/lib/errors";
+import type { EventsFilter, PaginationParams } from "@/services/events.service";
 
 type ParsedEventsListQuery = {
   filter: EventsFilter;
@@ -19,7 +19,7 @@ function parsePositiveInteger(
   const parsed = Number(value);
 
   if (!Number.isInteger(parsed) || parsed <= 0) {
-    throw new InvalidQueryParamError(`Invalid ${paramName} parameter`);
+    throw invalidParam(paramName);
   }
 
   if (max !== undefined && parsed > max) {
@@ -38,14 +38,16 @@ function parseEventType(value: string | null): EventsFilter["type"] {
     return value;
   }
 
-  throw new InvalidQueryParamError("Invalid type parameter");
+  throw invalidParam("type");
 }
 
 export function parseEventsListQuery(
   searchParams: URLSearchParams,
 ): ParsedEventsListQuery {
   const type = parseEventType(searchParams.get("type"));
+
   const page = parsePositiveInteger(searchParams.get("page"), "page", MAX_PAGE);
+
   const limit = parsePositiveInteger(searchParams.get("limit"), "limit", MAX_LIMIT);
 
   return {

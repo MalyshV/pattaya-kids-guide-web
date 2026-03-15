@@ -1,16 +1,16 @@
-import { InvalidQueryParamError } from "@/lib/errors";
+import { invalidParam } from "@/lib/errors";
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export function parseSlugParam(value: string): string {
-  const slug: string = value.trim();
+  const slug = value.trim();
 
   if (!slug) {
-    throw new InvalidQueryParamError("Invalid slug parameter");
+    throw invalidParam("slug");
   }
 
   if (!SLUG_PATTERN.test(slug)) {
-    throw new InvalidQueryParamError("Invalid slug parameter");
+    throw invalidParam("slug");
   }
 
   return slug;

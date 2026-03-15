@@ -16,6 +16,10 @@ export class InvalidQueryParamError extends Error {
   }
 }
 
+export function invalidParam(paramName: string): InvalidQueryParamError {
+  return new InvalidQueryParamError(`Invalid ${paramName} parameter`);
+}
+
 export function handleError(error: unknown): NextResponse {
   if (error instanceof EventNotFoundError) {
     return NextResponse.json(
