@@ -1,5 +1,5 @@
 import { prisma } from "@/db/prisma";
-import type { Place } from "@prisma/client";
+import type { Place, Prisma } from "@prisma/client";
 
 export type PlacesPaginationParams = {
   page?: number;
@@ -12,6 +12,31 @@ export type PaginatedPlacesResult = {
   page: number;
   limit: number;
 };
+
+export type PlaceDetailsResult = Prisma.PlaceGetPayload<{
+  include: {
+    categories: {
+      include: {
+        category: true;
+      };
+    };
+    amenities: {
+      include: {
+        amenity: {
+          include: {
+            group: true;
+          };
+        };
+      };
+    };
+    ageGroups: {
+      include: {
+        ageGroup: true;
+      };
+    };
+    birthdayInfo: true;
+  };
+}>;
 
 export async function getApprovedPlaces(
   pagination?: PlacesPaginationParams,
@@ -42,4 +67,37 @@ export async function getApprovedPlaces(
     page,
     limit,
   };
+}
+
+export async function getApprovedPlaceBySlug(
+  slug: string,
+): Promise<PlaceDetailsResult | null> {
+  return prisma.place.findFirst({
+    where: {
+      slug,
+      status: "APPROVED",
+    },
+    include: {
+      categories: {
+        include: {
+          category: true,
+        },
+      },
+      amenities: {
+        include: {
+          amenity: {
+            include: {
+              group: true,
+            },
+          },
+        },
+      },
+      ageGroups: {
+        include: {
+          ageGroup: true,
+        },
+      },
+      birthdayInfo: true,
+    },
+  });
 }

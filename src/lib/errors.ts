@@ -16,6 +16,14 @@ export class InvalidQueryParamError extends Error {
   }
 }
 
+export class PlaceNotFoundError extends Error {
+  code = "PLACE_NOT_FOUND";
+
+  constructor(message = "Place not found") {
+    super(message);
+  }
+}
+
 export function invalidParam(paramName: string): InvalidQueryParamError {
   return new InvalidQueryParamError(`Invalid ${paramName} parameter`);
 }
@@ -42,6 +50,18 @@ export function handleError(error: unknown): NextResponse {
         },
       },
       { status: 400 },
+    );
+  }
+
+  if (error instanceof PlaceNotFoundError) {
+    return NextResponse.json(
+      {
+        error: {
+          code: error.code,
+          message: error.message,
+        },
+      },
+      { status: 404 },
     );
   }
 
