@@ -1,6 +1,7 @@
 import { MAX_LIMIT, MAX_PAGE } from "@/lib/constants/pagination";
 import { invalidParam, InvalidQueryParamError } from "@/lib/errors";
 import type { EventsFilter, PaginationParams } from "@/services/events.service";
+import { EVENT_TYPES, EventType } from "@/lib/constants/event-types";
 
 type ParsedEventsListQuery = {
   filter: EventsFilter;
@@ -29,13 +30,13 @@ function parsePositiveInteger(
   return parsed;
 }
 
-function parseEventType(value: string | null): EventsFilter["type"] {
+function parseEventType(value: string | null): EventType | undefined {
   if (value === null) {
     return undefined;
   }
 
-  if (value === "upcoming" || value === "ongoing" || value === "past") {
-    return value;
+  if (EVENT_TYPES.includes(value as EventType)) {
+    return value as EventType;
   }
 
   throw invalidParam("type");
