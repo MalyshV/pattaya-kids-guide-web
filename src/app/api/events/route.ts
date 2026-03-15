@@ -3,14 +3,14 @@ import { ok } from "@/lib/api-response";
 import { handleError } from "@/lib/errors";
 import { buildPaginatedResponse } from "@/lib/paginated-response";
 import { parseEventsListQuery } from "@/lib/queries/events-query";
-import { mapEventListItemToDto } from "@/mappers/event.mapper";
-import { getApprovedEventsWithPlace } from "@/services/events.service";
+import { mapEventToDto } from "@/mappers/event.mapper";
+import { getApprovedEvents } from "@/services/events.service";
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const query = parseEventsListQuery(req.nextUrl.searchParams);
 
-    const result = await getApprovedEventsWithPlace(query.filter, query.pagination);
+    const result = await getApprovedEvents(query.filter, query.pagination);
 
     return ok(
       buildPaginatedResponse(
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         result.total,
         result.page,
         result.limit,
-        mapEventListItemToDto,
+        mapEventToDto,
       ),
     );
   } catch (error) {

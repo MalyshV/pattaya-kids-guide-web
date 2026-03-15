@@ -4,8 +4,8 @@ import { handleError, PlaceNotFoundError } from "@/lib/errors";
 import { buildPaginatedResponse } from "@/lib/paginated-response";
 import { parseSlugParam } from "@/lib/params/slug";
 import { parseEventsListQuery } from "@/lib/queries/events-query";
-import { mapEventListItemToDto } from "@/mappers/event.mapper";
-import { getApprovedEventsByPlaceSlugWithPlace } from "@/services/events.service";
+import { mapEventToDto } from "@/mappers/event.mapper";
+import { getApprovedEventsByPlaceSlug } from "@/services/events.service";
 import { getApprovedPlaceBySlug } from "@/services/places.service";
 
 type PlaceEventsRouteContext = {
@@ -30,7 +30,7 @@ export async function GET(
 
     const query = parseEventsListQuery(req.nextUrl.searchParams);
 
-    const result = await getApprovedEventsByPlaceSlugWithPlace(
+    const result = await getApprovedEventsByPlaceSlug(
       slug,
       query.filter,
       query.pagination,
@@ -42,7 +42,7 @@ export async function GET(
         result.total,
         result.page,
         result.limit,
-        mapEventListItemToDto,
+        mapEventToDto,
       ),
     );
   } catch (error) {

@@ -6,6 +6,7 @@ import type { Event, Prisma } from "@prisma/client";
 
 export type EventsFilter = {
   type?: EventType;
+  categorySlug?: string;
 };
 
 export type PaginationParams = {
@@ -15,19 +16,6 @@ export type PaginationParams = {
 
 export type PaginatedEventsResult = {
   items: Event[];
-  total: number;
-  page: number;
-  limit: number;
-};
-
-export type EventWithPlace = Prisma.EventGetPayload<{
-  include: {
-    place: true;
-  };
-}>;
-
-export type PaginatedEventsWithPlaceResult = {
-  items: EventWithPlace[];
   total: number;
   page: number;
   limit: number;
@@ -85,6 +73,17 @@ function buildApprovedEventsWhere(
           },
         }
       : {}),
+    ...(filter?.categorySlug
+      ? {
+          categories: {
+            some: {
+              category: {
+                slug: filter.categorySlug,
+              },
+            },
+          },
+        }
+      : {}),
     ...buildEventLifecycleWhere(filter?.type, now),
   };
 }
@@ -116,51 +115,11 @@ async function getApprovedEventsList(
   };
 }
 
-async function getApprovedEventsListWithPlace(
-  options: ApprovedEventsQueryOptions = {},
-): Promise<PaginatedEventsWithPlaceResult> {
-  const { filter, pagination, placeSlug } = options;
-
-  const where = buildApprovedEventsWhere(filter, placeSlug);
-  const { page, limit, skip } = getPaginationDefaults(pagination);
-  const orderBy = getEventsOrderBy(filter?.type);
-
-  const [events, total] = await Promise.all([
-    prisma.event.findMany({
-      where,
-      skip,
-      take: limit,
-      orderBy,
-      include: {
-        place: true,
-      },
-    }),
-    prisma.event.count({ where }),
-  ]);
-
-  return {
-    items: events,
-    total,
-    page,
-    limit,
-  };
-}
-
 export async function getApprovedEvents(
   filter?: EventsFilter,
   pagination?: PaginationParams,
 ): Promise<PaginatedEventsResult> {
   return getApprovedEventsList({
-    filter,
-    pagination,
-  });
-}
-
-export async function getApprovedEventsWithPlace(
-  filter?: EventsFilter,
-  pagination?: PaginationParams,
-): Promise<PaginatedEventsWithPlaceResult> {
-  return getApprovedEventsListWithPlace({
     filter,
     pagination,
   });
@@ -172,18 +131,6 @@ export async function getApprovedEventsByPlaceSlug(
   pagination?: PaginationParams,
 ): Promise<PaginatedEventsResult> {
   return getApprovedEventsList({
-    filter,
-    pagination,
-    placeSlug,
-  });
-}
-
-export async function getApprovedEventsByPlaceSlugWithPlace(
-  placeSlug: string,
-  filter?: EventsFilter,
-  pagination?: PaginationParams,
-): Promise<PaginatedEventsWithPlaceResult> {
-  return getApprovedEventsListWithPlace({
     filter,
     pagination,
     placeSlug,
