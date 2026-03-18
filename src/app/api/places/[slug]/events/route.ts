@@ -4,7 +4,7 @@ import { handleError, PlaceNotFoundError } from "@/lib/errors";
 import { buildPaginatedResponse } from "@/lib/paginated-response";
 import { parseSlugParam } from "@/lib/params/slug";
 import { parseEventsListQuery } from "@/lib/queries/events-query";
-import { mapEventToDto } from "@/mappers/event.mapper";
+import { mapEventListItemToDto } from "@/mappers/event.mapper";
 import { getApprovedEventsByPlaceSlug } from "@/services/events.service";
 import { getApprovedPlaceBySlug } from "@/services/places.service";
 
@@ -42,7 +42,7 @@ export async function GET(
         result.total,
         result.page,
         result.limit,
-        mapEventToDto,
+        mapEventListItemToDto,
       ),
     );
   } catch (error) {

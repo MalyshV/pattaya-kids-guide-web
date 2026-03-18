@@ -2,7 +2,7 @@ import { prisma } from "@/db/prisma";
 import { EVENT_SORTING } from "@/lib/constants/event-sorting";
 import type { EventType } from "@/lib/constants/event-types";
 import { buildEventLifecycleWhere } from "@/lib/events/event-lifecycle";
-import type { Event, Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
 export type EventsFilter = {
   type?: EventType;
@@ -14,8 +14,14 @@ export type PaginationParams = {
   limit?: number;
 };
 
+export type EventWithPlace = Prisma.EventGetPayload<{
+  include: {
+    place: true;
+  };
+}>;
+
 export type PaginatedEventsResult = {
-  items: Event[];
+  items: EventWithPlace[];
   total: number;
   page: number;
   limit: number;
@@ -103,6 +109,9 @@ async function getApprovedEventsList(
       skip,
       take: limit,
       orderBy,
+      include: {
+        place: true,
+      },
     }),
     prisma.event.count({ where }),
   ]);
