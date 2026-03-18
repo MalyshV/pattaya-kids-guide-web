@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
 
+function isPayloadWithDataAndMeta(
+  value: unknown,
+): value is { data: unknown; meta: unknown } {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  return "data" in value && "meta" in value;
+}
+
 export function ok<T>(data: T, meta?: Record<string, unknown>) {
-  // если data уже содержит data + meta → не оборачиваем второй раз
-  if (typeof data === "object" && data !== null && "data" in data && "meta" in data) {
+  if (isPayloadWithDataAndMeta(data)) {
     return NextResponse.json(data);
   }
 
@@ -10,4 +19,16 @@ export function ok<T>(data: T, meta?: Record<string, unknown>) {
     data,
     meta,
   });
+}
+
+export function fail(message: string, code: string, status = 500) {
+  return NextResponse.json(
+    {
+      error: {
+        message,
+        code,
+      },
+    },
+    { status },
+  );
 }
