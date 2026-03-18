@@ -300,12 +300,12 @@ Next backend tasks:
 
 1. Add:
 
-       GET /api/events/[slug]
+   GET /api/events/[slug]
 
 2. Improve sorting:
 
-       upcoming → startDate ASC
-       past → startDate DESC
+   upcoming → startDate ASC
+   past → startDate DESC
 
 3. Introduce Places model and API
 

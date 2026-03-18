@@ -27,6 +27,7 @@ The endpoint should be implemented through several small commits.
 Example sequence:
 
 ### Commit 1
+
 Create route file:
 
     src/app/api/events/[slug]/route.ts
@@ -34,6 +35,7 @@ Create route file:
 ---
 
 ### Commit 2
+
 Add service method:
 
     getApprovedEventBySlug(slug)
@@ -45,6 +47,7 @@ Location:
 ---
 
 ### Commit 3
+
 Add Prisma query:
 
 Find event by slug.
@@ -54,6 +57,7 @@ Return null if event does not exist.
 ---
 
 ### Commit 4
+
 Add NotFound error handling.
 
 Use existing error helpers.
@@ -61,6 +65,7 @@ Use existing error helpers.
 ---
 
 ### Commit 5
+
 Map Prisma model to DTO.
 
 Reuse:
@@ -70,6 +75,7 @@ Reuse:
 ---
 
 ### Commit 6
+
 Return response using helper:
 
     ok()
@@ -101,6 +107,7 @@ Introduce **Places model**.
 Steps:
 
 ### Commit 1
+
 Add Prisma model:
 
     Place
@@ -108,31 +115,37 @@ Add Prisma model:
 ---
 
 ### Commit 2
+
 Run migration.
 
 ---
 
 ### Commit 3
+
 Add seed data.
 
 ---
 
 ### Commit 4
+
 Add DTO.
 
 ---
 
 ### Commit 5
+
 Add mapper.
 
 ---
 
 ### Commit 6
+
 Add service.
 
 ---
 
 ### Commit 7
+
 Add API route.
 
 ---
@@ -196,4 +209,3 @@ Do not ask:
 Ask instead:
 
     What is the next smallest useful commit?
-    

@@ -8,11 +8,7 @@ export default defineConfig([
   ...nextTs,
 
   {
-    rules: {
-      "eol-last": ["error", "always"],
-      quotes: ["error", "double"],
-      semi: ["error", "always"],
-    },
+    rules: {},
   },
 
   globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
