@@ -1,5 +1,6 @@
 import type { PlaceDto } from "@/dto/place.dto";
 import type { Place } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
 export function mapPlaceToDto(place: Place): PlaceDto {
   return {
