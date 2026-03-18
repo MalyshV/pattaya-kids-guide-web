@@ -1,31 +1,6 @@
 import type { PlaceDetailsDto } from "@/dto/place-details.dto";
+import type { PlaceDetailsResult } from "@/services/places.service";
 import { mapPlaceToDto } from "@/mappers/place.mapper";
-import type { Prisma } from "@prisma/client";
-
-export type PlaceDetailsResult = Prisma.PlaceGetPayload<{
-  include: {
-    categories: {
-      include: {
-        category: true;
-      };
-    };
-    amenities: {
-      include: {
-        amenity: {
-          include: {
-            group: true;
-          };
-        };
-      };
-    };
-    ageGroups: {
-      include: {
-        ageGroup: true;
-      };
-    };
-    birthdayInfo: true;
-  };
-}>;
 
 export function mapPlaceDetailsToDto(place: PlaceDetailsResult): PlaceDetailsDto {
   return {
