@@ -10,7 +10,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const query = parsePlacesListQuery(req.nextUrl.searchParams);
 
-    const result = await getApprovedPlaces(query.pagination);
+    const result = await getApprovedPlaces(query.filter, query.pagination);
 
     return ok(
       buildPaginatedResponse(
