@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { PlaceDetailsDto } from "@/dto/place-details.dto";
 import { mapPlaceDetailsToDto } from "@/mappers/place-details.mapper";
 import { getApprovedPlaceBySlug } from "@/services/places.service";
+import Link from "next/link";
 
 type PageProps = {
   params: Promise<{
@@ -24,6 +25,11 @@ export default async function PlaceDetailsPage({
 
   return (
     <main className="page-shell">
+      <div className="back-link-wrapper">
+        <Link href="/" className="back-link">
+          ← Back to places
+        </Link>
+      </div>
       <section className="hero">
         <p className="eyebrow">Place</p>
         <h1 className="hero-title">{dto.name}</h1>
@@ -31,17 +37,44 @@ export default async function PlaceDetailsPage({
       </section>
 
       <section className="details-section">
-        <h2>Details</h2>
+        <h2 className="section-title">Details</h2>
 
-        <ul>
-          <li>Slug: {dto.slug}</li>
-          <li>Indoor: {dto.indoor ? "Yes" : "No"}</li>
-          <li>Food: {dto.hasFood ? "Yes" : "No"}</li>
-          <li>Wi-Fi: {dto.hasWifi ? "Yes" : "No"}</li>
-          <li>Can leave child: {dto.canLeaveChild ? "Yes" : "No"}</li>
-          <li>Animal contact: {dto.animalContact ? "Yes" : "No"}</li>
-        </ul>
+        <div className="details-grid">
+          <div>
+            <strong>Type:</strong> {dto.indoor ? "Indoor" : "Outdoor"}
+          </div>
+
+          <div>
+            <strong>Food:</strong> {dto.hasFood ? "Available" : "No info"}
+          </div>
+
+          <div>
+            <strong>Wi-Fi:</strong> {dto.hasWifi ? "Yes" : "No info"}
+          </div>
+
+          <div>
+            <strong>Child drop-off:</strong>{" "}
+            {dto.canLeaveChild ? "Allowed" : "Stay with parent"}
+          </div>
+
+          <div>
+            <strong>Animals:</strong> {dto.animalContact ? "Yes" : "No"}
+          </div>
+        </div>
       </section>
+      {dto.categories.length > 0 && (
+        <section className="details-section">
+          <h2 className="section-title">Categories</h2>
+
+          <div className="category-list">
+            {dto.categories.map((category) => (
+              <span key={category.id} className="category-chip">
+                {category.name}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }
