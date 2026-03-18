@@ -13,7 +13,7 @@ export type PaginatedPlacesResult = {
   limit: number;
 };
 
-export type PlaceDetailsResult = Prisma.PlaceGetPayload<{
+type PlaceDetailsResult = Prisma.PlaceGetPayload<{
   include: {
     categories: {
       include: {
