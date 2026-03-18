@@ -1,66 +1,94 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import { PlaceCard } from "@/components/places/place-card";
+import { PlaceFilters } from "@/components/places/place-filters";
+import { getApprovedPlaces } from "@/services/places.service";
 
-export default function Home() {
+type PageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+function getSingleSearchParam(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) {
+    return value[0];
+  }
+
+  return value;
+}
+
+function parseBooleanParam(value: string | undefined): boolean | undefined {
+  if (value === "true") {
+    return true;
+  }
+
+  if (value === "false") {
+    return false;
+  }
+
+  return undefined;
+}
+
+export default async function Home({
+  searchParams,
+}: PageProps): Promise<React.ReactElement> {
+  const resolvedSearchParams = (await searchParams) ?? {};
+
+  const indoor = getSingleSearchParam(resolvedSearchParams.indoor);
+  const hasFood = getSingleSearchParam(resolvedSearchParams.hasFood);
+  const hasWifi = getSingleSearchParam(resolvedSearchParams.hasWifi);
+  const canLeaveChild = getSingleSearchParam(resolvedSearchParams.canLeaveChild);
+  const animalContact = getSingleSearchParam(resolvedSearchParams.animalContact);
+
+  const placesResponse = await getApprovedPlaces(
+    {
+      indoor: parseBooleanParam(indoor),
+      hasFood: parseBooleanParam(hasFood),
+      hasWifi: parseBooleanParam(hasWifi),
+      canLeaveChild: parseBooleanParam(canLeaveChild),
+      animalContact: parseBooleanParam(animalContact),
+    },
+    {
+      page: 1,
+      limit: 20,
+    },
+  );
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="page-shell">
+      <section className="hero">
+        <p className="eyebrow">Pattaya Kids Guide</p>
+        <h1 className="hero-title">Places for families in Pattaya</h1>
+        <p className="hero-description">
+          A calm first version of the places catalog. Filter by practical family needs and
+          browse the first API-backed list.
+        </p>
+      </section>
+
+      <PlaceFilters
+        indoor={indoor}
+        hasFood={hasFood}
+        hasWifi={hasWifi}
+        canLeaveChild={canLeaveChild}
+        animalContact={animalContact}
+      />
+
+      <section className="results-header">
+        <div>
+          <h2 className="section-title">Places</h2>
+          <p className="section-subtitle">Found: {placesResponse.total}</p>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </section>
+
+      {placesResponse.items.length === 0 ? (
+        <section className="empty-state">
+          <h3>No places found</h3>
+          <p>Try removing one or more filters.</p>
+        </section>
+      ) : (
+        <section className="places-grid">
+          {placesResponse.items.map((place) => (
+            <PlaceCard key={place.id} place={place} />
+          ))}
+        </section>
+      )}
+    </main>
   );
 }
