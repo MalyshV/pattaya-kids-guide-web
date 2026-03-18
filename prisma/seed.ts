@@ -32,6 +32,22 @@ async function main() {
     skipDuplicates: true,
   });
 
+  const workshopCategory = await prisma.eventCategory.findUnique({
+    where: { slug: "workshop" },
+  });
+
+  const festivalCategory = await prisma.eventCategory.findUnique({
+    where: { slug: "festival" },
+  });
+
+  const kidsActivityCategory = await prisma.eventCategory.findUnique({
+    where: { slug: "kids-activity" },
+  });
+
+  if (!workshopCategory || !festivalCategory || !kidsActivityCategory) {
+    throw new Error("Event categories not found");
+  }
+
   // =========================
   // 2. PLACE CATEGORIES
   // =========================
@@ -220,7 +236,7 @@ async function main() {
   // =========================
   // 9. [DEMO] UPCOMING EVENT
   // =========================
-  await prisma.event.upsert({
+  const upcomingWorkshopEvent = await prisma.event.upsert({
     where: { slug: "kids-art-workshop-pattaya-upcoming" },
     update: {
       title: "[DEMO] Kids Art Workshop – Pattaya",
@@ -245,10 +261,24 @@ async function main() {
     },
   });
 
+  await prisma.eventCategoryLink.upsert({
+    where: {
+      eventId_categoryId: {
+        eventId: upcomingWorkshopEvent.id,
+        categoryId: workshopCategory.id,
+      },
+    },
+    update: {},
+    create: {
+      eventId: upcomingWorkshopEvent.id,
+      categoryId: workshopCategory.id,
+    },
+  });
+
   // =========================
   // 10. [DEMO] ONGOING EVENT
   // =========================
-  await prisma.event.upsert({
+  const ongoingEvent = await prisma.event.upsert({
     where: { slug: "weekend-kids-play-zone-ongoing" },
     update: {
       title: "[DEMO] Weekend Kids Play Zone",
@@ -273,10 +303,24 @@ async function main() {
     },
   });
 
+  await prisma.eventCategoryLink.upsert({
+    where: {
+      eventId_categoryId: {
+        eventId: ongoingEvent.id,
+        categoryId: kidsActivityCategory.id,
+      },
+    },
+    update: {},
+    create: {
+      eventId: ongoingEvent.id,
+      categoryId: kidsActivityCategory.id,
+    },
+  });
+
   // =========================
   // 11. [DEMO] PAST EVENT
   // =========================
-  await prisma.event.upsert({
+  const pastFestivalEvent = await prisma.event.upsert({
     where: { slug: "kids-festival-pattaya-past" },
     update: {
       title: "[DEMO] Kids Festival – Pattaya (Past)",
@@ -301,10 +345,24 @@ async function main() {
     },
   });
 
+  await prisma.eventCategoryLink.upsert({
+    where: {
+      eventId_categoryId: {
+        eventId: pastFestivalEvent.id,
+        categoryId: festivalCategory.id,
+      },
+    },
+    update: {},
+    create: {
+      eventId: pastFestivalEvent.id,
+      categoryId: festivalCategory.id,
+    },
+  });
+
   // =========================
   // 12. [DEMO] UPCOMING EVENT LINKED TO PLACE
   // =========================
-  await prisma.event.upsert({
+  const placeWorkshopEvent = await prisma.event.upsert({
     where: { slug: "demo-weekend-kids-workshop" },
     update: {
       title: "[DEMO] Weekend Kids Workshop",
@@ -338,6 +396,20 @@ async function main() {
       isFeatured: false,
       isSponsored: false,
       isClaimed: false,
+    },
+  });
+
+  await prisma.eventCategoryLink.upsert({
+    where: {
+      eventId_categoryId: {
+        eventId: placeWorkshopEvent.id,
+        categoryId: workshopCategory.id,
+      },
+    },
+    update: {},
+    create: {
+      eventId: placeWorkshopEvent.id,
+      categoryId: workshopCategory.id,
     },
   });
 
