@@ -1,5 +1,6 @@
 import { PlaceCard } from "@/components/places/place-card";
 import { PlaceFilters } from "@/components/places/place-filters";
+import { PlacesPagination } from "@/components/places/places-pagination";
 import { getApprovedPlaces } from "@/services/places.service";
 
 type PageProps = {
@@ -26,6 +27,20 @@ function parseBooleanParam(value: string | undefined): boolean | undefined {
   return undefined;
 }
 
+function parsePositiveNumberParam(value: string | undefined): number | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    return undefined;
+  }
+
+  return parsed;
+}
+
 export default async function Home({
   searchParams,
 }: PageProps): Promise<React.ReactElement> {
@@ -36,6 +51,9 @@ export default async function Home({
   const hasWifi = getSingleSearchParam(resolvedSearchParams.hasWifi);
   const canLeaveChild = getSingleSearchParam(resolvedSearchParams.canLeaveChild);
   const animalContact = getSingleSearchParam(resolvedSearchParams.animalContact);
+  const pageParam = getSingleSearchParam(resolvedSearchParams.page);
+
+  const currentPage = parsePositiveNumberParam(pageParam) ?? 1;
 
   const placesResponse = await getApprovedPlaces(
     {
@@ -46,8 +64,8 @@ export default async function Home({
       animalContact: parseBooleanParam(animalContact),
     },
     {
-      page: 1,
-      limit: 20,
+      page: currentPage,
+      limit: 6,
     },
   );
 
@@ -83,11 +101,23 @@ export default async function Home({
           <p>Try removing one or more filters.</p>
         </section>
       ) : (
-        <section className="places-grid">
-          {placesResponse.items.map((place) => (
-            <PlaceCard key={place.id} place={place} />
-          ))}
-        </section>
+        <>
+          <section className="places-grid">
+            {placesResponse.items.map((place) => (
+              <PlaceCard key={place.id} place={place} />
+            ))}
+          </section>
+
+          <PlacesPagination
+            currentPage={placesResponse.page}
+            totalPages={Math.ceil(placesResponse.total / placesResponse.limit)}
+            indoor={indoor}
+            hasFood={hasFood}
+            hasWifi={hasWifi}
+            canLeaveChild={canLeaveChild}
+            animalContact={animalContact}
+          />
+        </>
       )}
     </main>
   );

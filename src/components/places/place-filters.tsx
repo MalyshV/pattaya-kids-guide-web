@@ -49,6 +49,8 @@ export function PlaceFilters({
     },
   ];
 
+  const formKey = [indoor, hasFood, hasWifi, canLeaveChild, animalContact].join("|");
+
   return (
     <section className="filters-panel">
       <div className="filters-panel-header">
@@ -56,12 +58,13 @@ export function PlaceFilters({
           <h2 className="section-title">Filters</h2>
           <p className="section-subtitle">Applied through URL query params</p>
         </div>
+
         <Link className="reset-link" href="/">
           Reset
         </Link>
       </div>
 
-      <form className="filters-form" action="/" method="get">
+      <form key={formKey} className="filters-form" action="/" method="get">
         <div className="filters-grid">
           {filters.map((filter) => (
             <label key={filter.name} className="filter-toggle">
