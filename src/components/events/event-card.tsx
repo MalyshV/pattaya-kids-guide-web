@@ -49,6 +49,15 @@ export function EventCard({ event }: EventCardProps): React.ReactElement {
             →
           </span>
         </Link>
+
+        {event.place ? (
+          <Link
+            href={`/places/${event.place.slug}`}
+            className="event-card-secondary-link"
+          >
+            Open place
+          </Link>
+        ) : null}
       </div>
     </article>
   );

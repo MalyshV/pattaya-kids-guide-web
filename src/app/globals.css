@@ -310,6 +310,28 @@ input {
   box-shadow: 0 16px 36px rgba(31, 28, 24, 0.12);
 }
 
+.event-card-secondary-link {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.event-card-secondary-link:hover {
+  color: var(--foreground);
+}
+
+.event-card-secondary-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
 .event-card-title {
   margin: 0;
   font-size: 22px;
@@ -342,6 +364,10 @@ input {
 }
 
 .event-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
   margin-top: 18px;
 }
 
