@@ -10,12 +10,14 @@ type PageProps = {
   }>;
 };
 
-function formatDate(value: string | null): string {
+function formatDate(value: string | Date | null): string {
   if (!value) {
     return "Not specified";
   }
 
-  return new Date(value).toLocaleDateString("en-GB", {
+  const date = value instanceof Date ? value : new Date(value);
+
+  return date.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -71,17 +73,19 @@ export default async function EventDetailsPage({
         </div>
       </section>
 
-      {dto.place ? (
-        <section className="details-section">
-          <h2 className="section-title">Linked place</h2>
+      <section className="details-section">
+        <h2 className="section-title">Linked place</h2>
 
+        {dto.place ? (
           <div className="category-list">
             <Link href={`/places/${dto.place.slug}`} className="category-chip">
               {dto.place.name}
             </Link>
           </div>
-        </section>
-      ) : null}
+        ) : (
+          <p className="empty-text">This event is not linked to a place.</p>
+        )}
+      </section>
     </main>
   );
 }
