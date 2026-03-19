@@ -7,7 +7,7 @@ type PlaceCardProps = {
 
 export function PlaceCard({ place }: PlaceCardProps): React.ReactElement {
   return (
-    <article className="place-card">
+    <article className="place-card interactive-surface">
       <div className="place-card-header">
         <div>
           <h3 className="place-card-title">{place.name}</h3>

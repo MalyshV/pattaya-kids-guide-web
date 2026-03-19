@@ -19,7 +19,7 @@ function formatDate(value: string | null): string {
 
 export function EventCard({ event }: EventCardProps): React.ReactElement {
   return (
-    <article className="event-card">
+    <article className="event-card interactive-surface">
       <div className="event-card-header">
         <div>
           <h3 className="event-card-title">{event.title}</h3>
