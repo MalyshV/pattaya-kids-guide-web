@@ -77,11 +77,10 @@ export default async function EventDetailsPage({
         <h2 className="section-title">Linked place</h2>
 
         {dto.place ? (
-          <div className="category-list">
-            <Link href={`/places/${dto.place.slug}`} className="category-chip">
-              {dto.place.name}
-            </Link>
-          </div>
+          <Link href={`/places/${dto.place.slug}`} className="linked-place">
+            <span className="linked-place-label">Place</span>
+            <span className="linked-place-name">{dto.place.name}</span>
+          </Link>
         ) : (
           <p className="empty-text">This event is not linked to a place.</p>
         )}
