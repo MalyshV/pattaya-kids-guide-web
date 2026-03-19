@@ -32,7 +32,7 @@ export function EventCard({ event }: EventCardProps): React.ReactElement {
           {event.description ?? "No description yet."}
         </p>
 
-        <div className="feature-list event-card-dates">
+        <div className="feature-list">
           <span className="feature-chip">Start: {formatDate(event.startDate)}</span>
           <span className="feature-chip">End: {formatDate(event.endDate)}</span>
         </div>
@@ -42,9 +42,7 @@ export function EventCard({ event }: EventCardProps): React.ReactElement {
         </p>
 
         {event.place ? (
-          <div className="feature-list event-card-place">
-            <span className="feature-chip">Place: {event.place.name}</span>
-          </div>
+          <p className="event-card-place">Place: {event.place.name}</p>
         ) : null}
       </article>
     </Link>

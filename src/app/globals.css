@@ -508,3 +508,9 @@ input {
 .linked-place-name {
   font-weight: 500;
 }
+
+.event-card-place {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--muted);
+}
