@@ -2,7 +2,7 @@ import { prisma } from "@/db/prisma";
 import { EVENT_SORTING } from "@/lib/constants/event-sorting";
 import type { EventType } from "@/lib/constants/event-types";
 import { buildEventLifecycleWhere } from "@/lib/events/event-lifecycle";
-import type { Prisma } from "@prisma/client";
+import type { Event, Prisma } from "@prisma/client";
 
 export type EventsFilter = {
   type?: EventType;
@@ -160,11 +160,18 @@ export async function getApprovedEventBySlug(
   });
 }
 
-export async function getApprovedEventsByPlaceId(placeId: string) {
+export async function getUpcomingApprovedEventsByPlaceId(
+  placeId: string,
+): Promise<Event[]> {
+  const now = new Date();
+
   return prisma.event.findMany({
     where: {
       placeId,
       status: "APPROVED",
+      startDate: {
+        gt: now,
+      },
     },
     orderBy: {
       startDate: "asc",

@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { PlaceDetailsDto } from "@/dto/place-details.dto";
 import { mapPlaceDetailsToDto } from "@/mappers/place-details.mapper";
 import { getApprovedPlaceBySlug } from "@/services/places.service";
-import { getApprovedEventsByPlaceId } from "@/services/events.service";
+import { getUpcomingApprovedEventsByPlaceId } from "@/services/events.service";
 import { mapEventToDto } from "@/mappers/event.mapper";
 import Link from "next/link";
 
@@ -23,7 +23,7 @@ export default async function PlaceDetailsPage({
     notFound();
   }
 
-  const events = await getApprovedEventsByPlaceId(place.id);
+  const events = await getUpcomingApprovedEventsByPlaceId(place.id);
 
   const eventDtos = events.map(mapEventToDto);
 
