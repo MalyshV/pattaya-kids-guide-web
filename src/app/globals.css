@@ -165,6 +165,13 @@ input {
   border-radius: 6px;
 }
 
+.reset-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
 .filters-form {
   margin-top: 20px;
 }
