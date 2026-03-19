@@ -19,30 +19,30 @@ function formatDate(value: string | null): string {
 
 export function EventCard({ event }: EventCardProps): React.ReactElement {
   return (
-    <Link className="place-card-link" href={`/events/${event.slug}`}>
-      <article className="place-card">
-        <div className="place-card-header">
+    <Link className="event-card-link" href={`/events/${event.slug}`}>
+      <article className="event-card">
+        <div className="event-card-header">
           <div>
-            <h3 className="place-card-title">{event.title}</h3>
-            <p className="place-card-slug">/{event.slug}</p>
+            <h3 className="event-card-title">{event.title}</h3>
+            <p className="event-card-slug">/{event.slug}</p>
           </div>
         </div>
 
-        <p className="place-card-description">
+        <p className="event-card-description">
           {event.description ?? "No description yet."}
         </p>
 
-        <div className="feature-list">
+        <div className="feature-list event-card-dates">
           <span className="feature-chip">Start: {formatDate(event.startDate)}</span>
           <span className="feature-chip">End: {formatDate(event.endDate)}</span>
         </div>
 
-        <p className="place-card-address">
+        <p className="event-card-location">
           {event.locationName ?? event.address ?? "Location not specified"}
         </p>
 
         {event.place ? (
-          <div className="feature-list">
+          <div className="feature-list event-card-place">
             <span className="feature-chip">Place: {event.place.name}</span>
           </div>
         ) : null}

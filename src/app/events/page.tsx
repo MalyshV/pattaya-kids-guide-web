@@ -91,7 +91,7 @@ export default async function EventsPage({
         </section>
       ) : (
         <>
-          <section className="places-grid">
+          <section className="events-grid">
             {items.map((event) => (
               <EventCard key={event.id} event={event} />
             ))}
