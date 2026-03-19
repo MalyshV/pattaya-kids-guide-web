@@ -19,32 +19,37 @@ function formatDate(value: string | null): string {
 
 export function EventCard({ event }: EventCardProps): React.ReactElement {
   return (
-    <Link className="event-card-link" href={`/events/${event.slug}`}>
-      <article className="event-card">
-        <div className="event-card-header">
-          <div>
-            <h3 className="event-card-title">{event.title}</h3>
-            <p className="event-card-slug">/{event.slug}</p>
-          </div>
+    <article className="event-card">
+      <div className="event-card-header">
+        <div>
+          <h3 className="event-card-title">{event.title}</h3>
+          <p className="event-card-slug">/{event.slug}</p>
         </div>
+      </div>
 
-        <p className="event-card-description">
-          {event.description ?? "No description yet."}
-        </p>
+      <p className="event-card-description">
+        {event.description ?? "No description yet."}
+      </p>
 
-        <div className="feature-list">
-          <span className="feature-chip">Start: {formatDate(event.startDate)}</span>
-          <span className="feature-chip">End: {formatDate(event.endDate)}</span>
-        </div>
+      <div className="feature-list">
+        <span className="feature-chip">Start: {formatDate(event.startDate)}</span>
+        <span className="feature-chip">End: {formatDate(event.endDate)}</span>
+      </div>
 
-        <p className="event-card-location">
-          {event.locationName ?? event.address ?? "Location not specified"}
-        </p>
+      <p className="event-card-location">
+        {event.locationName ?? event.address ?? "Location not specified"}
+      </p>
 
-        {event.place ? (
-          <p className="event-card-place">Place: {event.place.name}</p>
-        ) : null}
-      </article>
-    </Link>
+      {event.place ? <p className="event-card-place">At {event.place.name}</p> : null}
+
+      <div className="event-card-actions">
+        <Link href={`/events/${event.slug}`} className="event-card-cta">
+          <span className="event-card-cta-text">Open event</span>
+          <span className="event-card-cta-arrow" aria-hidden="true">
+            →
+          </span>
+        </Link>
+      </div>
+    </article>
   );
 }
