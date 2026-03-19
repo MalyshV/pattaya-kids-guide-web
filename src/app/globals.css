@@ -270,13 +270,17 @@ input {
 .place-badge {
   display: inline-flex;
   align-items: center;
+
+  padding: 6px 10px;
   border-radius: 999px;
-  padding: 8px 12px;
-  background: var(--surface-muted);
-  color: var(--foreground);
+
   font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
+  font-weight: 500;
+
+  background: #f1ebe4;
+  color: var(--foreground);
+
+  cursor: default; /* ключевое */
 }
 
 .place-card-description,
@@ -319,18 +323,26 @@ input {
 }
 
 .feature-list {
+  margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 18px;
+  gap: 8px;
 }
 
 .feature-chip {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 6px 10px;
   border-radius: 999px;
-  padding: 8px 12px;
-  background: var(--surface-muted);
-  color: var(--foreground);
+
   font-size: 13px;
+  font-weight: 500;
+
+  background: #f1ebe4; /* светлее */
+  color: var(--muted);
+
+  cursor: default; /* КЛЮЧЕВОЕ */
 }
 
 .empty-state {
