@@ -118,14 +118,17 @@ input {
   background: var(--surface-muted);
   color: var(--foreground);
   cursor: pointer;
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease,
-    transform 0.15s ease;
+  transition: background 0.15s ease;
 }
 
 .filter-toggle:hover {
   background: #ebe4da;
+}
+
+.filter-toggle input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
 }
 
 .filter-toggle-active {
@@ -150,13 +153,18 @@ input {
   font-size: 14px;
   text-decoration: underline;
   text-underline-offset: 3px;
-  transition:
-    color 0.15s ease,
-    opacity 0.15s ease;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
 }
 
 .reset-link:hover {
-  color: var(--foreground);
+  opacity: 0.7;
+}
+
+.reset-button {
+  border: none;
+  background: transparent;
+  padding: 0;
 }
 
 .reset-link:focus-visible {
@@ -213,13 +221,12 @@ input {
   cursor: pointer;
   transition:
     background 0.15s ease,
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+    transform 0.1s ease;
 }
 
 .primary-button:hover {
-  background: #b9623f;
-  box-shadow: 0 10px 20px rgba(201, 111, 74, 0.22);
+  background: #b95f3d;
+  transform: translateY(-1px);
 }
 
 .primary-button:focus-visible {
@@ -452,6 +459,8 @@ input {
   background: var(--surface-muted);
   color: var(--foreground);
   text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
 }
 
 .pagination-link:hover {
