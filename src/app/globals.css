@@ -535,3 +535,40 @@ input {
   font-size: 14px;
   color: var(--muted);
 }
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.event-inline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 10px 14px;
+  border-radius: 12px;
+
+  background: var(--surface-muted);
+  text-decoration: none;
+  color: inherit;
+
+  transition: background 0.15s ease;
+  cursor: pointer;
+}
+
+.event-inline:hover {
+  background: #ebe4da;
+}
+
+.event-inline-title {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.event-inline-date {
+  font-size: 13px;
+  color: var(--muted);
+}

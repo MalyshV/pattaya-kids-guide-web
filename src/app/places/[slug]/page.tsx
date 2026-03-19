@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import type { PlaceDetailsDto } from "@/dto/place-details.dto";
 import { mapPlaceDetailsToDto } from "@/mappers/place-details.mapper";
 import { getApprovedPlaceBySlug } from "@/services/places.service";
+import { getApprovedEventsByPlaceId } from "@/services/events.service";
+import { mapEventToDto } from "@/mappers/event.mapper";
 import Link from "next/link";
 
 type PageProps = {
@@ -20,6 +22,10 @@ export default async function PlaceDetailsPage({
   if (!place) {
     notFound();
   }
+
+  const events = await getApprovedEventsByPlaceId(place.id);
+
+  const eventDtos = events.map(mapEventToDto);
 
   const dto: PlaceDetailsDto = mapPlaceDetailsToDto(place);
 
@@ -75,6 +81,33 @@ export default async function PlaceDetailsPage({
           </div>
         </section>
       )}
+      <section className="details-section">
+        <h2 className="section-title">Upcoming events</h2>
+
+        {eventDtos.length > 0 ? (
+          <div className="events-list">
+            {eventDtos.map((event) => (
+              <Link
+                key={event.id}
+                href={`/events/${event.slug}`}
+                className="event-inline"
+              >
+                <div className="event-inline-title">{event.title}</div>
+                <div className="event-inline-date">
+                  {event.startDate
+                    ? new Date(event.startDate).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                      })
+                    : ""}
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className="empty-text">No upcoming events yet.</p>
+        )}
+      </section>
     </main>
   );
 }

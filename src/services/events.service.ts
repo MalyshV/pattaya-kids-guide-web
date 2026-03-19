@@ -159,3 +159,16 @@ export async function getApprovedEventBySlug(
     },
   });
 }
+
+export async function getApprovedEventsByPlaceId(placeId: string) {
+  return prisma.event.findMany({
+    where: {
+      placeId,
+      status: "APPROVED",
+    },
+    orderBy: {
+      startDate: "asc",
+    },
+    take: 5,
+  });
+}
