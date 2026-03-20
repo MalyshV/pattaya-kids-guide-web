@@ -69,6 +69,8 @@ export default async function Home({
     },
   );
 
+  const total = placesResponse.total;
+
   return (
     <main className="page-shell">
       <section className="hero">
@@ -90,8 +92,10 @@ export default async function Home({
 
       <section className="results-header">
         <div>
-          <h2 className="section-title">Places</h2>
-          <p className="section-subtitle">Found: {placesResponse.total}</p>
+          <h2>Places</h2>
+          <p>
+            {total} place{total !== 1 ? "s" : ""}
+          </p>
         </div>
       </section>
 

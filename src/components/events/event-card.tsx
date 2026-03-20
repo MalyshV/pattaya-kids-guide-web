@@ -44,7 +44,7 @@ export function EventCard({ event }: EventCardProps): React.ReactElement {
 
       <div className="event-card-actions">
         <Link href={`/events/${event.slug}`} className="event-card-cta">
-          <span className="event-card-cta-text">Open event</span>
+          <span className="place-card-cta-text">View event</span>
           <span className="event-card-cta-arrow" aria-hidden="true">
             →
           </span>
@@ -55,7 +55,7 @@ export function EventCard({ event }: EventCardProps): React.ReactElement {
             href={`/places/${event.place.slug}`}
             className="event-card-secondary-link"
           >
-            Open place
+            View place
           </Link>
         ) : null}
       </div>

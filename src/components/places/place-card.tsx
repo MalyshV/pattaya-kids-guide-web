@@ -24,19 +24,17 @@ export function PlaceCard({ place }: PlaceCardProps): React.ReactElement {
       <p className="place-card-address">{place.address ?? "Address not specified"}</p>
 
       <div className="feature-list">
-        {place.hasFood ? <span className="feature-chip">Food available</span> : null}
+        {place.hasFood ? <span className="feature-chip">Food</span> : null}
         {place.hasWifi ? <span className="feature-chip">Wi-Fi</span> : null}
         {place.canLeaveChild ? (
-          <span className="feature-chip">Can leave child</span>
+          <span className="feature-chip">Drop-off available</span>
         ) : null}
-        <span className="feature-chip">
-          {place.animalContact ? "Animal contact" : "No animal contact"}
-        </span>
+        {place.animalContact ? <span className="feature-chip">Animals</span> : null}
       </div>
 
       <div className="place-card-actions">
         <Link href={`/places/${place.slug}`} className="place-card-cta">
-          <span className="place-card-cta-text">Open place</span>
+          <span className="place-card-cta-text">View place</span>
           <span className="place-card-cta-arrow" aria-hidden="true">
             →
           </span>
