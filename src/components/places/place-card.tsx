@@ -26,9 +26,9 @@ export function PlaceCard({ place }: PlaceCardProps): React.ReactElement {
       <div className="feature-list">
         {place.hasFood ? <span className="feature-chip">Food available</span> : null}
         {place.hasWifi ? <span className="feature-chip">Wi-Fi</span> : null}
-        <span className="feature-chip">
-          {place.canLeaveChild ? "Child drop-off" : "Stay-with-parent"}
-        </span>
+        {place.canLeaveChild ? (
+          <span className="feature-chip">Can leave child</span>
+        ) : null}
         <span className="feature-chip">
           {place.animalContact ? "Animal contact" : "No animal contact"}
         </span>

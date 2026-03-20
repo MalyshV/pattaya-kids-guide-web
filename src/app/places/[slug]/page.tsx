@@ -60,7 +60,7 @@ export default async function PlaceDetailsPage({
 
           <div>
             <strong>Child drop-off:</strong>{" "}
-            {dto.canLeaveChild ? "Allowed" : "Stay with parent"}
+            {dto.canLeaveChild ? "Available" : "Not available"}
           </div>
 
           <div>
