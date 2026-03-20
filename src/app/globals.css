@@ -418,6 +418,11 @@ input {
   transform: translateX(3px);
 }
 
+.event-card-cta-text,
+.place-card-cta-text {
+  line-height: 1;
+}
+
 /* shared metadata */
 
 .feature-list {

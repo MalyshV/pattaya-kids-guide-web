@@ -7,13 +7,12 @@ type EventCardProps = {
 
 function formatDate(value: string | null): string {
   if (!value) {
-    return "Not specified";
+    return "Date TBD";
   }
 
   return new Date(value).toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
-    year: "numeric",
   });
 }
 
@@ -32,19 +31,21 @@ export function EventCard({ event }: EventCardProps): React.ReactElement {
       </p>
 
       <div className="feature-list">
-        <span className="feature-chip">Start: {formatDate(event.startDate)}</span>
-        <span className="feature-chip">End: {formatDate(event.endDate)}</span>
+        <span className="feature-chip">Starts {formatDate(event.startDate)}</span>
+        <span className="feature-chip">
+          Ends {event.endDate ? formatDate(event.endDate) : "Date TBD"}
+        </span>
       </div>
 
       <p className="event-card-location">
-        {event.locationName ?? event.address ?? "Location not specified"}
+        {event.locationName ?? event.address ?? "Location to be confirmed"}
       </p>
 
       {event.place ? <p className="event-card-place">At {event.place.name}</p> : null}
 
       <div className="event-card-actions">
         <Link href={`/events/${event.slug}`} className="event-card-cta">
-          <span className="place-card-cta-text">View event</span>
+          <span className="event-card-cta-text">View event</span>
           <span className="event-card-cta-arrow" aria-hidden="true">
             →
           </span>
