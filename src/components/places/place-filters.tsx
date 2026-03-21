@@ -22,10 +22,10 @@ type FilterConfig = {
 
 const FILTERS: FilterConfig[] = [
   { name: "indoor", label: "Indoor" },
-  { name: "hasFood", label: "Has food" },
-  { name: "hasWifi", label: "Has Wi-Fi" },
-  { name: "canLeaveChild", label: "Can leave child" },
-  { name: "animalContact", label: "Animal contact" },
+  { name: "hasFood", label: "Food" },
+  { name: "hasWifi", label: "Wi-Fi" },
+  { name: "canLeaveChild", label: "Child drop-off" },
+  { name: "animalContact", label: "Animals" },
 ];
 
 function buildInitialState(props: PlaceFiltersProps): FiltersState {

@@ -75,10 +75,10 @@ export default async function Home({
     <main className="page-shell">
       <section className="hero">
         <p className="eyebrow">Pattaya Kids Guide</p>
-        <h1 className="hero-title">Places for families in Pattaya</h1>
+        <h1 className="hero-title">Places for family time in Pattaya</h1>
         <p className="hero-description">
-          A calm first version of the places catalog. Filter by practical family needs and
-          browse the first API-backed list.
+          Browse family-friendly places with calm, practical filters for indoor space,
+          food, Wi-Fi, and other useful details.
         </p>
       </section>
 

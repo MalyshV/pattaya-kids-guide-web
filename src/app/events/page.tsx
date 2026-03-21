@@ -68,10 +68,9 @@ export default async function EventsPage({
     <main className="page-shell">
       <section className="hero">
         <p className="eyebrow">Pattaya Kids Guide</p>
-        <h1 className="hero-title">Events for families in Pattaya</h1>
+        <h1 className="hero-title">Events for family time in Pattaya</h1>
         <p className="hero-description">
-          Browse upcoming, ongoing, and past events using the first frontend screen for
-          the events flow.
+          Browse what is happening now, what is coming up, and what has already passed.
         </p>
       </section>
 

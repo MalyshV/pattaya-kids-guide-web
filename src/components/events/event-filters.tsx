@@ -7,12 +7,13 @@ type EventFiltersProps = {
 type EventTypeOption = {
   value: string;
   label: string;
+  href: string;
 };
 
 const EVENT_TYPE_OPTIONS: EventTypeOption[] = [
-  { value: "upcoming", label: "Upcoming" },
-  { value: "ongoing", label: "Ongoing" },
-  { value: "past", label: "Past" },
+  { value: "upcoming", label: "Upcoming", href: "/events?type=upcoming" },
+  { value: "ongoing", label: "Ongoing", href: "/events?type=ongoing" },
+  { value: "past", label: "Past", href: "/events?type=past" },
 ];
 
 export function EventFilters({ type }: EventFiltersProps): React.ReactElement {
@@ -21,11 +22,11 @@ export function EventFilters({ type }: EventFiltersProps): React.ReactElement {
       <div className="filters-panel-header">
         <div>
           <h2 className="section-title">Filters</h2>
-          <p className="section-subtitle">Browse events by lifecycle status</p>
+          <p className="section-subtitle">Choose when you want to go</p>
         </div>
 
         <Link className="reset-link" href="/events">
-          All
+          Show all
         </Link>
       </div>
 
@@ -36,7 +37,8 @@ export function EventFilters({ type }: EventFiltersProps): React.ReactElement {
           return (
             <Link
               key={option.value}
-              href={`/events?type=${option.value}`}
+              href={option.href}
+              aria-current={isActive ? "page" : undefined}
               className={`filter-toggle ${isActive ? "filter-toggle-active" : ""}`}
             >
               {option.label}
