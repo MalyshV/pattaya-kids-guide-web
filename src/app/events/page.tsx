@@ -63,6 +63,7 @@ export default async function EventsPage({
 
   const items = eventsResponse.items.map(mapEventListItemToDto);
   const totalPages = Math.ceil(eventsResponse.total / eventsResponse.limit);
+  const total = eventsResponse.total;
 
   return (
     <main className="page-shell">
@@ -78,15 +79,17 @@ export default async function EventsPage({
 
       <section className="results-header">
         <div>
-          <h2 className="section-title">Events</h2>
-          <p className="section-subtitle">Found: {eventsResponse.total}</p>
+          <h2>Events</h2>
+          <p>
+            {total} event{total !== 1 ? "s" : ""}
+          </p>
         </div>
       </section>
 
       {items.length === 0 ? (
         <section className="empty-state">
           <h3>No events found</h3>
-          <p>Try another lifecycle filter.</p>
+          <p>Try another filter or show all events.</p>
         </section>
       ) : (
         <>
