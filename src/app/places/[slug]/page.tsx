@@ -1,16 +1,29 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { PlaceDetailsDto } from "@/dto/place-details.dto";
-import { mapPlaceDetailsToDto } from "@/mappers/place-details.mapper";
-import { getApprovedPlaceBySlug } from "@/services/places.service";
-import { getUpcomingApprovedEventsByPlaceId } from "@/services/events.service";
 import { mapEventToDto } from "@/mappers/event.mapper";
-import Link from "next/link";
+import { mapPlaceDetailsToDto } from "@/mappers/place-details.mapper";
+import { getUpcomingApprovedEventsByPlaceId } from "@/services/events.service";
+import { getApprovedPlaceBySlug } from "@/services/places.service";
 
 type PageProps = {
   params: Promise<{
     slug: string;
   }>;
 };
+
+function formatShortDate(value: string | Date | null): string {
+  if (!value) {
+    return "";
+  }
+
+  const date = value instanceof Date ? value : new Date(value);
+
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+  });
+}
 
 export default async function PlaceDetailsPage({
   params,
@@ -24,9 +37,7 @@ export default async function PlaceDetailsPage({
   }
 
   const events = await getUpcomingApprovedEventsByPlaceId(place.id);
-
   const eventDtos = events.map(mapEventToDto);
-
   const dto: PlaceDetailsDto = mapPlaceDetailsToDto(place);
 
   return (
@@ -36,10 +47,13 @@ export default async function PlaceDetailsPage({
           ← Back to places
         </Link>
       </div>
+
       <section className="hero">
         <p className="eyebrow">Place</p>
         <h1 className="hero-title">{dto.name}</h1>
-        <p className="hero-description">{dto.description ?? "No description yet."}</p>
+        <p className="hero-description">
+          {dto.description ?? "More details will be added soon."}
+        </p>
       </section>
 
       <section className="details-section">
@@ -51,11 +65,11 @@ export default async function PlaceDetailsPage({
           </div>
 
           <div>
-            <strong>Food:</strong> {dto.hasFood ? "Available" : "No info"}
+            <strong>Food:</strong> {dto.hasFood ? "Available" : "Not available"}
           </div>
 
           <div>
-            <strong>Wi-Fi:</strong> {dto.hasWifi ? "Yes" : "No info"}
+            <strong>Wi-Fi:</strong> {dto.hasWifi ? "Available" : "Not available"}
           </div>
 
           <div>
@@ -68,6 +82,7 @@ export default async function PlaceDetailsPage({
           </div>
         </div>
       </section>
+
       {dto.categories.length > 0 && (
         <section className="details-section">
           <h2 className="section-title">Categories</h2>
@@ -81,8 +96,9 @@ export default async function PlaceDetailsPage({
           </div>
         </section>
       )}
+
       <section className="details-section">
-        <h2 className="section-title">Upcoming events</h2>
+        <h2 className="section-title">Upcoming at this place</h2>
 
         {eventDtos.length > 0 ? (
           <div className="events-list">
@@ -94,18 +110,13 @@ export default async function PlaceDetailsPage({
               >
                 <div className="event-inline-title">{event.title}</div>
                 <div className="event-inline-date">
-                  {event.startDate
-                    ? new Date(event.startDate).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                      })
-                    : ""}
+                  {formatShortDate(event.startDate)}
                 </div>
               </Link>
             ))}
           </div>
         ) : (
-          <p className="empty-text">No upcoming events yet.</p>
+          <p className="empty-text">No upcoming events right now.</p>
         )}
       </section>
     </main>

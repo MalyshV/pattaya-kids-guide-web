@@ -48,7 +48,9 @@ export default async function EventDetailsPage({
       <section className="hero">
         <p className="eyebrow">Event</p>
         <h1 className="hero-title">{dto.title}</h1>
-        <p className="hero-description">{dto.description ?? "No description yet."}</p>
+        <p className="hero-description">
+          {dto.description ?? "More details will be added soon."}
+        </p>
       </section>
 
       <section className="details-section">
@@ -74,7 +76,7 @@ export default async function EventDetailsPage({
       </section>
 
       <section className="details-section">
-        <h2 className="section-title">Linked place</h2>
+        <h2 className="section-title">Place</h2>
 
         {dto.place ? (
           <Link href={`/places/${dto.place.slug}`} className="linked-place">
@@ -82,7 +84,7 @@ export default async function EventDetailsPage({
             <span className="linked-place-name">{dto.place.name}</span>
           </Link>
         ) : (
-          <p className="empty-text">This event is not linked to a place.</p>
+          <p className="empty-text">This event is not tied to a place.</p>
         )}
       </section>
     </main>
