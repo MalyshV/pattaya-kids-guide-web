@@ -27,7 +27,7 @@ export function EventCard({ event }: EventCardProps): React.ReactElement {
       </div>
 
       <p className="event-card-description">
-        {event.description ?? "No description yet."}
+        {event.description ?? "More details will be added soon."}
       </p>
 
       <div className="feature-list">

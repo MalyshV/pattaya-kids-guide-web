@@ -297,9 +297,9 @@ input {
 .place-badge {
   display: inline-flex;
   align-items: center;
-  padding: 8px 12px;
+  padding: 7px 12px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1;
   background: #eee7de;
@@ -426,7 +426,7 @@ input {
 /* shared metadata */
 
 .feature-list {
-  margin-top: 10px;
+  margin-top: 12px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -437,7 +437,7 @@ input {
   align-items: center;
   padding: 6px 10px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   line-height: 1.2;
   background: #f3eee7;
@@ -509,12 +509,12 @@ input {
 .category-chip {
   display: inline-flex;
   align-items: center;
-  padding: 6px 10px;
+  padding: 5px 9px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 500;
   line-height: 1.2;
-  background: #f3eee7;
+  background: #f7f3ed;
   color: var(--muted);
   white-space: nowrap;
 }

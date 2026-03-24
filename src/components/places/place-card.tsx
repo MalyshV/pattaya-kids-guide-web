@@ -18,7 +18,7 @@ export function PlaceCard({ place }: PlaceCardProps): React.ReactElement {
       </div>
 
       <p className="place-card-description">
-        {place.description ?? "No description yet."}
+        {place.description ?? "More details will be added soon."}
       </p>
 
       <p className="place-card-address">{place.address ?? "Address not specified"}</p>
@@ -27,7 +27,7 @@ export function PlaceCard({ place }: PlaceCardProps): React.ReactElement {
         {place.hasFood ? <span className="feature-chip">Food</span> : null}
         {place.hasWifi ? <span className="feature-chip">Wi-Fi</span> : null}
         {place.canLeaveChild ? (
-          <span className="feature-chip">Drop-off available</span>
+          <span className="feature-chip">Child drop-off</span>
         ) : null}
         {place.animalContact ? <span className="feature-chip">Animals</span> : null}
       </div>
