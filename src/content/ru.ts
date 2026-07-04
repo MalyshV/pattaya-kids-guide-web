@@ -100,6 +100,20 @@ export const ru = {
     },
   },
 
+  eventDetails: {
+    back: "← Назад к событиям",
+    eyebrow: "Событие",
+    detailsTitle: "Подробности",
+    start: "Начало",
+    end: "Конец",
+    location: "Место проведения",
+    address: "Адрес",
+    notSpecified: "Не указано",
+    placeTitle: "Место",
+    placeLabel: "Место",
+    noPlace: "Событие не привязано к месту.",
+  },
+
   pagination: {
     pageOf: (current: number, totalPages: number): string =>
       `Страница ${current} из ${totalPages}`,

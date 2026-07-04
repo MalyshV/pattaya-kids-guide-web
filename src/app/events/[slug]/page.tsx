@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { EventDetailsDto } from "@/dto/event-details.dto";
 import { mapEventDetailsToDto } from "@/mappers/event-details.mapper";
 import { getApprovedEventBySlug } from "@/services/events.service";
+import { ru } from "@/content/ru";
 
 type PageProps = {
   params: Promise<{
@@ -12,14 +13,14 @@ type PageProps = {
 
 function formatDate(value: string | Date | null): string {
   if (!value) {
-    return "Not specified";
+    return ru.eventDetails.notSpecified;
   }
 
   const date = value instanceof Date ? value : new Date(value);
 
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
+  return date.toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "long",
     year: "numeric",
   });
 }
@@ -41,50 +42,52 @@ export default async function EventDetailsPage({
     <main className="page-shell">
       <div className="back-link-wrapper">
         <Link href="/events" className="back-link">
-          ← Back to events
+          {ru.eventDetails.back}
         </Link>
       </div>
 
       <section className="hero">
-        <p className="eyebrow">Event</p>
+        <p className="eyebrow">{ru.eventDetails.eyebrow}</p>
         <h1 className="hero-title">{dto.title}</h1>
         <p className="hero-description">
-          {dto.description ?? "More details will be added soon."}
+          {dto.description ?? ru.common.descriptionFallback}
         </p>
       </section>
 
       <section className="details-section">
-        <h2 className="section-title">Details</h2>
+        <h2 className="section-title">{ru.eventDetails.detailsTitle}</h2>
 
         <div className="details-grid">
           <div>
-            <strong>Start:</strong> {formatDate(dto.startDate)}
+            <strong>{ru.eventDetails.start}:</strong> {formatDate(dto.startDate)}
           </div>
 
           <div>
-            <strong>End:</strong> {formatDate(dto.endDate)}
+            <strong>{ru.eventDetails.end}:</strong> {formatDate(dto.endDate)}
           </div>
 
           <div>
-            <strong>Location:</strong> {dto.locationName ?? "Not specified"}
+            <strong>{ru.eventDetails.location}:</strong>{" "}
+            {dto.locationName ?? ru.eventDetails.notSpecified}
           </div>
 
           <div>
-            <strong>Address:</strong> {dto.address ?? "Not specified"}
+            <strong>{ru.eventDetails.address}:</strong>{" "}
+            {dto.address ?? ru.eventDetails.notSpecified}
           </div>
         </div>
       </section>
 
       <section className="details-section">
-        <h2 className="section-title">Place</h2>
+        <h2 className="section-title">{ru.eventDetails.placeTitle}</h2>
 
         {dto.place ? (
           <Link href={`/places/${dto.place.slug}`} className="linked-place">
-            <span className="linked-place-label">Place</span>
+            <span className="linked-place-label">{ru.eventDetails.placeLabel}</span>
             <span className="linked-place-name">{dto.place.name}</span>
           </Link>
         ) : (
-          <p className="empty-text">This event is not tied to a place.</p>
+          <p className="empty-text">{ru.eventDetails.noPlace}</p>
         )}
       </section>
     </main>
