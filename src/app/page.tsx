@@ -2,6 +2,7 @@ import { PlaceCard } from "@/components/places/place-card";
 import { PlaceFilters } from "@/components/places/place-filters";
 import { PlacesPagination } from "@/components/places/places-pagination";
 import { getApprovedPlaces } from "@/services/places.service";
+import { ru } from "@/content/ru";
 
 type PageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -74,12 +75,9 @@ export default async function Home({
   return (
     <main className="page-shell">
       <section className="hero">
-        <p className="eyebrow">Pattaya Kids Guide</p>
-        <h1 className="hero-title">Places for family time in Pattaya</h1>
-        <p className="hero-description">
-          Browse family-friendly places with calm, practical filters for indoor space,
-          food, Wi-Fi, and other useful details.
-        </p>
+        <p className="eyebrow">{ru.brand}</p>
+        <h1 className="hero-title">{ru.places.heroTitle}</h1>
+        <p className="hero-description">{ru.places.heroDescription}</p>
       </section>
 
       <PlaceFilters
@@ -92,17 +90,15 @@ export default async function Home({
 
       <section className="results-header">
         <div>
-          <h2>Places</h2>
-          <p>
-            {total} place{total !== 1 ? "s" : ""}
-          </p>
+          <h2>{ru.places.sectionTitle}</h2>
+          <p>{ru.places.count(total)}</p>
         </div>
       </section>
 
       {placesResponse.items.length === 0 ? (
         <section className="empty-state">
-          <h3>No places found</h3>
-          <p>Try removing one or more filters.</p>
+          <h3>{ru.places.emptyTitle}</h3>
+          <p>{ru.places.emptyHint}</p>
         </section>
       ) : (
         <>

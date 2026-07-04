@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ru } from "@/content/ru";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pattaya Kids Guide",
-  description: "Family-friendly places and events in Pattaya",
+  title: ru.meta.title,
+  description: ru.meta.description,
 };
 
 export default function RootLayout({
@@ -23,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>): React.ReactElement {
   return (
-    <html lang="en">
+    <html lang="ru">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>{children}</body>
     </html>
   );

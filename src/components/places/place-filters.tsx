@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { ru } from "@/content/ru";
 
 type PlaceFiltersProps = {
   indoor?: string;
@@ -21,11 +22,11 @@ type FilterConfig = {
 };
 
 const FILTERS: FilterConfig[] = [
-  { name: "indoor", label: "Indoor" },
-  { name: "hasFood", label: "Food" },
-  { name: "hasWifi", label: "Wi-Fi" },
-  { name: "canLeaveChild", label: "Child drop-off" },
-  { name: "animalContact", label: "Animals" },
+  { name: "indoor", label: ru.placeFilters.labels.indoor },
+  { name: "hasFood", label: ru.placeFilters.labels.hasFood },
+  { name: "hasWifi", label: ru.placeFilters.labels.hasWifi },
+  { name: "canLeaveChild", label: ru.placeFilters.labels.canLeaveChild },
+  { name: "animalContact", label: ru.placeFilters.labels.animalContact },
 ];
 
 function buildInitialState(props: PlaceFiltersProps): FiltersState {
@@ -85,12 +86,12 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
     <section className="filters-panel">
       <div className="filters-panel-header">
         <div>
-          <h2 className="section-title">Filters</h2>
-          <p className="section-subtitle">Applied through URL query params</p>
+          <h2 className="section-title">{ru.placeFilters.title}</h2>
+          <p className="section-subtitle">{ru.placeFilters.subtitle}</p>
         </div>
 
         <button className="reset-link reset-button" type="button" onClick={handleReset}>
-          Reset
+          {ru.placeFilters.reset}
         </button>
       </div>
 
@@ -110,7 +111,7 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
 
         <div className="filters-actions">
           <button className="primary-button" type="submit">
-            Apply filters
+            {ru.placeFilters.apply}
           </button>
         </div>
       </form>
