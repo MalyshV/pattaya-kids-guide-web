@@ -3,6 +3,7 @@ import { EventFilters } from "@/components/events/event-filters";
 import { EventsPagination } from "@/components/events/events-pagination";
 import { mapEventListItemToDto } from "@/mappers/event.mapper";
 import { getApprovedEvents } from "@/services/events.service";
+import { ru } from "@/content/ru";
 
 type PageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -68,28 +69,24 @@ export default async function EventsPage({
   return (
     <main className="page-shell">
       <section className="hero">
-        <p className="eyebrow">Pattaya Kids Guide</p>
-        <h1 className="hero-title">Events for family time in Pattaya</h1>
-        <p className="hero-description">
-          Browse what is happening now, what is coming up, and what has already passed.
-        </p>
+        <p className="eyebrow">{ru.brand}</p>
+        <h1 className="hero-title">{ru.events.heroTitle}</h1>
+        <p className="hero-description">{ru.events.heroDescription}</p>
       </section>
 
       <EventFilters type={type} />
 
       <section className="results-header">
         <div>
-          <h2>Events</h2>
-          <p>
-            {total} event{total !== 1 ? "s" : ""}
-          </p>
+          <h2>{ru.events.sectionTitle}</h2>
+          <p>{ru.events.count(total)}</p>
         </div>
       </section>
 
       {items.length === 0 ? (
         <section className="empty-state">
-          <h3>No events found</h3>
-          <p>Try another filter or show all events.</p>
+          <h3>{ru.events.emptyTitle}</h3>
+          <p>{ru.events.emptyHint}</p>
         </section>
       ) : (
         <>

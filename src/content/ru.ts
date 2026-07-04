@@ -70,11 +70,42 @@ export const ru = {
     noUpcoming: "Пока ближайших событий нет.",
   },
 
+  events: {
+    heroTitle: "События для детей в Паттайе",
+    heroDescription: "Смотрите, что идёт сейчас, что впереди и что уже прошло.",
+    sectionTitle: "События",
+    count: (total: number): string =>
+      `${total} ${plural(total, ["событие", "события", "событий"])}`,
+    emptyTitle: "Ничего не нашлось",
+    emptyHint: "Попробуйте другой фильтр или посмотрите все события.",
+  },
+
+  eventCard: {
+    starts: "Начало",
+    ends: "Конец",
+    dateTbd: "Дата уточняется",
+    locationTbd: "Место уточняется",
+    placeLabel: "Место",
+    viewPlace: "Открыть место",
+  },
+
+  eventFilters: {
+    title: "Фильтры",
+    subtitle: "Когда хотите пойти",
+    showAll: "Показать все",
+    labels: {
+      upcoming: "Предстоящие",
+      ongoing: "Сейчас",
+      past: "Прошедшие",
+    },
+  },
+
   pagination: {
     pageOf: (current: number, totalPages: number): string =>
       `Страница ${current} из ${totalPages}`,
     previous: "Назад",
     next: "Дальше",
     placesAria: "Постраничная навигация по местам",
+    eventsAria: "Постраничная навигация по событиям",
   },
 };

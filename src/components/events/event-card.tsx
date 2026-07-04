@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { EventListItemDto } from "@/dto/event-list-item.dto";
+import { ru } from "@/content/ru";
 
 type EventCardProps = {
   event: EventListItemDto;
@@ -7,11 +8,11 @@ type EventCardProps = {
 
 function formatDate(value: string | null): string {
   if (!value) {
-    return "Date TBD";
+    return ru.eventCard.dateTbd;
   }
 
-  return new Date(value).toLocaleDateString("en-GB", {
-    day: "2-digit",
+  return new Date(value).toLocaleDateString("ru-RU", {
+    day: "numeric",
     month: "short",
   });
 }
@@ -27,25 +28,32 @@ export function EventCard({ event }: EventCardProps): React.ReactElement {
       </div>
 
       <p className="event-card-description">
-        {event.description ?? "More details will be added soon."}
+        {event.description ?? ru.common.descriptionFallback}
       </p>
 
       <div className="feature-list">
-        <span className="feature-chip">Starts {formatDate(event.startDate)}</span>
         <span className="feature-chip">
-          Ends {event.endDate ? formatDate(event.endDate) : "Date TBD"}
+          {ru.eventCard.starts} {formatDate(event.startDate)}
+        </span>
+        <span className="feature-chip">
+          {ru.eventCard.ends}{" "}
+          {event.endDate ? formatDate(event.endDate) : ru.eventCard.dateTbd}
         </span>
       </div>
 
       <p className="event-card-location">
-        {event.locationName ?? event.address ?? "Location to be confirmed"}
+        {event.locationName ?? event.address ?? ru.eventCard.locationTbd}
       </p>
 
-      {event.place ? <p className="event-card-place">At {event.place.name}</p> : null}
+      {event.place ? (
+        <p className="event-card-place">
+          {ru.eventCard.placeLabel}: {event.place.name}
+        </p>
+      ) : null}
 
       <div className="event-card-actions">
         <Link href={`/events/${event.slug}`} className="event-card-cta">
-          <span className="event-card-cta-text">View event</span>
+          <span className="event-card-cta-text">{ru.common.detailsCta}</span>
           <span className="event-card-cta-arrow" aria-hidden="true">
             →
           </span>
@@ -56,7 +64,7 @@ export function EventCard({ event }: EventCardProps): React.ReactElement {
             href={`/places/${event.place.slug}`}
             className="event-card-secondary-link"
           >
-            View place
+            {ru.eventCard.viewPlace}
           </Link>
         ) : null}
       </div>

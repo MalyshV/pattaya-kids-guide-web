@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ru } from "@/content/ru";
 
 type EventsPaginationProps = {
   currentPage: number;
@@ -31,26 +32,30 @@ export function EventsPagination({
   const hasNext = currentPage < totalPages;
 
   return (
-    <nav className="pagination" aria-label="Events pagination">
+    <nav className="pagination" aria-label={ru.pagination.eventsAria}>
       <div className="pagination-info">
-        Page {currentPage} of {totalPages}
+        {ru.pagination.pageOf(currentPage, totalPages)}
       </div>
 
       <div className="pagination-actions">
         {hasPrevious ? (
           <Link className="pagination-link" href={buildPageHref(currentPage - 1, type)}>
-            ← Previous
+            ← {ru.pagination.previous}
           </Link>
         ) : (
-          <span className="pagination-link pagination-link-disabled">← Previous</span>
+          <span className="pagination-link pagination-link-disabled">
+            ← {ru.pagination.previous}
+          </span>
         )}
 
         {hasNext ? (
           <Link className="pagination-link" href={buildPageHref(currentPage + 1, type)}>
-            Next →
+            {ru.pagination.next} →
           </Link>
         ) : (
-          <span className="pagination-link pagination-link-disabled">Next →</span>
+          <span className="pagination-link pagination-link-disabled">
+            {ru.pagination.next} →
+          </span>
         )}
       </div>
     </nav>
