@@ -5,6 +5,7 @@ import { mapEventToDto } from "@/mappers/event.mapper";
 import { mapPlaceDetailsToDto } from "@/mappers/place-details.mapper";
 import { getUpcomingApprovedEventsByPlaceId } from "@/services/events.service";
 import { getApprovedPlaceBySlug } from "@/services/places.service";
+import { ru } from "@/content/ru";
 
 type PageProps = {
   params: Promise<{
@@ -19,8 +20,8 @@ function formatShortDate(value: string | Date | null): string {
 
   const date = value instanceof Date ? value : new Date(value);
 
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
+  return date.toLocaleDateString("ru-RU", {
+    day: "numeric",
     month: "short",
   });
 }
@@ -44,48 +45,52 @@ export default async function PlaceDetailsPage({
     <main className="page-shell">
       <div className="back-link-wrapper">
         <Link href="/" className="back-link">
-          ← Back to places
+          {ru.placeDetails.back}
         </Link>
       </div>
 
       <section className="hero">
-        <p className="eyebrow">Place</p>
+        <p className="eyebrow">{ru.placeDetails.eyebrow}</p>
         <h1 className="hero-title">{dto.name}</h1>
         <p className="hero-description">
-          {dto.description ?? "More details will be added soon."}
+          {dto.description ?? ru.common.descriptionFallback}
         </p>
       </section>
 
       <section className="details-section">
-        <h2 className="section-title">Details</h2>
+        <h2 className="section-title">{ru.placeDetails.detailsTitle}</h2>
 
         <div className="details-grid">
           <div>
-            <strong>Type:</strong> {dto.indoor ? "Indoor" : "Outdoor"}
+            <strong>{ru.placeDetails.fields.type}:</strong>{" "}
+            {dto.indoor ? ru.places.badgeIndoor : ru.places.badgeOutdoor}
           </div>
 
           <div>
-            <strong>Food:</strong> {dto.hasFood ? "Available" : "Not available"}
+            <strong>{ru.placeDetails.fields.food}:</strong>{" "}
+            {dto.hasFood ? ru.common.yes : ru.common.no}
           </div>
 
           <div>
-            <strong>Wi-Fi:</strong> {dto.hasWifi ? "Available" : "Not available"}
+            <strong>{ru.placeDetails.fields.wifi}:</strong>{" "}
+            {dto.hasWifi ? ru.common.yes : ru.common.no}
           </div>
 
           <div>
-            <strong>Child drop-off:</strong>{" "}
-            {dto.canLeaveChild ? "Available" : "Not available"}
+            <strong>{ru.placeDetails.fields.childDropOff}:</strong>{" "}
+            {dto.canLeaveChild ? ru.common.yes : ru.common.no}
           </div>
 
           <div>
-            <strong>Animals:</strong> {dto.animalContact ? "Yes" : "No"}
+            <strong>{ru.placeDetails.fields.animals}:</strong>{" "}
+            {dto.animalContact ? ru.common.yes : ru.common.no}
           </div>
         </div>
       </section>
 
       {dto.categories.length > 0 && (
         <section className="details-section">
-          <h2 className="section-title">Categories</h2>
+          <h2 className="section-title">{ru.placeDetails.categoriesTitle}</h2>
 
           <div className="category-list">
             {dto.categories.map((category) => (
@@ -98,7 +103,7 @@ export default async function PlaceDetailsPage({
       )}
 
       <section className="details-section">
-        <h2 className="section-title">Upcoming at this place</h2>
+        <h2 className="section-title">{ru.placeDetails.upcomingTitle}</h2>
 
         {eventDtos.length > 0 ? (
           <div className="events-list">
@@ -116,7 +121,7 @@ export default async function PlaceDetailsPage({
             ))}
           </div>
         ) : (
-          <p className="empty-text">No upcoming events right now.</p>
+          <p className="empty-text">{ru.placeDetails.noUpcoming}</p>
         )}
       </section>
     </main>

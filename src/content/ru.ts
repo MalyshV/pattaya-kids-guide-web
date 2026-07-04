@@ -16,6 +16,8 @@ export const ru = {
   common: {
     detailsCta: "Подробнее",
     descriptionFallback: "Описание скоро добавим.",
+    yes: "Есть",
+    no: "Нет",
   },
 
   places: {
@@ -50,6 +52,22 @@ export const ru = {
       canLeaveChild: "Можно оставить ребёнка",
       animalContact: "Животные",
     },
+  },
+
+  placeDetails: {
+    back: "← Назад к местам",
+    eyebrow: "Место",
+    detailsTitle: "Подробности",
+    fields: {
+      type: "Тип",
+      food: "Еда",
+      wifi: "Wi-Fi",
+      childDropOff: "Можно оставить ребёнка",
+      animals: "Животные",
+    },
+    categoriesTitle: "Категории",
+    upcomingTitle: "Ближайшие события здесь",
+    noUpcoming: "Пока ближайших событий нет.",
   },
 
   pagination: {
