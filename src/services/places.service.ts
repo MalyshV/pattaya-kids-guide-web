@@ -38,6 +38,11 @@ type PlaceDetailsResult = Prisma.PlaceGetPayload<{
     birthdayInfo: true;
     schedules: true;
     pricing: true;
+    staffLanguages: {
+      include: {
+        language: true;
+      };
+    };
   };
 }>;
 
@@ -130,6 +135,11 @@ export async function getApprovedPlaceBySlug(
       birthdayInfo: true,
       schedules: true,
       pricing: true,
+      staffLanguages: {
+        include: {
+          language: true,
+        },
+      },
     },
   });
 }

@@ -153,6 +153,19 @@ export default async function PlaceDetailsPage({
         </section>
       )}
 
+      {dto.staffLanguages.length > 0 && (
+        <section className="details-section">
+          <h2 className="section-title">{ru.placeDetails.staffLanguagesTitle}</h2>
+          <div className="category-list">
+            {dto.staffLanguages.map((language) => (
+              <span key={language.id} className="category-chip">
+                {language.name}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
+
       {dto.birthdayInfo?.hasPackages && (
         <section className="details-section">
           <h2 className="section-title">{ru.placeDetails.birthdayTitle}</h2>

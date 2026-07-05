@@ -48,6 +48,12 @@ export type PlacePricingDto = {
   currency: string;
 };
 
+export type PlaceLanguageDto = {
+  id: string;
+  code: string;
+  name: string;
+};
+
 export type PlaceDetailsDto = PlaceDto & {
   categories: PlaceCategoryDto[];
   amenities: PlaceAmenityDto[];
@@ -55,4 +61,5 @@ export type PlaceDetailsDto = PlaceDto & {
   birthdayInfo: PlaceBirthdayInfoDto;
   schedules: PlaceScheduleDto[];
   pricing: PlacePricingDto[];
+  staffLanguages: PlaceLanguageDto[];
 };

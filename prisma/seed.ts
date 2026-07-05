@@ -304,7 +304,7 @@ async function main() {
   const playBarnData = {
     name: "The Play Barn",
     description:
-      "Семейная игровая в Паттайе: крытая зона с кондиционером (сухой бассейн, мягкие горки, двухуровневый игровой лабиринт, комната для малышей до 2 лет) и уличная площадка с качелями. Спокойное кафе для родителей, Wi-Fi и парковка. Можно оставить ребёнка под присмотром аниматора (говорит по-тайски). Иногда проходят творческие мастер-классы и мини-праздники.",
+      "Семейная игровая в Паттайе: крытая зона с кондиционером (сухой бассейн, мягкие горки, двухуровневый игровой лабиринт, комната для малышей до 2 лет) и уличная площадка с качелями. Спокойное кафе для родителей, Wi-Fi и парковка. Можно оставить ребёнка под присмотром аниматора. Персонал и в кафе, и на присмотре понимает тайский и английский. Иногда проходят творческие мастер-классы и мини-праздники.",
     address: "5 Soi Siam Country Club Road, Pong, Bang Lamung, Chonburi 20150",
     latitude: 12.9180161,
     longitude: 100.9727834,
@@ -350,6 +350,26 @@ async function main() {
         create: { placeId: playBarn.id, amenityId: amenity.id },
       });
     }
+  }
+
+  // Языки персонала (справочник) + привязка к The Play Barn (тайский и английский)
+  const languagesData = [
+    { code: "th", name: "Тайский" },
+    { code: "en", name: "Английский" },
+  ];
+  for (const language of languagesData) {
+    const record = await prisma.language.upsert({
+      where: { code: language.code },
+      update: { name: language.name },
+      create: language,
+    });
+    await prisma.placeStaffLanguage.upsert({
+      where: {
+        placeId_languageId: { placeId: playBarn.id, languageId: record.id },
+      },
+      update: {},
+      create: { placeId: playBarn.id, languageId: record.id },
+    });
   }
 
   // Возрастные группы The Play Barn (0–2 и 3–6)

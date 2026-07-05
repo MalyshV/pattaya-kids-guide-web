@@ -88,6 +88,7 @@ export const ru = {
     priceFree: "Бесплатно",
     ageTitle: "Для какого возраста",
     amenitiesTitle: "Удобства",
+    staffLanguagesTitle: "Язык персонала",
     birthdayTitle: "День рождения",
     birthdayHas: "Здесь проводят детские дни рождения",
     categoriesTitle: "Категории",

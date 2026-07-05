@@ -167,6 +167,24 @@ model PlaceBirthdayInfo {
   place           Place    @relation(fields: [placeId], references: [id])
 }
 
+/// Справочник языков персонала (ISO-код, напр. th/en). Справочник, а не enum —
+/// enum ломал бы мультирегион (миграция на каждую новую страну).
+model Language {
+  id         String               @id @default(cuid())
+  code       String               @unique
+  name       String
+  placeLinks PlaceStaffLanguage[]
+}
+
+model PlaceStaffLanguage {
+  placeId    String
+  languageId String
+  language   Language @relation(fields: [languageId], references: [id])
+  place      Place    @relation(fields: [placeId], references: [id])
+
+  @@id([placeId, languageId])
+}
+
 /// ПРАВИЛО роста признаков места (чтобы модель оставалась единообразной):
 ///  • простой «да/нет» (кондиционер, парковка) → булева колонка прямо здесь;
 ///  • значение из набора (языки персонала, категории) → отдельный справочник + M:N;
@@ -203,6 +221,7 @@ model Place {
   categories         PlaceCategory[]
   pricing            PlacePricing[]
   schedules          PlaceSchedule[]
+  staffLanguages     PlaceStaffLanguage[]
   userFavoritePlaces UserFavoritePlace[]
   userVisits         UserVisit[]
   /// ГЕО (Сессия 2): город места обязателен — место всегда физически где-то
