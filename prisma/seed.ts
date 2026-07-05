@@ -167,7 +167,6 @@ async function main() {
 
   const ageGroup3to6 = await prisma.ageGroup.findFirst({
     where: {
-      name: "3-6 years",
       minAge: 3,
       maxAge: 6,
     },
