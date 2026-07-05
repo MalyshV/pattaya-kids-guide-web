@@ -5,6 +5,8 @@ export type PlacesFilter = {
   hasWifi?: boolean;
   canLeaveChild?: boolean;
   animalContact?: boolean;
+  /** Композит «Можно поработать»: раскрывается в hasWifi && hasAirCon && hasCafeSeating (см. сервис) */
+  workFriendly?: boolean;
 };
 
 export type PlacesListQuery = {
@@ -42,6 +44,7 @@ export function parsePlacesListQuery(searchParams: URLSearchParams): PlacesListQ
       hasWifi: parseBooleanParam(searchParams.get("hasWifi")),
       canLeaveChild: parseBooleanParam(searchParams.get("canLeaveChild")),
       animalContact: parseBooleanParam(searchParams.get("animalContact")),
+      workFriendly: parseBooleanParam(searchParams.get("workFriendly")),
     },
     pagination: {
       page,

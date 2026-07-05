@@ -58,6 +58,11 @@ function buildApprovedPlacesWhere(
     ...(filter?.animalContact !== undefined
       ? { animalContact: filter.animalContact }
       : {}),
+    // «Можно поработать» — композит, а не колонка: место с Wi-Fi, кондиционером и
+    // возможностью посидеть в кафе (для родителя-удалёнщика)
+    ...(filter?.workFriendly
+      ? { hasWifi: true, hasAirCon: true, hasCafeSeating: true }
+      : {}),
   };
 }
 

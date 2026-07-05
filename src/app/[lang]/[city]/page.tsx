@@ -65,9 +65,11 @@ export default async function CityPlacesPage({
   const hasWifi = getSingleSearchParam(resolvedSearchParams.hasWifi);
   const canLeaveChild = getSingleSearchParam(resolvedSearchParams.canLeaveChild);
   const animalContact = getSingleSearchParam(resolvedSearchParams.animalContact);
+  const workFriendly = getSingleSearchParam(resolvedSearchParams.workFriendly);
   const pageParam = getSingleSearchParam(resolvedSearchParams.page);
 
   const currentPage = parsePositiveNumberParam(pageParam) ?? 1;
+  const isWorkFriendly = parseBooleanParam(workFriendly) === true;
 
   const placesResponse = await getApprovedPlaces(
     {
@@ -77,6 +79,7 @@ export default async function CityPlacesPage({
       hasWifi: parseBooleanParam(hasWifi),
       canLeaveChild: parseBooleanParam(canLeaveChild),
       animalContact: parseBooleanParam(animalContact),
+      workFriendly: parseBooleanParam(workFriendly),
     },
     {
       page: currentPage,
@@ -96,6 +99,7 @@ export default async function CityPlacesPage({
       </section>
 
       <PlaceFilters
+        workFriendly={workFriendly}
         indoor={indoor}
         outdoor={outdoor}
         hasFood={hasFood}
@@ -113,8 +117,8 @@ export default async function CityPlacesPage({
 
       {placesResponse.items.length === 0 ? (
         <section className="empty-state">
-          <h3>{ru.places.emptyTitle}</h3>
-          <p>{ru.places.emptyHint}</p>
+          <h3>{isWorkFriendly ? ru.places.emptyWorkTitle : ru.places.emptyTitle}</h3>
+          <p>{isWorkFriendly ? ru.places.emptyWorkHint : ru.places.emptyHint}</p>
         </section>
       ) : (
         <>
@@ -128,6 +132,7 @@ export default async function CityPlacesPage({
             currentPage={placesResponse.page}
             totalPages={Math.ceil(placesResponse.total / placesResponse.limit)}
             basePath={basePath}
+            workFriendly={workFriendly}
             indoor={indoor}
             outdoor={outdoor}
             hasFood={hasFood}

@@ -29,6 +29,9 @@ export const ru = {
       `${total} ${plural(total, ["место", "места", "мест"])}`,
     emptyTitle: "Ничего не нашлось",
     emptyHint: "Попробуйте убрать один из фильтров.",
+    emptyWorkTitle: "Пока таких мест немного",
+    emptyWorkHint:
+      "Мы наполняем каталог местами, где удобно поработать рядом с ребёнком. Попробуйте пока убрать этот фильтр.",
     badgeIndoor: "В помещении",
     badgeOutdoor: "На улице",
     addressFallback: "Адрес уточняется",
@@ -46,6 +49,7 @@ export const ru = {
     reset: "Сбросить",
     apply: "Показать",
     labels: {
+      workFriendly: "Можно поработать",
       indoor: "В помещении",
       outdoor: "На улице",
       hasFood: "Еда",
@@ -53,6 +57,7 @@ export const ru = {
       canLeaveChild: "Можно оставить ребёнка",
       animalContact: "Животные",
     },
+    workFriendlyHint: "Wi-Fi, кондиционер и место, где можно посидеть",
   },
 
   placeDetails: {

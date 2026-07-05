@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ru } from "@/content/ru";
 
 type PlaceFiltersProps = {
+  workFriendly?: string;
   indoor?: string;
   outdoor?: string;
   hasFood?: string;
@@ -14,6 +15,7 @@ type PlaceFiltersProps = {
 };
 
 type FilterKey =
+  | "workFriendly"
   | "indoor"
   | "outdoor"
   | "hasFood"
@@ -28,6 +30,7 @@ type FilterConfig = {
   label: string;
 };
 
+// «Можно поработать» рендерится отдельным флагманским блоком, поэтому здесь только рядовые фасеты
 const FILTERS: FilterConfig[] = [
   { name: "indoor", label: ru.placeFilters.labels.indoor },
   { name: "outdoor", label: ru.placeFilters.labels.outdoor },
@@ -39,6 +42,7 @@ const FILTERS: FilterConfig[] = [
 
 function buildInitialState(props: PlaceFiltersProps): FiltersState {
   return {
+    workFriendly: props.workFriendly === "true",
     indoor: props.indoor === "true",
     outdoor: props.outdoor === "true",
     hasFood: props.hasFood === "true",
@@ -80,6 +84,7 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
 
   function handleReset(): void {
     const emptyState: FiltersState = {
+      workFriendly: false,
       indoor: false,
       outdoor: false,
       hasFood: false,
@@ -106,6 +111,22 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
       </div>
 
       <form className="filters-form" onSubmit={handleApply}>
+        <label className="filter-toggle filter-toggle-feature">
+          <input
+            type="checkbox"
+            checked={filters.workFriendly}
+            onChange={() => handleToggle("workFriendly")}
+          />
+          <span className="filter-feature-text">
+            <span className="filter-feature-label">
+              {ru.placeFilters.labels.workFriendly}
+            </span>
+            <span className="filter-feature-hint">
+              {ru.placeFilters.workFriendlyHint}
+            </span>
+          </span>
+        </label>
+
         <div className="filters-grid">
           {FILTERS.map((filter) => (
             <label key={filter.name} className="filter-toggle">

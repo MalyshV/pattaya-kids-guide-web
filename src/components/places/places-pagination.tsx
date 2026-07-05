@@ -5,6 +5,7 @@ type PlacesPaginationProps = {
   currentPage: number;
   totalPages: number;
   basePath: string;
+  workFriendly?: string;
   indoor?: string;
   outdoor?: string;
   hasFood?: string;
@@ -35,6 +36,7 @@ export function PlacesPagination({
   currentPage,
   totalPages,
   basePath,
+  workFriendly,
   indoor,
   outdoor,
   hasFood,
@@ -47,6 +49,7 @@ export function PlacesPagination({
   }
 
   const baseParams = {
+    workFriendly,
     indoor,
     outdoor,
     hasFood,
