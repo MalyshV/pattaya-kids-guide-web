@@ -162,7 +162,7 @@ async function main() {
   // 6. [DEMO] PLACE
   // =========================
   const demoPlace = await prisma.place.upsert({
-    where: { slug: "demo-harbor-kids-club" },
+    where: { cityId_slug: { cityId: pattaya.id, slug: "demo-harbor-kids-club" } },
     update: {
       name: "[DEMO] Harbor Kids Club",
       description: "Demo indoor activity place for families in Pattaya.",
@@ -267,7 +267,9 @@ async function main() {
   // 9. [DEMO] UPCOMING EVENT
   // =========================
   const upcomingWorkshopEvent = await prisma.event.upsert({
-    where: { slug: "kids-art-workshop-pattaya-upcoming" },
+    where: {
+      cityId_slug: { cityId: pattaya.id, slug: "kids-art-workshop-pattaya-upcoming" },
+    },
     update: {
       title: "[DEMO] Kids Art Workshop – Pattaya",
       description: "Demo event (seed data) for development and lifecycle testing",
@@ -281,6 +283,7 @@ async function main() {
     create: {
       title: "[DEMO] Kids Art Workshop – Pattaya",
       slug: "kids-art-workshop-pattaya-upcoming",
+      cityId: pattaya.id,
       description: "Demo event (seed data) for development and lifecycle testing",
       startDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7),
       endDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 2),
@@ -309,7 +312,9 @@ async function main() {
   // 10. [DEMO] ONGOING EVENT
   // =========================
   const ongoingEvent = await prisma.event.upsert({
-    where: { slug: "weekend-kids-play-zone-ongoing" },
+    where: {
+      cityId_slug: { cityId: pattaya.id, slug: "weekend-kids-play-zone-ongoing" },
+    },
     update: {
       title: "[DEMO] Weekend Kids Play Zone",
       description: "Demo ongoing event to test 'happening now' logic",
@@ -323,6 +328,7 @@ async function main() {
     create: {
       title: "[DEMO] Weekend Kids Play Zone",
       slug: "weekend-kids-play-zone-ongoing",
+      cityId: pattaya.id,
       description: "Demo ongoing event to test 'happening now' logic",
       startDate: new Date(now.getTime() - 1000 * 60 * 60),
       endDate: new Date(now.getTime() + 1000 * 60 * 60 * 3),
@@ -351,7 +357,9 @@ async function main() {
   // 11. [DEMO] PAST EVENT
   // =========================
   const pastFestivalEvent = await prisma.event.upsert({
-    where: { slug: "kids-festival-pattaya-past" },
+    where: {
+      cityId_slug: { cityId: pattaya.id, slug: "kids-festival-pattaya-past" },
+    },
     update: {
       title: "[DEMO] Kids Festival – Pattaya (Past)",
       description: "Demo past event to test archive and history logic",
@@ -365,6 +373,7 @@ async function main() {
     create: {
       title: "[DEMO] Kids Festival – Pattaya (Past)",
       slug: "kids-festival-pattaya-past",
+      cityId: pattaya.id,
       description: "Demo past event to test archive and history logic",
       startDate: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 10),
       endDate: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 9),
@@ -393,7 +402,9 @@ async function main() {
   // 12. [DEMO] UPCOMING EVENT LINKED TO PLACE
   // =========================
   const placeWorkshopEvent = await prisma.event.upsert({
-    where: { slug: "demo-weekend-kids-workshop" },
+    where: {
+      cityId_slug: { cityId: pattaya.id, slug: "demo-weekend-kids-workshop" },
+    },
     update: {
       title: "[DEMO] Weekend Kids Workshop",
       description: "Demo event linked to a place.",
@@ -413,6 +424,7 @@ async function main() {
     create: {
       title: "[DEMO] Weekend Kids Workshop",
       slug: "demo-weekend-kids-workshop",
+      cityId: pattaya.id,
       description: "Demo event linked to a place.",
       startDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 3),
       endDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 60 * 2),

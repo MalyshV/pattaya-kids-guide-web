@@ -167,7 +167,7 @@ model PlaceBirthdayInfo {
 model Place {
   id                 String              @id @default(cuid())
   name               String
-  slug               String              @unique
+  slug               String
   description        String?
   address            String
   latitude           Float
@@ -196,6 +196,7 @@ model Place {
   cityId             String
   city               City                @relation(fields: [cityId], references: [id])
 
+  @@unique([cityId, slug])
   @@index([cityId, status])
 }
 
@@ -218,7 +219,7 @@ model EventCategoryLink {
 model Event {
   id                 String              @id @default(cuid())
   title              String
-  slug               String              @unique
+  slug               String
   description        String?
   /// ДАТЫ (поддержка однодневных, многодневных и recurring)
   startDate          DateTime
@@ -260,6 +261,7 @@ model Event {
   cityId             String?
   city               City?               @relation(fields: [cityId], references: [id])
 
+  @@unique([cityId, slug])
   @@index([placeId])
   @@index([cityId, status])
   @@index([status])
