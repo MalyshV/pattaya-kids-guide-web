@@ -81,31 +81,52 @@ async function main() {
   }
 
   // =========================
-  // 2. PLACE CATEGORIES
+  // 2. PLACE CATEGORIES (русские названия; slug — англ. идентификатор)
   // =========================
-  await prisma.category.createMany({
-    data: [
-      { name: "Indoor Playground", slug: "indoor-playground", order: 1 },
-      { name: "Cafe", slug: "cafe", order: 2 },
-    ],
-    skipDuplicates: true,
+  const placeCategoriesData = [
+    { slug: "indoor-playground", name: "Крытая игровая", order: 1 },
+    { slug: "cafe", name: "Кафе", order: 2 },
+    { slug: "playground", name: "Игровая площадка", order: 3 },
+  ];
+  for (const category of placeCategoriesData) {
+    await prisma.category.upsert({
+      where: { slug: category.slug },
+      update: { name: category.name, order: category.order },
+      create: category,
+    });
+  }
+
+  // =========================
+  // 3. AMENITY GROUPS (русское название)
+  // =========================
+  await prisma.amenityGroup.upsert({
+    where: { slug: "food-comfort" },
+    update: { name: "Удобства" },
+    create: { name: "Удобства", slug: "food-comfort" },
   });
 
   // =========================
-  // 3. AMENITY GROUPS
+  // 4. AGE GROUPS (русские названия; AgeGroup без unique — idempotent через findFirst)
   // =========================
-  await prisma.amenityGroup.createMany({
-    data: [{ name: "Food & Comfort", slug: "food-comfort" }],
-    skipDuplicates: true,
+  const existing3to6 = await prisma.ageGroup.findFirst({
+    where: { minAge: 3, maxAge: 6 },
   });
-
-  // =========================
-  // 4. AGE GROUPS
-  // =========================
-  await prisma.ageGroup.createMany({
-    data: [{ name: "3-6 years", minAge: 3, maxAge: 6 }],
-    skipDuplicates: true,
+  if (existing3to6) {
+    await prisma.ageGroup.update({
+      where: { id: existing3to6.id },
+      data: { name: "3–6 лет" },
+    });
+  } else {
+    await prisma.ageGroup.create({ data: { name: "3–6 лет", minAge: 3, maxAge: 6 } });
+  }
+  let ageGroupUnder2 = await prisma.ageGroup.findFirst({
+    where: { minAge: 0, maxAge: 2 },
   });
+  if (!ageGroupUnder2) {
+    ageGroupUnder2 = await prisma.ageGroup.create({
+      data: { name: "0–2 года", minAge: 0, maxAge: 2 },
+    });
+  }
 
   const indoorPlaygroundCategory = await prisma.category.findUnique({
     where: { slug: "indoor-playground" },
@@ -124,20 +145,20 @@ async function main() {
   }
 
   // =========================
-  // 5. AMENITIES
+  // 5. AMENITIES (русские названия)
   // =========================
-  await prisma.amenity.upsert({
-    where: { slug: "cafe-on-site" },
-    update: {
-      name: "Cafe on Site",
-      groupId: foodComfortGroup.id,
-    },
-    create: {
-      name: "Cafe on Site",
-      slug: "cafe-on-site",
-      groupId: foodComfortGroup.id,
-    },
-  });
+  const amenitiesData = [
+    { slug: "cafe-on-site", name: "Кафе" },
+    { slug: "wifi", name: "Wi-Fi" },
+    { slug: "parking", name: "Парковка" },
+  ];
+  for (const amenity of amenitiesData) {
+    await prisma.amenity.upsert({
+      where: { slug: amenity.slug },
+      update: { name: amenity.name, groupId: foodComfortGroup.id },
+      create: { name: amenity.name, slug: amenity.slug, groupId: foodComfortGroup.id },
+    });
+  }
 
   const cafeAmenity = await prisma.amenity.findUnique({
     where: { slug: "cafe-on-site" },
@@ -264,6 +285,151 @@ async function main() {
       depositRequired: true,
       preBookingDays: 7,
       notes: "Demo birthday package for development.",
+    },
+  });
+
+  // =========================
+  // THE PLAY BARN — первое реальное место
+  // =========================
+  const playBarnData = {
+    name: "The Play Barn",
+    description:
+      "Семейная игровая в Паттайе: крытая зона с кондиционером (сухой бассейн, мягкие горки, двухуровневый игровой лабиринт, комната для малышей до 2 лет) и уличная площадка с качелями. Спокойное кафе для родителей, Wi-Fi и парковка. Можно оставить ребёнка под присмотром аниматора (говорит по-тайски). Иногда проходят творческие мастер-классы и мини-праздники.",
+    address: "5 Soi Siam Country Club Road, Pong, Bang Lamung, Chonburi 20150",
+    latitude: 12.9180161,
+    longitude: 100.9727834,
+    indoor: true,
+    outdoor: true,
+    hasFood: true,
+    hasWifi: true,
+    canLeaveChild: true,
+    animalContact: false,
+    status: "APPROVED" as const,
+    cityId: pattaya.id,
+  };
+  const playBarn = await prisma.place.upsert({
+    where: { cityId_slug: { cityId: pattaya.id, slug: "the-play-barn" } },
+    update: playBarnData,
+    create: { ...playBarnData, slug: "the-play-barn" },
+  });
+
+  // Категории The Play Barn
+  for (const slug of ["indoor-playground", "cafe", "playground"]) {
+    const category = await prisma.category.findUnique({ where: { slug } });
+    if (category) {
+      await prisma.placeCategory.upsert({
+        where: { placeId_categoryId: { placeId: playBarn.id, categoryId: category.id } },
+        update: {},
+        create: { placeId: playBarn.id, categoryId: category.id },
+      });
+    }
+  }
+
+  // Удобства The Play Barn
+  for (const slug of ["cafe-on-site", "wifi", "parking"]) {
+    const amenity = await prisma.amenity.findUnique({ where: { slug } });
+    if (amenity) {
+      await prisma.placeAmenity.upsert({
+        where: { placeId_amenityId: { placeId: playBarn.id, amenityId: amenity.id } },
+        update: {},
+        create: { placeId: playBarn.id, amenityId: amenity.id },
+      });
+    }
+  }
+
+  // Возрастные группы The Play Barn (0–2 и 3–6)
+  for (const groupId of [ageGroupUnder2.id, ageGroup3to6.id]) {
+    await prisma.placeAgeGroup.upsert({
+      where: { placeId_ageGroupId: { placeId: playBarn.id, ageGroupId: groupId } },
+      update: {},
+      create: { placeId: playBarn.id, ageGroupId: groupId },
+    });
+  }
+
+  // Расписание The Play Barn (Вт–Вс 8:30–18:00, ПН — выходной)
+  await prisma.placeSchedule.deleteMany({ where: { placeId: playBarn.id } });
+  await prisma.placeSchedule.createMany({
+    data: [
+      { placeId: playBarn.id, day: "MON", openTime: "", closeTime: "", isClosed: true },
+      {
+        placeId: playBarn.id,
+        day: "TUE",
+        openTime: "08:30",
+        closeTime: "18:00",
+        isClosed: false,
+      },
+      {
+        placeId: playBarn.id,
+        day: "WED",
+        openTime: "08:30",
+        closeTime: "18:00",
+        isClosed: false,
+      },
+      {
+        placeId: playBarn.id,
+        day: "THU",
+        openTime: "08:30",
+        closeTime: "18:00",
+        isClosed: false,
+      },
+      {
+        placeId: playBarn.id,
+        day: "FRI",
+        openTime: "08:30",
+        closeTime: "18:00",
+        isClosed: false,
+      },
+      {
+        placeId: playBarn.id,
+        day: "SAT",
+        openTime: "08:30",
+        closeTime: "18:00",
+        isClosed: false,
+      },
+      {
+        placeId: playBarn.id,
+        day: "SUN",
+        openTime: "08:30",
+        closeTime: "18:00",
+        isClosed: false,
+      },
+    ],
+  });
+
+  // Цены The Play Barn (вход; единая цена — Thai-price не выявлена)
+  await prisma.placePricing.deleteMany({ where: { placeId: playBarn.id } });
+  await prisma.placePricing.create({
+    data: {
+      placeId: playBarn.id,
+      priceType: "PAID",
+      audience: "GENERAL",
+      minPrice: 100,
+      maxPrice: 250,
+      currency: "THB",
+    },
+  });
+
+  // День рождения The Play Barn (условия пока тестовые — уточнить)
+  await prisma.placeBirthdayInfo.upsert({
+    where: { placeId: playBarn.id },
+    update: {
+      hasPackages: true,
+      minGuests: 8,
+      maxGuests: 15,
+      depositRequired: true,
+      preBookingDays: 5,
+      notes:
+        "Проводят детские дни рождения. Точные пакеты и условия уточняются (пока тестовые данные).",
+    },
+    create: {
+      placeId: playBarn.id,
+      hasPackages: true,
+      minGuests: 8,
+      maxGuests: 15,
+      depositRequired: true,
+      preBookingDays: 5,
+      notes:
+        "Проводят детские дни рождения. Точные пакеты и условия уточняются (пока тестовые данные).",
     },
   });
 
