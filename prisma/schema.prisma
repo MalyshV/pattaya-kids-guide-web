@@ -258,6 +258,34 @@ model Event {
   @@index([endDate])
 }
 
+/// ГЕОГРАФИЯ (мультирегион): страна → город. Region пока не нужен.
+model Country {
+  id        String   @id @default(cuid())
+  iso2      String   @unique
+  name      String
+  /// дефолт валюты для формы (НЕ источник истины — цена хранит свою валюту)
+  currency  String?
+  createdAt DateTime @default(now())
+  cities    City[]
+}
+
+model City {
+  id             String   @id @default(cuid())
+  slug           String
+  name           String
+  seoDescription String?
+  latitude       Float?
+  longitude      Float?
+  timezone       String
+  /// город виден в поиске/выдаче только когда наполнен (SEO-гейт)
+  isPublished    Boolean  @default(false)
+  countryId      String
+  country        Country  @relation(fields: [countryId], references: [id])
+  createdAt      DateTime @default(now())
+
+  @@unique([countryId, slug])
+}
+
 enum PriceType {
   FREE
   PAID

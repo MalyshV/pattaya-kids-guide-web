@@ -21,6 +21,34 @@ async function main() {
   console.log("🌱 Start seeding...");
 
   // =========================
+  // 0. GEO: COUNTRY / CITY
+  // =========================
+  const thailand = await prisma.country.upsert({
+    where: { iso2: "TH" },
+    update: { name: "Таиланд", currency: "THB" },
+    create: { iso2: "TH", name: "Таиланд", currency: "THB" },
+  });
+
+  await prisma.city.upsert({
+    where: { countryId_slug: { countryId: thailand.id, slug: "pattaya" } },
+    update: {
+      name: "Паттайя",
+      timezone: "Asia/Bangkok",
+      latitude: 12.9236,
+      longitude: 100.8825,
+    },
+    create: {
+      countryId: thailand.id,
+      slug: "pattaya",
+      name: "Паттайя",
+      timezone: "Asia/Bangkok",
+      latitude: 12.9236,
+      longitude: 100.8825,
+      isPublished: false,
+    },
+  });
+
+  // =========================
   // 1. EVENT CATEGORIES
   // =========================
   await prisma.eventCategory.createMany({
