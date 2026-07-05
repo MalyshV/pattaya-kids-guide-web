@@ -36,6 +36,8 @@ type PlaceDetailsResult = Prisma.PlaceGetPayload<{
       };
     };
     birthdayInfo: true;
+    schedules: true;
+    pricing: true;
   };
 }>;
 
@@ -121,6 +123,8 @@ export async function getApprovedPlaceBySlug(
         },
       },
       birthdayInfo: true,
+      schedules: true,
+      pricing: true,
     },
   });
 }

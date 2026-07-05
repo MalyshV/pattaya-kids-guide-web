@@ -25,6 +25,29 @@ function formatShortDate(value: string | Date | null): string {
   });
 }
 
+const DAY_ORDER = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+
+function formatPricingLine(price: {
+  priceType: string;
+  minPrice: number | null;
+  maxPrice: number | null;
+  currency: string;
+}): string {
+  if (price.priceType === "FREE") {
+    return ru.placeDetails.priceFree;
+  }
+
+  const { minPrice, maxPrice, currency } = price;
+
+  if (minPrice != null && maxPrice != null && minPrice !== maxPrice) {
+    return `${minPrice}–${maxPrice} ${currency}`;
+  }
+
+  const value = minPrice ?? maxPrice;
+
+  return value != null ? `${value} ${currency}` : "";
+}
+
 export default async function PlaceDetailsPage({
   params,
 }: PageProps): Promise<React.ReactElement> {
@@ -62,6 +85,83 @@ export default async function PlaceDetailsPage({
           {dto.description ?? ru.common.descriptionFallback}
         </p>
       </section>
+
+      <section className="details-section">
+        <h2 className="section-title">{ru.placeDetails.addressTitle}</h2>
+        <p className="empty-text">{dto.address}</p>
+      </section>
+
+      {dto.schedules.length > 0 && (
+        <section className="details-section">
+          <h2 className="section-title">{ru.placeDetails.scheduleTitle}</h2>
+          <div className="schedule-list">
+            {[...dto.schedules]
+              .sort((a, b) => DAY_ORDER.indexOf(a.day) - DAY_ORDER.indexOf(b.day))
+              .map((schedule) => (
+                <div key={schedule.day} className="schedule-row">
+                  <span className="schedule-day">
+                    {(ru.placeDetails.days as Record<string, string>)[schedule.day] ??
+                      schedule.day}
+                  </span>
+                  <span className="schedule-hours">
+                    {schedule.isClosed
+                      ? ru.placeDetails.closed
+                      : `${schedule.openTime}–${schedule.closeTime}`}
+                  </span>
+                </div>
+              ))}
+          </div>
+        </section>
+      )}
+
+      {dto.pricing.length > 0 && (
+        <section className="details-section">
+          <h2 className="section-title">{ru.placeDetails.pricingTitle}</h2>
+          <div className="details-grid">
+            {dto.pricing.map((price, index) => (
+              <div key={index}>
+                <strong>{ru.placeDetails.entryLabel}:</strong> {formatPricingLine(price)}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {dto.ageGroups.length > 0 && (
+        <section className="details-section">
+          <h2 className="section-title">{ru.placeDetails.ageTitle}</h2>
+          <div className="category-list">
+            {dto.ageGroups.map((ageGroup) => (
+              <span key={ageGroup.id} className="category-chip">
+                {ageGroup.name}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {dto.amenities.length > 0 && (
+        <section className="details-section">
+          <h2 className="section-title">{ru.placeDetails.amenitiesTitle}</h2>
+          <div className="category-list">
+            {dto.amenities.map((amenity) => (
+              <span key={amenity.id} className="category-chip">
+                {amenity.name}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {dto.birthdayInfo?.hasPackages && (
+        <section className="details-section">
+          <h2 className="section-title">{ru.placeDetails.birthdayTitle}</h2>
+          <p className="detail-text">{ru.placeDetails.birthdayHas}</p>
+          {dto.birthdayInfo.notes ? (
+            <p className="empty-text">{dto.birthdayInfo.notes}</p>
+          ) : null}
+        </section>
+      )}
 
       <section className="details-section">
         <h2 className="section-title">{ru.placeDetails.detailsTitle}</h2>

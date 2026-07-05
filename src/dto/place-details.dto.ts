@@ -33,9 +33,26 @@ export type PlaceBirthdayInfoDto = {
   notes: string | null;
 } | null;
 
+export type PlaceScheduleDto = {
+  day: string;
+  openTime: string;
+  closeTime: string;
+  isClosed: boolean;
+};
+
+export type PlacePricingDto = {
+  priceType: string;
+  audience: string;
+  minPrice: number | null;
+  maxPrice: number | null;
+  currency: string;
+};
+
 export type PlaceDetailsDto = PlaceDto & {
   categories: PlaceCategoryDto[];
   amenities: PlaceAmenityDto[];
   ageGroups: PlaceAgeGroupDto[];
   birthdayInfo: PlaceBirthdayInfoDto;
+  schedules: PlaceScheduleDto[];
+  pricing: PlacePricingDto[];
 };
