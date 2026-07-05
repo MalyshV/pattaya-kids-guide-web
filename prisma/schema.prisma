@@ -192,6 +192,11 @@ model Place {
   schedules          PlaceSchedule[]
   userFavoritePlaces UserFavoritePlace[]
   userVisits         UserVisit[]
+  /// ГЕО (Сессия 2): город места обязателен — место всегда физически где-то
+  cityId             String
+  city               City                @relation(fields: [cityId], references: [id])
+
+  @@index([cityId, status])
 }
 
 model EventCategory {
@@ -251,8 +256,12 @@ model Event {
   categories         EventCategoryLink[]
   userFavoriteEvents UserFavoriteEvent[]
   userVisits         UserVisit[]
+  /// ГЕО (Сессия 2): город события nullable — событие может быть онлайн/без города
+  cityId             String?
+  city               City?               @relation(fields: [cityId], references: [id])
 
   @@index([placeId])
+  @@index([cityId, status])
   @@index([status])
   @@index([startDate])
   @@index([endDate])
@@ -281,6 +290,8 @@ model City {
   isPublished    Boolean  @default(false)
   countryId      String
   country        Country  @relation(fields: [countryId], references: [id])
+  places         Place[]
+  events         Event[]
   createdAt      DateTime @default(now())
 
   @@unique([countryId, slug])

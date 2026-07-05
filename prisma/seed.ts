@@ -29,7 +29,7 @@ async function main() {
     create: { iso2: "TH", name: "Таиланд", currency: "THB" },
   });
 
-  await prisma.city.upsert({
+  const pattaya = await prisma.city.upsert({
     where: { countryId_slug: { countryId: thailand.id, slug: "pattaya" } },
     update: {
       name: "Паттайя",
@@ -175,6 +175,7 @@ async function main() {
       canLeaveChild: false,
       animalContact: false,
       status: "APPROVED",
+      cityId: pattaya.id,
     },
     create: {
       name: "[DEMO] Harbor Kids Club",
@@ -189,6 +190,7 @@ async function main() {
       canLeaveChild: false,
       animalContact: false,
       status: "APPROVED",
+      cityId: pattaya.id,
     },
   });
 
@@ -440,6 +442,10 @@ async function main() {
       categoryId: workshopCategory.id,
     },
   });
+
+  // Backfill (Сессия 2): все демо-места и события — в Паттайю (пока один город)
+  await prisma.place.updateMany({ data: { cityId: pattaya.id } });
+  await prisma.event.updateMany({ data: { cityId: pattaya.id } });
 
   console.log("✅ Seed completed (idempotent)");
 }
