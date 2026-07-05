@@ -60,6 +60,7 @@ export default async function CityPlacesPage({
   const resolvedSearchParams = (await searchParams) ?? {};
 
   const indoor = getSingleSearchParam(resolvedSearchParams.indoor);
+  const outdoor = getSingleSearchParam(resolvedSearchParams.outdoor);
   const hasFood = getSingleSearchParam(resolvedSearchParams.hasFood);
   const hasWifi = getSingleSearchParam(resolvedSearchParams.hasWifi);
   const canLeaveChild = getSingleSearchParam(resolvedSearchParams.canLeaveChild);
@@ -71,6 +72,7 @@ export default async function CityPlacesPage({
   const placesResponse = await getApprovedPlaces(
     {
       indoor: parseBooleanParam(indoor),
+      outdoor: parseBooleanParam(outdoor),
       hasFood: parseBooleanParam(hasFood),
       hasWifi: parseBooleanParam(hasWifi),
       canLeaveChild: parseBooleanParam(canLeaveChild),
@@ -95,6 +97,7 @@ export default async function CityPlacesPage({
 
       <PlaceFilters
         indoor={indoor}
+        outdoor={outdoor}
         hasFood={hasFood}
         hasWifi={hasWifi}
         canLeaveChild={canLeaveChild}
@@ -126,6 +129,7 @@ export default async function CityPlacesPage({
             totalPages={Math.ceil(placesResponse.total / placesResponse.limit)}
             basePath={basePath}
             indoor={indoor}
+            outdoor={outdoor}
             hasFood={hasFood}
             hasWifi={hasWifi}
             canLeaveChild={canLeaveChild}

@@ -47,6 +47,7 @@ function buildApprovedPlacesWhere(
     status: "APPROVED",
     ...(cityId ? { cityId } : {}),
     ...(filter?.indoor !== undefined ? { indoor: filter.indoor } : {}),
+    ...(filter?.outdoor !== undefined ? { outdoor: filter.outdoor } : {}),
     ...(filter?.hasFood !== undefined ? { hasFood: filter.hasFood } : {}),
     ...(filter?.hasWifi !== undefined ? { hasWifi: filter.hasWifi } : {}),
     ...(filter?.canLeaveChild !== undefined

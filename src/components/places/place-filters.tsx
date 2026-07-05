@@ -6,13 +6,20 @@ import { ru } from "@/content/ru";
 
 type PlaceFiltersProps = {
   indoor?: string;
+  outdoor?: string;
   hasFood?: string;
   hasWifi?: string;
   canLeaveChild?: string;
   animalContact?: string;
 };
 
-type FilterKey = "indoor" | "hasFood" | "hasWifi" | "canLeaveChild" | "animalContact";
+type FilterKey =
+  | "indoor"
+  | "outdoor"
+  | "hasFood"
+  | "hasWifi"
+  | "canLeaveChild"
+  | "animalContact";
 
 type FiltersState = Record<FilterKey, boolean>;
 
@@ -23,6 +30,7 @@ type FilterConfig = {
 
 const FILTERS: FilterConfig[] = [
   { name: "indoor", label: ru.placeFilters.labels.indoor },
+  { name: "outdoor", label: ru.placeFilters.labels.outdoor },
   { name: "hasFood", label: ru.placeFilters.labels.hasFood },
   { name: "hasWifi", label: ru.placeFilters.labels.hasWifi },
   { name: "canLeaveChild", label: ru.placeFilters.labels.canLeaveChild },
@@ -32,6 +40,7 @@ const FILTERS: FilterConfig[] = [
 function buildInitialState(props: PlaceFiltersProps): FiltersState {
   return {
     indoor: props.indoor === "true",
+    outdoor: props.outdoor === "true",
     hasFood: props.hasFood === "true",
     hasWifi: props.hasWifi === "true",
     canLeaveChild: props.canLeaveChild === "true",
@@ -72,6 +81,7 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
   function handleReset(): void {
     const emptyState: FiltersState = {
       indoor: false,
+      outdoor: false,
       hasFood: false,
       hasWifi: false,
       canLeaveChild: false,

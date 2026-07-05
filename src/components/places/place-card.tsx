@@ -16,9 +16,14 @@ export function PlaceCard({ place, basePath }: PlaceCardProps): React.ReactEleme
           <p className="place-card-slug">/{place.slug}</p>
         </div>
 
-        <span className="place-badge">
-          {place.indoor ? ru.places.badgeIndoor : ru.places.badgeOutdoor}
-        </span>
+        <div className="place-badges">
+          {place.indoor ? (
+            <span className="place-badge">{ru.places.badgeIndoor}</span>
+          ) : null}
+          {place.outdoor ? (
+            <span className="place-badge">{ru.places.badgeOutdoor}</span>
+          ) : null}
+        </div>
       </div>
 
       <p className="place-card-description">

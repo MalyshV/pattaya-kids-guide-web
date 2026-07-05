@@ -1,5 +1,6 @@
 export type PlacesFilter = {
   indoor?: boolean;
+  outdoor?: boolean;
   hasFood?: boolean;
   hasWifi?: boolean;
   canLeaveChild?: boolean;
@@ -36,6 +37,7 @@ export function parsePlacesListQuery(searchParams: URLSearchParams): PlacesListQ
   return {
     filter: {
       indoor: parseBooleanParam(searchParams.get("indoor")),
+      outdoor: parseBooleanParam(searchParams.get("outdoor")),
       hasFood: parseBooleanParam(searchParams.get("hasFood")),
       hasWifi: parseBooleanParam(searchParams.get("hasWifi")),
       canLeaveChild: parseBooleanParam(searchParams.get("canLeaveChild")),

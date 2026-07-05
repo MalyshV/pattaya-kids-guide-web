@@ -7,6 +7,7 @@ export type PlaceDto = {
   latitude: number;
   longitude: number;
   indoor: boolean;
+  outdoor: boolean;
   hasFood: boolean;
   hasWifi: boolean;
   canLeaveChild: boolean;

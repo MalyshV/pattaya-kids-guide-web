@@ -69,7 +69,9 @@ export default async function PlaceDetailsPage({
         <div className="details-grid">
           <div>
             <strong>{ru.placeDetails.fields.type}:</strong>{" "}
-            {dto.indoor ? ru.places.badgeIndoor : ru.places.badgeOutdoor}
+            {[dto.indoor && ru.places.badgeIndoor, dto.outdoor && ru.places.badgeOutdoor]
+              .filter(Boolean)
+              .join(", ") || ru.common.no}
           </div>
 
           <div>

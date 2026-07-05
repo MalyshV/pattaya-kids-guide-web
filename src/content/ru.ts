@@ -47,6 +47,7 @@ export const ru = {
     apply: "Показать",
     labels: {
       indoor: "В помещении",
+      outdoor: "На улице",
       hasFood: "Еда",
       hasWifi: "Wi-Fi",
       canLeaveChild: "Можно оставить ребёнка",

@@ -12,6 +12,7 @@ export function mapPlaceToDto(place: Place): PlaceDto {
     latitude: place.latitude,
     longitude: place.longitude,
     indoor: place.indoor,
+    outdoor: place.outdoor,
     hasFood: place.hasFood,
     hasWifi: place.hasWifi,
     canLeaveChild: place.canLeaveChild,

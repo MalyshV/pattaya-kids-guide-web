@@ -179,6 +179,7 @@ model Place {
   hasFood            Boolean             @default(false)
   hasWifi            Boolean             @default(false)
   indoor             Boolean             @default(false)
+  outdoor            Boolean             @default(false)
   createdByUserId    String?
   isAnonymous        Boolean             @default(false)
   /// МОДЕРАЦИЯ + UGC
