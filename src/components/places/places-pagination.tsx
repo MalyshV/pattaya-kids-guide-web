@@ -4,6 +4,7 @@ import { ru } from "@/content/ru";
 type PlacesPaginationProps = {
   currentPage: number;
   totalPages: number;
+  basePath: string;
   indoor?: string;
   hasFood?: string;
   hasWifi?: string;
@@ -11,7 +12,11 @@ type PlacesPaginationProps = {
   animalContact?: string;
 };
 
-function buildPageHref(page: number, params: Record<string, string | undefined>): string {
+function buildPageHref(
+  page: number,
+  params: Record<string, string | undefined>,
+  basePath: string,
+): string {
   const searchParams = new URLSearchParams();
 
   for (const [key, value] of Object.entries(params)) {
@@ -22,12 +27,13 @@ function buildPageHref(page: number, params: Record<string, string | undefined>)
 
   searchParams.set("page", String(page));
 
-  return `/?${searchParams.toString()}`;
+  return `${basePath}?${searchParams.toString()}`;
 }
 
 export function PlacesPagination({
   currentPage,
   totalPages,
+  basePath,
   indoor,
   hasFood,
   hasWifi,
@@ -59,7 +65,7 @@ export function PlacesPagination({
         {hasPrevious ? (
           <Link
             className="pagination-link"
-            href={buildPageHref(currentPage - 1, baseParams)}
+            href={buildPageHref(currentPage - 1, baseParams, basePath)}
           >
             ← {ru.pagination.previous}
           </Link>
@@ -72,7 +78,7 @@ export function PlacesPagination({
         {hasNext ? (
           <Link
             className="pagination-link"
-            href={buildPageHref(currentPage + 1, baseParams)}
+            href={buildPageHref(currentPage + 1, baseParams, basePath)}
           >
             {ru.pagination.next} →
           </Link>

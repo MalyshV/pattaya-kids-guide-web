@@ -39,9 +39,13 @@ type PlaceDetailsResult = Prisma.PlaceGetPayload<{
   };
 }>;
 
-function buildApprovedPlacesWhere(filter?: PlacesFilter): Prisma.PlaceWhereInput {
+function buildApprovedPlacesWhere(
+  filter?: PlacesFilter,
+  cityId?: string,
+): Prisma.PlaceWhereInput {
   return {
     status: "APPROVED",
+    ...(cityId ? { cityId } : {}),
     ...(filter?.indoor !== undefined ? { indoor: filter.indoor } : {}),
     ...(filter?.hasFood !== undefined ? { hasFood: filter.hasFood } : {}),
     ...(filter?.hasWifi !== undefined ? { hasWifi: filter.hasWifi } : {}),
@@ -57,12 +61,13 @@ function buildApprovedPlacesWhere(filter?: PlacesFilter): Prisma.PlaceWhereInput
 export async function getApprovedPlaces(
   filter?: PlacesFilter,
   pagination?: PlacesPaginationParams,
+  cityId?: string,
 ): Promise<PaginatedPlacesResult> {
   const page = pagination?.page && pagination.page > 0 ? pagination.page : 1;
   const limit = pagination?.limit && pagination.limit > 0 ? pagination.limit : 10;
   const skip = (page - 1) * limit;
 
-  const where = buildApprovedPlacesWhere(filter);
+  const where = buildApprovedPlacesWhere(filter, cityId);
 
   const [places, total] = await Promise.all([
     prisma.place.findMany({
@@ -86,11 +91,13 @@ export async function getApprovedPlaces(
 
 export async function getApprovedPlaceBySlug(
   slug: string,
+  cityId?: string,
 ): Promise<PlaceDetailsResult | null> {
   return prisma.place.findFirst({
     where: {
       slug,
       status: "APPROVED",
+      ...(cityId ? { cityId } : {}),
     },
     include: {
       categories: {

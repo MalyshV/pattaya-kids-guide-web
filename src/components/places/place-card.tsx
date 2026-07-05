@@ -4,9 +4,10 @@ import { ru } from "@/content/ru";
 
 type PlaceCardProps = {
   place: PlaceListItemDto;
+  basePath: string;
 };
 
-export function PlaceCard({ place }: PlaceCardProps): React.ReactElement {
+export function PlaceCard({ place, basePath }: PlaceCardProps): React.ReactElement {
   return (
     <article className="place-card interactive-surface">
       <div className="place-card-header">
@@ -42,7 +43,7 @@ export function PlaceCard({ place }: PlaceCardProps): React.ReactElement {
       </div>
 
       <div className="place-card-actions">
-        <Link href={`/places/${place.slug}`} className="place-card-cta">
+        <Link href={`${basePath}/places/${place.slug}`} className="place-card-cta">
           <span className="place-card-cta-text">{ru.common.detailsCta}</span>
           <span className="place-card-cta-arrow" aria-hidden="true">
             →

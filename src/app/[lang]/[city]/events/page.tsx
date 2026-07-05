@@ -1,11 +1,14 @@
+import { notFound } from "next/navigation";
 import { EventCard } from "@/components/events/event-card";
 import { EventFilters } from "@/components/events/event-filters";
 import { EventsPagination } from "@/components/events/events-pagination";
 import { mapEventListItemToDto } from "@/mappers/event.mapper";
 import { getApprovedEvents } from "@/services/events.service";
+import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { ru } from "@/content/ru";
 
 type PageProps = {
+  params: Promise<{ lang: string; city: string }>;
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
@@ -41,9 +44,18 @@ function parseEventType(
   return undefined;
 }
 
-export default async function EventsPage({
+export default async function CityEventsPage({
+  params,
   searchParams,
 }: PageProps): Promise<React.ReactElement> {
+  const { lang, city: citySlug } = await params;
+  const city = await getCityBySlug(citySlug);
+
+  if (!city) {
+    notFound();
+  }
+
+  const basePath = cityBasePath(lang, citySlug);
   const resolvedSearchParams = (await searchParams) ?? {};
 
   const typeParam = getSingleSearchParam(resolvedSearchParams.type);
@@ -60,6 +72,7 @@ export default async function EventsPage({
       page: currentPage,
       limit: 6,
     },
+    city.id,
   );
 
   const items = eventsResponse.items.map(mapEventListItemToDto);
@@ -74,7 +87,7 @@ export default async function EventsPage({
         <p className="hero-description">{ru.events.heroDescription}</p>
       </section>
 
-      <EventFilters type={type} />
+      <EventFilters type={type} basePath={basePath} />
 
       <section className="results-header">
         <div>
@@ -92,7 +105,7 @@ export default async function EventsPage({
         <>
           <section className="events-grid">
             {items.map((event) => (
-              <EventCard key={event.id} event={event} />
+              <EventCard key={event.id} event={event} basePath={basePath} />
             ))}
           </section>
 
@@ -100,6 +113,7 @@ export default async function EventsPage({
             currentPage={eventsResponse.page}
             totalPages={totalPages}
             type={type}
+            basePath={basePath}
           />
         </>
       )}

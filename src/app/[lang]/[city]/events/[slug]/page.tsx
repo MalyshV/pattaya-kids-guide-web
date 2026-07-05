@@ -3,12 +3,11 @@ import { notFound } from "next/navigation";
 import type { EventDetailsDto } from "@/dto/event-details.dto";
 import { mapEventDetailsToDto } from "@/mappers/event-details.mapper";
 import { getApprovedEventBySlug } from "@/services/events.service";
+import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { ru } from "@/content/ru";
 
 type PageProps = {
-  params: Promise<{
-    slug: string;
-  }>;
+  params: Promise<{ lang: string; city: string; slug: string }>;
 };
 
 function formatDate(value: string | Date | null): string {
@@ -28,9 +27,16 @@ function formatDate(value: string | Date | null): string {
 export default async function EventDetailsPage({
   params,
 }: PageProps): Promise<React.ReactElement> {
-  const { slug } = await params;
+  const { lang, city: citySlug, slug } = await params;
 
-  const event = await getApprovedEventBySlug(slug);
+  const city = await getCityBySlug(citySlug);
+
+  if (!city) {
+    notFound();
+  }
+
+  const basePath = cityBasePath(lang, citySlug);
+  const event = await getApprovedEventBySlug(slug, city.id);
 
   if (!event) {
     notFound();
@@ -41,7 +47,7 @@ export default async function EventDetailsPage({
   return (
     <main className="page-shell">
       <div className="back-link-wrapper">
-        <Link href="/events" className="back-link">
+        <Link href={`${basePath}/events`} className="back-link">
           {ru.eventDetails.back}
         </Link>
       </div>
@@ -82,7 +88,7 @@ export default async function EventDetailsPage({
         <h2 className="section-title">{ru.eventDetails.placeTitle}</h2>
 
         {dto.place ? (
-          <Link href={`/places/${dto.place.slug}`} className="linked-place">
+          <Link href={`${basePath}/places/${dto.place.slug}`} className="linked-place">
             <span className="linked-place-label">{ru.eventDetails.placeLabel}</span>
             <span className="linked-place-name">{dto.place.name}</span>
           </Link>

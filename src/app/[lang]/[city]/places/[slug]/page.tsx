@@ -5,12 +5,11 @@ import { mapEventToDto } from "@/mappers/event.mapper";
 import { mapPlaceDetailsToDto } from "@/mappers/place-details.mapper";
 import { getUpcomingApprovedEventsByPlaceId } from "@/services/events.service";
 import { getApprovedPlaceBySlug } from "@/services/places.service";
+import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { ru } from "@/content/ru";
 
 type PageProps = {
-  params: Promise<{
-    slug: string;
-  }>;
+  params: Promise<{ lang: string; city: string; slug: string }>;
 };
 
 function formatShortDate(value: string | Date | null): string {
@@ -29,9 +28,16 @@ function formatShortDate(value: string | Date | null): string {
 export default async function PlaceDetailsPage({
   params,
 }: PageProps): Promise<React.ReactElement> {
-  const { slug } = await params;
+  const { lang, city: citySlug, slug } = await params;
 
-  const place = await getApprovedPlaceBySlug(slug);
+  const city = await getCityBySlug(citySlug);
+
+  if (!city) {
+    notFound();
+  }
+
+  const basePath = cityBasePath(lang, citySlug);
+  const place = await getApprovedPlaceBySlug(slug, city.id);
 
   if (!place) {
     notFound();
@@ -44,7 +50,7 @@ export default async function PlaceDetailsPage({
   return (
     <main className="page-shell">
       <div className="back-link-wrapper">
-        <Link href="/" className="back-link">
+        <Link href={basePath} className="back-link">
           {ru.placeDetails.back}
         </Link>
       </div>
@@ -110,7 +116,7 @@ export default async function PlaceDetailsPage({
             {eventDtos.map((event) => (
               <Link
                 key={event.id}
-                href={`/events/${event.slug}`}
+                href={`${basePath}/events/${event.slug}`}
                 className="event-inline"
               >
                 <div className="event-inline-title">{event.title}</div>

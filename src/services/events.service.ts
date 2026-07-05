@@ -37,6 +37,7 @@ type ApprovedEventsQueryOptions = {
   filter?: EventsFilter;
   pagination?: PaginationParams;
   placeSlug?: string;
+  cityId?: string;
 };
 
 function getEventsOrderBy(type?: EventType): Prisma.EventOrderByWithRelationInput {
@@ -66,11 +67,13 @@ function getPaginationDefaults(pagination?: PaginationParams): {
 function buildApprovedEventsWhere(
   filter?: EventsFilter,
   placeSlug?: string,
+  cityId?: string,
 ): Prisma.EventWhereInput {
   const now = new Date();
 
   return {
     status: "APPROVED",
+    ...(cityId ? { cityId } : {}),
     ...(placeSlug
       ? {
           place: {
@@ -97,9 +100,9 @@ function buildApprovedEventsWhere(
 async function getApprovedEventsList(
   options: ApprovedEventsQueryOptions = {},
 ): Promise<PaginatedEventsResult> {
-  const { filter, pagination, placeSlug } = options;
+  const { filter, pagination, placeSlug, cityId } = options;
 
-  const where = buildApprovedEventsWhere(filter, placeSlug);
+  const where = buildApprovedEventsWhere(filter, placeSlug, cityId);
   const { page, limit, skip } = getPaginationDefaults(pagination);
   const orderBy = getEventsOrderBy(filter?.type);
 
@@ -127,10 +130,12 @@ async function getApprovedEventsList(
 export async function getApprovedEvents(
   filter?: EventsFilter,
   pagination?: PaginationParams,
+  cityId?: string,
 ): Promise<PaginatedEventsResult> {
   return getApprovedEventsList({
     filter,
     pagination,
+    cityId,
   });
 }
 
@@ -148,11 +153,13 @@ export async function getApprovedEventsByPlaceSlug(
 
 export async function getApprovedEventBySlug(
   slug: string,
+  cityId?: string,
 ): Promise<EventDetailsResult | null> {
   return prisma.event.findFirst({
     where: {
       slug,
       status: "APPROVED",
+      ...(cityId ? { cityId } : {}),
     },
     include: {
       place: true,

@@ -5,9 +5,10 @@ type EventsPaginationProps = {
   currentPage: number;
   totalPages: number;
   type?: string;
+  basePath: string;
 };
 
-function buildPageHref(page: number, type?: string): string {
+function buildPageHref(page: number, type: string | undefined, basePath: string): string {
   const searchParams = new URLSearchParams();
 
   if (type) {
@@ -16,13 +17,14 @@ function buildPageHref(page: number, type?: string): string {
 
   searchParams.set("page", String(page));
 
-  return `/events?${searchParams.toString()}`;
+  return `${basePath}/events?${searchParams.toString()}`;
 }
 
 export function EventsPagination({
   currentPage,
   totalPages,
   type,
+  basePath,
 }: EventsPaginationProps): React.ReactElement | null {
   if (totalPages <= 1) {
     return null;
@@ -39,7 +41,10 @@ export function EventsPagination({
 
       <div className="pagination-actions">
         {hasPrevious ? (
-          <Link className="pagination-link" href={buildPageHref(currentPage - 1, type)}>
+          <Link
+            className="pagination-link"
+            href={buildPageHref(currentPage - 1, type, basePath)}
+          >
             ← {ru.pagination.previous}
           </Link>
         ) : (
@@ -49,7 +54,10 @@ export function EventsPagination({
         )}
 
         {hasNext ? (
-          <Link className="pagination-link" href={buildPageHref(currentPage + 1, type)}>
+          <Link
+            className="pagination-link"
+            href={buildPageHref(currentPage + 1, type, basePath)}
+          >
             {ru.pagination.next} →
           </Link>
         ) : (

@@ -4,6 +4,7 @@ import { ru } from "@/content/ru";
 
 type EventCardProps = {
   event: EventListItemDto;
+  basePath: string;
 };
 
 function formatDate(value: string | null): string {
@@ -17,7 +18,7 @@ function formatDate(value: string | null): string {
   });
 }
 
-export function EventCard({ event }: EventCardProps): React.ReactElement {
+export function EventCard({ event, basePath }: EventCardProps): React.ReactElement {
   return (
     <article className="event-card interactive-surface">
       <div className="event-card-header">
@@ -52,7 +53,7 @@ export function EventCard({ event }: EventCardProps): React.ReactElement {
       ) : null}
 
       <div className="event-card-actions">
-        <Link href={`/events/${event.slug}`} className="event-card-cta">
+        <Link href={`${basePath}/events/${event.slug}`} className="event-card-cta">
           <span className="event-card-cta-text">{ru.common.detailsCta}</span>
           <span className="event-card-cta-arrow" aria-hidden="true">
             →
@@ -61,7 +62,7 @@ export function EventCard({ event }: EventCardProps): React.ReactElement {
 
         {event.place ? (
           <Link
-            href={`/places/${event.place.slug}`}
+            href={`${basePath}/places/${event.place.slug}`}
             className="event-card-secondary-link"
           >
             {ru.eventCard.viewPlace}
