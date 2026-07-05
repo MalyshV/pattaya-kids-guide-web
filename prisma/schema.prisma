@@ -138,6 +138,9 @@ model PlaceSchedule {
   closeTime String
   isClosed  Boolean   @default(false)
   place     Place     @relation(fields: [placeId], references: [id])
+
+  /// один интервал на (место, день, время открытия): разрешает обед/2 окна, но запрещает дубль
+  @@unique([placeId, day, openTime])
 }
 
 model PlacePricing {
@@ -164,6 +167,10 @@ model PlaceBirthdayInfo {
   place           Place    @relation(fields: [placeId], references: [id])
 }
 
+/// ПРАВИЛО роста признаков места (чтобы модель оставалась единообразной):
+///  • простой «да/нет» (кондиционер, парковка) → булева колонка прямо здесь;
+///  • значение из набора (языки персонала, категории) → отдельный справочник + M:N;
+///  • группа связанных полей (детское кафе, день рождения) → отдельная 1:1-модель.
 model Place {
   id                 String              @id @default(cuid())
   name               String
@@ -180,6 +187,11 @@ model Place {
   hasWifi            Boolean             @default(false)
   indoor             Boolean             @default(false)
   outdoor            Boolean             @default(false)
+  /// Умные фильтры (Эпик 4): признаки удобства для родителя-удалёнщика
+  hasAirCon          Boolean             @default(false)
+  hasParking         Boolean             @default(false)
+  hasCafeSeating     Boolean             @default(false)
+  hasPowerOutlets    Boolean             @default(false)
   createdByUserId    String?
   isAnonymous        Boolean             @default(false)
   /// МОДЕРАЦИЯ + UGC

@@ -147,10 +147,10 @@ async function main() {
   // =========================
   // 5. AMENITIES (русские названия)
   // =========================
+  // Парковка НЕ в этом списке: поднята до колонки Place.hasParking (см. очистку ниже)
   const amenitiesData = [
     { slug: "cafe-on-site", name: "Кафе" },
     { slug: "wifi", name: "Wi-Fi" },
-    { slug: "parking", name: "Парковка" },
   ];
   for (const amenity of amenitiesData) {
     await prisma.amenity.upsert({
@@ -158,6 +158,17 @@ async function main() {
       update: { name: amenity.name, groupId: foodComfortGroup.id },
       create: { name: amenity.name, slug: amenity.slug, groupId: foodComfortGroup.id },
     });
+  }
+
+  // Парковка теперь колонка Place.hasParking: снимаем старую amenity-привязку и сам справочник
+  const legacyParkingAmenity = await prisma.amenity.findUnique({
+    where: { slug: "parking" },
+  });
+  if (legacyParkingAmenity) {
+    await prisma.placeAmenity.deleteMany({
+      where: { amenityId: legacyParkingAmenity.id },
+    });
+    await prisma.amenity.delete({ where: { id: legacyParkingAmenity.id } });
   }
 
   const cafeAmenity = await prisma.amenity.findUnique({
@@ -303,6 +314,11 @@ async function main() {
     hasWifi: true,
     canLeaveChild: true,
     animalContact: false,
+    // Умные фильтры (Эпик 4)
+    hasAirCon: true,
+    hasParking: true,
+    hasCafeSeating: true,
+    hasPowerOutlets: false,
     status: "APPROVED" as const,
     cityId: pattaya.id,
   };
@@ -324,8 +340,8 @@ async function main() {
     }
   }
 
-  // Удобства The Play Barn
-  for (const slug of ["cafe-on-site", "wifi", "parking"]) {
+  // Удобства The Play Barn (парковка — колонка hasParking, не amenity)
+  for (const slug of ["cafe-on-site", "wifi"]) {
     const amenity = await prisma.amenity.findUnique({ where: { slug } });
     if (amenity) {
       await prisma.placeAmenity.upsert({
