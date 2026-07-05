@@ -33,6 +33,8 @@ async function main() {
     where: { countryId_slug: { countryId: thailand.id, slug: "pattaya" } },
     update: {
       name: "Паттайя",
+      seoDescription:
+        "Спокойный гид по детским местам и событиям Паттайи: куда пойти с ребёнком утром, после сада и на выходных — с ценами, Thai-price и днями рождения.",
       timezone: "Asia/Bangkok",
       latitude: 12.9236,
       longitude: 100.8825,
@@ -41,6 +43,8 @@ async function main() {
       countryId: thailand.id,
       slug: "pattaya",
       name: "Паттайя",
+      seoDescription:
+        "Спокойный гид по детским местам и событиям Паттайи: куда пойти с ребёнком утром, после сада и на выходных — с ценами, Thai-price и днями рождения.",
       timezone: "Asia/Bangkok",
       latitude: 12.9236,
       longitude: 100.8825,

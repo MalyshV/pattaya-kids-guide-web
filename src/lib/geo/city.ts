@@ -21,3 +21,15 @@ export function cityBasePath(lang: string, citySlug: string): string {
 export const getCityBySlug = cache(async (slug: string): Promise<City | null> => {
   return prisma.city.findFirst({ where: { slug } });
 });
+
+/** Базовый URL сайта для абсолютных ссылок (sitemap/robots). */
+export function getSiteUrl(): string {
+  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+}
+
+/**
+ * Порог наполнения. Город публикуется (isPublished=true, попадает в sitemap и
+ * индексируется) только когда в нём достаточно реальных мест — иначе «пустой»
+ * город штрафуется Google и размывает продукт. Флаг ставится осознанно.
+ */
+export const PUBLISH_MIN_PLACES = 15;
