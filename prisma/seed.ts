@@ -458,6 +458,160 @@ async function main() {
   });
 
   // =========================
+  // LARIDEA KIDS' CAFÉ — второе реальное место
+  // Источники (2026-07-06): Instagram @laridea_kids_cafe (скриншоты Вероники),
+  // карточка Google Maps (ссылка от Вероники), факты Вероники как инсайдера.
+  // Уточнить позже: Wi-Fi, розетки, часы работы, цена входа, точный адрес.
+  // =========================
+  const lariDeaData = {
+    name: "LariDea Kids' Café",
+    description:
+      "Детское кафе с крытой игровой в северной Паттайе (Again, рядом с Terminal 21). Игровая зона с кондиционером для детей 1–7 лет, спешелти-кофе и кафе со столиками, где родителю удобно посидеть за ноутбуком. Можно оставить ребёнка под присмотром. Персонал говорит по-тайски и по-английски. По выходным — мастер-классы для детей (кулинария, научные опыты), проводят дни рождения, летом работает детский лагерь.",
+    address: "Again Pattaya, рядом с Terminal 21 Pattaya (точный адрес уточняется)",
+    latitude: 12.9517251,
+    longitude: 100.8891907,
+    // Проверенная Вероникой карточка места в Google Maps (2026-07-06)
+    googleMapsUrl:
+      "https://www.google.com/maps/place/LariDea+-+Kids'+Caf%C3%A9:+Playground+%26+Coffee+Shop/@12.9517303,100.8866158,1057m/data=!3m2!1e3!4b1!4m6!3m5!1s0x3102bd7f74f65737:0x5e0c006bad09a266!8m2!3d12.9517251!4d100.8891907!16s%2Fg%2F11x8g8hw5y",
+    indoor: true,
+    outdoor: false,
+    hasFood: true,
+    hasWifi: false, // уточнить у Вероники (для фильтра «Можно поработать»)
+    canLeaveChild: true, // «nanny services» в профиле + подтверждено Вероникой
+    animalContact: false,
+    hasAirCon: true,
+    hasParking: true,
+    hasCafeSeating: true,
+    hasPowerOutlets: false, // Вероника пока не знает — проверить на месте
+    status: "APPROVED" as const,
+    cityId: pattaya.id,
+  };
+  const lariDea = await prisma.place.upsert({
+    where: { cityId_slug: { cityId: pattaya.id, slug: "laridea" } },
+    update: lariDeaData,
+    create: { ...lariDeaData, slug: "laridea" },
+  });
+
+  // Категории LariDea
+  for (const slug of ["indoor-playground", "cafe"]) {
+    const category = await prisma.category.findUnique({ where: { slug } });
+    if (category) {
+      await prisma.placeCategory.upsert({
+        where: { placeId_categoryId: { placeId: lariDea.id, categoryId: category.id } },
+        update: {},
+        create: { placeId: lariDea.id, categoryId: category.id },
+      });
+    }
+  }
+
+  // Удобства LariDea (кафе; Wi-Fi добавим после подтверждения)
+  const lariDeaCafeAmenity = await prisma.amenity.findUnique({
+    where: { slug: "cafe-on-site" },
+  });
+  if (lariDeaCafeAmenity) {
+    await prisma.placeAmenity.upsert({
+      where: {
+        placeId_amenityId: { placeId: lariDea.id, amenityId: lariDeaCafeAmenity.id },
+      },
+      update: {},
+      create: { placeId: lariDea.id, amenityId: lariDeaCafeAmenity.id },
+    });
+  }
+
+  // Возраст LariDea: 1–7 лет (официальный диапазон игровой из их профиля)
+  const ageGroup1to7 = await prisma.ageGroup.upsert({
+    where: { minAge_maxAge: { minAge: 1, maxAge: 7 } },
+    update: { name: "1–7 лет" },
+    create: { name: "1–7 лет", minAge: 1, maxAge: 7 },
+  });
+  await prisma.placeAgeGroup.upsert({
+    where: {
+      placeId_ageGroupId: { placeId: lariDea.id, ageGroupId: ageGroup1to7.id },
+    },
+    update: {},
+    create: { placeId: lariDea.id, ageGroupId: ageGroup1to7.id },
+  });
+
+  // Языки персонала LariDea (тайский и английский — подтверждено Вероникой)
+  for (const code of ["th", "en"]) {
+    const language = await prisma.language.findUnique({ where: { code } });
+    if (language) {
+      await prisma.placeStaffLanguage.upsert({
+        where: {
+          placeId_languageId: { placeId: lariDea.id, languageId: language.id },
+        },
+        update: {},
+        create: { placeId: lariDea.id, languageId: language.id },
+      });
+    }
+  }
+
+  // День рождения LariDea (официальные пакеты из Instagram, март 2026)
+  const lariDeaBirthdayNotes =
+    "Три пакета: «Little Joy» — от 946 ฿ за ребёнка (от 5 детей, 2 часа), «Happy Moments» — 1 166 ฿ (от 10 детей), «Magic Day» — 1 496 ฿ (от 10 детей, 4 часа, приватная игровая). Депозит 50%, цены включают VAT. Допы: декор, фотограф, шоу.";
+  await prisma.placeBirthdayInfo.upsert({
+    where: { placeId: lariDea.id },
+    update: {
+      hasPackages: true,
+      minGuests: 5,
+      maxGuests: null,
+      depositRequired: true,
+      preBookingDays: null,
+      notes: lariDeaBirthdayNotes,
+    },
+    create: {
+      placeId: lariDea.id,
+      hasPackages: true,
+      minGuests: 5,
+      maxGuests: null,
+      depositRequired: true,
+      preBookingDays: null,
+      notes: lariDeaBirthdayNotes,
+    },
+  });
+
+  // Расписание и цены входа LariDea НЕ заносим, пока нет данных (честность:
+  // страница просто не покажет секции, индикатор статуса промолчит).
+
+  // ЛЕТНИЙ ЛАГЕРЬ LARIDEA — первое реальное событие (даты с официального постера).
+  // Полноценная модель «программ места» — в backlog; пока событие с датами.
+  const lariDeaCampData = {
+    title: "Летний лагерь в LariDea Kids' Café",
+    description:
+      "Тематический летний лагерь для детей 3–8 лет: будни с 11:30 до 15:00, каждую неделю новая тема — от «Исследователей природы» до «Великого зелёного леса». Аквагрим, водные татуировки, творческие мастер-классы, много игр; питание и вода включены. 4 900 ฿ за неделю, скидки при покупке нескольких недель: 2 — 5%, 4 — 10%, 7 — 15%. Мест немного, запись по телефону 081 110 1713.",
+    // 29 июня 11:30 — 14 августа 15:00 по Бангкоку (UTC+7)
+    startDate: new Date("2026-06-29T04:30:00Z"),
+    endDate: new Date("2026-08-14T08:00:00Z"),
+    locationName: "LariDea Kids' Café",
+    address: "Again Pattaya, рядом с Terminal 21 Pattaya",
+    latitude: 12.9517251,
+    longitude: 100.8891907,
+    placeId: lariDea.id,
+    status: "APPROVED" as const,
+    sourceType: "ADMIN" as const,
+    isAnonymous: false,
+    cityId: pattaya.id,
+  };
+  const lariDeaCamp = await prisma.event.upsert({
+    where: { cityId_slug: { cityId: pattaya.id, slug: "laridea-summer-camp-2026" } },
+    update: lariDeaCampData,
+    create: { ...lariDeaCampData, slug: "laridea-summer-camp-2026" },
+  });
+  await prisma.eventCategoryLink.upsert({
+    where: {
+      eventId_categoryId: {
+        eventId: lariDeaCamp.id,
+        categoryId: kidsActivityCategory.id,
+      },
+    },
+    update: {},
+    create: {
+      eventId: lariDeaCamp.id,
+      categoryId: kidsActivityCategory.id,
+    },
+  });
+
+  // =========================
   // 9. [DEMO] UPCOMING EVENT
   // =========================
   const upcomingWorkshopEvent = await prisma.event.upsert({
