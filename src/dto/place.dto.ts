@@ -6,6 +6,7 @@ export type PlaceDto = {
   address: string;
   latitude: number;
   longitude: number;
+  googleMapsUrl: string | null;
   indoor: boolean;
   outdoor: boolean;
   hasFood: boolean;

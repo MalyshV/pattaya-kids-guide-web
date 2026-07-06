@@ -11,6 +11,7 @@ export function mapPlaceToDto(place: Place): PlaceDto {
     address: place.address,
     latitude: place.latitude,
     longitude: place.longitude,
+    googleMapsUrl: place.googleMapsUrl,
     indoor: place.indoor,
     outdoor: place.outdoor,
     hasFood: place.hasFood,

@@ -100,7 +100,12 @@ export default async function PlaceDetailsPage({
         <p className="empty-text">{dto.address}</p>
         <a
           className="map-link"
-          href={`https://www.google.com/maps/search/?api=1&query=${dto.latitude},${dto.longitude}`}
+          href={
+            // проверенная карточка места (фото/отзывы/часы) приоритетнее:
+            // координаты открывают лишь голую метку на карте
+            dto.googleMapsUrl ??
+            `https://www.google.com/maps/search/?api=1&query=${dto.latitude},${dto.longitude}`
+          }
           target="_blank"
           rel="noopener noreferrer"
         >

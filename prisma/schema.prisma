@@ -200,6 +200,9 @@ model Place {
   address            String
   latitude           Float
   longitude          Float
+  /// проверенная ссылка на КАРТОЧКУ места в Google Maps (с фото/отзывами/часами);
+  /// приоритетнее координат — координаты дают лишь голую метку на карте
+  googleMapsUrl      String?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   animalContact      Boolean             @default(false)

@@ -288,6 +288,9 @@ async function main() {
     address: "5 Soi Siam Country Club Road, Pong, Bang Lamung, Chonburi 20150",
     latitude: 12.9180161,
     longitude: 100.9727834,
+    // Проверенная Вероникой карточка места в Google Maps (2026-07-06)
+    googleMapsUrl:
+      "https://www.google.com/maps/place/Play+Barn+%E0%B9%80%E0%B8%94%E0%B8%AD%E0%B8%B0+%E0%B9%80%E0%B8%9E%E0%B8%A5%E0%B8%A2%E0%B9%8C%E0%B8%9A%E0%B8%B2%E0%B8%A3%E0%B9%8C%E0%B8%99+playground/@12.9180213,100.9702085,1057m/data=!3m2!1e3!4b1!4m6!3m5!1s0x310295808927f515:0x86dc0f9572804c2!8m2!3d12.9180161!4d100.9727834!16s%2Fg%2F11y_xtnq_r",
     indoor: true,
     outdoor: true,
     hasFood: true,
