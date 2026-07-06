@@ -1,0 +1,38 @@
+import type { EventLifecycle } from "@/lib/events/event-lifecycle";
+import { ru } from "@/content/ru";
+
+type EventStatusBadgeProps = {
+  status?: EventLifecycle;
+  /** Класс обёртки (отступы места использования); без него — голая пилюля. */
+  wrapperClassName?: string;
+};
+
+/**
+ * Статус события тем же визуальным языком, что и статус места: «Сейчас идёт» —
+ * sage, «Уже прошло» — muted. Для предстоящих ничего не рисуем — даты и так
+ * видны рядом.
+ */
+export function EventStatusBadge({
+  status,
+  wrapperClassName,
+}: EventStatusBadgeProps): React.ReactElement | null {
+  if (status !== "ongoing" && status !== "past") {
+    return null;
+  }
+
+  const pill = (
+    <span
+      className={`open-status ${
+        status === "ongoing" ? "open-status-open" : "open-status-closed"
+      }`}
+    >
+      {status === "ongoing" ? ru.eventCard.statusOngoing : ru.eventCard.statusPast}
+    </span>
+  );
+
+  if (!wrapperClassName) {
+    return pill;
+  }
+
+  return <div className={wrapperClassName}>{pill}</div>;
+}

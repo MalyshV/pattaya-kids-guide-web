@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { EventListItemDto } from "@/dto/event-list-item.dto";
+import { EventStatusBadge } from "@/components/events/event-status-badge";
 import type { EventLifecycle } from "@/lib/events/event-lifecycle";
 import { ru } from "@/content/ru";
 
@@ -38,17 +39,7 @@ export function EventCard({
         </div>
       </div>
 
-      {status === "ongoing" || status === "past" ? (
-        <div className="event-card-status">
-          <span
-            className={`open-status ${
-              status === "ongoing" ? "open-status-open" : "open-status-closed"
-            }`}
-          >
-            {status === "ongoing" ? ru.eventCard.statusOngoing : ru.eventCard.statusPast}
-          </span>
-        </div>
-      ) : null}
+      <EventStatusBadge status={status} wrapperClassName="event-card-status" />
 
       <p className="event-card-description">
         {event.description ?? ru.common.descriptionFallback}

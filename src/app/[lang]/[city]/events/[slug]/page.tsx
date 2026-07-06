@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { EventDetailsDto } from "@/dto/event-details.dto";
+import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { mapEventDetailsToDto } from "@/mappers/event-details.mapper";
 import { getApprovedEventBySlug } from "@/services/events.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
+import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { ru } from "@/content/ru";
 
 type PageProps = {
@@ -43,6 +45,13 @@ export default async function EventDetailsPage({
   }
 
   const dto: EventDetailsDto = mapEventDetailsToDto(event);
+  const eventStatus = dto.startDate
+    ? computeEventStatus(
+        new Date(dto.startDate),
+        dto.endDate ? new Date(dto.endDate) : null,
+        new Date(),
+      )
+    : undefined;
 
   return (
     <main className="page-shell">
@@ -55,6 +64,7 @@ export default async function EventDetailsPage({
       <section className="hero">
         <p className="eyebrow">{ru.eventDetails.eyebrow}</p>
         <h1 className="hero-title">{dto.title}</h1>
+        <EventStatusBadge status={eventStatus} wrapperClassName="hero-status" />
         <p className="hero-description">
           {dto.description ?? ru.common.descriptionFallback}
         </p>
