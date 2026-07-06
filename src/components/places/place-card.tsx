@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { PlaceListItemDto } from "@/dto/place-list-item.dto";
 import { OpenStatusBadge } from "@/components/places/open-status-badge";
-import { isPositiveStatus, type OpenStatus } from "@/lib/schedule/open-status";
+import type { OpenStatus } from "@/lib/schedule/open-status";
 import { ru } from "@/content/ru";
 
 type PlaceCardProps = {
@@ -15,8 +15,14 @@ export function PlaceCard({
   basePath,
   status,
 }: PlaceCardProps): React.ReactElement {
+  const isClosedToday = status?.kind === "closedToday";
+
   return (
-    <article className="place-card interactive-surface">
+    <article
+      className={`place-card interactive-surface${
+        isClosedToday ? " place-card-closed" : ""
+      }`}
+    >
       <div className="place-card-header">
         <div>
           <h3 className="place-card-title">{place.name}</h3>
@@ -33,7 +39,7 @@ export function PlaceCard({
         </div>
       </div>
 
-      {status && isPositiveStatus(status) ? (
+      {status && status.kind !== "unknown" ? (
         <div className="place-card-status">
           <OpenStatusBadge status={status} />
         </div>

@@ -145,7 +145,11 @@ export function computeOpenStatus(
   return { kind: "closedToday" };
 }
 
-/** Позитивный статус — показываем в списке мест (в деталях показываем всё). */
+/**
+ * Место открыто / скоро откроется сегодня. Пригодится для сортировки (открытые
+ * выше) и будущего сценарного фильтра «открыто сейчас». Карточка и детали
+ * теперь показывают все статусы честно (кроме unknown).
+ */
 export function isPositiveStatus(status: OpenStatus): boolean {
   return (
     status.kind === "open" ||

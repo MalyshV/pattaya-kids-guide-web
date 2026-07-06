@@ -275,6 +275,32 @@ input {
   box-shadow: 0 16px 36px rgba(31, 28, 24, 0.12);
 }
 
+/* закрытое сегодня место — тише и «спокойнее», но бейдж и CTA остаются живыми */
+.place-card-closed {
+  background: var(--surface-muted);
+  box-shadow: none;
+}
+
+.place-card-closed:hover,
+.place-card-closed:focus-within {
+  transform: none;
+  box-shadow: none;
+}
+
+.place-card-closed .place-card-title,
+.place-card-closed .place-card-slug,
+.place-card-closed .place-card-description,
+.place-card-closed .place-card-address,
+.place-card-closed .place-badges,
+.place-card-closed .feature-list {
+  opacity: 0.8;
+}
+
+/* бейдж «Сегодня закрыто» остаётся светлым и чётким на приглушённой карточке */
+.place-card-closed .open-status-closed {
+  background: var(--surface);
+}
+
 .place-card-title {
   margin: 0;
   font-size: 22px;
