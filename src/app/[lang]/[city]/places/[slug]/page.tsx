@@ -9,6 +9,7 @@ import { getApprovedPlaceBySlug } from "@/services/places.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeOpenStatus, nowInCity } from "@/lib/schedule/open-status";
 import { OpenStatusBadge } from "@/components/places/open-status-badge";
+import { PlaceProgramCard } from "@/components/places/place-program-card";
 import {
   contactHref,
   isExternalContact,
@@ -221,6 +222,17 @@ export default async function PlaceDetailsPage({
               <div key={index}>
                 <strong>{ru.placeDetails.entryLabel}:</strong> {formatPricingLine(price)}
               </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {dto.programs.length > 0 && (
+        <section className="details-section">
+          <h2 className="section-title">{ru.placeDetails.programsTitle}</h2>
+          <div className="programs-list">
+            {dto.programs.map((program) => (
+              <PlaceProgramCard key={program.id} program={program} />
             ))}
           </div>
         </section>

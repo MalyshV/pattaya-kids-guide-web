@@ -722,6 +722,74 @@ input {
   font-size: 12px;
 }
 
+/* программы места: лагеря и абонементы — карточки с ценой и акцией */
+.programs-list {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.program-card {
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+}
+
+.program-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.program-type {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+
+.program-name {
+  margin: 0 0 8px;
+  font-size: 17px;
+}
+
+.program-price {
+  margin: 0 0 8px;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.program-old-price {
+  color: var(--muted);
+  text-decoration: line-through;
+  font-size: 13px;
+}
+
+.program-current-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.program-price-unit {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.program-description {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+  font-size: 14px;
+}
+
 .back-link:hover {
   text-decoration: underline;
 }

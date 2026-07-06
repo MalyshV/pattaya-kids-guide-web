@@ -124,6 +124,13 @@ export const ru = {
       whatsapp: "WhatsApp",
       telegram: "Telegram",
     },
+    programsTitle: "Программы и абонементы",
+    programTypes: {
+      CAMP: "Лагерь",
+      MEMBERSHIP: "Абонемент",
+      COURSE: "Курс",
+    },
+    programOldPrice: (price: string): string => `было ${price}`,
     ageTitle: "Для какого возраста",
     amenitiesTitle: "Удобства",
     staffLanguagesTitle: "Язык персонала",

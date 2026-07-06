@@ -668,42 +668,74 @@ async function main() {
     ],
   });
 
-  // ЛЕТНИЙ ЛАГЕРЬ LARIDEA — первое реальное событие (даты с официального постера).
-  // Полноценная модель «программ места» — в backlog; пока событие с датами.
-  const lariDeaCampData = {
-    title: "Летний лагерь в LariDea Kids' Café",
-    description:
-      "Тематический летний лагерь для детей 3–8 лет: будни с 11:30 до 15:00, каждую неделю новая тема — от «Исследователей природы» до «Великого зелёного леса». Аквагрим, водные татуировки, творческие мастер-классы, много игр; питание и вода включены. 4 900 ฿ за неделю, скидки при покупке нескольких недель: 2 — 5%, 4 — 10%, 7 — 15%. Мест немного, запись по телефону 081 110 1713.",
-    // 29 июня 11:30 — 14 августа 15:00 по Бангкоку (UTC+7)
-    startDate: new Date("2026-06-29T04:30:00Z"),
-    endDate: new Date("2026-08-14T08:00:00Z"),
-    locationName: "LariDea Kids' Café",
-    address: "Again Pattaya, рядом с Terminal 21 Pattaya",
-    latitude: 12.9517251,
-    longitude: 100.8891907,
-    placeId: lariDea.id,
-    status: "APPROVED" as const,
-    sourceType: "ADMIN" as const,
-    isAnonymous: false,
-    cityId: pattaya.id,
-  };
-  const lariDeaCamp = await prisma.event.upsert({
-    where: { cityId_slug: { cityId: pattaya.id, slug: "laridea-summer-camp-2026" } },
-    update: lariDeaCampData,
-    create: { ...lariDeaCampData, slug: "laridea-summer-camp-2026" },
+  // Лагерь LariDea переехал из «Событий» в «Программы места» (концептуально это
+  // длящаяся программа, а не разовое событие). Убираем старое событие, если оно
+  // было засеяно раньше (сначала связи с категориями, потом само событие).
+  const legacyCampEvent = await prisma.event.findFirst({
+    where: { cityId: pattaya.id, slug: "laridea-summer-camp-2026" },
   });
-  await prisma.eventCategoryLink.upsert({
-    where: {
-      eventId_categoryId: {
-        eventId: lariDeaCamp.id,
-        categoryId: kidsActivityCategory.id,
+  if (legacyCampEvent) {
+    await prisma.eventCategoryLink.deleteMany({
+      where: { eventId: legacyCampEvent.id },
+    });
+    await prisma.event.delete({ where: { id: legacyCampEvent.id } });
+  }
+
+  // Программы LariDea: летний лагерь (сезонная) + абонементы (цена места живёт
+  // здесь — разовый вход они не публикуют). Данные — Instagram, 2026.
+  await prisma.placeProgram.deleteMany({ where: { placeId: lariDea.id } });
+  await prisma.placeProgram.createMany({
+    data: [
+      {
+        placeId: lariDea.id,
+        type: "CAMP",
+        name: "Летний лагерь",
+        description:
+          "Тематические недели для детей 3–8 лет, будни 11:30–15:00: каждую неделю новая тема — от «Исследователей природы» до «Великого зелёного леса». Аквагрим, водные татуировки, творческие мастер-классы, много игр; питание и вода включены. Скидки при покупке нескольких недель: 2 — 5%, 4 — 10%, 7 — 15%.",
+        price: 4900,
+        currency: "THB",
+        priceUnit: "/ неделя",
+        // 29 июня 11:30 — 14 августа 15:00 по Бангкоку (UTC+7)
+        startDate: new Date("2026-06-29T04:30:00Z"),
+        endDate: new Date("2026-08-14T08:00:00Z"),
+        order: 1,
       },
-    },
-    update: {},
-    create: {
-      eventId: lariDeaCamp.id,
-      categoryId: kidsActivityCategory.id,
-    },
+      {
+        placeId: lariDea.id,
+        type: "MEMBERSHIP",
+        name: "Абонемент Rainbow Polly",
+        description:
+          "30 дней · безлимитные входы · весь день · 1 ребёнок + 1 взрослый · первая пара носков бесплатно.",
+        price: 3850,
+        currency: "THB",
+        priceUnit: "/ 30 дней",
+        order: 2,
+      },
+      {
+        placeId: lariDea.id,
+        type: "MEMBERSHIP",
+        name: "Абонемент Astro Polly",
+        description:
+          "60 дней · 16 входов по 3 часа · 1 ребёнок + 1 взрослый · первая пара носков бесплатно.",
+        price: 4839,
+        oldPrice: 6912,
+        currency: "THB",
+        priceUnit: "/ 60 дней",
+        order: 3,
+      },
+      {
+        placeId: lariDea.id,
+        type: "MEMBERSHIP",
+        name: "Абонемент на 6 месяцев",
+        description:
+          "180 дней · безлимитные входы · весь день · 1 ребёнок + 1 взрослый · первая пара носков бесплатно.",
+        price: 15400,
+        oldPrice: 23100,
+        currency: "THB",
+        priceUnit: "/ 180 дней",
+        order: 4,
+      },
+    ],
   });
 
   // =========================

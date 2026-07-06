@@ -67,6 +67,19 @@ export type PlaceContactDto = {
   value: string;
 };
 
+export type PlaceProgramDto = {
+  id: string;
+  type: string;
+  name: string;
+  description: string | null;
+  price: number | null;
+  oldPrice: number | null;
+  currency: string;
+  priceUnit: string | null;
+  startDate: Date | null;
+  endDate: Date | null;
+};
+
 export type PlaceDetailsDto = PlaceDto & {
   categories: PlaceCategoryDto[];
   amenities: PlaceAmenityDto[];
@@ -77,4 +90,5 @@ export type PlaceDetailsDto = PlaceDto & {
   staffLanguages: PlaceLanguageDto[];
   tips: PlaceTipDto[];
   contacts: PlaceContactDto[];
+  programs: PlaceProgramDto[];
 };

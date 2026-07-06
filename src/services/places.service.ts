@@ -51,6 +51,7 @@ type PlaceDetailsResult = Prisma.PlaceGetPayload<{
     };
     tips: true;
     contacts: true;
+    programs: true;
   };
 }>;
 
@@ -177,6 +178,11 @@ export const getApprovedPlaceBySlug = cache(async function getApprovedPlaceBySlu
         },
       },
       contacts: {
+        orderBy: {
+          order: "asc",
+        },
+      },
+      programs: {
         orderBy: {
           order: "asc",
         },
