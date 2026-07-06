@@ -471,6 +471,27 @@ async function main() {
     ],
   });
 
+  // Контакты The Play Barn (карточка Google + соцсети, 2026-07-06). Основной
+  // канал связи — LINE (в Таиланде часто вместо телефона).
+  await prisma.placeContact.deleteMany({ where: { placeId: playBarn.id } });
+  await prisma.placeContact.createMany({
+    data: [
+      { placeId: playBarn.id, type: "line", value: "@ThePlayBarnPattaya", order: 1 },
+      {
+        placeId: playBarn.id,
+        type: "instagram",
+        value: "https://www.instagram.com/theplaybarnpattaya",
+        order: 2,
+      },
+      {
+        placeId: playBarn.id,
+        type: "facebook",
+        value: "https://www.facebook.com/ThePlayBarnPattaya",
+        order: 3,
+      },
+    ],
+  });
+
   // =========================
   // LARIDEA KIDS' CAFÉ — второе реальное место
   // Источники (2026-07-06): Instagram @laridea_kids_cafe (скриншоты Вероники),

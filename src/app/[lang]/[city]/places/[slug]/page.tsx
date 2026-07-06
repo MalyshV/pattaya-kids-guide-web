@@ -9,7 +9,11 @@ import { getApprovedPlaceBySlug } from "@/services/places.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeOpenStatus, nowInCity } from "@/lib/schedule/open-status";
 import { OpenStatusBadge } from "@/components/places/open-status-badge";
-import { contactHref, isExternalContact } from "@/lib/contacts/contact-link";
+import {
+  contactHref,
+  isExternalContact,
+  showsContactValue,
+} from "@/lib/contacts/contact-link";
 import { metaDescription } from "@/lib/seo/meta";
 import { ru } from "@/content/ru";
 
@@ -155,9 +159,10 @@ export default async function PlaceDetailsPage({
                   {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                 >
                   <span className="contact-channel">{channel}</span>
-                  {contact.type === "phone" ? (
+                  {showsContactValue(contact.type) ? (
                     <span className="contact-value">{contact.value}</span>
-                  ) : external ? (
+                  ) : null}
+                  {external ? (
                     <span className="contact-arrow" aria-hidden="true">
                       ↗
                     </span>
