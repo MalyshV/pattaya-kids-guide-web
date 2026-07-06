@@ -139,6 +139,22 @@ export async function getApprovedEvents(
   });
 }
 
+/**
+ * Все одобренные события города (без пагинации) — чтобы страница отсортировала
+ * по живому статусу (идёт сейчас → будущие → прошедшие) до нарезки на страницы.
+ * getApprovedEvents (для /api) остаётся с SQL-пагинацией нетронутым.
+ */
+export async function getAllApprovedEvents(
+  filter?: EventsFilter,
+  cityId?: string,
+): Promise<EventWithPlace[]> {
+  return prisma.event.findMany({
+    where: buildApprovedEventsWhere(filter, undefined, cityId),
+    orderBy: { startDate: "asc" },
+    include: { place: true },
+  });
+}
+
 export async function getApprovedEventsByPlaceSlug(
   placeSlug: string,
   filter?: EventsFilter,

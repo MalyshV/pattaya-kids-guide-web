@@ -22,6 +22,21 @@ export function computeEventStatus(
   return "past";
 }
 
+/**
+ * Ранг для сортировки списка событий: сначала идущие сейчас (0), затем будущие
+ * (1), затем прошедшие (2). Внутри группы порядок задаётся по дате отдельно
+ * (будущие — по возрастанию, прошедшие — свежие выше).
+ */
+export function eventSortRank(status: EventLifecycle | undefined): number {
+  if (status === "ongoing") {
+    return 0;
+  }
+  if (status === "upcoming") {
+    return 1;
+  }
+  return 2;
+}
+
 export function buildEventLifecycleWhere(
   type: EventType | undefined,
   now: Date,
