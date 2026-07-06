@@ -61,6 +61,12 @@ export type PlaceTipDto = {
   verifiedAt: Date | null;
 };
 
+export type PlaceContactDto = {
+  id: string;
+  type: string;
+  value: string;
+};
+
 export type PlaceDetailsDto = PlaceDto & {
   categories: PlaceCategoryDto[];
   amenities: PlaceAmenityDto[];
@@ -70,4 +76,5 @@ export type PlaceDetailsDto = PlaceDto & {
   pricing: PlacePricingDto[];
   staffLanguages: PlaceLanguageDto[];
   tips: PlaceTipDto[];
+  contacts: PlaceContactDto[];
 };

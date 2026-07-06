@@ -157,6 +157,20 @@ model PlacePricing {
   place     Place           @relation(fields: [placeId], references: [id])
 }
 
+/// Контакты места: телефон/сайт/соцсети. type — канал строкой (phone, website,
+/// instagram, facebook, line, whatsapp…), НЕ enum — новые каналы (LINE в Азии
+/// и т.п.) добавляются без миграции, как и для языков (мультирегион).
+model PlaceContact {
+  id      String @id @default(cuid())
+  placeId String
+  type    String
+  value   String
+  order   Int    @default(0)
+  place   Place  @relation(fields: [placeId], references: [id])
+
+  @@index([placeId])
+}
+
 /// «Полезно знать»: короткие практические советы места — ответы на вопросы
 /// родителей из чатов (носки, залог, сменка, свой перекус…). topic — slug-тема
 /// («socks», «prices»…) для будущей группировки или подъёма темы до фильтра.
@@ -242,6 +256,7 @@ model Place {
   amenities          PlaceAmenity[]
   birthdayInfo       PlaceBirthdayInfo?
   categories         PlaceCategory[]
+  contacts           PlaceContact[]
   pricing            PlacePricing[]
   schedules          PlaceSchedule[]
   staffLanguages     PlaceStaffLanguage[]

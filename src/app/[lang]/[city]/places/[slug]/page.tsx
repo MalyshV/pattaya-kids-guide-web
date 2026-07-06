@@ -9,6 +9,7 @@ import { getApprovedPlaceBySlug } from "@/services/places.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeOpenStatus, nowInCity } from "@/lib/schedule/open-status";
 import { OpenStatusBadge } from "@/components/places/open-status-badge";
+import { contactHref, isExternalContact } from "@/lib/contacts/contact-link";
 import { metaDescription } from "@/lib/seo/meta";
 import { ru } from "@/content/ru";
 
@@ -134,6 +135,39 @@ export default async function PlaceDetailsPage({
           {ru.placeDetails.openInMaps} <span aria-hidden="true">↗</span>
         </a>
       </section>
+
+      {dto.contacts.length > 0 && (
+        <section className="details-section">
+          <h2 className="section-title">{ru.placeDetails.contactsTitle}</h2>
+          <div className="contacts-list">
+            {dto.contacts.map((contact) => {
+              const channel =
+                (ru.placeDetails.contactChannels as Record<string, string>)[
+                  contact.type
+                ] ?? contact.type;
+              const external = isExternalContact(contact.type);
+
+              return (
+                <a
+                  key={contact.id}
+                  className="contact-link"
+                  href={contactHref(contact.type, contact.value)}
+                  {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                >
+                  <span className="contact-channel">{channel}</span>
+                  {contact.type === "phone" ? (
+                    <span className="contact-value">{contact.value}</span>
+                  ) : external ? (
+                    <span className="contact-arrow" aria-hidden="true">
+                      ↗
+                    </span>
+                  ) : null}
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {dto.schedules.length > 0 && (
         <section className="details-section">

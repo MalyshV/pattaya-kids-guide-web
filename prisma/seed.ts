@@ -621,6 +621,32 @@ async function main() {
     ],
   });
 
+  // Контакты LariDea (профиль Instagram + карточка Google, 2026-07-06)
+  await prisma.placeContact.deleteMany({ where: { placeId: lariDea.id } });
+  await prisma.placeContact.createMany({
+    data: [
+      { placeId: lariDea.id, type: "phone", value: "081 110 1713", order: 1 },
+      {
+        placeId: lariDea.id,
+        type: "instagram",
+        value: "https://www.instagram.com/laridea_kids_cafe",
+        order: 2,
+      },
+      {
+        placeId: lariDea.id,
+        type: "facebook",
+        value: "https://www.facebook.com/share/g/18WkRmomTk",
+        order: 3,
+      },
+      {
+        placeId: lariDea.id,
+        type: "website",
+        value: "https://laridea.co.th",
+        order: 4,
+      },
+    ],
+  });
+
   // ЛЕТНИЙ ЛАГЕРЬ LARIDEA — первое реальное событие (даты с официального постера).
   // Полноценная модель «программ места» — в backlog; пока событие с датами.
   const lariDeaCampData = {
