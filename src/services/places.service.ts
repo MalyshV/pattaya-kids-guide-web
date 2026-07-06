@@ -110,6 +110,24 @@ export async function getApprovedPlaces(
   };
 }
 
+/**
+ * Все одобренные места города (со schedules), без пагинации — чтобы страница
+ * могла отсортировать по живому статусу «открыто сейчас» глобально, а потом
+ * нарезать на страницы в памяти. Пагинация в SQL тут не подходит: статус
+ * вычисляемый, его нет в БД. При масштабе в тысячи мест на город это стоит
+ * заменить на предвычисленный статус — пока в городе десятки мест, ок.
+ */
+export async function getAllApprovedPlaces(
+  filter?: PlacesFilter,
+  cityId?: string,
+): Promise<PlaceListItem[]> {
+  return prisma.place.findMany({
+    where: buildApprovedPlacesWhere(filter, cityId),
+    orderBy: { name: "asc" },
+    include: { schedules: true },
+  });
+}
+
 export async function getApprovedPlaceBySlug(
   slug: string,
   cityId?: string,

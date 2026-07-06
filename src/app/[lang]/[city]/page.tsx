@@ -2,10 +2,12 @@ import { notFound } from "next/navigation";
 import { PlaceCard } from "@/components/places/place-card";
 import { PlaceFilters } from "@/components/places/place-filters";
 import { PlacesPagination } from "@/components/places/places-pagination";
-import { getApprovedPlaces } from "@/services/places.service";
+import { getAllApprovedPlaces } from "@/services/places.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
-import { computeOpenStatus } from "@/lib/schedule/open-status";
+import { computeOpenStatus, statusSortRank } from "@/lib/schedule/open-status";
 import { ru } from "@/content/ru";
+
+const PAGE_SIZE = 6;
 
 type PageProps = {
   params: Promise<{ lang: string; city: string }>;
@@ -72,7 +74,7 @@ export default async function CityPlacesPage({
   const currentPage = parsePositiveNumberParam(pageParam) ?? 1;
   const isWorkFriendly = parseBooleanParam(workFriendly) === true;
 
-  const placesResponse = await getApprovedPlaces(
+  const allPlaces = await getAllApprovedPlaces(
     {
       indoor: parseBooleanParam(indoor),
       outdoor: parseBooleanParam(outdoor),
@@ -82,14 +84,24 @@ export default async function CityPlacesPage({
       animalContact: parseBooleanParam(animalContact),
       workFriendly: parseBooleanParam(workFriendly),
     },
-    {
-      page: currentPage,
-      limit: 6,
-    },
     city.id,
   );
 
-  const total = placesResponse.total;
+  // Живой статус + сортировка: открытые сейчас выше закрытых (стабильно по имени)
+  const placesWithStatus = allPlaces
+    .map((place) => ({
+      place,
+      status: computeOpenStatus(place.schedules, city.timezone),
+    }))
+    .sort((a, b) => statusSortRank(a.status) - statusSortRank(b.status));
+
+  const total = placesWithStatus.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const pageItems = placesWithStatus.slice(
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE,
+  );
 
   return (
     <main className="page-shell">
@@ -116,7 +128,7 @@ export default async function CityPlacesPage({
         </div>
       </section>
 
-      {placesResponse.items.length === 0 ? (
+      {total === 0 ? (
         <section className="empty-state">
           <h3>{isWorkFriendly ? ru.places.emptyWorkTitle : ru.places.emptyTitle}</h3>
           <p>{isWorkFriendly ? ru.places.emptyWorkHint : ru.places.emptyHint}</p>
@@ -124,19 +136,19 @@ export default async function CityPlacesPage({
       ) : (
         <>
           <section className="places-grid">
-            {placesResponse.items.map((place) => (
+            {pageItems.map(({ place, status }) => (
               <PlaceCard
                 key={place.id}
                 place={place}
                 basePath={basePath}
-                status={computeOpenStatus(place.schedules, city.timezone)}
+                status={status}
               />
             ))}
           </section>
 
           <PlacesPagination
-            currentPage={placesResponse.page}
-            totalPages={Math.ceil(placesResponse.total / placesResponse.limit)}
+            currentPage={safePage}
+            totalPages={totalPages}
             basePath={basePath}
             workFriendly={workFriendly}
             indoor={indoor}

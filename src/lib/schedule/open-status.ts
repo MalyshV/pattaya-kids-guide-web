@@ -146,9 +146,9 @@ export function computeOpenStatus(
 }
 
 /**
- * Место открыто / скоро откроется сегодня. Пригодится для сортировки (открытые
- * выше) и будущего сценарного фильтра «открыто сейчас». Карточка и детали
- * теперь показывают все статусы честно (кроме unknown).
+ * Место открыто / скоро откроется сегодня. Используется для сценарного смысла
+ * «сейчас можно пойти». Карточка и детали показывают все статусы честно (кроме
+ * unknown).
  */
 export function isPositiveStatus(status: OpenStatus): boolean {
   return (
@@ -156,4 +156,16 @@ export function isPositiveStatus(status: OpenStatus): boolean {
     status.kind === "closingSoon" ||
     status.kind === "opensLater"
   );
+}
+
+/**
+ * Ранг для сортировки списка мест: сначала открытые/скоро откроются (0), затем
+ * закрытые сегодня (1), затем места без расписания (2). Внутри одного ранга
+ * порядок сохраняется (стабильная сортировка по имени).
+ */
+export function statusSortRank(status: OpenStatus): number {
+  if (isPositiveStatus(status)) {
+    return 0;
+  }
+  return status.kind === "unknown" ? 2 : 1;
 }
