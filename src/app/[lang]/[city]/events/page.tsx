@@ -104,7 +104,7 @@ export default async function CityEventsPage({
   return (
     <main className="page-shell">
       <section className="hero">
-        <p className="eyebrow">{ru.brand}</p>
+        <p className="eyebrow">{city.name}</p>
         <h1 className="hero-title">{ru.events.heroTitle}</h1>
         <p className="hero-description">{ru.events.heroDescription}</p>
       </section>

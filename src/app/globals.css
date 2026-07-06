@@ -49,6 +49,57 @@ input {
   padding: 40px 0 64px;
 }
 
+/* шапка сайта: бренд + спокойный переключатель разделов */
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.site-header-inner {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+}
+
+.site-brand {
+  text-decoration: none;
+  color: var(--foreground);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.site-nav {
+  display: flex;
+  gap: 6px;
+}
+
+.site-nav-link {
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 999px;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.site-nav-link:hover {
+  background: var(--surface-muted);
+  color: var(--foreground);
+}
+
+.site-nav-link-active {
+  background: var(--surface-muted);
+  color: var(--foreground);
+  font-weight: 600;
+}
+
 .hero {
   margin-bottom: 28px;
   padding: 32px;

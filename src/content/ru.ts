@@ -13,6 +13,12 @@ export const ru = {
     description: "Спокойный гид по детским местам и событиям Паттайи — для родителей.",
   },
 
+  nav: {
+    places: "Места",
+    events: "События",
+    aria: "Разделы сайта",
+  },
+
   common: {
     detailsCta: "Подробнее",
     descriptionFallback: "Описание скоро добавим.",

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { getCityBySlug } from "@/lib/geo/city";
+import { SiteHeader } from "@/components/layout/site-header";
+import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { ru } from "@/content/ru";
 
 type LayoutProps = {
@@ -27,6 +28,16 @@ export async function generateMetadata({
   };
 }
 
-export default function CityLayout({ children }: LayoutProps): React.ReactElement {
-  return <>{children}</>;
+export default async function CityLayout({
+  params,
+  children,
+}: LayoutProps): Promise<React.ReactElement> {
+  const { lang, city } = await params;
+
+  return (
+    <>
+      <SiteHeader basePath={cityBasePath(lang, city)} />
+      {children}
+    </>
+  );
 }
