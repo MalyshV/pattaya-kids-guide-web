@@ -55,14 +55,18 @@ async function main() {
   // =========================
   // 1. EVENT CATEGORIES
   // =========================
-  await prisma.eventCategory.createMany({
-    data: [
-      { name: "Workshop", slug: "workshop" },
-      { name: "Festival", slug: "festival" },
-      { name: "Kids Activity", slug: "kids-activity" },
-    ],
-    skipDuplicates: true,
-  });
+  const eventCategoriesData = [
+    { slug: "workshop", name: "Мастер-класс" },
+    { slug: "festival", name: "Фестиваль" },
+    { slug: "kids-activity", name: "Детская активность" },
+  ];
+  for (const category of eventCategoriesData) {
+    await prisma.eventCategory.upsert({
+      where: { slug: category.slug },
+      update: { name: category.name },
+      create: category,
+    });
+  }
 
   const workshopCategory = await prisma.eventCategory.findUnique({
     where: { slug: "workshop" },
@@ -179,9 +183,10 @@ async function main() {
   const demoPlace = await prisma.place.upsert({
     where: { cityId_slug: { cityId: pattaya.id, slug: "demo-harbor-kids-club" } },
     update: {
-      name: "[DEMO] Harbor Kids Club",
-      description: "Demo indoor activity place for families in Pattaya.",
-      address: "Demo Address, Pattaya",
+      name: "[Демо] Детский клуб «Гавань»",
+      description:
+        "Демонстрационное место для разработки: данные не настоящие. Показывает, как выглядит карточка в каталоге.",
+      address: "Демо-адрес, Паттайя",
       latitude: 12.934,
       longitude: 100.889,
       indoor: true,
@@ -193,10 +198,11 @@ async function main() {
       cityId: pattaya.id,
     },
     create: {
-      name: "[DEMO] Harbor Kids Club",
+      name: "[Демо] Детский клуб «Гавань»",
       slug: "demo-harbor-kids-club",
-      description: "Demo indoor activity place for families in Pattaya.",
-      address: "Demo Address, Pattaya",
+      description:
+        "Демонстрационное место для разработки: данные не настоящие. Показывает, как выглядит карточка в каталоге.",
+      address: "Демо-адрес, Паттайя",
       latitude: 12.934,
       longitude: 100.889,
       indoor: true,
@@ -265,7 +271,7 @@ async function main() {
       maxGuests: 15,
       depositRequired: true,
       preBookingDays: 7,
-      notes: "Demo birthday package for development.",
+      notes: "Демо-пакет дня рождения (тестовые данные для разработки).",
     },
     create: {
       placeId: demoPlace.id,
@@ -274,7 +280,7 @@ async function main() {
       maxGuests: 15,
       depositRequired: true,
       preBookingDays: 7,
-      notes: "Demo birthday package for development.",
+      notes: "Демо-пакет дня рождения (тестовые данные для разработки).",
     },
   });
 
@@ -459,8 +465,8 @@ async function main() {
       cityId_slug: { cityId: pattaya.id, slug: "kids-art-workshop-pattaya-upcoming" },
     },
     update: {
-      title: "[DEMO] Kids Art Workshop – Pattaya",
-      description: "Demo event (seed data) for development and lifecycle testing",
+      title: "[Демо] Детский арт-мастер-класс",
+      description: "Демонстрационное событие (тестовые данные для разработки).",
       startDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7),
       endDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 2),
       locationName: "Central Festival Pattaya",
@@ -469,10 +475,10 @@ async function main() {
       isAnonymous: true,
     },
     create: {
-      title: "[DEMO] Kids Art Workshop – Pattaya",
+      title: "[Демо] Детский арт-мастер-класс",
       slug: "kids-art-workshop-pattaya-upcoming",
       cityId: pattaya.id,
-      description: "Demo event (seed data) for development and lifecycle testing",
+      description: "Демонстрационное событие (тестовые данные для разработки).",
       startDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7),
       endDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 2),
       locationName: "Central Festival Pattaya",
@@ -504,8 +510,8 @@ async function main() {
       cityId_slug: { cityId: pattaya.id, slug: "weekend-kids-play-zone-ongoing" },
     },
     update: {
-      title: "[DEMO] Weekend Kids Play Zone",
-      description: "Demo ongoing event to test 'happening now' logic",
+      title: "[Демо] Игровая зона выходного дня",
+      description: "Демонстрационное событие: проверка статуса «Сейчас идёт».",
       startDate: new Date(now.getTime() - 1000 * 60 * 60),
       endDate: new Date(now.getTime() + 1000 * 60 * 60 * 3),
       locationName: "Terminal 21 Pattaya",
@@ -514,10 +520,10 @@ async function main() {
       isAnonymous: true,
     },
     create: {
-      title: "[DEMO] Weekend Kids Play Zone",
+      title: "[Демо] Игровая зона выходного дня",
       slug: "weekend-kids-play-zone-ongoing",
       cityId: pattaya.id,
-      description: "Demo ongoing event to test 'happening now' logic",
+      description: "Демонстрационное событие: проверка статуса «Сейчас идёт».",
       startDate: new Date(now.getTime() - 1000 * 60 * 60),
       endDate: new Date(now.getTime() + 1000 * 60 * 60 * 3),
       locationName: "Terminal 21 Pattaya",
@@ -549,8 +555,8 @@ async function main() {
       cityId_slug: { cityId: pattaya.id, slug: "kids-festival-pattaya-past" },
     },
     update: {
-      title: "[DEMO] Kids Festival – Pattaya (Past)",
-      description: "Demo past event to test archive and history logic",
+      title: "[Демо] Детский фестиваль (прошедший)",
+      description: "Демонстрационное событие: проверка прошедших событий.",
       startDate: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 10),
       endDate: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 9),
       locationName: "City Park Pattaya",
@@ -559,10 +565,10 @@ async function main() {
       isAnonymous: true,
     },
     create: {
-      title: "[DEMO] Kids Festival – Pattaya (Past)",
+      title: "[Демо] Детский фестиваль (прошедший)",
       slug: "kids-festival-pattaya-past",
       cityId: pattaya.id,
-      description: "Demo past event to test archive and history logic",
+      description: "Демонстрационное событие: проверка прошедших событий.",
       startDate: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 10),
       endDate: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 9),
       locationName: "City Park Pattaya",
@@ -594,12 +600,12 @@ async function main() {
       cityId_slug: { cityId: pattaya.id, slug: "demo-weekend-kids-workshop" },
     },
     update: {
-      title: "[DEMO] Weekend Kids Workshop",
-      description: "Demo event linked to a place.",
+      title: "[Демо] Мастер-класс выходного дня",
+      description: "Демонстрационное событие, привязанное к месту.",
       startDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 3),
       endDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 60 * 2),
-      locationName: "[DEMO] Harbor Kids Club",
-      address: "Demo Address, Pattaya",
+      locationName: "[Демо] Детский клуб «Гавань»",
+      address: "Демо-адрес, Паттайя",
       placeId: demoPlace.id,
       status: "APPROVED",
       sourceType: "ADMIN",
@@ -610,14 +616,14 @@ async function main() {
       isClaimed: false,
     },
     create: {
-      title: "[DEMO] Weekend Kids Workshop",
+      title: "[Демо] Мастер-класс выходного дня",
       slug: "demo-weekend-kids-workshop",
       cityId: pattaya.id,
-      description: "Demo event linked to a place.",
+      description: "Демонстрационное событие, привязанное к месту.",
       startDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 3),
       endDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 60 * 2),
-      locationName: "[DEMO] Harbor Kids Club",
-      address: "Demo Address, Pattaya",
+      locationName: "[Демо] Детский клуб «Гавань»",
+      address: "Демо-адрес, Паттайя",
       placeId: demoPlace.id,
       status: "APPROVED",
       sourceType: "ADMIN",
