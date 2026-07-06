@@ -119,6 +119,9 @@ model AgeGroup {
   minAge Int
   maxAge Int
   places PlaceAgeGroup[]
+
+  /// диапазон возраста уникален — не плодим дубли «3–6 лет» (нужно для idempotent upsert в seed)
+  @@unique([minAge, maxAge])
 }
 
 model PlaceAgeGroup {

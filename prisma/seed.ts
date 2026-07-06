@@ -106,27 +106,18 @@ async function main() {
   });
 
   // =========================
-  // 4. AGE GROUPS (русские названия; AgeGroup без unique — idempotent через findFirst)
+  // 4. AGE GROUPS (русские названия; диапазон уникален — idempotent через upsert)
   // =========================
-  const existing3to6 = await prisma.ageGroup.findFirst({
-    where: { minAge: 3, maxAge: 6 },
+  const ageGroup3to6 = await prisma.ageGroup.upsert({
+    where: { minAge_maxAge: { minAge: 3, maxAge: 6 } },
+    update: { name: "3–6 лет" },
+    create: { name: "3–6 лет", minAge: 3, maxAge: 6 },
   });
-  if (existing3to6) {
-    await prisma.ageGroup.update({
-      where: { id: existing3to6.id },
-      data: { name: "3–6 лет" },
-    });
-  } else {
-    await prisma.ageGroup.create({ data: { name: "3–6 лет", minAge: 3, maxAge: 6 } });
-  }
-  let ageGroupUnder2 = await prisma.ageGroup.findFirst({
-    where: { minAge: 0, maxAge: 2 },
+  const ageGroupUnder2 = await prisma.ageGroup.upsert({
+    where: { minAge_maxAge: { minAge: 0, maxAge: 2 } },
+    update: { name: "0–2 года" },
+    create: { name: "0–2 года", minAge: 0, maxAge: 2 },
   });
-  if (!ageGroupUnder2) {
-    ageGroupUnder2 = await prisma.ageGroup.create({
-      data: { name: "0–2 года", minAge: 0, maxAge: 2 },
-    });
-  }
 
   const indoorPlaygroundCategory = await prisma.category.findUnique({
     where: { slug: "indoor-playground" },
@@ -176,19 +167,8 @@ async function main() {
     include: { group: true },
   });
 
-  const ageGroup3to6 = await prisma.ageGroup.findFirst({
-    where: {
-      minAge: 3,
-      maxAge: 6,
-    },
-  });
-
   if (!cafeAmenity) {
     throw new Error("Amenity 'cafe-on-site' was not created");
-  }
-
-  if (!ageGroup3to6) {
-    throw new Error("Age group '3-6 years' was not created");
   }
 
   const now = new Date();
