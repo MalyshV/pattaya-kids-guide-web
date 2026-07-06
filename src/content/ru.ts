@@ -111,6 +111,7 @@ export const ru = {
     pricingTitle: "Цены",
     entryLabel: "Вход",
     priceFree: "Бесплатно",
+    tipsTitle: "Полезно знать",
     ageTitle: "Для какого возраста",
     amenitiesTitle: "Удобства",
     staffLanguagesTitle: "Язык персонала",

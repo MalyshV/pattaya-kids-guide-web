@@ -157,6 +157,20 @@ model PlacePricing {
   place     Place           @relation(fields: [placeId], references: [id])
 }
 
+/// «Полезно знать»: короткие практические советы места — ответы на вопросы
+/// родителей из чатов (носки, залог, сменка, свой перекус…). topic — slug-тема
+/// («socks», «prices»…) для будущей группировки или подъёма темы до фильтра.
+model PlaceTip {
+  id      String  @id @default(cuid())
+  placeId String
+  text    String
+  topic   String?
+  order   Int     @default(0)
+  place   Place   @relation(fields: [placeId], references: [id])
+
+  @@index([placeId])
+}
+
 model PlaceBirthdayInfo {
   id              String   @id @default(cuid())
   placeId         String   @unique
@@ -228,6 +242,7 @@ model Place {
   pricing            PlacePricing[]
   schedules          PlaceSchedule[]
   staffLanguages     PlaceStaffLanguage[]
+  tips               PlaceTip[]
   userFavoritePlaces UserFavoritePlace[]
   userVisits         UserVisit[]
   /// ГЕО (Сессия 2): город места обязателен — место всегда физически где-то

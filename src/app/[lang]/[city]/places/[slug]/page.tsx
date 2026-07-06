@@ -187,6 +187,19 @@ export default async function PlaceDetailsPage({
         </section>
       )}
 
+      {dto.tips.length > 0 && (
+        <section className="details-section">
+          <h2 className="section-title">{ru.placeDetails.tipsTitle}</h2>
+          <div className="tips-list">
+            {dto.tips.map((tip) => (
+              <p key={tip.id} className="tip-item">
+                {tip.text}
+              </p>
+            ))}
+          </div>
+        </section>
+      )}
+
       {dto.ageGroups.length > 0 && (
         <section className="details-section">
           <h2 className="section-title">{ru.placeDetails.ageTitle}</h2>

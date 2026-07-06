@@ -587,6 +587,25 @@ async function main() {
   // просто не покажет секцию). Контакты (некуда класть, ждут модель):
   // тел. 081 110 1713, сайт laridea.co.th, IG @laridea_kids_cafe.
 
+  // «Полезно знать» LariDea (только подтверждённое из их постеров)
+  await prisma.placeTip.deleteMany({ where: { placeId: lariDea.id } });
+  await prisma.placeTip.createMany({
+    data: [
+      {
+        placeId: lariDea.id,
+        topic: "socks",
+        order: 1,
+        text: "Для игровой нужны носки. По абонементу первая пара для ребёнка и взрослого — бесплатно, а в пакеты дня рождения детские носки уже включены (взрослым — нет).",
+      },
+      {
+        placeId: lariDea.id,
+        topic: "prices",
+        order: 2,
+        text: "Цены включают VAT 7%, но к услугам может добавляться сервисный сбор 10%.",
+      },
+    ],
+  });
+
   // ЛЕТНИЙ ЛАГЕРЬ LARIDEA — первое реальное событие (даты с официального постера).
   // Полноценная модель «программ места» — в backlog; пока событие с датами.
   const lariDeaCampData = {

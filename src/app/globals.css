@@ -701,6 +701,35 @@ input {
   margin-top: 12px;
 }
 
+/* «Полезно знать» — практические советы (носки, залог…), спокойный список */
+.tips-list {
+  margin-top: 12px;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tip-item {
+  margin: 0;
+  position: relative;
+  padding-left: 18px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.tip-item::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.6em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.55;
+}
+
 /* часы работы: день слева, время справа, тонкие разделители, «сегодня» выделен */
 .schedule-list {
   margin-top: 12px;
