@@ -5,6 +5,7 @@ import { EventsPagination } from "@/components/events/events-pagination";
 import { mapEventListItemToDto } from "@/mappers/event.mapper";
 import { getApprovedEvents } from "@/services/events.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
+import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { ru } from "@/content/ru";
 
 type PageProps = {
@@ -78,6 +79,7 @@ export default async function CityEventsPage({
   const items = eventsResponse.items.map(mapEventListItemToDto);
   const totalPages = Math.ceil(eventsResponse.total / eventsResponse.limit);
   const total = eventsResponse.total;
+  const now = new Date();
 
   return (
     <main className="page-shell">
@@ -105,7 +107,20 @@ export default async function CityEventsPage({
         <>
           <section className="events-grid">
             {items.map((event) => (
-              <EventCard key={event.id} event={event} basePath={basePath} />
+              <EventCard
+                key={event.id}
+                event={event}
+                basePath={basePath}
+                status={
+                  event.startDate
+                    ? computeEventStatus(
+                        new Date(event.startDate),
+                        event.endDate ? new Date(event.endDate) : null,
+                        now,
+                      )
+                    : undefined
+                }
+              />
             ))}
           </section>
 

@@ -438,6 +438,35 @@ input {
   box-shadow: 0 16px 36px rgba(31, 28, 24, 0.12);
 }
 
+.event-card-status {
+  margin: 4px 0 12px;
+}
+
+/* прошедшее событие — тише (как закрытое место), но бейдж остаётся светлым */
+.event-card-past {
+  background: var(--surface-muted);
+  box-shadow: none;
+}
+
+.event-card-past:hover,
+.event-card-past:focus-within {
+  transform: none;
+  box-shadow: none;
+}
+
+.event-card-past .event-card-title,
+.event-card-past .event-card-slug,
+.event-card-past .event-card-description,
+.event-card-past .feature-list,
+.event-card-past .event-card-location,
+.event-card-past .event-card-place {
+  opacity: 0.8;
+}
+
+.event-card-past .open-status-closed {
+  background: var(--surface);
+}
+
 .event-card-secondary-link {
   font-size: 14px;
   font-weight: 500;

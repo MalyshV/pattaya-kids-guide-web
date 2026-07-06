@@ -123,6 +123,8 @@ export const ru = {
     locationTbd: "Место уточняется",
     placeLabel: "Место",
     viewPlace: "Открыть место",
+    statusOngoing: "Сейчас идёт",
+    statusPast: "Уже прошло",
   },
 
   eventFilters: {
