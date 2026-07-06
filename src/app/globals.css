@@ -607,6 +607,55 @@ input {
   margin-top: 12px;
 }
 
+/* часы работы: день слева, время справа, тонкие разделители, «сегодня» выделен */
+.schedule-list {
+  margin-top: 12px;
+  max-width: 440px;
+}
+
+.schedule-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.schedule-row:last-child {
+  border-bottom: none;
+}
+
+.schedule-day {
+  color: var(--foreground);
+}
+
+.schedule-hours {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.schedule-hours-closed {
+  opacity: 0.65;
+}
+
+.schedule-row-today .schedule-day,
+.schedule-row-today .schedule-hours {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.schedule-today-tag {
+  margin-left: 8px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #4f6b57;
+  background: #e9f0e8;
+}
+
 /* categories */
 
 .category-list {

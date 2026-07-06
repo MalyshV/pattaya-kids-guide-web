@@ -92,6 +92,7 @@ export const ru = {
       SUN: "Воскресенье",
     },
     closed: "Выходной",
+    today: "сегодня",
     pricingTitle: "Цены",
     entryLabel: "Вход",
     priceFree: "Бесплатно",

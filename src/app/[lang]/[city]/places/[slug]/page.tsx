@@ -6,7 +6,7 @@ import { mapPlaceDetailsToDto } from "@/mappers/place-details.mapper";
 import { getUpcomingApprovedEventsByPlaceId } from "@/services/events.service";
 import { getApprovedPlaceBySlug } from "@/services/places.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
-import { computeOpenStatus } from "@/lib/schedule/open-status";
+import { computeOpenStatus, nowInCity } from "@/lib/schedule/open-status";
 import { OpenStatusBadge } from "@/components/places/open-status-badge";
 import { ru } from "@/content/ru";
 
@@ -72,6 +72,7 @@ export default async function PlaceDetailsPage({
   const eventDtos = events.map(mapEventToDto);
   const dto: PlaceDetailsDto = mapPlaceDetailsToDto(place);
   const openStatus = computeOpenStatus(dto.schedules, city.timezone);
+  const todayEnum = nowInCity(city.timezone).day;
 
   return (
     <main className="page-shell">
@@ -105,19 +106,35 @@ export default async function PlaceDetailsPage({
           <div className="schedule-list">
             {[...dto.schedules]
               .sort((a, b) => DAY_ORDER.indexOf(a.day) - DAY_ORDER.indexOf(b.day))
-              .map((schedule) => (
-                <div key={schedule.day} className="schedule-row">
-                  <span className="schedule-day">
-                    {(ru.placeDetails.days as Record<string, string>)[schedule.day] ??
-                      schedule.day}
-                  </span>
-                  <span className="schedule-hours">
-                    {schedule.isClosed
-                      ? ru.placeDetails.closed
-                      : `${schedule.openTime}–${schedule.closeTime}`}
-                  </span>
-                </div>
-              ))}
+              .map((schedule) => {
+                const isToday = schedule.day === todayEnum;
+
+                return (
+                  <div
+                    key={schedule.day}
+                    className={`schedule-row${isToday ? " schedule-row-today" : ""}`}
+                  >
+                    <span className="schedule-day">
+                      {(ru.placeDetails.days as Record<string, string>)[schedule.day] ??
+                        schedule.day}
+                      {isToday ? (
+                        <span className="schedule-today-tag">
+                          {ru.placeDetails.today}
+                        </span>
+                      ) : null}
+                    </span>
+                    <span
+                      className={`schedule-hours${
+                        schedule.isClosed ? " schedule-hours-closed" : ""
+                      }`}
+                    >
+                      {schedule.isClosed
+                        ? ru.placeDetails.closed
+                        : `${schedule.openTime}–${schedule.closeTime}`}
+                    </span>
+                  </div>
+                );
+              })}
           </div>
         </section>
       )}
