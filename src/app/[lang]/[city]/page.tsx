@@ -4,6 +4,7 @@ import { PlaceFilters } from "@/components/places/place-filters";
 import { PlacesPagination } from "@/components/places/places-pagination";
 import { getApprovedPlaces } from "@/services/places.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
+import { computeOpenStatus } from "@/lib/schedule/open-status";
 import { ru } from "@/content/ru";
 
 type PageProps = {
@@ -124,7 +125,12 @@ export default async function CityPlacesPage({
         <>
           <section className="places-grid">
             {placesResponse.items.map((place) => (
-              <PlaceCard key={place.id} place={place} basePath={basePath} />
+              <PlaceCard
+                key={place.id}
+                place={place}
+                basePath={basePath}
+                status={computeOpenStatus(place.schedules, city.timezone)}
+              />
             ))}
           </section>
 

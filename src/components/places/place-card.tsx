@@ -1,13 +1,20 @@
 import Link from "next/link";
 import type { PlaceListItemDto } from "@/dto/place-list-item.dto";
+import { OpenStatusBadge } from "@/components/places/open-status-badge";
+import { isPositiveStatus, type OpenStatus } from "@/lib/schedule/open-status";
 import { ru } from "@/content/ru";
 
 type PlaceCardProps = {
   place: PlaceListItemDto;
   basePath: string;
+  status?: OpenStatus;
 };
 
-export function PlaceCard({ place, basePath }: PlaceCardProps): React.ReactElement {
+export function PlaceCard({
+  place,
+  basePath,
+  status,
+}: PlaceCardProps): React.ReactElement {
   return (
     <article className="place-card interactive-surface">
       <div className="place-card-header">
@@ -25,6 +32,12 @@ export function PlaceCard({ place, basePath }: PlaceCardProps): React.ReactEleme
           ) : null}
         </div>
       </div>
+
+      {status && isPositiveStatus(status) ? (
+        <div className="place-card-status">
+          <OpenStatusBadge status={status} />
+        </div>
+      ) : null}
 
       <p className="place-card-description">
         {place.description ?? ru.common.descriptionFallback}

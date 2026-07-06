@@ -346,6 +346,52 @@ input {
   cursor: default;
 }
 
+/* живой индикатор «открыто сейчас» — спокойно, без красного и «!» */
+.open-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.open-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.75;
+}
+
+.open-status-open {
+  color: #4f6b57;
+  background: #e9f0e8;
+}
+
+.open-status-soon {
+  color: #97612f;
+  background: #f6eee1;
+}
+
+.open-status-closed {
+  color: var(--muted);
+  background: var(--surface-muted);
+}
+
+.place-card-status {
+  margin-top: 10px;
+}
+
+.hero-status {
+  margin-top: 4px;
+}
+
 /* event cards */
 
 .event-card {

@@ -1,14 +1,19 @@
 import { prisma } from "@/db/prisma";
 import type { PlacesFilter } from "@/lib/queries/places-query";
-import type { Place, Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
 export type PlacesPaginationParams = {
   page?: number;
   limit?: number;
 };
 
+// В список тянем schedules — из них считается живой индикатор «открыто сейчас»
+export type PlaceListItem = Prisma.PlaceGetPayload<{
+  include: { schedules: true };
+}>;
+
 export type PaginatedPlacesResult = {
-  items: Place[];
+  items: PlaceListItem[];
   total: number;
   page: number;
   limit: number;
@@ -89,6 +94,9 @@ export async function getApprovedPlaces(
       take: limit,
       orderBy: {
         name: "asc",
+      },
+      include: {
+        schedules: true,
       },
     }),
     prisma.place.count({ where }),

@@ -20,6 +20,15 @@ export const ru = {
     no: "Нет",
   },
 
+  openStatus: {
+    openHours: (hours: number): string =>
+      `Открыто ещё ~${hours} ${plural(hours, ["час", "часа", "часов"])}`,
+    openNow: "Открыто сейчас",
+    closingSoon: "Скоро закрытие",
+    opensAt: (time: string): string => `Откроется в ${time}`,
+    closedToday: "Сегодня закрыто",
+  },
+
   places: {
     heroTitle: "Места, куда пойти с ребёнком в Паттайе",
     heroDescription:

@@ -6,6 +6,8 @@ import { mapPlaceDetailsToDto } from "@/mappers/place-details.mapper";
 import { getUpcomingApprovedEventsByPlaceId } from "@/services/events.service";
 import { getApprovedPlaceBySlug } from "@/services/places.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
+import { computeOpenStatus } from "@/lib/schedule/open-status";
+import { OpenStatusBadge } from "@/components/places/open-status-badge";
 import { ru } from "@/content/ru";
 
 type PageProps = {
@@ -69,6 +71,7 @@ export default async function PlaceDetailsPage({
   const events = await getUpcomingApprovedEventsByPlaceId(place.id);
   const eventDtos = events.map(mapEventToDto);
   const dto: PlaceDetailsDto = mapPlaceDetailsToDto(place);
+  const openStatus = computeOpenStatus(dto.schedules, city.timezone);
 
   return (
     <main className="page-shell">
@@ -81,6 +84,11 @@ export default async function PlaceDetailsPage({
       <section className="hero">
         <p className="eyebrow">{ru.placeDetails.eyebrow}</p>
         <h1 className="hero-title">{dto.name}</h1>
+        {openStatus.kind !== "unknown" ? (
+          <div className="hero-status">
+            <OpenStatusBadge status={openStatus} />
+          </div>
+        ) : null}
         <p className="hero-description">
           {dto.description ?? ru.common.descriptionFallback}
         </p>
