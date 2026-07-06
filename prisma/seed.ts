@@ -461,12 +461,15 @@ async function main() {
   // LARIDEA KIDS' CAFÉ — второе реальное место
   // Источники (2026-07-06): Instagram @laridea_kids_cafe (скриншоты Вероники),
   // карточка Google Maps (ссылка от Вероники), факты Вероники как инсайдера.
-  // Уточнить позже: Wi-Fi, розетки, цена входа на игровую (и Thai-price).
+  // Уточнить позже: розетки, цена разового входа (+Thai-price?) — в Instagram
+  // не опубликована, есть только абонементы (Rainbow Polly 3850฿/30дн безлимит,
+  // Astro Polly 4839฿/16 входов по 3ч, 6 мес 15400฿; няня 3790฿/ч) → модель
+  // «программ места» в backlog.
   // =========================
   const lariDeaData = {
     name: "LariDea Kids' Café",
     description:
-      "Детское кафе с крытой игровой в северной Паттайе (Again, рядом с Terminal 21). Игровая зона с кондиционером для детей 1–7 лет, спешелти-кофе и кафе со столиками, где родителю удобно посидеть за ноутбуком. Можно оставить ребёнка под присмотром. Персонал говорит по-тайски и по-английски. По выходным — мастер-классы для детей (кулинария, научные опыты), проводят дни рождения, летом работает детский лагерь.",
+      "Детское кафе с крытой игровой в северной Паттайе (Again, рядом с Terminal 21). Игровая зона с кондиционером для детей 1–7 лет, спешелти-кофе, Wi-Fi и кафе со столиками, где родителю удобно посидеть за ноутбуком. Можно оставить ребёнка под присмотром. Персонал говорит по-тайски и по-английски. По выходным — мастер-классы для детей (кулинария, научные опыты), проводят дни рождения, летом работает детский лагерь. Для постоянных гостей — абонементы и клубные скидки.",
     address: "179, 40, Muang Pattaya, Bang Lamung District, Chon Buri 20150",
     latitude: 12.9517251,
     longitude: 100.8891907,
@@ -476,7 +479,7 @@ async function main() {
     indoor: true,
     outdoor: false,
     hasFood: true,
-    hasWifi: false, // уточнить у Вероники (для фильтра «Можно поработать»)
+    hasWifi: true, // подтверждено Вероникой 2026-07-06
     canLeaveChild: true, // «nanny services» в профиле + подтверждено Вероникой
     animalContact: false,
     hasAirCon: true,
@@ -504,18 +507,16 @@ async function main() {
     }
   }
 
-  // Удобства LariDea (кафе; Wi-Fi добавим после подтверждения)
-  const lariDeaCafeAmenity = await prisma.amenity.findUnique({
-    where: { slug: "cafe-on-site" },
-  });
-  if (lariDeaCafeAmenity) {
-    await prisma.placeAmenity.upsert({
-      where: {
-        placeId_amenityId: { placeId: lariDea.id, amenityId: lariDeaCafeAmenity.id },
-      },
-      update: {},
-      create: { placeId: lariDea.id, amenityId: lariDeaCafeAmenity.id },
-    });
+  // Удобства LariDea (кафе + Wi-Fi)
+  for (const slug of ["cafe-on-site", "wifi"]) {
+    const amenity = await prisma.amenity.findUnique({ where: { slug } });
+    if (amenity) {
+      await prisma.placeAmenity.upsert({
+        where: { placeId_amenityId: { placeId: lariDea.id, amenityId: amenity.id } },
+        update: {},
+        create: { placeId: lariDea.id, amenityId: amenity.id },
+      });
+    }
   }
 
   // Возраст LariDea: 1–7 лет (официальный диапазон игровой из их профиля)
