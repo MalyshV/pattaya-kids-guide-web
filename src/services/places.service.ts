@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { prisma } from "@/db/prisma";
 import type { PlacesFilter } from "@/lib/queries/places-query";
 import type { Prisma } from "@prisma/client";
@@ -128,7 +129,9 @@ export async function getAllApprovedPlaces(
   });
 }
 
-export async function getApprovedPlaceBySlug(
+// React cache: generateMetadata и страница зовут функцию с теми же аргументами —
+// в БД в рамках одного запроса уходит один запрос
+export const getApprovedPlaceBySlug = cache(async function getApprovedPlaceBySlug(
   slug: string,
   cityId?: string,
 ): Promise<PlaceDetailsResult | null> {
@@ -168,4 +171,4 @@ export async function getApprovedPlaceBySlug(
       },
     },
   });
-}
+});

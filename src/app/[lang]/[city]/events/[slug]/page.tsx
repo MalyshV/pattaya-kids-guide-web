@@ -1,16 +1,38 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import type { EventDetailsDto } from "@/dto/event-details.dto";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { mapEventDetailsToDto } from "@/mappers/event-details.mapper";
 import { getApprovedEventBySlug } from "@/services/events.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
+import { metaDescription } from "@/lib/seo/meta";
 import { ru } from "@/content/ru";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string; slug: string }>;
 };
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { city: citySlug, slug } = await params;
+  const city = await getCityBySlug(citySlug);
+
+  if (!city) {
+    return {};
+  }
+
+  const event = await getApprovedEventBySlug(slug, city.id);
+
+  if (!event) {
+    return {};
+  }
+
+  return {
+    title: `${event.title} — ${ru.brand}`,
+    description: metaDescription(event.description, ru.meta.description),
+  };
+}
 
 function formatDate(value: string | Date | null): string {
   if (!value) {

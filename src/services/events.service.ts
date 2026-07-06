@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { prisma } from "@/db/prisma";
 import { EVENT_SORTING } from "@/lib/constants/event-sorting";
 import type { EventType } from "@/lib/constants/event-types";
@@ -167,7 +168,8 @@ export async function getApprovedEventsByPlaceSlug(
   });
 }
 
-export async function getApprovedEventBySlug(
+// React cache: дедуп между generateMetadata и страницей (один запрос в БД)
+export const getApprovedEventBySlug = cache(async function getApprovedEventBySlug(
   slug: string,
   cityId?: string,
 ): Promise<EventDetailsResult | null> {
@@ -181,7 +183,7 @@ export async function getApprovedEventBySlug(
       place: true,
     },
   });
-}
+});
 
 export async function getUpcomingApprovedEventsByPlaceId(
   placeId: string,

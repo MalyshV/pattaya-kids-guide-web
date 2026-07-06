@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import type { PlaceDetailsDto } from "@/dto/place-details.dto";
 import { mapEventToDto } from "@/mappers/event.mapper";
 import { mapPlaceDetailsToDto } from "@/mappers/place-details.mapper";
@@ -8,11 +9,32 @@ import { getApprovedPlaceBySlug } from "@/services/places.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeOpenStatus, nowInCity } from "@/lib/schedule/open-status";
 import { OpenStatusBadge } from "@/components/places/open-status-badge";
+import { metaDescription } from "@/lib/seo/meta";
 import { ru } from "@/content/ru";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string; slug: string }>;
 };
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { city: citySlug, slug } = await params;
+  const city = await getCityBySlug(citySlug);
+
+  if (!city) {
+    return {};
+  }
+
+  const place = await getApprovedPlaceBySlug(slug, city.id);
+
+  if (!place) {
+    return {};
+  }
+
+  return {
+    title: `${place.name} — ${ru.brand}`,
+    description: metaDescription(place.description, ru.meta.description),
+  };
+}
 
 function formatShortDate(value: string | Date | null): string {
   if (!value) {
