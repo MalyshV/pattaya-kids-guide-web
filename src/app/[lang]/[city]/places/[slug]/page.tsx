@@ -98,6 +98,14 @@ export default async function PlaceDetailsPage({
       <section className="details-section">
         <h2 className="section-title">{ru.placeDetails.addressTitle}</h2>
         <p className="empty-text">{dto.address}</p>
+        <a
+          className="map-link"
+          href={`https://www.google.com/maps/search/?api=1&query=${dto.latitude},${dto.longitude}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {ru.placeDetails.openInMaps} <span aria-hidden="true">↗</span>
+        </a>
       </section>
 
       {dto.schedules.length > 0 && (

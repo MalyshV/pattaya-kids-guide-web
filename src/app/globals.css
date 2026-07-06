@@ -670,6 +670,20 @@ input {
   font-size: 14px;
 }
 
+/* ссылка «открыть в картах» под адресом — спокойный терракот */
+.map-link {
+  display: inline-block;
+  margin-top: 8px;
+  text-decoration: none;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.map-link:hover {
+  text-decoration: underline;
+}
+
 .back-link:hover {
   text-decoration: underline;
 }

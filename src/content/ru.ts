@@ -79,6 +79,7 @@ export const ru = {
     back: "← Назад к местам",
     eyebrow: "Место",
     addressTitle: "Адрес",
+    openInMaps: "Открыть в Google Maps",
     detailsTitle: "Подробности",
     fields: {
       type: "Тип",
