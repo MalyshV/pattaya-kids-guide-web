@@ -161,12 +161,15 @@ model PlacePricing {
 /// родителей из чатов (носки, залог, сменка, свой перекус…). topic — slug-тема
 /// («socks», «prices»…) для будущей группировки или подъёма темы до фильтра.
 model PlaceTip {
-  id      String  @id @default(cuid())
-  placeId String
-  text    String
-  topic   String?
-  order   Int     @default(0)
-  place   Place   @relation(fields: [placeId], references: [id])
+  id         String    @id @default(cuid())
+  placeId    String
+  text       String
+  topic      String?
+  order      Int       @default(0)
+  /// когда факт последний раз подтверждён (доверие: показываем свежесть;
+  /// null = дата проверки неизвестна, подпись не выводится)
+  verifiedAt DateTime?
+  place      Place     @relation(fields: [placeId], references: [id])
 
   @@index([placeId])
 }

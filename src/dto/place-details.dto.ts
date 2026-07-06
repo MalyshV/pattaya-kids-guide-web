@@ -58,6 +58,7 @@ export type PlaceTipDto = {
   id: string;
   text: string;
   topic: string | null;
+  verifiedAt: Date | null;
 };
 
 export type PlaceDetailsDto = PlaceDto & {

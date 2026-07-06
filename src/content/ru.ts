@@ -112,6 +112,7 @@ export const ru = {
     entryLabel: "Вход",
     priceFree: "Бесплатно",
     tipsTitle: "Полезно знать",
+    tipVerified: (period: string): string => `проверено: ${period}`,
     ageTitle: "Для какого возраста",
     amenitiesTitle: "Удобства",
     staffLanguagesTitle: "Язык персонала",

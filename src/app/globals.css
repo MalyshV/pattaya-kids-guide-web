@@ -730,6 +730,12 @@ input {
   opacity: 0.55;
 }
 
+.tip-verified {
+  font-size: 0.85em;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
 /* часы работы: день слева, время справа, тонкие разделители, «сегодня» выделен */
 .schedule-list {
   margin-top: 12px;

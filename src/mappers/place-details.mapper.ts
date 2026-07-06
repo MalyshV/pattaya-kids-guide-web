@@ -91,6 +91,7 @@ export function mapPlaceDetailsToDto(place: PlaceWithDetails): PlaceDetailsDto {
       id: tip.id,
       text: tip.text,
       topic: tip.topic,
+      verifiedAt: tip.verifiedAt,
     })),
   };
 }

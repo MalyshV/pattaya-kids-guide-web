@@ -194,6 +194,17 @@ export default async function PlaceDetailsPage({
             {dto.tips.map((tip) => (
               <p key={tip.id} className="tip-item">
                 {tip.text}
+                {tip.verifiedAt ? (
+                  <span className="tip-verified">
+                    {" · "}
+                    {ru.placeDetails.tipVerified(
+                      tip.verifiedAt.toLocaleDateString("ru-RU", {
+                        month: "long",
+                        year: "numeric",
+                      }),
+                    )}
+                  </span>
+                ) : null}
               </p>
             ))}
           </div>
