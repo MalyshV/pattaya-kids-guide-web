@@ -151,6 +151,22 @@ export const ru = {
     emptyHint: "Попробуйте другой фильтр или посмотрите все события.",
   },
 
+  activities: {
+    heroTitle: "Занятия для детей в Паттайе",
+    heroDescription:
+      "Развивашки, студии и секции: куда записать ребёнка на регулярные занятия — плавание, музыку, рисование и не только.",
+    sectionTitle: "Занятия",
+    count: (total: number): string =>
+      `${total} ${plural(total, ["занятие", "занятия", "занятий"])}`,
+    emptyTitle: "Пока занятий немного",
+    emptyHint: "Наполняем каталог — скоро здесь появятся студии и секции.",
+    placeLabel: "Место",
+  },
+
+  activityCard: {
+    detailsCta: "Открыть место",
+  },
+
   eventCard: {
     starts: "Начало",
     ends: "Конец",
