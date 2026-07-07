@@ -316,6 +316,42 @@ input {
   padding: 20px;
 }
 
+/* обложка места: фото или спокойный плейсхолдер (видно, куда встанет фото) */
+.place-image {
+  aspect-ratio: 16 / 10;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--surface-muted);
+  margin-bottom: 16px;
+}
+
+.place-image-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.place-image-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+}
+
+.place-image-empty svg {
+  width: 40px;
+  height: 40px;
+  opacity: 0.35;
+}
+
+/* баннер-обложка на странице места — шире и ниже карточной */
+.place-image-hero {
+  aspect-ratio: 16 / 7;
+  border-radius: 18px;
+  margin-bottom: 20px;
+}
+
 .place-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 16px 36px rgba(31, 28, 24, 0.12);

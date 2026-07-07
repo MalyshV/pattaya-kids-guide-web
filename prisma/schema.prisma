@@ -307,6 +307,8 @@ model Place {
   name               String
   slug               String
   description        String?
+  /// обложка места (путь в public, напр. /images/places/laridea.jpg); null = нет фото
+  imageUrl           String?
   address            String
   latitude           Float
   longitude          Float

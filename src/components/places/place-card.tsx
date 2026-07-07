@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { PlaceListItemDto } from "@/dto/place-list-item.dto";
 import { OpenStatusBadge } from "@/components/places/open-status-badge";
+import { PlaceImage } from "@/components/places/place-image";
 import type { OpenStatus } from "@/lib/schedule/open-status";
 import { ru } from "@/content/ru";
 
@@ -23,6 +24,8 @@ export function PlaceCard({
         isClosedToday ? " place-card-closed" : ""
       }`}
     >
+      <PlaceImage url={place.imageUrl} alt={place.name} />
+
       <div className="place-card-header">
         <div>
           <h3 className="place-card-title">{place.name}</h3>

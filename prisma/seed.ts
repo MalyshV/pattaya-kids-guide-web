@@ -207,6 +207,7 @@ async function main() {
       name: "[Демо] Детский клуб «Гавань»",
       description:
         "Демонстрационное место для разработки: данные не настоящие. Показывает, как выглядит карточка в каталоге.",
+      imageUrl: "/images/places/sample.svg",
       address: "Демо-адрес, Паттайя",
       latitude: 12.934,
       longitude: 100.889,
@@ -223,6 +224,7 @@ async function main() {
       slug: "demo-harbor-kids-club",
       description:
         "Демонстрационное место для разработки: данные не настоящие. Показывает, как выглядит карточка в каталоге.",
+      imageUrl: "/images/places/sample.svg",
       address: "Демо-адрес, Паттайя",
       latitude: 12.934,
       longitude: 100.889,

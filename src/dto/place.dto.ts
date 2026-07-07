@@ -3,6 +3,7 @@ export type PlaceDto = {
   name: string;
   slug: string;
   description: string | null;
+  imageUrl: string | null;
   address: string;
   latitude: number;
   longitude: number;

@@ -8,6 +8,7 @@ export function mapPlaceToDto(place: Place): PlaceDto {
     name: place.name,
     slug: place.slug,
     description: place.description,
+    imageUrl: place.imageUrl,
     address: place.address,
     latitude: place.latitude,
     longitude: place.longitude,

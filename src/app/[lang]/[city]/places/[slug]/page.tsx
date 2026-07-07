@@ -10,6 +10,7 @@ import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeOpenStatus, nowInCity } from "@/lib/schedule/open-status";
 import { OpenStatusBadge } from "@/components/places/open-status-badge";
 import { PlaceProgramCard } from "@/components/places/place-program-card";
+import { PlaceImage } from "@/components/places/place-image";
 import { FactValue } from "@/components/places/fact-value";
 import { fromAgeLabel } from "@/lib/age/format-age";
 import {
@@ -124,6 +125,8 @@ export default async function PlaceDetailsPage({
           {ru.placeDetails.back}
         </Link>
       </div>
+
+      <PlaceImage url={dto.imageUrl} alt={dto.name} className="place-image-hero" />
 
       <section className="hero">
         <p className="eyebrow">{ru.placeDetails.eyebrow}</p>

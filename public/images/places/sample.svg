@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-label="Образец обложки">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4ede2" />
+      <stop offset="1" stop-color="#eadfce" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#sky)" />
+  <circle cx="620" cy="150" r="70" fill="#f0d9b8" />
+  <path d="M0 380 Q 200 300 400 360 T 800 350 L 800 500 L 0 500 Z" fill="#e3ecdd" />
+  <path d="M0 430 Q 260 370 520 420 T 800 420 L 800 500 L 0 500 Z" fill="#d3e0cc" />
+  <text x="400" y="272" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="22" fill="#8a8378">образец обложки</text>
+</svg>
