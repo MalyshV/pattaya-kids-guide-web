@@ -74,6 +74,11 @@ async function main(): Promise<void> {
       gaps.push("Ссылка на Google Maps");
     }
 
+    // Можно оставить ребёнка, но с какого возраста — не уточнено
+    if (place.canLeaveChild === true && place.leaveChildFromMonths === null) {
+      gaps.push("Возраст, с которого можно оставить ребёнка");
+    }
+
     for (const program of place.programs) {
       if (program.price === null) {
         const typeLabel = PROGRAM_TYPE_LABELS[program.type] ?? program.type;

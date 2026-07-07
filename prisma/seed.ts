@@ -925,7 +925,9 @@ async function main() {
     outdoor: false,
     hasFood: false,
     hasWifi: null, // Wi-Fi не подтверждён — «уточняется»
-    canLeaveChild: true, // «синие» классы — ребёнок занимается сам
+    // нет свободной игровой-присмотра: на «синих» классах родитель на месте (в лобби),
+    // это не «оставить ребёнка». Контекст (красные/синие) — в описании и занятии
+    canLeaveChild: false,
     animalContact: false,
     hasAirCon: true,
     hasParking: true, // подтверждено Вероникой 2026-07

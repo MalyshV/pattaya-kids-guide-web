@@ -13,6 +13,8 @@ export type PlaceDto = {
   hasFood: boolean | null;
   hasWifi: boolean | null;
   canLeaveChild: boolean | null;
+  // возраст в месяцах, с которого можно оставить ребёнка (при canLeaveChild=true)
+  leaveChildFromMonths: number | null;
   animalContact: boolean | null;
   hasAirCon: boolean | null;
   hasParking: boolean | null;

@@ -17,6 +17,7 @@ export function mapPlaceToDto(place: Place): PlaceDto {
     hasFood: place.hasFood,
     hasWifi: place.hasWifi,
     canLeaveChild: place.canLeaveChild,
+    leaveChildFromMonths: place.leaveChildFromMonths,
     animalContact: place.animalContact,
     hasAirCon: place.hasAirCon,
     hasParking: place.hasParking,

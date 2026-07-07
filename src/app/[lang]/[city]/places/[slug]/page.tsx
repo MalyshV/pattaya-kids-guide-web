@@ -11,6 +11,7 @@ import { computeOpenStatus, nowInCity } from "@/lib/schedule/open-status";
 import { OpenStatusBadge } from "@/components/places/open-status-badge";
 import { PlaceProgramCard } from "@/components/places/place-program-card";
 import { FactValue } from "@/components/places/fact-value";
+import { fromAgeLabel } from "@/lib/age/format-age";
 import {
   contactHref,
   isExternalContact,
@@ -402,11 +403,15 @@ export default async function PlaceDetailsPage({
 
           <div>
             <strong>{ru.placeDetails.fields.childDropOff}:</strong>{" "}
-            <FactValue
-              value={dto.canLeaveChild}
-              yes={ru.common.affirmative}
-              no={ru.common.negative}
-            />
+            {dto.canLeaveChild === true && dto.leaveChildFromMonths != null ? (
+              fromAgeLabel(dto.leaveChildFromMonths)
+            ) : (
+              <FactValue
+                value={dto.canLeaveChild}
+                yes={ru.common.affirmative}
+                no={ru.common.negative}
+              />
+            )}
           </div>
 
           <div>

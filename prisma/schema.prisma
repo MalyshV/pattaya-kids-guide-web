@@ -313,6 +313,9 @@ model Place {
   /// пробел в данных уверенным «нет» — это подрывает доверие к гиду.
   animalContact      Boolean?
   canLeaveChild      Boolean?
+  /// возраст (в месяцах), с которого можно оставить ребёнка под присмотром;
+  /// осмыслен при canLeaveChild=true (иначе не показываем). null = порог не уточнён
+  leaveChildFromMonths Int?
   hasFood            Boolean?
   hasWifi            Boolean?
   indoor             Boolean             @default(false)

@@ -18,6 +18,12 @@ function ageLabelGenitive(months: number): string {
   return `${years} ${years === 1 ? "года" : "лет"}`;
 }
 
+/** «с N лет / с N мес» — возраст, с которого что-то доступно (напр. можно
+ *  оставить ребёнка под присмотром). */
+export function fromAgeLabel(months: number): string {
+  return `с ${ageLabelGenitive(months)}`;
+}
+
 /**
  * Возрастной диапазон занятия в читаемом виде: «до 3 лет», «4 мес – 12 лет»,
  * «от 6 лет». null, если возраст не задан (карточка секцию не покажет).
