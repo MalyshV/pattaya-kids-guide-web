@@ -37,6 +37,8 @@ export const ru = {
     // «Да/Нет» — для полей-вопросов («Можно ли…?»)
     affirmative: "Да",
     negative: "Нет",
+    // третье состояние факта: данные ещё не проверены (не выдаём пробел за «нет»)
+    unknown: "уточняется",
   },
 
   openStatus: {
@@ -98,6 +100,10 @@ export const ru = {
       type: "Тип",
       food: "Еда",
       wifi: "Wi-Fi",
+      airCon: "Кондиционер",
+      parking: "Парковка",
+      powerOutlets: "Розетки",
+      cafeSeating: "Есть где посидеть",
       childDropOff: "Можно оставить ребёнка",
       animals: "Животные",
     },
@@ -116,6 +122,7 @@ export const ru = {
     pricingTitle: "Цены",
     entryLabel: "Вход",
     priceFree: "Бесплатно",
+    priceUnknown: "Цена уточняется",
     tipsTitle: "Полезно знать",
     tipVerified: (period: string): string => `проверено: ${period}`,
     contactsTitle: "Контакты",

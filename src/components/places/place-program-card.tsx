@@ -52,7 +52,11 @@ export function PlaceProgramCard({ program }: PlaceProgramCardProps): React.Reac
             <span className="program-price-unit">{program.priceUnit}</span>
           ) : null}
         </p>
-      ) : null}
+      ) : (
+        <p className="program-price program-price-unknown">
+          {ru.placeDetails.priceUnknown}
+        </p>
+      )}
 
       {program.description ? (
         <p className="program-description">{program.description}</p>

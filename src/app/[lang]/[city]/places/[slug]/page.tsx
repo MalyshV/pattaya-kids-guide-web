@@ -10,6 +10,7 @@ import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeOpenStatus, nowInCity } from "@/lib/schedule/open-status";
 import { OpenStatusBadge } from "@/components/places/open-status-badge";
 import { PlaceProgramCard } from "@/components/places/place-program-card";
+import { FactValue } from "@/components/places/fact-value";
 import {
   contactHref,
   isExternalContact,
@@ -75,7 +76,7 @@ function formatPricingLine(price: {
 
   const value = minPrice ?? maxPrice;
 
-  return value != null ? `${value} ${currency}` : "";
+  return value != null ? `${value} ${currency}` : ru.placeDetails.priceUnknown;
 }
 
 export default async function PlaceDetailsPage({
@@ -324,22 +325,50 @@ export default async function PlaceDetailsPage({
 
           <div>
             <strong>{ru.placeDetails.fields.food}:</strong>{" "}
-            {dto.hasFood ? ru.common.yes : ru.common.no}
+            <FactValue value={dto.hasFood} />
           </div>
 
           <div>
             <strong>{ru.placeDetails.fields.wifi}:</strong>{" "}
-            {dto.hasWifi ? ru.common.yes : ru.common.no}
+            <FactValue value={dto.hasWifi} />
+          </div>
+
+          <div>
+            <strong>{ru.placeDetails.fields.airCon}:</strong>{" "}
+            <FactValue value={dto.hasAirCon} />
+          </div>
+
+          <div>
+            <strong>{ru.placeDetails.fields.parking}:</strong>{" "}
+            <FactValue value={dto.hasParking} />
+          </div>
+
+          <div>
+            <strong>{ru.placeDetails.fields.powerOutlets}:</strong>{" "}
+            <FactValue value={dto.hasPowerOutlets} />
+          </div>
+
+          <div>
+            <strong>{ru.placeDetails.fields.cafeSeating}:</strong>{" "}
+            <FactValue
+              value={dto.hasCafeSeating}
+              yes={ru.common.affirmative}
+              no={ru.common.negative}
+            />
           </div>
 
           <div>
             <strong>{ru.placeDetails.fields.childDropOff}:</strong>{" "}
-            {dto.canLeaveChild ? ru.common.affirmative : ru.common.negative}
+            <FactValue
+              value={dto.canLeaveChild}
+              yes={ru.common.affirmative}
+              no={ru.common.negative}
+            />
           </div>
 
           <div>
             <strong>{ru.placeDetails.fields.animals}:</strong>{" "}
-            {dto.animalContact ? ru.common.yes : ru.common.no}
+            <FactValue value={dto.animalContact} />
           </div>
         </div>
       </section>
