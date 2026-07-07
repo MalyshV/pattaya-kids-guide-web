@@ -93,6 +93,7 @@ export const ru = {
   placeDetails: {
     back: "← Назад к местам",
     eyebrow: "Место",
+    photosTitle: "Фотографии",
     addressTitle: "Адрес",
     openInMaps: "Открыть в Google Maps",
     detailsTitle: "Подробности",

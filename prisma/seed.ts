@@ -743,6 +743,19 @@ async function main() {
     ],
   });
 
+  // Мини-галерея LariDea: доп. фото (обложка — imageUrl отдельно). Тест-фото визита.
+  await prisma.placePhoto.deleteMany({ where: { placeId: lariDea.id } });
+  await prisma.placePhoto.createMany({
+    data: [
+      {
+        placeId: lariDea.id,
+        url: "/images/places/laridea-play.jpg",
+        caption: "Игровая зона LariDea",
+        order: 1,
+      },
+    ],
+  });
+
   // «Полезно знать» LariDea. Обновлено с личного визита Вероники 2026-07-07
   // (прайс-лист и постеры на месте) — факты подтверждены, verifiedAt проставлен.
   const lariDeaVisit = new Date("2026-07-07");

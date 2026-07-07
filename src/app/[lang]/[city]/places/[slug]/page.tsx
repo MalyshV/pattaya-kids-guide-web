@@ -141,6 +141,21 @@ export default async function PlaceDetailsPage({
         </p>
       </section>
 
+      {dto.photos.length > 0 && (
+        <section className="details-section">
+          <h2 className="section-title">{ru.placeDetails.photosTitle}</h2>
+          <div className="cover-gallery">
+            {dto.photos.map((photo) => (
+              <PlaceImage
+                key={photo.id}
+                url={photo.url}
+                alt={photo.caption ?? dto.name}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="details-section">
         <h2 className="section-title">{ru.placeDetails.addressTitle}</h2>
         <p className="empty-text">{dto.address}</p>

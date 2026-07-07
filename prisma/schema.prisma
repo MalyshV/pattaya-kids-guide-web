@@ -146,6 +146,18 @@ model PlaceSchedule {
   @@unique([placeId, day, openTime])
 }
 
+/// доп. фото места для мини-галереи (обложка живёт отдельно в Place.imageUrl)
+model PlacePhoto {
+  id      String  @id @default(cuid())
+  placeId String
+  url     String
+  caption String?
+  order   Int     @default(0)
+  place   Place   @relation(fields: [placeId], references: [id])
+
+  @@index([placeId])
+}
+
 model PlacePricing {
   id        String          @id @default(cuid())
   placeId   String
@@ -350,6 +362,7 @@ model Place {
   contacts           PlaceContact[]
   pricing            PlacePricing[]
   entryPrices        PlaceEntryPrice[]
+  photos             PlacePhoto[]
   programs           PlaceProgram[]
   schedules          PlaceSchedule[]
   staffLanguages     PlaceStaffLanguage[]

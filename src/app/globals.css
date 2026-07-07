@@ -352,6 +352,17 @@ input {
   margin-bottom: 20px;
 }
 
+/* мини-галерея на странице места — сетка миниатюр (обложка — отдельно, выше) */
+.cover-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.cover-gallery .place-image {
+  margin-bottom: 0;
+}
+
 .place-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 16px 36px rgba(31, 28, 24, 0.12);
