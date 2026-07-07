@@ -16,6 +16,7 @@ export const ru = {
   nav: {
     places: "Места",
     events: "События",
+    activities: "Занятия",
     aria: "Разделы сайта",
   },
 
