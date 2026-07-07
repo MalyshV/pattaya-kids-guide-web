@@ -155,6 +155,26 @@ async function main() {
     });
   }
 
+  // =========================
+  // 5b. КАТЕГОРИИ ЗАНЯТИЙ (справочник для раздела «Занятия»; slug — англ.)
+  // =========================
+  const activityCategoriesData = [
+    { slug: "early-development", name: "Раннее развитие", order: 1 },
+    { slug: "swimming", name: "Плавание", order: 2 },
+    { slug: "gymnastics", name: "Гимнастика", order: 3 },
+    { slug: "dance", name: "Танцы", order: 4 },
+    { slug: "art", name: "Рисование", order: 5 },
+    { slug: "music", name: "Музыка", order: 6 },
+    { slug: "math", name: "Математика", order: 7 },
+  ];
+  for (const category of activityCategoriesData) {
+    await prisma.activityCategory.upsert({
+      where: { slug: category.slug },
+      update: { name: category.name, order: category.order },
+      create: category,
+    });
+  }
+
   // Парковка теперь колонка Place.hasParking: снимаем старую amenity-привязку и сам справочник
   const legacyParkingAmenity = await prisma.amenity.findUnique({
     where: { slug: "parking" },
@@ -535,8 +555,15 @@ async function main() {
   // Программы The Play Barn: регулярная игровая группа. Это НЕ разовое событие —
   // постоянная еженедельная активность (по пн/пт), поэтому программа, не Event.
   // Афиша Instagram, 4 июня 2026.
+  const playBarnOldPrograms = await prisma.placeProgram.findMany({
+    where: { placeId: playBarn.id },
+    select: { id: true },
+  });
+  await prisma.programActivityCategory.deleteMany({
+    where: { programId: { in: playBarnOldPrograms.map((p) => p.id) } },
+  });
   await prisma.placeProgram.deleteMany({ where: { placeId: playBarn.id } });
-  await prisma.placeProgram.create({
+  const barnyardProgram = await prisma.placeProgram.create({
     data: {
       placeId: playBarn.id,
       type: "COURSE",
@@ -549,6 +576,15 @@ async function main() {
       order: 1,
     },
   });
+  // Категория занятия: раннее развитие (комплексная развивашка для до 3 лет)
+  const earlyDevCategory = await prisma.activityCategory.findUnique({
+    where: { slug: "early-development" },
+  });
+  if (earlyDevCategory) {
+    await prisma.programActivityCategory.create({
+      data: { programId: barnyardProgram.id, categoryId: earlyDevCategory.id },
+    });
+  }
 
   // =========================
   // LARIDEA KIDS' CAFÉ — второе реальное место
@@ -741,6 +777,13 @@ async function main() {
 
   // Программы LariDea: летний лагерь (сезонная) + абонементы (цена места живёт
   // здесь — разовый вход они не публикуют). Данные — Instagram, 2026.
+  const lariDeaOldPrograms = await prisma.placeProgram.findMany({
+    where: { placeId: lariDea.id },
+    select: { id: true },
+  });
+  await prisma.programActivityCategory.deleteMany({
+    where: { programId: { in: lariDeaOldPrograms.map((p) => p.id) } },
+  });
   await prisma.placeProgram.deleteMany({ where: { placeId: lariDea.id } });
   await prisma.placeProgram.createMany({
     data: [

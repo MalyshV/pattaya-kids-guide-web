@@ -157,6 +157,26 @@ model PlacePricing {
   place     Place           @relation(fields: [placeId], references: [id])
 }
 
+/// Справочник категорий занятий (плавание, рисование…). Справочник + M:N, НЕ
+/// enum: набор растёт (робототехника, шахматы…) без миграции, как языки/каналы;
+/// занятие бывает в нескольких категориях (развивашка = раннее развитие + музыка).
+model ActivityCategory {
+  id       String                    @id @default(cuid())
+  slug     String                    @unique
+  name     String
+  order    Int                       @default(0)
+  programs ProgramActivityCategory[]
+}
+
+model ProgramActivityCategory {
+  programId  String
+  categoryId String
+  category   ActivityCategory @relation(fields: [categoryId], references: [id])
+  program    PlaceProgram     @relation(fields: [programId], references: [id])
+
+  @@id([programId, categoryId])
+}
+
 /// Программы места: лагеря, абонементы, курсы. У многих мест цена живёт именно
 /// здесь (напр. у детских кафе разовый вход не публикуют — только абонементы).
 /// type — enum: категории программ универсальны и конечны, не зависят от страны
@@ -177,6 +197,7 @@ model PlaceProgram {
   endDate     DateTime?
   order       Int         @default(0)
   place       Place       @relation(fields: [placeId], references: [id])
+  categories  ProgramActivityCategory[]
 
   @@index([placeId])
 }
