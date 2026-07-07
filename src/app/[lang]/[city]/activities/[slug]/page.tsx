@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { mapActivityToListItem } from "@/mappers/activity.mapper";
 import { getActivityBySlug } from "@/services/activities.service";
+import { PlaceImage } from "@/components/places/place-image";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
@@ -79,6 +80,8 @@ export default async function ActivityDetailsPage({
           {ru.activityDetails.back}
         </Link>
       </div>
+
+      <PlaceImage url={dto.imageUrl} alt={dto.name} className="place-image-hero" />
 
       <section className="hero">
         <p className="eyebrow">{typeLabel}</p>

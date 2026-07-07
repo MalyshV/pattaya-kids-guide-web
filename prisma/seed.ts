@@ -1076,6 +1076,7 @@ async function main() {
   const demoKgProgram = await prisma.placeProgram.create({
     data: {
       slug: "demo-kindergarten-class",
+      imageUrl: "/images/places/sample.svg",
       type: "COURSE",
       name: "[Демо] Раннее развитие в саду «Солнышко»",
       description:
@@ -1109,6 +1110,7 @@ async function main() {
     },
     update: {
       title: "[Демо] Детский арт-мастер-класс",
+      imageUrl: "/images/places/sample.svg",
       description: "Демонстрационное событие (тестовые данные для разработки).",
       startDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7),
       endDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 2),

@@ -210,6 +210,8 @@ model PlaceProgram {
   type        ProgramType
   name        String
   description String?
+  /// обложка занятия (путь в public); null = нет фото
+  imageUrl    String?
   price       Float?
   /// зачёркнутая «старая» цена для акций (напр. абонемент со скидкой)
   oldPrice    Float?
@@ -383,6 +385,8 @@ model Event {
   title              String
   slug               String
   description        String?
+  /// обложка события (путь в public); null = нет фото
+  imageUrl           String?
   /// ДАТЫ (поддержка однодневных, многодневных и recurring)
   startDate          DateTime
   endDate            DateTime?

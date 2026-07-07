@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ActivityListItemDto } from "@/dto/activity-list-item.dto";
+import { PlaceImage } from "@/components/places/place-image";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { formatAgeRange } from "@/lib/age/format-age";
@@ -43,6 +44,8 @@ export function ActivityCard({
       }
       className="activity-card interactive-surface"
     >
+      <PlaceImage url={activity.imageUrl} alt={activity.name} />
+
       <div className="activity-card-head">
         <span className="program-type">{typeLabel}</span>
         {status ? <EventStatusBadge status={status} /> : null}

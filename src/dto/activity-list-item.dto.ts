@@ -11,6 +11,7 @@ export type ActivityCategoryDto = {
 export type ActivityListItemDto = {
   id: string;
   slug: string | null;
+  imageUrl: string | null;
   type: string;
   name: string;
   description: string | null;

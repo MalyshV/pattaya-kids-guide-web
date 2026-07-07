@@ -5,6 +5,7 @@ export function mapActivityToListItem(activity: ActivityWithPlace): ActivityList
   return {
     id: activity.id,
     slug: activity.slug,
+    imageUrl: activity.imageUrl,
     type: activity.type,
     name: activity.name,
     description: activity.description,

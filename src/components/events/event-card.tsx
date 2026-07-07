@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { EventListItemDto } from "@/dto/event-list-item.dto";
+import { PlaceImage } from "@/components/places/place-image";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import type { EventLifecycle } from "@/lib/events/event-lifecycle";
 import { ru } from "@/content/ru";
@@ -32,6 +33,8 @@ export function EventCard({
     <article
       className={`event-card interactive-surface${isPast ? " event-card-past" : ""}`}
     >
+      <PlaceImage url={event.imageUrl} alt={event.title} />
+
       <div className="event-card-header">
         <div>
           <h3 className="event-card-title">{event.title}</h3>
