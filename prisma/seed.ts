@@ -166,6 +166,7 @@ async function main() {
     { slug: "art", name: "Рисование", order: 5 },
     { slug: "music", name: "Музыка", order: 6 },
     { slug: "math", name: "Математика", order: 7 },
+    { slug: "cooking", name: "Кулинария", order: 8 },
   ];
   for (const category of activityCategoriesData) {
     await prisma.activityCategory.upsert({
@@ -616,7 +617,7 @@ async function main() {
     hasAirCon: true,
     hasParking: true,
     hasCafeSeating: true,
-    hasPowerOutlets: null, // Вероника пока не знает — «уточняется»
+    hasPowerOutlets: null, // кафе до входа — без розеток (заряжают на стойке); внутренняя зона — уточняется
     status: "APPROVED" as const,
     cityId: pattaya.id,
   };
@@ -718,22 +719,32 @@ async function main() {
   // просто не покажет секцию). Контакты (некуда класть, ждут модель):
   // тел. 081 110 1713, сайт laridea.co.th, IG @laridea_kids_cafe.
 
-  // «Полезно знать» LariDea (только подтверждённое из их постеров)
+  // «Полезно знать» LariDea. Обновлено с личного визита Вероники 2026-07-07
+  // (прайс-лист и постеры на месте) — факты подтверждены, verifiedAt проставлен.
+  const lariDeaVisit = new Date("2026-07-07");
   await prisma.placeTip.deleteMany({ where: { placeId: lariDea.id } });
   await prisma.placeTip.createMany({
     data: [
       {
         placeId: lariDea.id,
-        topic: "socks",
+        topic: "prices",
         order: 1,
-        text: "В игровую пускают только в фирменных носках LariDea (со своими нельзя). По абонементу первая пара для ребёнка и взрослого — бесплатно, а в пакеты дня рождения детские носки уже включены (взрослым — нет). Уточняем, не изменились ли правила.",
-        verifiedAt: null,
+        text: "Разовое посещение игровой (цены с НДС 7%): 1 час — 196 ฿ ребёнок / 95 ฿ взрослый; 3 часа — 436 ฿ / 185 ฿; 5 часов — 603 ฿ / 262 ฿. В будни при посещении до 15:00 — скидка 10%.",
+        verifiedAt: lariDeaVisit,
       },
       {
         placeId: lariDea.id,
-        topic: "prices",
+        topic: "socks",
         order: 2,
-        text: "Цены включают VAT 7%, но к услугам может добавляться сервисный сбор 10%.",
+        text: "В игровую пускают только в фирменных носках LariDea (со своими нельзя): 50 ฿, обязательны и детям, и взрослым. По абонементу первая пара — бесплатно, а в пакеты дня рождения детские носки уже включены (взрослым — нет).",
+        verifiedAt: lariDeaVisit,
+      },
+      {
+        placeId: lariDea.id,
+        topic: "happy-hour",
+        order: 3,
+        text: "«Счастливый час» для родителей: по будням 11:00–14:00 — бесплатные кофе и сок, пока дети играют.",
+        verifiedAt: lariDeaVisit,
       },
     ],
   });
@@ -851,6 +862,30 @@ async function main() {
       },
     ],
   });
+
+  // «День готовки» — регулярная активность LariDea по выходным (постер, визит
+  // Вероники 2026-07-07). Отдельным create, чтобы привязать категорию «Кулинария».
+  const lariDeaCooking = await prisma.placeProgram.create({
+    data: {
+      placeId: lariDea.id,
+      type: "COURSE",
+      name: "День готовки: свой капкейк",
+      description:
+        "Творческое кулинарное занятие по выходным: ребёнок сам готовит и украшает капкейк. В стоимость входит 1 час игровой; цена за ребёнка и взрослого. Для членов клуба — 250 ฿.",
+      price: 499,
+      currency: "THB",
+      priceUnit: "за ребёнка и взрослого",
+      order: 6,
+    },
+  });
+  const cookingCategory = await prisma.activityCategory.findUnique({
+    where: { slug: "cooking" },
+  });
+  if (cookingCategory) {
+    await prisma.programActivityCategory.create({
+      data: { programId: lariDeaCooking.id, categoryId: cookingCategory.id },
+    });
+  }
 
   // =========================
   // THE LITTLE GYM PATTAYA — третье реальное место (спортивно-развивающая школа).
