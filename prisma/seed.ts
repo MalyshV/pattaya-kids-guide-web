@@ -573,6 +573,8 @@ async function main() {
       price: 300,
       currency: "THB",
       priceUnit: "за ребёнка и взрослого",
+      minAgeMonths: 0,
+      maxAgeMonths: 36,
       order: 1,
     },
   });
@@ -796,6 +798,8 @@ async function main() {
         price: 4900,
         currency: "THB",
         priceUnit: "/ неделя",
+        minAgeMonths: 36,
+        maxAgeMonths: 96,
         // 29 июня 11:30 — 14 августа 15:00 по Бангкоку (UTC+7)
         startDate: new Date("2026-06-29T04:30:00Z"),
         endDate: new Date("2026-08-14T08:00:00Z"),
@@ -969,6 +973,8 @@ async function main() {
       name: "Гимнастика и активное развитие",
       description:
         "Классы по возрастным группам от 4 месяцев до 12 лет — от Bugs (малыши) до Flips/Hotshots (6–12 лет). Занятия со вторника по воскресенье (понедельник — выходной), время зависит от возраста. «Красные» занятия 45 мин — с участием родителя, «синие» 1 час — ребёнок занимается сам. Первое пробное занятие бесплатно. Стоимость уточняется.",
+      minAgeMonths: 4,
+      maxAgeMonths: 144,
       order: 1,
     },
   });

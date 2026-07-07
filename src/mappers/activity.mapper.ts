@@ -11,6 +11,8 @@ export function mapActivityToListItem(activity: ActivityWithPlace): ActivityList
     oldPrice: activity.oldPrice,
     currency: activity.currency,
     priceUnit: activity.priceUnit,
+    minAgeMonths: activity.minAgeMonths,
+    maxAgeMonths: activity.maxAgeMonths,
     startDate: activity.startDate,
     endDate: activity.endDate,
     place: {

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ActivityListItemDto } from "@/dto/activity-list-item.dto";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
+import { formatAgeRange } from "@/lib/age/format-age";
 import { ru } from "@/content/ru";
 
 type ActivityCardProps = {
@@ -31,6 +32,8 @@ export function ActivityCard({
         )
       : undefined;
 
+  const ageRange = formatAgeRange(activity.minAgeMonths, activity.maxAgeMonths);
+
   return (
     <article className="activity-card interactive-surface">
       <div className="activity-card-head">
@@ -44,6 +47,12 @@ export function ActivityCard({
         <span className="activity-place-label">{ru.activities.placeLabel}</span>
         <span className="activity-place-name">{activity.place.name}</span>
       </Link>
+
+      {ageRange ? (
+        <p className="activity-age">
+          <span className="activity-age-label">{ru.activities.ageLabel}</span> {ageRange}
+        </p>
+      ) : null}
 
       {activity.categories.length > 0 ? (
         <div className="category-list">

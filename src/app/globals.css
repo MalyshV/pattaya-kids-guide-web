@@ -842,6 +842,16 @@ input {
   text-decoration: underline;
 }
 
+.activity-age {
+  margin: 0;
+  font-size: 14px;
+  color: var(--foreground);
+}
+
+.activity-age-label {
+  color: var(--muted);
+}
+
 .activity-description {
   margin: 0;
   color: var(--muted);

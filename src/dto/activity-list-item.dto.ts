@@ -17,6 +17,8 @@ export type ActivityListItemDto = {
   oldPrice: number | null;
   currency: string;
   priceUnit: string | null;
+  minAgeMonths: number | null;
+  maxAgeMonths: number | null;
   startDate: Date | null;
   endDate: Date | null;
   place: {

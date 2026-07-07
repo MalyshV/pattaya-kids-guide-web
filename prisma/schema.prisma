@@ -193,6 +193,10 @@ model PlaceProgram {
   currency    String      @default("THB")
   /// подпись к цене: «/неделя», «/30 дней», «за ребёнка»
   priceUnit   String?
+  /// возраст занятия В МЕСЯЦАХ (чтобы малыши 4 мес не терялись в «годах»);
+  /// нужен для фильтра «что подходит моему ребёнку N лет»
+  minAgeMonths Int?
+  maxAgeMonths Int?
   startDate   DateTime?
   endDate     DateTime?
   order       Int         @default(0)

@@ -166,6 +166,7 @@ export const ru = {
     emptyTitle: "Пока занятий немного",
     emptyHint: "Наполняем каталог — скоро здесь появятся студии и секции.",
     placeLabel: "Место",
+    ageLabel: "Возраст:",
   },
 
   activityCard: {
