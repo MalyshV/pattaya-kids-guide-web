@@ -873,7 +873,7 @@ async function main() {
     canLeaveChild: true, // «синие» классы — ребёнок занимается сам
     animalContact: false,
     hasAirCon: true,
-    hasParking: false,
+    hasParking: true, // подтверждено Вероникой 2026-07
     hasCafeSeating: false,
     hasPowerOutlets: false,
     status: "APPROVED" as const,
@@ -980,6 +980,21 @@ async function main() {
       data: { programId: gymProgram.id, categoryId: gymnasticsCategory.id },
     });
   }
+
+  // Часы работы The Little Gym (карточка Google): Вт–Вс 09:00–18:00, ПН выходной
+  await prisma.placeSchedule.deleteMany({ where: { placeId: littleGym.id } });
+  await prisma.placeSchedule.createMany({
+    data: [
+      { placeId: littleGym.id, day: "MON", openTime: "", closeTime: "", isClosed: true },
+      ...(["TUE", "WED", "THU", "FRI", "SAT", "SUN"] as const).map((day) => ({
+        placeId: littleGym.id,
+        day,
+        openTime: "09:00",
+        closeTime: "18:00",
+        isClosed: false,
+      })),
+    ],
+  });
 
   // =========================
   // 9. [DEMO] UPCOMING EVENT
