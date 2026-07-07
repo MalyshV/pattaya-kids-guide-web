@@ -849,6 +849,139 @@ async function main() {
   });
 
   // =========================
+  // THE LITTLE GYM PATTAYA — третье реальное место (спортивно-развивающая школа).
+  // Источники (2026-07): Instagram/Facebook @thelittlegympattaya (скриншоты
+  // Вероники), карточка Google Maps, афиша расписания. Первая спортивная
+  // категория в каталоге (гимнастика) — проверка раздела «Занятия».
+  // Уточнить позже: цены (Вероника запросила через LINE), даты/цена лагеря,
+  // часы работы места, парковка/Wi-Fi.
+  // =========================
+  const littleGymData = {
+    name: "The Little Gym Pattaya",
+    description:
+      "Детская спортивно-развивающая школа (сеть The Little Gym) в центре Паттайи. Классы гимнастики и активного развития для детей от 4 месяцев до 12 лет — по возрастным группам, через игру. «Красные» занятия (45 мин) проходят вместе с родителем, «синие» (1 час) — ребёнок занимается самостоятельно, пока вы наблюдаете из лобби. Летом работает лагерь. Первое пробное занятие — бесплатно.",
+    address:
+      "353/53-55, Nong Prue, Bang Lamung District, Chon Buri 20150 (Numchai Fair, центр Паттайи)",
+    latitude: 12.9337251,
+    longitude: 100.9042526,
+    googleMapsUrl:
+      "https://www.google.com/maps/place/The+Little+Gym+Pattaya/@12.9337303,100.9016777,1057m/data=!3m2!1e3!4b1!4m6!3m5!1s0x3102bfff79575b81:0xee3e1ea0276d60a6!8m2!3d12.9337251!4d100.9042526!16s%2Fg%2F11lgzb6sq0",
+    indoor: true,
+    outdoor: false,
+    hasFood: false,
+    hasWifi: false,
+    canLeaveChild: true, // «синие» классы — ребёнок занимается сам
+    animalContact: false,
+    hasAirCon: true,
+    hasParking: false,
+    hasCafeSeating: false,
+    hasPowerOutlets: false,
+    status: "APPROVED" as const,
+    cityId: pattaya.id,
+  };
+  const littleGym = await prisma.place.upsert({
+    where: { cityId_slug: { cityId: pattaya.id, slug: "the-little-gym" } },
+    update: littleGymData,
+    create: { ...littleGymData, slug: "the-little-gym" },
+  });
+
+  // Возраст The Little Gym: 4 мес – 12 лет (0–2, 3–6, 7–12)
+  const ageGroup7to12 = await prisma.ageGroup.upsert({
+    where: { minAge_maxAge: { minAge: 7, maxAge: 12 } },
+    update: { name: "7–12 лет" },
+    create: { name: "7–12 лет", minAge: 7, maxAge: 12 },
+  });
+  for (const groupId of [ageGroupUnder2.id, ageGroup3to6.id, ageGroup7to12.id]) {
+    await prisma.placeAgeGroup.upsert({
+      where: { placeId_ageGroupId: { placeId: littleGym.id, ageGroupId: groupId } },
+      update: {},
+      create: { placeId: littleGym.id, ageGroupId: groupId },
+    });
+  }
+
+  // Языки персонала (сетевой бренд — тайский и английский)
+  for (const code of ["th", "en"]) {
+    const language = await prisma.language.findUnique({ where: { code } });
+    if (language) {
+      await prisma.placeStaffLanguage.upsert({
+        where: {
+          placeId_languageId: { placeId: littleGym.id, languageId: language.id },
+        },
+        update: {},
+        create: { placeId: littleGym.id, languageId: language.id },
+      });
+    }
+  }
+
+  // Контакты The Little Gym (профиль FB/IG + карточка Google). LINE — короткая
+  // ссылка lin.ee (не @id).
+  await prisma.placeContact.deleteMany({ where: { placeId: littleGym.id } });
+  await prisma.placeContact.createMany({
+    data: [
+      { placeId: littleGym.id, type: "phone", value: "090 886 6343", order: 1 },
+      {
+        placeId: littleGym.id,
+        type: "line",
+        value: "https://lin.ee/uCQq6gZ",
+        order: 2,
+      },
+      {
+        placeId: littleGym.id,
+        type: "instagram",
+        value: "https://www.instagram.com/thelittlegympattaya",
+        order: 3,
+      },
+      {
+        placeId: littleGym.id,
+        type: "facebook",
+        value: "https://facebook.com/thelittlegympattaya",
+        order: 4,
+      },
+      {
+        placeId: littleGym.id,
+        type: "email",
+        value: "thelittlegym.pattaya@gmail.com",
+        order: 5,
+      },
+      {
+        placeId: littleGym.id,
+        type: "website",
+        value: "https://thelittlegym.com",
+        order: 6,
+      },
+    ],
+  });
+
+  // Занятие The Little Gym: гимнастика (обёртка над 8 возрастными классами —
+  // разбивка в описании; отдельные классы по возрастам — на будущее).
+  const littleGymOldPrograms = await prisma.placeProgram.findMany({
+    where: { placeId: littleGym.id },
+    select: { id: true },
+  });
+  await prisma.programActivityCategory.deleteMany({
+    where: { programId: { in: littleGymOldPrograms.map((p) => p.id) } },
+  });
+  await prisma.placeProgram.deleteMany({ where: { placeId: littleGym.id } });
+  const gymProgram = await prisma.placeProgram.create({
+    data: {
+      placeId: littleGym.id,
+      type: "COURSE",
+      name: "Гимнастика и активное развитие",
+      description:
+        "Классы по возрастным группам от 4 месяцев до 12 лет — от Bugs (малыши) до Flips/Hotshots (6–12 лет). Занятия со вторника по воскресенье (понедельник — выходной), время зависит от возраста. «Красные» занятия 45 мин — с участием родителя, «синие» 1 час — ребёнок занимается сам. Первое пробное занятие бесплатно. Стоимость уточняется.",
+      order: 1,
+    },
+  });
+  const gymnasticsCategory = await prisma.activityCategory.findUnique({
+    where: { slug: "gymnastics" },
+  });
+  if (gymnasticsCategory) {
+    await prisma.programActivityCategory.create({
+      data: { programId: gymProgram.id, categoryId: gymnasticsCategory.id },
+    });
+  }
+
+  // =========================
   // 9. [DEMO] UPCOMING EVENT
   // =========================
   const upcomingWorkshopEvent = await prisma.event.upsert({

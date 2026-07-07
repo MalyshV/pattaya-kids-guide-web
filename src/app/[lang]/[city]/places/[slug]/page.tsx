@@ -160,7 +160,7 @@ export default async function PlaceDetailsPage({
                   {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                 >
                   <span className="contact-channel">{channel}</span>
-                  {showsContactValue(contact.type) ? (
+                  {showsContactValue(contact.type, contact.value) ? (
                     <span className="contact-value">{contact.value}</span>
                   ) : null}
                   {external ? (
