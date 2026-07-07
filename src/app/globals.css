@@ -818,6 +818,51 @@ input {
   font-size: 14px;
 }
 
+/* фильтры «Занятий»: возраст + тип, чипы-ссылки */
+.activity-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.activity-filter-row + .activity-filter-row {
+  margin-top: 14px;
+}
+
+.filter-group-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  min-width: 120px;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-chip {
+  text-decoration: none;
+  font-size: 14px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  color: var(--foreground);
+  transition: background 0.15s ease;
+}
+
+.filter-chip:hover {
+  background: #eae2d6;
+}
+
+.filter-chip-active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
 .activity-card-head {
   display: flex;
   align-items: center;

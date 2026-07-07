@@ -165,8 +165,20 @@ export const ru = {
       `${total} ${plural(total, ["занятие", "занятия", "занятий"])}`,
     emptyTitle: "Пока занятий немного",
     emptyHint: "Наполняем каталог — скоро здесь появятся студии и секции.",
+    emptyFilteredHint:
+      "Под эти фильтры пока ничего нет — попробуйте изменить возраст или тип.",
     placeLabel: "Место",
     ageLabel: "Возраст:",
+    filterAgeTitle: "Возраст ребёнка",
+    filterTypeTitle: "Тип занятий",
+    filterAny: "Любой",
+    filterAll: "Все",
+    ageBuckets: {
+      "0-1": "До 1 года",
+      "1-3": "1–3 года",
+      "3-6": "3–6 лет",
+      "6-12": "6–12 лет",
+    },
   },
 
   activityCard: {
