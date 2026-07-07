@@ -192,6 +192,11 @@ export const ru = {
     detailsCta: "Открыть место",
   },
 
+  activityDetails: {
+    back: "← Назад к занятиям",
+    whereTitle: "Где проходит",
+  },
+
   eventCard: {
     starts: "Начало",
     ends: "Конец",

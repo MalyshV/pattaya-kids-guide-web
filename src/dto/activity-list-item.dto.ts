@@ -24,6 +24,7 @@ export type ActivityListItemDto = {
   place: {
     name: string;
     slug: string;
+    address: string;
   };
   categories: ActivityCategoryDto[];
 };

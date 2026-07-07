@@ -18,6 +18,7 @@ export function mapActivityToListItem(activity: ActivityWithPlace): ActivityList
     place: {
       name: activity.place.name,
       slug: activity.place.slug,
+      address: activity.place.address,
     },
     categories: activity.categories.map((link) => ({
       id: link.category.id,
