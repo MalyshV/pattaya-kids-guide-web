@@ -1057,6 +1057,47 @@ async function main() {
   });
 
   // =========================
+  // [ДЕМО] РАЗВИВАШКА В САДУ — занятие БЕЗ каталожного места (п.9 финал).
+  // Показывает, как выглядит развивашка на базе сада (у сада нет своей страницы):
+  // место проведения — текстом (venueName/venueAddress), город задан явно (cityId).
+  // Заменить на первую реальную садовую развивашку.
+  // =========================
+  const demoKgOld = await prisma.placeProgram.findMany({
+    where: { slug: "demo-kindergarten-class" },
+    select: { id: true },
+  });
+  await prisma.programActivityCategory.deleteMany({
+    where: { programId: { in: demoKgOld.map((p) => p.id) } },
+  });
+  await prisma.placeProgram.deleteMany({ where: { slug: "demo-kindergarten-class" } });
+  const demoKgProgram = await prisma.placeProgram.create({
+    data: {
+      slug: "demo-kindergarten-class",
+      type: "COURSE",
+      name: "[Демо] Раннее развитие в саду «Солнышко»",
+      description:
+        "Демонстрация: занятие на базе детского сада, у которого нет своей страницы места. Место проведения показано текстом, без ссылки.",
+      price: 350,
+      currency: "THB",
+      priceUnit: "за занятие",
+      minAgeMonths: 12,
+      maxAgeMonths: 48,
+      venueName: "Детский сад «Солнышко»",
+      venueAddress: "Демо-адрес, Северная Паттайя",
+      cityId: pattaya.id,
+      order: 10,
+    },
+  });
+  const earlyDevForDemo = await prisma.activityCategory.findUnique({
+    where: { slug: "early-development" },
+  });
+  if (earlyDevForDemo) {
+    await prisma.programActivityCategory.create({
+      data: { programId: demoKgProgram.id, categoryId: earlyDevForDemo.id },
+    });
+  }
+
+  // =========================
   // 9. [DEMO] UPCOMING EVENT
   // =========================
   const upcomingWorkshopEvent = await prisma.event.upsert({

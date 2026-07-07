@@ -26,7 +26,8 @@ export const getCityActivities = cache(async function getCityActivities(
   return prisma.placeProgram.findMany({
     where: {
       type: { in: ["COURSE", "CAMP"] },
-      place: { status: "APPROVED", cityId },
+      // либо занятие одобренного места города, либо безместное того же города
+      OR: [{ place: { status: "APPROVED", cityId } }, { placeId: null, cityId }],
     },
     include: {
       place: true,
@@ -54,7 +55,7 @@ export const getActivityBySlug = cache(async function getActivityBySlug(
     where: {
       slug,
       type: { in: ["COURSE", "CAMP"] },
-      place: { status: "APPROVED", cityId },
+      OR: [{ place: { status: "APPROVED", cityId } }, { placeId: null, cityId }],
     },
     include: {
       place: true,

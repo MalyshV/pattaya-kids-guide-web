@@ -16,11 +16,15 @@ export function mapActivityToListItem(activity: ActivityWithPlace): ActivityList
     maxAgeMonths: activity.maxAgeMonths,
     startDate: activity.startDate,
     endDate: activity.endDate,
-    place: {
-      name: activity.place.name,
-      slug: activity.place.slug,
-      address: activity.place.address,
-    },
+    place: activity.place
+      ? {
+          name: activity.place.name,
+          slug: activity.place.slug,
+          address: activity.place.address,
+        }
+      : null,
+    venueName: activity.venueName,
+    venueAddress: activity.venueAddress,
     categories: activity.categories.map((link) => ({
       id: link.category.id,
       name: link.category.name,

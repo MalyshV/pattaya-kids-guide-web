@@ -39,7 +39,7 @@ export function ActivityCard({
       href={
         activity.slug
           ? `${basePath}/activities/${activity.slug}`
-          : `${basePath}/places/${activity.place.slug}`
+          : `${basePath}/activities`
       }
       className="activity-card interactive-surface"
     >
@@ -52,7 +52,9 @@ export function ActivityCard({
 
       <p className="activity-place">
         <span className="activity-place-label">{ru.activities.placeLabel}</span>
-        <span className="activity-place-name">{activity.place.name}</span>
+        <span className="activity-place-name">
+          {activity.place?.name ?? activity.venueName}
+        </span>
       </p>
 
       {ageRange ? (

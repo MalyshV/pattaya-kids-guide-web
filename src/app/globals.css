@@ -1233,6 +1233,15 @@ input {
   line-height: 1.45;
 }
 
+/* текстовое место проведения (нет каталожного места) — не ссылка, без hover */
+.activity-venue-static,
+.activity-venue-static:hover {
+  cursor: default;
+  transform: none;
+  box-shadow: none;
+  background: var(--surface-muted);
+}
+
 /* pagination */
 
 .pagination {

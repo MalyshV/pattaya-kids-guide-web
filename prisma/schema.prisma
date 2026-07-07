@@ -200,7 +200,9 @@ model ProgramActivityCategory {
 /// (в отличие от языков/каналов). Даты — для сезонных программ (лагерь).
 model PlaceProgram {
   id          String      @id @default(cuid())
-  placeId     String
+  /// место занятия: ЛИБО каталожное (placeId/place), ЛИБО текстовое
+  /// (venueName/venueAddress) — для развивашек в садах без своей страницы места
+  placeId     String?
   /// slug для собственной страницы занятия (`/activities/[slug]`). Есть только
   /// у COURSE/CAMP (у абонементов страницы нет → null). Пока глобально уникален
   /// (slug'и префиксуем местом); при мультирегион-масштабе → city-scoped.
@@ -221,10 +223,17 @@ model PlaceProgram {
   startDate   DateTime?
   endDate     DateTime?
   order       Int         @default(0)
-  place       Place       @relation(fields: [placeId], references: [id])
+  place       Place?      @relation(fields: [placeId], references: [id])
   categories  ProgramActivityCategory[]
+  /// текстовое место проведения (когда нет каталожного place — напр. сад)
+  venueName    String?
+  venueAddress String?
+  /// город занятия для scoping БЕЗместных занятий (у place-занятий — из place)
+  cityId      String?
+  city        City?       @relation(fields: [cityId], references: [id])
 
   @@index([placeId])
+  @@index([cityId])
 }
 
 /// Контакты места: телефон/сайт/соцсети. type — канал строкой (phone, website,
@@ -445,6 +454,7 @@ model City {
   country        Country  @relation(fields: [countryId], references: [id])
   places         Place[]
   events         Event[]
+  programs       PlaceProgram[]
   createdAt      DateTime @default(now())
 
   @@unique([countryId, slug])

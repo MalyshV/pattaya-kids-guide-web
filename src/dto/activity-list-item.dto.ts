@@ -22,10 +22,13 @@ export type ActivityListItemDto = {
   maxAgeMonths: number | null;
   startDate: Date | null;
   endDate: Date | null;
+  // каталожное место (со своей страницей) ИЛИ null — тогда текстовое место ниже
   place: {
     name: string;
     slug: string;
     address: string;
-  };
+  } | null;
+  venueName: string | null;
+  venueAddress: string | null;
   categories: ActivityCategoryDto[];
 };

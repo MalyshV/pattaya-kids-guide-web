@@ -134,13 +134,27 @@ export default async function ActivityDetailsPage({
         </section>
       ) : null}
 
-      <section className="details-section">
-        <h2 className="section-title">{ru.activityDetails.whereTitle}</h2>
-        <Link href={`${basePath}/places/${dto.place.slug}`} className="activity-venue">
-          <div className="activity-venue-name">{dto.place.name}</div>
-          <div className="activity-venue-address">{dto.place.address}</div>
-        </Link>
-      </section>
+      {dto.place || dto.venueName ? (
+        <section className="details-section">
+          <h2 className="section-title">{ru.activityDetails.whereTitle}</h2>
+          {dto.place ? (
+            <Link
+              href={`${basePath}/places/${dto.place.slug}`}
+              className="activity-venue"
+            >
+              <div className="activity-venue-name">{dto.place.name}</div>
+              <div className="activity-venue-address">{dto.place.address}</div>
+            </Link>
+          ) : (
+            <div className="activity-venue activity-venue-static">
+              <div className="activity-venue-name">{dto.venueName}</div>
+              {dto.venueAddress ? (
+                <div className="activity-venue-address">{dto.venueAddress}</div>
+              ) : null}
+            </div>
+          )}
+        </section>
+      ) : null}
     </main>
   );
 }
