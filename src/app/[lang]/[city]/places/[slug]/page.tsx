@@ -334,7 +334,7 @@ export default async function PlaceDetailsPage({
 
           <div>
             <strong>{ru.placeDetails.fields.childDropOff}:</strong>{" "}
-            {dto.canLeaveChild ? ru.common.yes : ru.common.no}
+            {dto.canLeaveChild ? ru.common.affirmative : ru.common.negative}
           </div>
 
           <div>

@@ -31,8 +31,12 @@ export const ru = {
   common: {
     detailsCta: "Подробнее",
     descriptionFallback: "Описание скоро добавим.",
+    // «Есть/Нет» — для полей-состояний (Еда, Wi-Fi, Животные)
     yes: "Есть",
     no: "Нет",
+    // «Да/Нет» — для полей-вопросов («Можно ли…?»)
+    affirmative: "Да",
+    negative: "Нет",
   },
 
   openStatus: {
