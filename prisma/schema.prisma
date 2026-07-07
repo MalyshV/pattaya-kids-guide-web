@@ -157,6 +157,23 @@ model PlacePricing {
   place     Place           @relation(fields: [placeId], references: [id])
 }
 
+/// Тарифы входа таблицей «длительность × ребёнок/взрослый» (детские игровые-кафе
+/// вроде LariDea: 1/3/5 часов, отдельная цена ребёнку и взрослому). Отдельно от
+/// PlacePricing (та — единый/диапазонный вход + Thai-price по аудитории).
+model PlaceEntryPrice {
+  id         String @id @default(cuid())
+  placeId    String
+  /// подпись строки: «1 час», «3 часа», «Разовый вход»
+  label      String
+  childPrice Float?
+  adultPrice Float?
+  currency   String @default("THB")
+  order      Int    @default(0)
+  place      Place  @relation(fields: [placeId], references: [id])
+
+  @@index([placeId])
+}
+
 /// Справочник категорий занятий (плавание, рисование…). Справочник + M:N, НЕ
 /// enum: набор растёт (робототехника, шахматы…) без миграции, как языки/каналы;
 /// занятие бывает в нескольких категориях (развивашка = раннее развитие + музыка).
@@ -287,6 +304,8 @@ model Place {
   /// проверенная ссылка на КАРТОЧКУ места в Google Maps (с фото/отзывами/часами);
   /// приоритетнее координат — координаты дают лишь голую метку на карте
   googleMapsUrl      String?
+  /// подпись под таблицей входа (PlaceEntryPrice): скидки, НДС и т.п.
+  entryPriceNote     String?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   /// Признаки-факты о месте — nullable (три состояния): true = есть,
@@ -314,6 +333,7 @@ model Place {
   categories         PlaceCategory[]
   contacts           PlaceContact[]
   pricing            PlacePricing[]
+  entryPrices        PlaceEntryPrice[]
   programs           PlaceProgram[]
   schedules          PlaceSchedule[]
   staffLanguages     PlaceStaffLanguage[]

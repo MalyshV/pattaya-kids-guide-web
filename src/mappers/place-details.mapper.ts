@@ -26,6 +26,7 @@ type PlaceWithDetails = Prisma.PlaceGetPayload<{
     birthdayInfo: true;
     schedules: true;
     pricing: true;
+    entryPrices: true;
     staffLanguages: {
       include: {
         language: true;
@@ -84,6 +85,14 @@ export function mapPlaceDetailsToDto(place: PlaceWithDetails): PlaceDetailsDto {
       maxPrice: price.maxPrice,
       currency: price.currency,
     })),
+    entryPrices: place.entryPrices.map((tier) => ({
+      id: tier.id,
+      label: tier.label,
+      childPrice: tier.childPrice,
+      adultPrice: tier.adultPrice,
+      currency: tier.currency,
+    })),
+    entryPriceNote: place.entryPriceNote,
     staffLanguages: place.staffLanguages.map((link) => ({
       id: link.language.id,
       code: link.language.code,

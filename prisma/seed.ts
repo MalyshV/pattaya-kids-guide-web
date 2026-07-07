@@ -619,6 +619,7 @@ async function main() {
     hasParking: true,
     hasCafeSeating: true,
     hasPowerOutlets: null, // кафе до входа — без розеток (заряжают на стойке); внутренняя зона — уточняется
+    entryPriceNote: "В будни при посещении до 15:00 — скидка 10%. Цены с НДС 7%.",
     status: "APPROVED" as const,
     cityId: pattaya.id,
   };
@@ -716,9 +717,28 @@ async function main() {
     })),
   });
 
-  // Цены входа LariDea НЕ заносим, пока нет данных (честность: страница
-  // просто не покажет секцию). Контакты (некуда класть, ждут модель):
-  // тел. 081 110 1713, сайт laridea.co.th, IG @laridea_kids_cafe.
+  // Цены входа LariDea (прайс-лист, визит Вероники 2026-07-07): почасовой вход,
+  // отдельная цена ребёнку и взрослому. Подпись (скидка/НДС) — в entryPriceNote.
+  await prisma.placeEntryPrice.deleteMany({ where: { placeId: lariDea.id } });
+  await prisma.placeEntryPrice.createMany({
+    data: [
+      { placeId: lariDea.id, label: "1 час", childPrice: 196, adultPrice: 95, order: 1 },
+      {
+        placeId: lariDea.id,
+        label: "3 часа",
+        childPrice: 436,
+        adultPrice: 185,
+        order: 2,
+      },
+      {
+        placeId: lariDea.id,
+        label: "5 часов",
+        childPrice: 603,
+        adultPrice: 262,
+        order: 3,
+      },
+    ],
+  });
 
   // «Полезно знать» LariDea. Обновлено с личного визита Вероники 2026-07-07
   // (прайс-лист и постеры на месте) — факты подтверждены, verifiedAt проставлен.
@@ -728,15 +748,8 @@ async function main() {
     data: [
       {
         placeId: lariDea.id,
-        topic: "prices",
-        order: 1,
-        text: "Разовое посещение игровой (цены с НДС 7%): 1 час — 196 ฿ ребёнок / 95 ฿ взрослый; 3 часа — 436 ฿ / 185 ฿; 5 часов — 603 ฿ / 262 ฿. В будни при посещении до 15:00 — скидка 10%.",
-        verifiedAt: lariDeaVisit,
-      },
-      {
-        placeId: lariDea.id,
         topic: "socks",
-        order: 2,
+        order: 1,
         text: "В игровую пускают только в фирменных носках LariDea (со своими нельзя): 50 ฿, обязательны и детям, и взрослым. По абонементу первая пара — бесплатно, а в пакеты дня рождения детские носки уже включены (взрослым — нет).",
         verifiedAt: lariDeaVisit,
       },

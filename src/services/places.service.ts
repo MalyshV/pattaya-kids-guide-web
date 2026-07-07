@@ -44,6 +44,7 @@ type PlaceDetailsResult = Prisma.PlaceGetPayload<{
     birthdayInfo: true;
     schedules: true;
     pricing: true;
+    entryPrices: true;
     staffLanguages: {
       include: {
         language: true;
@@ -167,6 +168,11 @@ export const getApprovedPlaceBySlug = cache(async function getApprovedPlaceBySlu
       birthdayInfo: true,
       schedules: true,
       pricing: true,
+      entryPrices: {
+        orderBy: {
+          order: "asc",
+        },
+      },
       staffLanguages: {
         include: {
           language: true,

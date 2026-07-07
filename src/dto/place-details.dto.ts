@@ -48,6 +48,14 @@ export type PlacePricingDto = {
   currency: string;
 };
 
+export type PlaceEntryPriceDto = {
+  id: string;
+  label: string;
+  childPrice: number | null;
+  adultPrice: number | null;
+  currency: string;
+};
+
 export type PlaceLanguageDto = {
   id: string;
   code: string;
@@ -88,6 +96,8 @@ export type PlaceDetailsDto = PlaceDto & {
   birthdayInfo: PlaceBirthdayInfoDto;
   schedules: PlaceScheduleDto[];
   pricing: PlacePricingDto[];
+  entryPrices: PlaceEntryPriceDto[];
+  entryPriceNote: string | null;
   staffLanguages: PlaceLanguageDto[];
   tips: PlaceTipDto[];
   contacts: PlaceContactDto[];

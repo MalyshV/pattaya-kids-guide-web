@@ -79,6 +79,10 @@ function formatPricingLine(price: {
   return value != null ? `${value} ${currency}` : ru.placeDetails.priceUnknown;
 }
 
+function currencySymbol(code: string): string {
+  return code === "THB" ? "฿" : code;
+}
+
 export default async function PlaceDetailsPage({
   params,
 }: PageProps): Promise<React.ReactElement> {
@@ -215,16 +219,55 @@ export default async function PlaceDetailsPage({
         </section>
       )}
 
-      {dto.pricing.length > 0 && (
+      {(dto.pricing.length > 0 || dto.entryPrices.length > 0) && (
         <section className="details-section">
           <h2 className="section-title">{ru.placeDetails.pricingTitle}</h2>
-          <div className="details-grid">
-            {dto.pricing.map((price, index) => (
-              <div key={index}>
-                <strong>{ru.placeDetails.entryLabel}:</strong> {formatPricingLine(price)}
-              </div>
-            ))}
-          </div>
+
+          {dto.pricing.length > 0 && (
+            <div className="details-grid">
+              {dto.pricing.map((price, index) => (
+                <div key={index}>
+                  <strong>{ru.placeDetails.entryLabel}:</strong>{" "}
+                  {formatPricingLine(price)}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {dto.entryPrices.length > 0 && (
+            <div className="entry-price-block">
+              <h3 className="entry-price-title">{ru.placeDetails.entryTitle}</h3>
+              <table className="entry-price-table">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>{ru.placeDetails.entryChild}</th>
+                    <th>{ru.placeDetails.entryAdult}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dto.entryPrices.map((tier) => (
+                    <tr key={tier.id}>
+                      <th scope="row">{tier.label}</th>
+                      <td>
+                        {tier.childPrice != null
+                          ? `${tier.childPrice} ${currencySymbol(tier.currency)}`
+                          : "—"}
+                      </td>
+                      <td>
+                        {tier.adultPrice != null
+                          ? `${tier.adultPrice} ${currencySymbol(tier.currency)}`
+                          : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {dto.entryPriceNote ? (
+                <p className="entry-price-note">{dto.entryPriceNote}</p>
+              ) : null}
+            </div>
+          )}
         </section>
       )}
 

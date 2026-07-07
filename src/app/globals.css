@@ -796,6 +796,57 @@ input {
   font-size: 14px;
 }
 
+/* Таблица «Стоимость входа» — тарифы почасового входа (длительность × роль) */
+.entry-price-block {
+  margin-top: 4px;
+}
+
+.entry-price-title {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.entry-price-table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 420px;
+  font-size: 14px;
+}
+
+.entry-price-table th,
+.entry-price-table td {
+  padding: 8px 14px 8px 0;
+  text-align: left;
+}
+
+.entry-price-table thead th {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.entry-price-table tbody th {
+  font-weight: 500;
+}
+
+.entry-price-table tbody td {
+  font-variant-numeric: tabular-nums;
+}
+
+.entry-price-table tbody tr + tr th,
+.entry-price-table tbody tr + tr td {
+  border-top: 1px solid var(--border);
+}
+
+.entry-price-note {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
 .program-description {
   margin: 0;
   color: var(--muted);
