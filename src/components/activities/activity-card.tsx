@@ -35,7 +35,10 @@ export function ActivityCard({
   const ageRange = formatAgeRange(activity.minAgeMonths, activity.maxAgeMonths);
 
   return (
-    <article className="activity-card interactive-surface">
+    <Link
+      href={`${basePath}/places/${activity.place.slug}`}
+      className="activity-card interactive-surface"
+    >
       <div className="activity-card-head">
         <span className="program-type">{typeLabel}</span>
         {status ? <EventStatusBadge status={status} /> : null}
@@ -43,10 +46,10 @@ export function ActivityCard({
 
       <h3 className="activity-name">{activity.name}</h3>
 
-      <Link href={`${basePath}/places/${activity.place.slug}`} className="activity-place">
+      <p className="activity-place">
         <span className="activity-place-label">{ru.activities.placeLabel}</span>
         <span className="activity-place-name">{activity.place.name}</span>
-      </Link>
+      </p>
 
       {ageRange ? (
         <p className="activity-age">
@@ -85,6 +88,10 @@ export function ActivityCard({
       {activity.description ? (
         <p className="activity-description">{activity.description}</p>
       ) : null}
-    </article>
+
+      <span className="activity-cta">
+        {ru.activityCard.detailsCta} <span aria-hidden="true">→</span>
+      </span>
+    </Link>
   );
 }

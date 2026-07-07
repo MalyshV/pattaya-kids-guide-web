@@ -806,6 +806,16 @@ input {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  text-decoration: none;
+  color: var(--foreground);
+}
+
+.activity-cta {
+  margin-top: auto;
+  padding-top: 4px;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .activity-card-head {
