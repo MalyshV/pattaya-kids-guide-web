@@ -184,6 +184,10 @@ model ProgramActivityCategory {
 model PlaceProgram {
   id          String      @id @default(cuid())
   placeId     String
+  /// slug для собственной страницы занятия (`/activities/[slug]`). Есть только
+  /// у COURSE/CAMP (у абонементов страницы нет → null). Пока глобально уникален
+  /// (slug'и префиксуем местом); при мультирегион-масштабе → city-scoped.
+  slug        String?     @unique
   type        ProgramType
   name        String
   description String?

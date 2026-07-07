@@ -567,6 +567,7 @@ async function main() {
   const barnyardProgram = await prisma.placeProgram.create({
     data: {
       placeId: playBarn.id,
+      slug: "play-barn-barnyard-cubs",
       type: "COURSE",
       name: "Игровая группа Barnyard Cubs",
       description:
@@ -802,6 +803,7 @@ async function main() {
     data: [
       {
         placeId: lariDea.id,
+        slug: "laridea-summer-camp",
         type: "CAMP",
         name: "Летний лагерь",
         description:
@@ -868,6 +870,7 @@ async function main() {
   const lariDeaCooking = await prisma.placeProgram.create({
     data: {
       placeId: lariDea.id,
+      slug: "laridea-cooking-day",
       type: "COURSE",
       name: "День готовки: свой капкейк",
       description:
@@ -1004,6 +1007,7 @@ async function main() {
   const gymProgram = await prisma.placeProgram.create({
     data: {
       placeId: littleGym.id,
+      slug: "little-gym-gymnastics",
       type: "COURSE",
       name: "Гимнастика и активное развитие",
       description:
