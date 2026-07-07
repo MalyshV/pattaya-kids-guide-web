@@ -4,6 +4,7 @@ import type { ActivityWithPlace } from "@/services/activities.service";
 export function mapActivityToListItem(activity: ActivityWithPlace): ActivityListItemDto {
   return {
     id: activity.id,
+    slug: activity.slug,
     type: activity.type,
     name: activity.name,
     description: activity.description,

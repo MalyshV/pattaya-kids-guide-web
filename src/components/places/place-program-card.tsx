@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { PlaceProgramDto } from "@/dto/place-details.dto";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
@@ -5,13 +6,17 @@ import { ru } from "@/content/ru";
 
 type PlaceProgramCardProps = {
   program: PlaceProgramDto;
+  basePath: string;
 };
 
 function formatMoney(amount: number, currency: string): string {
   return `${amount.toLocaleString("ru-RU")} ${currency}`;
 }
 
-export function PlaceProgramCard({ program }: PlaceProgramCardProps): React.ReactElement {
+export function PlaceProgramCard({
+  program,
+  basePath,
+}: PlaceProgramCardProps): React.ReactElement {
   const typeLabel =
     (ru.placeDetails.programTypes as Record<string, string>)[program.type] ??
     program.type;
@@ -27,8 +32,8 @@ export function PlaceProgramCard({ program }: PlaceProgramCardProps): React.Reac
         )
       : undefined;
 
-  return (
-    <article className="program-card">
+  const content = (
+    <>
       <div className="program-card-head">
         <span className="program-type">{typeLabel}</span>
         {status ? <EventStatusBadge status={status} /> : null}
@@ -61,6 +66,19 @@ export function PlaceProgramCard({ program }: PlaceProgramCardProps): React.Reac
       {program.description ? (
         <p className="program-description">{program.description}</p>
       ) : null}
-    </article>
+    </>
+  );
+
+  // У занятий (COURSE/CAMP) есть своя страница — карточка ведёт на неё.
+  // У абонементов страницы нет (slug=null) — остаются некликабельными.
+  return program.slug ? (
+    <Link
+      href={`${basePath}/activities/${program.slug}`}
+      className="program-card interactive-surface"
+    >
+      {content}
+    </Link>
+  ) : (
+    <article className="program-card">{content}</article>
   );
 }

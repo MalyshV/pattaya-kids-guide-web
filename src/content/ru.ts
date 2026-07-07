@@ -189,7 +189,7 @@ export const ru = {
   },
 
   activityCard: {
-    detailsCta: "Открыть место",
+    detailsCta: "Подробнее",
   },
 
   activityDetails: {

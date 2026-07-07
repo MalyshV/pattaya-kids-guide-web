@@ -36,7 +36,11 @@ export function ActivityCard({
 
   return (
     <Link
-      href={`${basePath}/places/${activity.place.slug}`}
+      href={
+        activity.slug
+          ? `${basePath}/activities/${activity.slug}`
+          : `${basePath}/places/${activity.place.slug}`
+      }
       className="activity-card interactive-surface"
     >
       <div className="activity-card-head">

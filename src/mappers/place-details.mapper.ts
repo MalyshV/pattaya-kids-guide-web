@@ -102,6 +102,7 @@ export function mapPlaceDetailsToDto(place: PlaceWithDetails): PlaceDetailsDto {
     })),
     programs: place.programs.map((program) => ({
       id: program.id,
+      slug: program.slug,
       type: program.type,
       name: program.name,
       description: program.description,

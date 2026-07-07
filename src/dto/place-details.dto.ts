@@ -69,6 +69,7 @@ export type PlaceContactDto = {
 
 export type PlaceProgramDto = {
   id: string;
+  slug: string | null;
   type: string;
   name: string;
   description: string | null;

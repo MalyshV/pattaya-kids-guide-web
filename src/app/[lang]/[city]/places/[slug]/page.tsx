@@ -233,7 +233,7 @@ export default async function PlaceDetailsPage({
           <h2 className="section-title">{ru.placeDetails.programsTitle}</h2>
           <div className="programs-list">
             {dto.programs.map((program) => (
-              <PlaceProgramCard key={program.id} program={program} />
+              <PlaceProgramCard key={program.id} program={program} basePath={basePath} />
             ))}
           </div>
         </section>
