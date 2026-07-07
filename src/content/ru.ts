@@ -177,6 +177,7 @@ export const ru = {
     back: "← Назад к событиям",
     eyebrow: "Событие",
     detailsTitle: "Подробности",
+    when: "Когда",
     start: "Начало",
     end: "Конец",
     location: "Место проведения",

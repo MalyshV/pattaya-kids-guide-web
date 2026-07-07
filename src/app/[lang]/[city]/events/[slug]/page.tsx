@@ -34,18 +34,50 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-function formatDate(value: string | Date | null): string {
-  if (!value) {
+/**
+ * «Когда» события: дата + время в таймзоне города. Однодневное — одной строкой
+ * «17 июня 2026 г., 15:30–17:30»; многодневное — с обеими датами; без конца —
+ * только начало. Время считаем в TZ города, иначе показали бы UTC.
+ */
+function formatEventWhen(
+  start: string | Date | null,
+  end: string | Date | null,
+  timezone: string,
+): string {
+  if (!start) {
     return ru.eventDetails.notSpecified;
   }
 
-  const date = value instanceof Date ? value : new Date(value);
-
-  return date.toLocaleDateString("ru-RU", {
+  const startDate = start instanceof Date ? start : new Date(start);
+  const dateFmt = new Intl.DateTimeFormat("ru-RU", {
+    timeZone: timezone,
     day: "numeric",
     month: "long",
     year: "numeric",
   });
+  const timeFmt = new Intl.DateTimeFormat("ru-RU", {
+    timeZone: timezone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const startDay = dateFmt.format(startDate);
+  const startTime = timeFmt.format(startDate);
+
+  if (!end) {
+    return `${startDay}, ${startTime}`;
+  }
+
+  const endDate = end instanceof Date ? end : new Date(end);
+  const endDay = dateFmt.format(endDate);
+  const endTime = timeFmt.format(endDate);
+
+  if (startDay === endDay) {
+    return `${startDay}, ${startTime}–${endTime}`;
+  }
+
+  return `${startDay}, ${startTime} — ${endDay}, ${endTime}`;
 }
 
 export default async function EventDetailsPage({
@@ -97,11 +129,8 @@ export default async function EventDetailsPage({
 
         <div className="details-grid">
           <div>
-            <strong>{ru.eventDetails.start}:</strong> {formatDate(dto.startDate)}
-          </div>
-
-          <div>
-            <strong>{ru.eventDetails.end}:</strong> {formatDate(dto.endDate)}
+            <strong>{ru.eventDetails.when}:</strong>{" "}
+            {formatEventWhen(dto.startDate, dto.endDate, city.timezone)}
           </div>
 
           <div>
