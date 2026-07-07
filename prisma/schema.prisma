@@ -285,17 +285,20 @@ model Place {
   googleMapsUrl      String?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
-  animalContact      Boolean             @default(false)
-  canLeaveChild      Boolean             @default(false)
-  hasFood            Boolean             @default(false)
-  hasWifi            Boolean             @default(false)
+  /// Признаки-факты о месте — nullable (три состояния): true = есть,
+  /// false = точно нет, null = ещё не проверяли («уточняется»). Не подменяем
+  /// пробел в данных уверенным «нет» — это подрывает доверие к гиду.
+  animalContact      Boolean?
+  canLeaveChild      Boolean?
+  hasFood            Boolean?
+  hasWifi            Boolean?
   indoor             Boolean             @default(false)
   outdoor            Boolean             @default(false)
-  /// Умные фильтры (Эпик 4): признаки удобства для родителя-удалёнщика
-  hasAirCon          Boolean             @default(false)
-  hasParking         Boolean             @default(false)
-  hasCafeSeating     Boolean             @default(false)
-  hasPowerOutlets    Boolean             @default(false)
+  /// Умные фильтры (Эпик 4): признаки удобства для родителя-удалёнщика (тоже tri-state)
+  hasAirCon          Boolean?
+  hasParking         Boolean?
+  hasCafeSeating     Boolean?
+  hasPowerOutlets    Boolean?
   createdByUserId    String?
   isAnonymous        Boolean             @default(false)
   /// МОДЕРАЦИЯ + UGC

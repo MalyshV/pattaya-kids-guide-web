@@ -9,8 +9,13 @@ export type PlaceDto = {
   googleMapsUrl: string | null;
   indoor: boolean;
   outdoor: boolean;
-  hasFood: boolean;
-  hasWifi: boolean;
-  canLeaveChild: boolean;
-  animalContact: boolean;
+  // Признаки-факты (tri-state): true / false / null = «уточняется»
+  hasFood: boolean | null;
+  hasWifi: boolean | null;
+  canLeaveChild: boolean | null;
+  animalContact: boolean | null;
+  hasAirCon: boolean | null;
+  hasParking: boolean | null;
+  hasCafeSeating: boolean | null;
+  hasPowerOutlets: boolean | null;
 };

@@ -327,7 +327,7 @@ async function main() {
     hasAirCon: true,
     hasParking: true,
     hasCafeSeating: true,
-    hasPowerOutlets: false,
+    hasPowerOutlets: null, // розетки не проверяли — «уточняется»
     status: "APPROVED" as const,
     cityId: pattaya.id,
   };
@@ -616,7 +616,7 @@ async function main() {
     hasAirCon: true,
     hasParking: true,
     hasCafeSeating: true,
-    hasPowerOutlets: false, // Вероника пока не знает — проверить на месте
+    hasPowerOutlets: null, // Вероника пока не знает — «уточняется»
     status: "APPROVED" as const,
     cityId: pattaya.id,
   };
@@ -873,13 +873,13 @@ async function main() {
     indoor: true,
     outdoor: false,
     hasFood: false,
-    hasWifi: false,
+    hasWifi: null, // Wi-Fi не подтверждён — «уточняется»
     canLeaveChild: true, // «синие» классы — ребёнок занимается сам
     animalContact: false,
     hasAirCon: true,
     hasParking: true, // подтверждено Вероникой 2026-07
     hasCafeSeating: false,
-    hasPowerOutlets: false,
+    hasPowerOutlets: null, // розетки не проверяли — «уточняется»
     status: "APPROVED" as const,
     cityId: pattaya.id,
   };

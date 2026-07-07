@@ -18,5 +18,9 @@ export function mapPlaceToDto(place: Place): PlaceDto {
     hasWifi: place.hasWifi,
     canLeaveChild: place.canLeaveChild,
     animalContact: place.animalContact,
+    hasAirCon: place.hasAirCon,
+    hasParking: place.hasParking,
+    hasCafeSeating: place.hasCafeSeating,
+    hasPowerOutlets: place.hasPowerOutlets,
   };
 }
