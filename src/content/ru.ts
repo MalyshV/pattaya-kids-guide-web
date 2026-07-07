@@ -128,7 +128,7 @@ export const ru = {
     programTypes: {
       CAMP: "Лагерь",
       MEMBERSHIP: "Абонемент",
-      COURSE: "Курс",
+      COURSE: "Занятия",
     },
     programOldPrice: (price: string): string => `было ${price}`,
     ageTitle: "Для какого возраста",
