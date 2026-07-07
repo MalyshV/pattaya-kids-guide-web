@@ -492,6 +492,46 @@ async function main() {
     ],
   });
 
+  // СОБЫТИЕ The Play Barn — реальное разовое мероприятие (афиша Instagram).
+  // Прошедшее: 17 июня 2026, 15:30–17:30 по Бангкоку (UTC+7). Название переведено
+  // с англ. (ориг. «Father's Day Handprint Card Workshop»).
+  const playBarnFathersDayData = {
+    title: "Мастер-класс «Открытка ко Дню отца из ладошек»",
+    description:
+      "Дети делают открытку ко Дню отца из отпечатков ладошек — подходит для любого возраста. Нужна предварительная запись, мест немного. Вход 300 ฿.",
+    startDate: new Date("2026-06-17T08:30:00Z"),
+    endDate: new Date("2026-06-17T10:30:00Z"),
+    locationName: "The Play Barn",
+    address: "5 Soi Siam Country Club Road, Pong, Bang Lamung, Chonburi 20150",
+    latitude: 12.9180161,
+    longitude: 100.9727834,
+    placeId: playBarn.id,
+    status: "APPROVED" as const,
+    sourceType: "ADMIN" as const,
+    isAnonymous: false,
+    cityId: pattaya.id,
+  };
+  const playBarnFathersDay = await prisma.event.upsert({
+    where: {
+      cityId_slug: { cityId: pattaya.id, slug: "play-barn-fathers-day-2026" },
+    },
+    update: playBarnFathersDayData,
+    create: { ...playBarnFathersDayData, slug: "play-barn-fathers-day-2026" },
+  });
+  await prisma.eventCategoryLink.upsert({
+    where: {
+      eventId_categoryId: {
+        eventId: playBarnFathersDay.id,
+        categoryId: workshopCategory.id,
+      },
+    },
+    update: {},
+    create: {
+      eventId: playBarnFathersDay.id,
+      categoryId: workshopCategory.id,
+    },
+  });
+
   // =========================
   // LARIDEA KIDS' CAFÉ — второе реальное место
   // Источники (2026-07-06): Instagram @laridea_kids_cafe (скриншоты Вероники),
