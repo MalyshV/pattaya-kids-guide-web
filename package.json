@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
+    "gaps": "tsx prisma/gaps.ts",
     "check": "npm run lint && npm run typecheck",
     "fix": "npm run format && npm run lint:fix",
     "prepare": "husky"
