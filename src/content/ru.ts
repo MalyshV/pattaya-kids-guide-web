@@ -139,7 +139,8 @@ export const ru = {
       whatsapp: "WhatsApp",
       telegram: "Telegram",
     },
-    programsTitle: "Программы и абонементы",
+    activitiesTitle: "Занятия",
+    membershipsTitle: "Абонементы",
     programTypes: {
       CAMP: "Лагерь",
       MEMBERSHIP: "Абонемент",

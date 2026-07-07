@@ -108,6 +108,15 @@ export default async function PlaceDetailsPage({
   const openStatus = computeOpenStatus(dto.schedules, city.timezone);
   const todayEnum = nowInCity(city.timezone).day;
 
+  // Занятия (курсы/лагеря — ведут на свою страницу) отдельно от абонементов
+  // (тарифы места), чтобы занятия не терялись под абонементами
+  const activityPrograms = dto.programs.filter(
+    (program) => program.type === "COURSE" || program.type === "CAMP",
+  );
+  const membershipPrograms = dto.programs.filter(
+    (program) => program.type === "MEMBERSHIP",
+  );
+
   return (
     <main className="page-shell">
       <div className="back-link-wrapper">
@@ -272,11 +281,22 @@ export default async function PlaceDetailsPage({
         </section>
       )}
 
-      {dto.programs.length > 0 && (
+      {activityPrograms.length > 0 && (
         <section className="details-section">
-          <h2 className="section-title">{ru.placeDetails.programsTitle}</h2>
+          <h2 className="section-title">{ru.placeDetails.activitiesTitle}</h2>
           <div className="programs-list">
-            {dto.programs.map((program) => (
+            {activityPrograms.map((program) => (
+              <PlaceProgramCard key={program.id} program={program} basePath={basePath} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {membershipPrograms.length > 0 && (
+        <section className="details-section">
+          <h2 className="section-title">{ru.placeDetails.membershipsTitle}</h2>
+          <div className="programs-list">
+            {membershipPrograms.map((program) => (
               <PlaceProgramCard key={program.id} program={program} basePath={basePath} />
             ))}
           </div>
@@ -435,10 +455,9 @@ export default async function PlaceDetailsPage({
         </section>
       )}
 
-      <section className="details-section">
-        <h2 className="section-title">{ru.placeDetails.upcomingTitle}</h2>
-
-        {eventDtos.length > 0 ? (
+      {eventDtos.length > 0 && (
+        <section className="details-section">
+          <h2 className="section-title">{ru.placeDetails.upcomingTitle}</h2>
           <div className="events-list">
             {eventDtos.map((event) => (
               <Link
@@ -453,10 +472,8 @@ export default async function PlaceDetailsPage({
               </Link>
             ))}
           </div>
-        ) : (
-          <p className="empty-text">{ru.placeDetails.noUpcoming}</p>
-        )}
-      </section>
+        </section>
+      )}
     </main>
   );
 }
