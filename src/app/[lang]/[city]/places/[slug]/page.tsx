@@ -232,13 +232,19 @@ export default async function PlaceDetailsPage({
           <h2 className="section-title">{ru.placeDetails.scheduleTitle}</h2>
           <div className="schedule-list">
             {[...dto.schedules]
-              .sort((a, b) => DAY_ORDER.indexOf(a.day) - DAY_ORDER.indexOf(b.day))
+              // по дню, затем по времени открытия — у дня может быть два
+              // интервала (перерыв на обед), ключ поэтому day+openTime
+              .sort(
+                (a, b) =>
+                  DAY_ORDER.indexOf(a.day) - DAY_ORDER.indexOf(b.day) ||
+                  a.openTime.localeCompare(b.openTime),
+              )
               .map((schedule) => {
                 const isToday = schedule.day === todayEnum;
 
                 return (
                   <div
-                    key={schedule.day}
+                    key={`${schedule.day}-${schedule.openTime}`}
                     className={`schedule-row${isToday ? " schedule-row-today" : ""}`}
                   >
                     <span className="schedule-day">
