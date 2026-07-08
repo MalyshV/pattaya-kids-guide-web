@@ -41,6 +41,11 @@ export const ru = {
     unknown: "уточняется",
   },
 
+  share: {
+    cta: "Поделиться",
+    copied: "Ссылка скопирована",
+  },
+
   openStatus: {
     openHours: (hours: number): string =>
       `Открыто ещё ~${hours} ${plural(hours, ["час", "часа", "часов"])}`,

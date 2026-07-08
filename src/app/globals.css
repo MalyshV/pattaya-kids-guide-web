@@ -824,12 +824,49 @@ input {
 
 .back-link-wrapper {
   margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .back-link {
   text-decoration: none;
   color: var(--accent);
   font-size: 14px;
+}
+
+/* «Поделиться» — спокойная пилюля напротив «← Назад» */
+.share-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.share-button:hover {
+  background: #fbf7f2;
+}
+
+.share-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* тихое подтверждение «ссылка скопирована» — sage, как «открыто» */
+.share-button-copied {
+  border-color: #b7cdb6;
+  background: #e9f0e8;
+  color: #3f5745;
 }
 
 /* ссылка «открыть в картах» под адресом — спокойный терракот */

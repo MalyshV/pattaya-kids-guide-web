@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { mapActivityToListItem } from "@/mappers/activity.mapper";
 import { getActivityBySlug } from "@/services/activities.service";
+import { ShareButton } from "@/components/common/share-button";
 import { PlaceImage } from "@/components/places/place-image";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
@@ -91,6 +92,7 @@ export default async function ActivityDetailsPage({
         <Link href={`${basePath}/activities`} className="back-link">
           {ru.activityDetails.back}
         </Link>
+        <ShareButton title={dto.name} />
       </div>
 
       <PlaceImage url={dto.imageUrl} alt={dto.name} className="place-image-hero" />

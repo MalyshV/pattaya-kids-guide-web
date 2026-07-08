@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { EventDetailsDto } from "@/dto/event-details.dto";
+import { ShareButton } from "@/components/common/share-button";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { mapEventDetailsToDto } from "@/mappers/event-details.mapper";
 import { getApprovedEventBySlug } from "@/services/events.service";
@@ -114,6 +115,7 @@ export default async function EventDetailsPage({
         <Link href={`${basePath}/events`} className="back-link">
           {ru.eventDetails.back}
         </Link>
+        <ShareButton title={dto.title} />
       </div>
 
       <PlaceImage url={dto.imageUrl} alt={dto.title} className="place-image-hero" />

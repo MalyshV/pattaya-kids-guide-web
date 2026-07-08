@@ -8,6 +8,7 @@ import { getUpcomingApprovedEventsByPlaceId } from "@/services/events.service";
 import { getApprovedPlaceBySlug } from "@/services/places.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeOpenStatus, nowInCity } from "@/lib/schedule/open-status";
+import { ShareButton } from "@/components/common/share-button";
 import { OpenStatusBadge } from "@/components/places/open-status-badge";
 import { PlaceProgramCard } from "@/components/places/place-program-card";
 import { PlaceImage } from "@/components/places/place-image";
@@ -124,6 +125,7 @@ export default async function PlaceDetailsPage({
         <Link href={basePath} className="back-link">
           {ru.placeDetails.back}
         </Link>
+        <ShareButton title={dto.name} />
       </div>
 
       <PlaceImage url={dto.imageUrl} alt={dto.name} className="place-image-hero" />
