@@ -85,7 +85,6 @@ export const ru = {
     reset: "Сбросить",
     apply: "Показать",
     labels: {
-      workFriendly: "Можно поработать",
       indoor: "В помещении",
       outdoor: "На улице",
       hasFood: "Еда",
@@ -93,7 +92,6 @@ export const ru = {
       canLeaveChild: "Можно оставить ребёнка",
       animalContact: "Животные",
     },
-    workFriendlyHint: "Wi-Fi, кондиционер и место, где можно посидеть",
   },
 
   scenarios: {
@@ -101,6 +99,9 @@ export const ru = {
     openNow: "Пойти сейчас",
     openNowHint: "Открыто прямо сейчас или откроется в ближайшие полчаса",
     openNowActive: "Показываю только то, что открыто сейчас",
+    workFriendly: "Можно поработать",
+    workFriendlyHint: "Wi-Fi, кондиционер и место, где можно посидеть",
+    workFriendlyActive: "Показываю, где удобно поработать рядом с ребёнком",
     shelter: "Спрятаться от жары",
     shelterHint:
       "В помещении с кондиционером или под навесом с вентиляторами — и от дождя",

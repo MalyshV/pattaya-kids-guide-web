@@ -235,44 +235,6 @@ input {
   border-color: var(--accent);
 }
 
-/* «Можно поработать» — флагманский фильтр: спокойно выделен, не кричит */
-.filter-toggle-feature {
-  align-items: flex-start;
-  margin-bottom: 16px;
-  background: var(--surface);
-  border-left: 3px solid var(--accent);
-}
-
-.filter-toggle-feature:hover {
-  background: #fbf7f2;
-}
-
-.filter-toggle-feature:has(input:checked) {
-  border-color: var(--accent);
-  background: #fbf1ec;
-}
-
-.filter-toggle-feature input {
-  margin-top: 2px;
-}
-
-.filter-feature-text {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.filter-feature-label {
-  font-weight: 600;
-  color: var(--foreground);
-}
-
-.filter-feature-hint {
-  font-size: 0.85rem;
-  line-height: 1.4;
-  color: var(--muted);
-}
-
 .filters-actions {
   margin-top: 18px;
 }

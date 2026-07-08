@@ -83,9 +83,8 @@ export default async function CityPlacesPage({
   const isOpenNow = parseBooleanParam(openNow) === true;
   const isShelter = parseBooleanParam(shelter) === true;
 
-  // Фасеты — всё, что переносим между сценарием, фильтрами и пагинацией.
+  // Фасеты — рядовые фильтры (не сценарии), переносим между чипами и пагинацией.
   const facets = {
-    workFriendly,
     indoor,
     outdoor,
     hasFood,
@@ -150,7 +149,14 @@ export default async function CityPlacesPage({
         <p className="hero-description">{ru.places.heroDescription}</p>
       </section>
 
-      <ScenarioBar active={{ openNow: isOpenNow, shelter: isShelter }} facets={facets} />
+      <ScenarioBar
+        active={{
+          openNow: isOpenNow,
+          workFriendly: isWorkFriendly,
+          shelter: isShelter,
+        }}
+        facets={facets}
+      />
 
       <PlaceFilters
         openNow={openNow}
