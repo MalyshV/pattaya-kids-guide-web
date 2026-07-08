@@ -243,6 +243,8 @@ model PlaceProgram {
   /// текстовое место проведения (когда нет каталожного place — напр. сад)
   venueName    String?
   venueAddress String?
+  /// Демо-запись (см. Place.isDemo)
+  isDemo      Boolean     @default(false)
   /// город занятия для scoping БЕЗместных занятий (у place-занятий — из place)
   cityId      String?
   city        City?       @relation(fields: [cityId], references: [id])
@@ -379,6 +381,9 @@ model Place {
   hasFans            Boolean?
   createdByUserId    String?
   isAnonymous        Boolean             @default(false)
+  /// Демо-запись для локальной разработки: публичные выборки скрывают её,
+  /// если не включён SHOW_DEMO (см. src/lib/demo/show-demo.ts)
+  isDemo             Boolean             @default(false)
   /// МОДЕРАЦИЯ + UGC
   status             PlaceStatus         @default(PENDING)
   events             Event[]
@@ -457,6 +462,8 @@ model Event {
   isClaimed          Boolean             @default(false)
   organizerName      String?
   organizerContact   String?
+  /// Демо-запись (см. Place.isDemo)
+  isDemo             Boolean             @default(false)
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   place              Place?              @relation(fields: [placeId], references: [id])

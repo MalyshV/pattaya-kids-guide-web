@@ -2,6 +2,7 @@ import { cache } from "react";
 import { prisma } from "@/db/prisma";
 import { EVENT_SORTING } from "@/lib/constants/event-sorting";
 import type { EventType } from "@/lib/constants/event-types";
+import { demoFilter } from "@/lib/demo/show-demo";
 import { buildEventLifecycleWhere } from "@/lib/events/event-lifecycle";
 import type { Event, Prisma } from "@prisma/client";
 
@@ -74,6 +75,7 @@ function buildApprovedEventsWhere(
 
   return {
     status: "APPROVED",
+    ...demoFilter(),
     ...(cityId ? { cityId } : {}),
     ...(placeSlug
       ? {
@@ -177,6 +179,7 @@ export const getApprovedEventBySlug = cache(async function getApprovedEventBySlu
     where: {
       slug,
       status: "APPROVED",
+      ...demoFilter(),
       ...(cityId ? { cityId } : {}),
     },
     include: {
@@ -194,6 +197,7 @@ export async function getUpcomingApprovedEventsByPlaceId(
     where: {
       placeId,
       status: "APPROVED",
+      ...demoFilter(),
       startDate: {
         gt: now,
       },

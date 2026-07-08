@@ -216,6 +216,7 @@ async function main() {
       hasWifi: true,
       canLeaveChild: false,
       animalContact: false,
+      isDemo: true,
       status: "APPROVED",
       cityId: pattaya.id,
     },
@@ -233,6 +234,7 @@ async function main() {
       hasWifi: true,
       canLeaveChild: false,
       animalContact: false,
+      isDemo: true,
       status: "APPROVED",
       cityId: pattaya.id,
     },
@@ -1206,6 +1208,7 @@ async function main() {
       venueName: "Детский сад «Солнышко»",
       venueAddress: "Демо-адрес, Северная Паттайя",
       cityId: pattaya.id,
+      isDemo: true,
       order: 10,
     },
   });
@@ -1235,6 +1238,7 @@ async function main() {
       address: "Central Festival Pattaya Beach, Pattaya",
       status: "APPROVED",
       isAnonymous: true,
+      isDemo: true,
     },
     create: {
       title: "[Демо] Детский арт-мастер-класс",
@@ -1247,6 +1251,7 @@ async function main() {
       address: "Central Festival Pattaya Beach, Pattaya",
       status: "APPROVED",
       isAnonymous: true,
+      isDemo: true,
     },
   });
 
@@ -1280,6 +1285,7 @@ async function main() {
       address: "Terminal 21, Pattaya",
       status: "APPROVED",
       isAnonymous: true,
+      isDemo: true,
     },
     create: {
       title: "[Демо] Игровая зона выходного дня",
@@ -1292,6 +1298,7 @@ async function main() {
       address: "Terminal 21, Pattaya",
       status: "APPROVED",
       isAnonymous: true,
+      isDemo: true,
     },
   });
 
@@ -1325,6 +1332,7 @@ async function main() {
       address: "Pattaya City Park",
       status: "APPROVED",
       isAnonymous: true,
+      isDemo: true,
     },
     create: {
       title: "[Демо] Детский фестиваль (прошедший)",
@@ -1337,6 +1345,7 @@ async function main() {
       address: "Pattaya City Park",
       status: "APPROVED",
       isAnonymous: true,
+      isDemo: true,
     },
   });
 
@@ -1376,6 +1385,7 @@ async function main() {
       isFeatured: false,
       isSponsored: false,
       isClaimed: false,
+      isDemo: true,
     },
     create: {
       title: "[Демо] Мастер-класс выходного дня",
@@ -1394,6 +1404,7 @@ async function main() {
       isFeatured: false,
       isSponsored: false,
       isClaimed: false,
+      isDemo: true,
     },
   });
 

@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { prisma } from "@/db/prisma";
+import { demoFilter } from "@/lib/demo/show-demo";
 import type { Prisma } from "@prisma/client";
 
 export type ActivityWithPlace = Prisma.PlaceProgramGetPayload<{
@@ -27,6 +28,7 @@ export const getCityActivities = cache(async function getCityActivities(
   return prisma.placeProgram.findMany({
     where: {
       type: { in: ["COURSE", "CAMP"] },
+      ...demoFilter(),
       // либо занятие одобренного места города, либо безместное того же города
       OR: [{ place: { status: "APPROVED", cityId } }, { placeId: null, cityId }],
     },
@@ -57,6 +59,7 @@ export const getActivityBySlug = cache(async function getActivityBySlug(
     where: {
       slug,
       type: { in: ["COURSE", "CAMP"] },
+      ...demoFilter(),
       OR: [{ place: { status: "APPROVED", cityId } }, { placeId: null, cityId }],
     },
     include: {

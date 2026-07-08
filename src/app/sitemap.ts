@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/db/prisma";
+import { demoFilter } from "@/lib/demo/show-demo";
 import { DEFAULT_LANG, getSiteUrl } from "@/lib/geo/city";
 
 /**
@@ -13,11 +14,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     where: { isPublished: true },
     include: {
       places: {
-        where: { status: "APPROVED" },
+        where: { status: "APPROVED", ...demoFilter() },
         select: { slug: true, updatedAt: true },
       },
       events: {
-        where: { status: "APPROVED" },
+        where: { status: "APPROVED", ...demoFilter() },
         select: { slug: true, updatedAt: true },
       },
     },

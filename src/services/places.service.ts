@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { prisma } from "@/db/prisma";
+import { demoFilter } from "@/lib/demo/show-demo";
 import type { PlacesFilter } from "@/lib/queries/places-query";
 import type { Prisma } from "@prisma/client";
 
@@ -63,6 +64,7 @@ function buildApprovedPlacesWhere(
 ): Prisma.PlaceWhereInput {
   return {
     status: "APPROVED",
+    ...demoFilter(),
     ...(cityId ? { cityId } : {}),
     ...(filter?.indoor !== undefined ? { indoor: filter.indoor } : {}),
     ...(filter?.outdoor !== undefined ? { outdoor: filter.outdoor } : {}),
@@ -156,6 +158,7 @@ export const getApprovedPlaceBySlug = cache(async function getApprovedPlaceBySlu
     where: {
       slug,
       status: "APPROVED",
+      ...demoFilter(),
       ...(cityId ? { cityId } : {}),
     },
     include: {
