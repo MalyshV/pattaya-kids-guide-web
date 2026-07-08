@@ -122,6 +122,15 @@ export const ru = {
   placeDetails: {
     back: "← Назад к местам",
     eyebrow: "Место",
+    // сводка-чипы в шапке: ключевые факты без прокрутки; чип без данных пропускается
+    summary: {
+      ageRange: (min: number, max: number): string => `${min}–${max} лет`,
+      entryFrom: (price: string): string => `вход от ${price}`,
+      entryFree: "вход бесплатный",
+      canLeave: "можно оставить ребёнка",
+      canLeaveFrom: (age: string): string => `можно оставить ${age}`,
+      todayUntil: (time: string): string => `сегодня до ${time}`,
+    },
     photosTitle: "Фотографии",
     addressTitle: "Адрес",
     openInMaps: "Открыть в Google Maps",

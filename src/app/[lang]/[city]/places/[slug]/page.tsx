@@ -86,6 +86,62 @@ function currencySymbol(code: string): string {
   return code === "THB" ? "฿" : code;
 }
 
+/**
+ * Сводка-чипы в шапке: возраст · вход от · можно оставить · сегодня до.
+ * Лекарство от «простыни» — решающие факты видны без прокрутки. Чип без
+ * данных честно пропускается, ничего не выдумываем.
+ */
+function buildSummaryChips(dto: PlaceDetailsDto, todayEnum: string): string[] {
+  const chips: string[] = [];
+  const s = ru.placeDetails.summary;
+
+  if (dto.ageGroups.length === 1) {
+    chips.push(dto.ageGroups[0].name);
+  } else if (dto.ageGroups.length > 1) {
+    const min = Math.min(...dto.ageGroups.map((g) => g.minAge));
+    const max = Math.max(...dto.ageGroups.map((g) => g.maxAge));
+    chips.push(s.ageRange(min, max));
+  }
+
+  const childPrices = dto.entryPrices
+    .map((tier) => tier.childPrice)
+    .filter((price): price is number => price != null);
+  if (childPrices.length > 0) {
+    const currency = currencySymbol(dto.entryPrices[0].currency);
+    chips.push(s.entryFrom(`${Math.min(...childPrices)} ${currency}`));
+  } else if (dto.pricing.length > 0) {
+    const first = dto.pricing[0];
+    if (first.priceType === "FREE") {
+      chips.push(s.entryFree);
+    } else if (first.minPrice != null) {
+      chips.push(s.entryFrom(`${first.minPrice} ${currencySymbol(first.currency)}`));
+    }
+  }
+
+  if (dto.canLeaveChild === true) {
+    chips.push(
+      dto.leaveChildFromMonths != null
+        ? s.canLeaveFrom(fromAgeLabel(dto.leaveChildFromMonths))
+        : s.canLeave,
+    );
+  }
+
+  const todayHours = dto.schedules.filter(
+    (schedule) => schedule.day === todayEnum && !schedule.isClosed,
+  );
+  if (todayHours.length > 0) {
+    const lastClose = todayHours
+      .map((schedule) => schedule.closeTime)
+      .sort()
+      .at(-1);
+    if (lastClose) {
+      chips.push(s.todayUntil(lastClose));
+    }
+  }
+
+  return chips;
+}
+
 export default async function PlaceDetailsPage({
   params,
 }: PageProps): Promise<React.ReactElement> {
@@ -109,6 +165,7 @@ export default async function PlaceDetailsPage({
   const dto: PlaceDetailsDto = mapPlaceDetailsToDto(place);
   const openStatus = computeOpenStatus(dto.schedules, city.timezone);
   const todayEnum = nowInCity(city.timezone).day;
+  const summaryChips = buildSummaryChips(dto, todayEnum);
 
   // Занятия (курсы/лагеря — ведут на свою страницу) отдельно от абонементов
   // (тарифы места), чтобы занятия не терялись под абонементами
@@ -119,6 +176,9 @@ export default async function PlaceDetailsPage({
     (program) => program.type === "MEMBERSHIP",
   );
 
+  // Порядок секций — «как родитель думает»: решаю (сводка/часы/цены/советы) →
+  // планирую (занятия/абонементы/ДР) → углубляюсь (возраст/факты/язык) →
+  // еду (адрес/контакты) → справка (категории/события).
   return (
     <main className="page-shell">
       <div className="back-link-wrapper">
@@ -138,6 +198,15 @@ export default async function PlaceDetailsPage({
             <OpenStatusBadge status={openStatus} />
           </div>
         ) : null}
+        {summaryChips.length > 0 ? (
+          <div className="hero-facts">
+            {summaryChips.map((chip) => (
+              <span key={chip} className="hero-fact-chip">
+                {chip}
+              </span>
+            ))}
+          </div>
+        ) : null}
         <p className="hero-description">
           {dto.description ?? ru.common.descriptionFallback}
         </p>
@@ -154,58 +223,6 @@ export default async function PlaceDetailsPage({
                 alt={photo.caption ?? dto.name}
               />
             ))}
-          </div>
-        </section>
-      )}
-
-      <section className="details-section">
-        <h2 className="section-title">{ru.placeDetails.addressTitle}</h2>
-        <p className="empty-text">{dto.address}</p>
-        <a
-          className="map-link"
-          href={
-            // проверенная карточка места (фото/отзывы/часы) приоритетнее:
-            // координаты открывают лишь голую метку на карте
-            dto.googleMapsUrl ??
-            `https://www.google.com/maps/search/?api=1&query=${dto.latitude},${dto.longitude}`
-          }
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {ru.placeDetails.openInMaps} <span aria-hidden="true">↗</span>
-        </a>
-      </section>
-
-      {dto.contacts.length > 0 && (
-        <section className="details-section">
-          <h2 className="section-title">{ru.placeDetails.contactsTitle}</h2>
-          <div className="contacts-list">
-            {dto.contacts.map((contact) => {
-              const channel =
-                (ru.placeDetails.contactChannels as Record<string, string>)[
-                  contact.type
-                ] ?? contact.type;
-              const external = isExternalContact(contact.type);
-
-              return (
-                <a
-                  key={contact.id}
-                  className="contact-link"
-                  href={contactHref(contact.type, contact.value)}
-                  {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                >
-                  <span className="contact-channel">{channel}</span>
-                  {showsContactValue(contact.type, contact.value) ? (
-                    <span className="contact-value">{contact.value}</span>
-                  ) : null}
-                  {external ? (
-                    <span className="contact-arrow" aria-hidden="true">
-                      ↗
-                    </span>
-                  ) : null}
-                </a>
-              );
-            })}
           </div>
         </section>
       )}
@@ -301,28 +318,6 @@ export default async function PlaceDetailsPage({
         </section>
       )}
 
-      {activityPrograms.length > 0 && (
-        <section className="details-section">
-          <h2 className="section-title">{ru.placeDetails.activitiesTitle}</h2>
-          <div className="programs-list">
-            {activityPrograms.map((program) => (
-              <PlaceProgramCard key={program.id} program={program} basePath={basePath} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {membershipPrograms.length > 0 && (
-        <section className="details-section">
-          <h2 className="section-title">{ru.placeDetails.membershipsTitle}</h2>
-          <div className="programs-list">
-            {membershipPrograms.map((program) => (
-              <PlaceProgramCard key={program.id} program={program} basePath={basePath} />
-            ))}
-          </div>
-        </section>
-      )}
-
       {dto.tips.length > 0 && (
         <section className="details-section">
           <h2 className="section-title">{ru.placeDetails.tipsTitle}</h2>
@@ -347,40 +342,23 @@ export default async function PlaceDetailsPage({
         </section>
       )}
 
-      {dto.ageGroups.length > 0 && (
+      {activityPrograms.length > 0 && (
         <section className="details-section">
-          <h2 className="section-title">{ru.placeDetails.ageTitle}</h2>
-          <div className="category-list">
-            {dto.ageGroups.map((ageGroup) => (
-              <span key={ageGroup.id} className="category-chip">
-                {ageGroup.name}
-              </span>
+          <h2 className="section-title">{ru.placeDetails.activitiesTitle}</h2>
+          <div className="programs-list">
+            {activityPrograms.map((program) => (
+              <PlaceProgramCard key={program.id} program={program} basePath={basePath} />
             ))}
           </div>
         </section>
       )}
 
-      {dto.amenities.length > 0 && (
+      {membershipPrograms.length > 0 && (
         <section className="details-section">
-          <h2 className="section-title">{ru.placeDetails.amenitiesTitle}</h2>
-          <div className="category-list">
-            {dto.amenities.map((amenity) => (
-              <span key={amenity.id} className="category-chip">
-                {amenity.name}
-              </span>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {dto.staffLanguages.length > 0 && (
-        <section className="details-section">
-          <h2 className="section-title">{ru.placeDetails.staffLanguagesTitle}</h2>
-          <div className="category-list">
-            {dto.staffLanguages.map((language) => (
-              <span key={language.id} className="category-chip">
-                {language.name}
-              </span>
+          <h2 className="section-title">{ru.placeDetails.membershipsTitle}</h2>
+          <div className="programs-list">
+            {membershipPrograms.map((program) => (
+              <PlaceProgramCard key={program.id} program={program} basePath={basePath} />
             ))}
           </div>
         </section>
@@ -393,6 +371,19 @@ export default async function PlaceDetailsPage({
           {dto.birthdayInfo.notes ? (
             <p className="empty-text">{dto.birthdayInfo.notes}</p>
           ) : null}
+        </section>
+      )}
+
+      {dto.ageGroups.length > 0 && (
+        <section className="details-section">
+          <h2 className="section-title">{ru.placeDetails.ageTitle}</h2>
+          <div className="category-list">
+            {dto.ageGroups.map((ageGroup) => (
+              <span key={ageGroup.id} className="category-chip">
+                {ageGroup.name}
+              </span>
+            ))}
+          </div>
         </section>
       )}
 
@@ -459,7 +450,83 @@ export default async function PlaceDetailsPage({
             <FactValue value={dto.animalContact} />
           </div>
         </div>
+
+        {/* удобства-справочник в той же секции фактов (решение: не плодить секции) */}
+        {dto.amenities.length > 0 && (
+          <div className="category-list details-amenities">
+            {dto.amenities.map((amenity) => (
+              <span key={amenity.id} className="category-chip">
+                {amenity.name}
+              </span>
+            ))}
+          </div>
+        )}
       </section>
+
+      {dto.staffLanguages.length > 0 && (
+        <section className="details-section">
+          <h2 className="section-title">{ru.placeDetails.staffLanguagesTitle}</h2>
+          <div className="category-list">
+            {dto.staffLanguages.map((language) => (
+              <span key={language.id} className="category-chip">
+                {language.name}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="details-section">
+        <h2 className="section-title">{ru.placeDetails.addressTitle}</h2>
+        <p className="empty-text">{dto.address}</p>
+        <a
+          className="map-link"
+          href={
+            // проверенная карточка места (фото/отзывы/часы) приоритетнее:
+            // координаты открывают лишь голую метку на карте
+            dto.googleMapsUrl ??
+            `https://www.google.com/maps/search/?api=1&query=${dto.latitude},${dto.longitude}`
+          }
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {ru.placeDetails.openInMaps} <span aria-hidden="true">↗</span>
+        </a>
+      </section>
+
+      {dto.contacts.length > 0 && (
+        <section className="details-section">
+          <h2 className="section-title">{ru.placeDetails.contactsTitle}</h2>
+          <div className="contacts-list">
+            {dto.contacts.map((contact) => {
+              const channel =
+                (ru.placeDetails.contactChannels as Record<string, string>)[
+                  contact.type
+                ] ?? contact.type;
+              const external = isExternalContact(contact.type);
+
+              return (
+                <a
+                  key={contact.id}
+                  className="contact-link"
+                  href={contactHref(contact.type, contact.value)}
+                  {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                >
+                  <span className="contact-channel">{channel}</span>
+                  {showsContactValue(contact.type, contact.value) ? (
+                    <span className="contact-value">{contact.value}</span>
+                  ) : null}
+                  {external ? (
+                    <span className="contact-arrow" aria-hidden="true">
+                      ↗
+                    </span>
+                  ) : null}
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {dto.categories.length > 0 && (
         <section className="details-section">

@@ -631,6 +631,31 @@ input {
   margin-top: 4px;
 }
 
+/* сводка-чипы в шапке места: решающие факты без прокрутки */
+.hero-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.hero-fact-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  color: var(--foreground);
+  font-size: 13px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* удобства-справочник внутри секции фактов */
+.details-amenities {
+  margin-top: 14px;
+}
+
 /* event cards */
 
 .event-card {
