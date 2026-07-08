@@ -29,9 +29,7 @@
 
 ## Статус проекта
 
-Пре-MVP в активной разработке. Модель данных заложена «широко» (мультигород, UGC, модерация, монетизация), наполнение — «узко»: Паттайя, реальные места заносятся вручную по личным визитам. Публичного деплоя пока нет. Актуальные планы — в [docs/](docs/): [ROADMAP.md](docs/ROADMAP.md), [MULTIREGION_PLAN.md](docs/MULTIREGION_PLAN.md), [SMART_FILTERS_PLAN.md](docs/SMART_FILTERS_PLAN.md).
-
-Файлы `AI_CONTEXT.md`, `PROJECT_MAP.md`, `NEXT_STEPS.md` в корне — исторические, коду не соответствуют; источник истины — код, `git log` и `docs/`.
+Пре-MVP в активной разработке. Модель данных заложена «широко» (мультигород, UGC, модерация, монетизация), наполнение — «узко»: Паттайя, реальные места заносятся вручную по личным визитам. Публичного деплоя пока нет. Актуальные планы — в [docs/](docs/): [ROADMAP.md](docs/ROADMAP.md), [MULTIREGION_PLAN.md](docs/MULTIREGION_PLAN.md), [SMART_FILTERS_PLAN.md](docs/SMART_FILTERS_PLAN.md). Источник истины — код и `git log`.
 
 ## Стек
 
