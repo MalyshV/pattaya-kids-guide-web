@@ -1034,6 +1034,10 @@ async function main() {
   await prisma.programActivityCategory.deleteMany({
     where: { programId: { in: littleGymOldPrograms.map((p) => p.id) } },
   });
+  // классы — дочерние к программе (FK без cascade): чистим ДО удаления программ
+  await prisma.placeClass.deleteMany({
+    where: { programId: { in: littleGymOldPrograms.map((p) => p.id) } },
+  });
   await prisma.placeProgram.deleteMany({ where: { placeId: littleGym.id } });
   const gymProgram = await prisma.placeProgram.create({
     data: {
@@ -1100,10 +1104,19 @@ async function main() {
         ageLabel: "30 мес – 3 г",
         minAgeMonths: 30,
         maxAgeMonths: 36,
-        parentRequired: null,
-        schedule:
-          "Вт 11:00/16:15 · Ср 11:00/14:30 · Чт 15:00/16:00 · Пт 10:00/11:00 · Сб 11:00/13:30 · Вс 10:00/11:00",
+        parentRequired: true,
+        schedule: "Вт 11:00 · Ср 11:00 · Чт 15:00 · Пт 10:00 · Сб 11:00 · Вс 10:00",
         order: 4,
+      },
+      {
+        programId: gymProgram.id,
+        name: "Super beasts",
+        ageLabel: "30 мес – 3 г",
+        minAgeMonths: 30,
+        maxAgeMonths: 36,
+        parentRequired: false,
+        schedule: "Вт 16:15 · Ср 14:30 · Чт 16:00 · Пт 11:00 · Сб 13:30 · Вс 11:00",
+        order: 5,
       },
       {
         programId: gymProgram.id,
@@ -1113,7 +1126,7 @@ async function main() {
         maxAgeMonths: 48,
         parentRequired: false,
         schedule: "Вт 16:15 · Ср 14:30 · Чт 16:00 · Пт 11:00 · Сб 13:30 · Вс 11:00",
-        order: 5,
+        order: 6,
       },
       {
         programId: gymProgram.id,
@@ -1123,7 +1136,7 @@ async function main() {
         maxAgeMonths: 60,
         parentRequired: false,
         schedule: "Вт 15:00 · Ср 16:00 · Пт 16:00 · Сб 15:00 · Вс 14:30",
-        order: 6,
+        order: 7,
       },
       {
         programId: gymProgram.id,
@@ -1133,7 +1146,7 @@ async function main() {
         maxAgeMonths: 72,
         parentRequired: false,
         schedule: "Вт 15:00 · Ср 16:00 · Пт 16:00 · Сб 15:00 · Вс 14:30",
-        order: 7,
+        order: 8,
       },
       {
         programId: gymProgram.id,
@@ -1143,7 +1156,7 @@ async function main() {
         maxAgeMonths: 144,
         parentRequired: false,
         schedule: "Вт 17:30 · Чт 17:30 · Пт 17:30 · Сб 16:30",
-        order: 8,
+        order: 9,
       },
     ],
   });
