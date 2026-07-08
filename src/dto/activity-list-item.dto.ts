@@ -4,6 +4,17 @@ export type ActivityCategoryDto = {
   slug: string;
 };
 
+/** Возрастной класс внутри занятия (напр. классы гимнастики Little Gym). */
+export type ActivityClassDto = {
+  id: string;
+  name: string;
+  ageLabel: string;
+  minAgeMonths: number;
+  maxAgeMonths: number;
+  parentRequired: boolean | null;
+  schedule: string;
+};
+
 /**
  * Занятие в сквозной ленте «Занятия»: программа места (COURSE/CAMP) вместе с
  * местом (обязательно — в ленте место не очевидно) и категориями.
@@ -32,4 +43,5 @@ export type ActivityListItemDto = {
   venueName: string | null;
   venueAddress: string | null;
   categories: ActivityCategoryDto[];
+  classes: ActivityClassDto[];
 };

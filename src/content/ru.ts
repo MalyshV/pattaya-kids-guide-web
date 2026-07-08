@@ -200,6 +200,15 @@ export const ru = {
   activityDetails: {
     back: "← Назад к занятиям",
     whereTitle: "Где проходит",
+    classesTitle: "Классы и расписание",
+    classCol: "Класс",
+    ageCol: "Возраст",
+    timeCol: "Дни и время",
+    withParent: "с родителем",
+    withoutParent: "без родителя",
+    parentDepends: "с родителем или без",
+    classLegend:
+      "«С родителем» — 45 мин, вы участвуете. «Без родителя» — 1 час, вы наблюдаете из лобби.",
   },
 
   eventCard: {

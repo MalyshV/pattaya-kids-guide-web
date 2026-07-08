@@ -1042,7 +1042,7 @@ async function main() {
       type: "COURSE",
       name: "Гимнастика и активное развитие",
       description:
-        "Классы по возрастным группам от 4 месяцев до 12 лет — от Bugs (малыши) до Flips/Hotshots (6–12 лет). Занятия со вторника по воскресенье (понедельник — выходной), время зависит от возраста. «Красные» занятия 45 мин — с участием родителя, «синие» 1 час — ребёнок занимается сам. Первое пробное занятие бесплатно.",
+        "Классы гимнастики и активного развития по возрастным группам от 4 месяцев до 12 лет — через игру. Занятия со вторника по воскресенье (понедельник — выходной). Первое пробное занятие бесплатно. Деление на классы, расписание и участие родителя — в таблице ниже.",
       minAgeMonths: 4,
       maxAgeMonths: 144,
       order: 1,
@@ -1056,6 +1056,97 @@ async function main() {
       data: { programId: gymProgram.id, categoryId: gymnasticsCategory.id },
     });
   }
+
+  // 8 классов гимнастики Little Gym (афиша расписания, визит Вероники). parentRequired:
+  // true = красный (45 мин, с родителем), false = синий (1 ч, без), null = оба (Super
+  // beasts: красный для новичков, синий для готовых заниматься час без родителя).
+  // ⚠️ Времена считаны с фото — Вероника проверит по постеру.
+  await prisma.placeClass.deleteMany({ where: { programId: gymProgram.id } });
+  await prisma.placeClass.createMany({
+    data: [
+      {
+        programId: gymProgram.id,
+        name: "Bugs",
+        ageLabel: "4–10 мес",
+        minAgeMonths: 4,
+        maxAgeMonths: 10,
+        parentRequired: true,
+        schedule: "Ср 10:00 · Вс 09:15",
+        order: 1,
+      },
+      {
+        programId: gymProgram.id,
+        name: "Birds",
+        ageLabel: "10–19 мес",
+        minAgeMonths: 10,
+        maxAgeMonths: 19,
+        parentRequired: true,
+        schedule: "Вт 10:00 · Чт 14:00 · Сб 10:00 · Вс 13:30",
+        order: 2,
+      },
+      {
+        programId: gymProgram.id,
+        name: "Beasts",
+        ageLabel: "19–30 мес",
+        minAgeMonths: 19,
+        maxAgeMonths: 30,
+        parentRequired: true,
+        schedule: "Вт 11:00 · Ср 11:00 · Чт 15:00 · Пт 10:00 · Сб 11:00 · Вс 10:00",
+        order: 3,
+      },
+      {
+        programId: gymProgram.id,
+        name: "Super beasts",
+        ageLabel: "30 мес – 3 г",
+        minAgeMonths: 30,
+        maxAgeMonths: 36,
+        parentRequired: null,
+        schedule:
+          "Вт 11:00/16:15 · Ср 11:00/14:30 · Чт 15:00/16:00 · Пт 10:00/11:00 · Сб 11:00/13:30 · Вс 10:00/11:00",
+        order: 4,
+      },
+      {
+        programId: gymProgram.id,
+        name: "Funny bugs",
+        ageLabel: "3–4 г",
+        minAgeMonths: 36,
+        maxAgeMonths: 48,
+        parentRequired: false,
+        schedule: "Вт 16:15 · Ср 14:30 · Чт 16:00 · Пт 11:00 · Сб 13:30 · Вс 11:00",
+        order: 5,
+      },
+      {
+        programId: gymProgram.id,
+        name: "Giggle worms",
+        ageLabel: "4–5 лет",
+        minAgeMonths: 48,
+        maxAgeMonths: 60,
+        parentRequired: false,
+        schedule: "Вт 15:00 · Ср 16:00 · Пт 16:00 · Сб 15:00 · Вс 14:30",
+        order: 6,
+      },
+      {
+        programId: gymProgram.id,
+        name: "Good Friends",
+        ageLabel: "5–6 лет",
+        minAgeMonths: 60,
+        maxAgeMonths: 72,
+        parentRequired: false,
+        schedule: "Вт 15:00 · Ср 16:00 · Пт 16:00 · Сб 15:00 · Вс 14:30",
+        order: 7,
+      },
+      {
+        programId: gymProgram.id,
+        name: "Flips/Hotshots",
+        ageLabel: "6–12 лет",
+        minAgeMonths: 72,
+        maxAgeMonths: 144,
+        parentRequired: false,
+        schedule: "Вт 17:30 · Чт 17:30 · Пт 17:30 · Сб 16:30",
+        order: 8,
+      },
+    ],
+  });
 
   // Часы работы The Little Gym (карточка Google): Вт–Вс 09:00–18:00, ПН выходной
   await prisma.placeSchedule.deleteMany({ where: { placeId: littleGym.id } });

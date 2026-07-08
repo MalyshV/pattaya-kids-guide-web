@@ -10,6 +10,7 @@ export type ActivityWithPlace = Prisma.PlaceProgramGetPayload<{
         category: true;
       };
     };
+    classes: true;
   };
 }>;
 
@@ -36,6 +37,7 @@ export const getCityActivities = cache(async function getCityActivities(
           category: true,
         },
       },
+      classes: { orderBy: { order: "asc" } },
     },
     orderBy: [{ order: "asc" }, { name: "asc" }],
   });
@@ -64,6 +66,7 @@ export const getActivityBySlug = cache(async function getActivityBySlug(
           category: true,
         },
       },
+      classes: { orderBy: { order: "asc" } },
     },
   });
 });

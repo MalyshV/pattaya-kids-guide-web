@@ -39,6 +39,18 @@ function formatMoney(amount: number, currency: string): string {
   return `${amount.toLocaleString("ru-RU")} ${currency}`;
 }
 
+function parentBadgeLabel(value: boolean | null): string {
+  if (value === true) return ru.activityDetails.withParent;
+  if (value === false) return ru.activityDetails.withoutParent;
+  return ru.activityDetails.parentDepends;
+}
+
+function parentBadgeClass(value: boolean | null): string {
+  if (value === true) return "class-parent-badge class-parent-with";
+  if (value === false) return "class-parent-badge class-parent-without";
+  return "class-parent-badge class-parent-both";
+}
+
 export default async function ActivityDetailsPage({
   params,
 }: PageProps): Promise<React.ReactElement> {
@@ -134,6 +146,38 @@ export default async function ActivityDetailsPage({
               </span>
             ))}
           </div>
+        </section>
+      ) : null}
+
+      {dto.classes.length > 0 ? (
+        <section className="details-section">
+          <h2 className="section-title">{ru.activityDetails.classesTitle}</h2>
+          <div className="class-table-wrap">
+            <table className="class-table">
+              <thead>
+                <tr>
+                  <th>{ru.activityDetails.classCol}</th>
+                  <th>{ru.activityDetails.ageCol}</th>
+                  <th>{ru.activityDetails.timeCol}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dto.classes.map((cls) => (
+                  <tr key={cls.id}>
+                    <th scope="row">
+                      <span className="class-name">{cls.name}</span>
+                      <span className={parentBadgeClass(cls.parentRequired)}>
+                        {parentBadgeLabel(cls.parentRequired)}
+                      </span>
+                    </th>
+                    <td>{cls.ageLabel}</td>
+                    <td className="class-schedule">{cls.schedule}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="class-legend">{ru.activityDetails.classLegend}</p>
         </section>
       ) : null}
 

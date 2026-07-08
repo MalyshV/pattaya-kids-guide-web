@@ -239,6 +239,7 @@ model PlaceProgram {
   order       Int         @default(0)
   place       Place?      @relation(fields: [placeId], references: [id])
   categories  ProgramActivityCategory[]
+  classes     PlaceClass[]
   /// текстовое место проведения (когда нет каталожного place — напр. сад)
   venueName    String?
   venueAddress String?
@@ -248,6 +249,27 @@ model PlaceProgram {
 
   @@index([placeId])
   @@index([cityId])
+}
+
+/// Возрастные классы внутри программы (напр. 8 классов гимнастики Little Gym):
+/// показываются таблицей на странице занятия, лента остаётся одной карточкой.
+/// parentRequired: true = с родителем (red, 45 мин), false = без (blue, 1 ч),
+/// null = оба варианта (переходный возраст).
+model PlaceClass {
+  id             String       @id @default(cuid())
+  programId      String
+  name           String
+  /// человекочитаемый возраст с постера («4–10 мес», «5–6 лет»)
+  ageLabel       String
+  minAgeMonths   Int
+  maxAgeMonths   Int
+  parentRequired Boolean?
+  /// недельное расписание строкой: «Вт 11:00 · Ср 11:00 · Чт 15:00…»
+  schedule       String
+  order          Int          @default(0)
+  program        PlaceProgram @relation(fields: [programId], references: [id])
+
+  @@index([programId])
 }
 
 /// Контакты места: телефон/сайт/соцсети. type — канал строкой (phone, website,

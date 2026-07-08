@@ -31,5 +31,14 @@ export function mapActivityToListItem(activity: ActivityWithPlace): ActivityList
       name: link.category.name,
       slug: link.category.slug,
     })),
+    classes: activity.classes.map((cls) => ({
+      id: cls.id,
+      name: cls.name,
+      ageLabel: cls.ageLabel,
+      minAgeMonths: cls.minAgeMonths,
+      maxAgeMonths: cls.maxAgeMonths,
+      parentRequired: cls.parentRequired,
+      schedule: cls.schedule,
+    })),
   };
 }
