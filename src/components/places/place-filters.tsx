@@ -5,8 +5,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { ru } from "@/content/ru";
 
 type PlaceFiltersProps = {
-  // Сценарий «Пойти сейчас» живёт отдельным чипом — здесь только сохраняем его.
+  // Сценарии («Пойти сейчас», «Спрятаться от жары») живут отдельными чипами —
+  // здесь их только сохраняем, чтобы «Показать»/«Сбросить» их не сбрасывали.
   openNow?: string;
+  shelter?: string;
   workFriendly?: string;
   indoor?: string;
   outdoor?: string;
@@ -68,14 +70,22 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
     }));
   }
 
+  // Активные сценарии-чипы, которые нужно пронести через «Показать»/«Сбросить».
+  function scenarioParams(): URLSearchParams {
+    const params = new URLSearchParams();
+    if (props.openNow === "true") {
+      params.set("openNow", "true");
+    }
+    if (props.shelter === "true") {
+      params.set("shelter", "true");
+    }
+    return params;
+  }
+
   function handleApply(event: React.FormEvent<HTMLFormElement>): void {
     event.preventDefault();
 
-    const searchParams = new URLSearchParams();
-
-    if (props.openNow === "true") {
-      searchParams.set("openNow", "true");
-    }
+    const searchParams = scenarioParams();
 
     (Object.entries(filters) as Array<[FilterKey, boolean]>).forEach(([key, value]) => {
       if (value) {
@@ -100,8 +110,9 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
     };
 
     setFilters(emptyState);
-    // Сброс фасетов не трогает сценарий-чип — у него свой переключатель.
-    router.push(props.openNow === "true" ? `${pathname}?openNow=true` : pathname);
+    // Сброс фасетов не трогает сценарий-чипы — у них свой переключатель.
+    const queryString = scenarioParams().toString();
+    router.push(queryString ? `${pathname}?${queryString}` : pathname);
   }
 
   return (

@@ -79,6 +79,18 @@ function buildApprovedPlacesWhere(
     ...(filter?.workFriendly
       ? { hasWifi: true, hasAirCon: true, hasCafeSeating: true }
       : {}),
+    // «Спрятаться от жары/дождя» — композит: укрытие сверху (в помещении ИЛИ
+    // навесы) И охлаждение (кондиционер ИЛИ вентиляторы). Ловит и «коробку с
+    // AC», и открытую площадку с навесами+вентиляторами (напр. Pa Boon Cafe).
+    // tri-state честно: null-поля не проходят как true.
+    ...(filter?.shelter
+      ? {
+          AND: [
+            { OR: [{ indoor: true }, { hasCoveredArea: true }] },
+            { OR: [{ hasAirCon: true }, { hasFans: true }] },
+          ],
+        }
+      : {}),
   };
 }
 

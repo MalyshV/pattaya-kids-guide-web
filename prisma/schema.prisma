@@ -372,6 +372,11 @@ model Place {
   hasParking         Boolean?
   hasCafeSeating     Boolean?
   hasPowerOutlets    Boolean?
+  /// Сценарий «Спрятаться от жары/дождя»: укрыться можно не только в коробке с
+  /// кондиционером. Открытая площадка с навесами (тень + не мочит дождь) и
+  /// вентиляторами укрывает не хуже (напр. Pa Boon Cafe). tri-state.
+  hasCoveredArea     Boolean?
+  hasFans            Boolean?
   createdByUserId    String?
   isAnonymous        Boolean             @default(false)
   /// МОДЕРАЦИЯ + UGC

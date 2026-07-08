@@ -7,6 +7,8 @@ export type PlacesFilter = {
   animalContact?: boolean;
   /** Композит «Можно поработать»: раскрывается в hasWifi && hasAirCon && hasCafeSeating (см. сервис) */
   workFriendly?: boolean;
+  /** Композит «Спрятаться от жары/дождя»: (indoor || навес) && (кондиционер || вентиляторы) (см. сервис) */
+  shelter?: boolean;
 };
 
 export type PlacesListQuery = {
@@ -45,6 +47,7 @@ export function parsePlacesListQuery(searchParams: URLSearchParams): PlacesListQ
       canLeaveChild: parseBooleanParam(searchParams.get("canLeaveChild")),
       animalContact: parseBooleanParam(searchParams.get("animalContact")),
       workFriendly: parseBooleanParam(searchParams.get("workFriendly")),
+      shelter: parseBooleanParam(searchParams.get("shelter")),
     },
     pagination: {
       page,

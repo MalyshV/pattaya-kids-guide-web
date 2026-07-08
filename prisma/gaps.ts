@@ -36,6 +36,8 @@ const FACT_LABELS: Record<string, string> = {
   hasParking: "Парковка",
   hasCafeSeating: "Есть где посидеть",
   hasPowerOutlets: "Розетки",
+  hasCoveredArea: "Навесы / крытые зоны",
+  hasFans: "Вентиляторы",
 };
 
 const PROGRAM_TYPE_LABELS: Record<string, string> = {

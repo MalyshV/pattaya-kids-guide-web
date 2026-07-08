@@ -75,11 +75,13 @@ export default async function CityPlacesPage({
   const animalContact = getSingleSearchParam(resolvedSearchParams.animalContact);
   const workFriendly = getSingleSearchParam(resolvedSearchParams.workFriendly);
   const openNow = getSingleSearchParam(resolvedSearchParams.openNow);
+  const shelter = getSingleSearchParam(resolvedSearchParams.shelter);
   const pageParam = getSingleSearchParam(resolvedSearchParams.page);
 
   const currentPage = parsePositiveNumberParam(pageParam) ?? 1;
   const isWorkFriendly = parseBooleanParam(workFriendly) === true;
   const isOpenNow = parseBooleanParam(openNow) === true;
+  const isShelter = parseBooleanParam(shelter) === true;
 
   // Фасеты — всё, что переносим между сценарием, фильтрами и пагинацией.
   const facets = {
@@ -101,6 +103,7 @@ export default async function CityPlacesPage({
       canLeaveChild: parseBooleanParam(canLeaveChild),
       animalContact: parseBooleanParam(animalContact),
       workFriendly: parseBooleanParam(workFriendly),
+      shelter: parseBooleanParam(shelter),
     },
     city.id,
   );
@@ -126,14 +129,18 @@ export default async function CityPlacesPage({
   // Пустое состояние честно объясняет причину — приоритет у активного сценария.
   const emptyTitle = isOpenNow
     ? ru.places.emptyOpenNowTitle
-    : isWorkFriendly
-      ? ru.places.emptyWorkTitle
-      : ru.places.emptyTitle;
+    : isShelter
+      ? ru.places.emptyShelterTitle
+      : isWorkFriendly
+        ? ru.places.emptyWorkTitle
+        : ru.places.emptyTitle;
   const emptyHint = isOpenNow
     ? ru.places.emptyOpenNowHint
-    : isWorkFriendly
-      ? ru.places.emptyWorkHint
-      : ru.places.emptyHint;
+    : isShelter
+      ? ru.places.emptyShelterHint
+      : isWorkFriendly
+        ? ru.places.emptyWorkHint
+        : ru.places.emptyHint;
 
   return (
     <main className="page-shell">
@@ -143,10 +150,11 @@ export default async function CityPlacesPage({
         <p className="hero-description">{ru.places.heroDescription}</p>
       </section>
 
-      <ScenarioBar openNow={isOpenNow} facets={facets} />
+      <ScenarioBar active={{ openNow: isOpenNow, shelter: isShelter }} facets={facets} />
 
       <PlaceFilters
         openNow={openNow}
+        shelter={shelter}
         workFriendly={workFriendly}
         indoor={indoor}
         outdoor={outdoor}
@@ -186,6 +194,7 @@ export default async function CityPlacesPage({
             totalPages={totalPages}
             basePath={basePath}
             openNow={openNow}
+            shelter={shelter}
             workFriendly={workFriendly}
             indoor={indoor}
             outdoor={outdoor}
