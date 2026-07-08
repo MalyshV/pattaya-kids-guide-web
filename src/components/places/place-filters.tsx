@@ -5,6 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { ru } from "@/content/ru";
 
 type PlaceFiltersProps = {
+  // Сценарий «Пойти сейчас» живёт отдельным чипом — здесь только сохраняем его.
+  openNow?: string;
   workFriendly?: string;
   indoor?: string;
   outdoor?: string;
@@ -71,6 +73,10 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
 
     const searchParams = new URLSearchParams();
 
+    if (props.openNow === "true") {
+      searchParams.set("openNow", "true");
+    }
+
     (Object.entries(filters) as Array<[FilterKey, boolean]>).forEach(([key, value]) => {
       if (value) {
         searchParams.set(key, "true");
@@ -94,7 +100,8 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
     };
 
     setFilters(emptyState);
-    router.push(pathname);
+    // Сброс фасетов не трогает сценарий-чип — у него свой переключатель.
+    router.push(props.openNow === "true" ? `${pathname}?openNow=true` : pathname);
   }
 
   return (

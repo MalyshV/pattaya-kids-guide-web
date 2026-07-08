@@ -13,11 +13,16 @@
 export const CLOSING_SOON_MIN = 90;
 /** ≥ этого до закрытия — показываем «Открыто ещё ~N ч» (минуты). */
 export const OPEN_LONG_MIN = 120;
+/**
+ * ≤ этого до открытия — место попадает в сценарий «Пойти сейчас»: пока
+ * собираешься и едешь, оно как раз откроется. Одна константа — легко поменять.
+ */
+export const OPENING_SOON_MIN = 30;
 
 export type OpenStatus =
   | { kind: "open"; hoursLeft: number | null }
   | { kind: "closingSoon" }
-  | { kind: "opensLater"; opensAt: string }
+  | { kind: "opensLater"; opensAt: string; minutesUntilOpen: number }
   | { kind: "closedToday" }
   | { kind: "unknown" };
 
@@ -139,7 +144,11 @@ export function computeOpenStatus(
 
   const next = todays.find((interval) => interval.open > minutes);
   if (next) {
-    return { kind: "opensLater", opensAt: next.openStr };
+    return {
+      kind: "opensLater",
+      opensAt: next.openStr,
+      minutesUntilOpen: next.open - minutes,
+    };
   }
 
   return { kind: "closedToday" };
@@ -156,6 +165,22 @@ export function isPositiveStatus(status: OpenStatus): boolean {
     status.kind === "closingSoon" ||
     status.kind === "opensLater"
   );
+}
+
+/**
+ * Сценарий «Пойти сейчас»: двери открыты прямо сейчас (в т.ч. «скоро закрытие» —
+ * оно всё ещё открыто), либо место откроется в ближайшие OPENING_SOON_MIN минут.
+ * «Откроется позже сегодня» сюда НЕ входит — это отдельный сценарий («Открыто с
+ * утра»). Нет расписания (unknown) — не обещаем, честно прячем.
+ */
+export function isGoNowStatus(status: OpenStatus): boolean {
+  if (status.kind === "open" || status.kind === "closingSoon") {
+    return true;
+  }
+  if (status.kind === "opensLater") {
+    return status.minutesUntilOpen <= OPENING_SOON_MIN;
+  }
+  return false;
 }
 
 /**

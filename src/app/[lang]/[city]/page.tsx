@@ -1,10 +1,15 @@
 import { notFound } from "next/navigation";
 import { PlaceCard } from "@/components/places/place-card";
 import { PlaceFilters } from "@/components/places/place-filters";
+import { ScenarioBar } from "@/components/places/scenario-bar";
 import { PlacesPagination } from "@/components/places/places-pagination";
 import { getAllApprovedPlaces } from "@/services/places.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
-import { computeOpenStatus, statusSortRank } from "@/lib/schedule/open-status";
+import {
+  computeOpenStatus,
+  isGoNowStatus,
+  statusSortRank,
+} from "@/lib/schedule/open-status";
 import { ru } from "@/content/ru";
 
 const PAGE_SIZE = 6;
@@ -69,10 +74,23 @@ export default async function CityPlacesPage({
   const canLeaveChild = getSingleSearchParam(resolvedSearchParams.canLeaveChild);
   const animalContact = getSingleSearchParam(resolvedSearchParams.animalContact);
   const workFriendly = getSingleSearchParam(resolvedSearchParams.workFriendly);
+  const openNow = getSingleSearchParam(resolvedSearchParams.openNow);
   const pageParam = getSingleSearchParam(resolvedSearchParams.page);
 
   const currentPage = parsePositiveNumberParam(pageParam) ?? 1;
   const isWorkFriendly = parseBooleanParam(workFriendly) === true;
+  const isOpenNow = parseBooleanParam(openNow) === true;
+
+  // Фасеты — всё, что переносим между сценарием, фильтрами и пагинацией.
+  const facets = {
+    workFriendly,
+    indoor,
+    outdoor,
+    hasFood,
+    hasWifi,
+    canLeaveChild,
+    animalContact,
+  };
 
   const allPlaces = await getAllApprovedPlaces(
     {
@@ -95,13 +113,27 @@ export default async function CityPlacesPage({
     }))
     .sort((a, b) => statusSortRank(a.status) - statusSortRank(b.status));
 
-  const total = placesWithStatus.length;
+  // Сценарий «Пойти сейчас» схлопывает список до открытых сейчас / вот-вот откроются.
+  const visiblePlaces = isOpenNow
+    ? placesWithStatus.filter(({ status }) => isGoNowStatus(status))
+    : placesWithStatus;
+
+  const total = visiblePlaces.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);
-  const pageItems = placesWithStatus.slice(
-    (safePage - 1) * PAGE_SIZE,
-    safePage * PAGE_SIZE,
-  );
+  const pageItems = visiblePlaces.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+  // Пустое состояние честно объясняет причину — приоритет у активного сценария.
+  const emptyTitle = isOpenNow
+    ? ru.places.emptyOpenNowTitle
+    : isWorkFriendly
+      ? ru.places.emptyWorkTitle
+      : ru.places.emptyTitle;
+  const emptyHint = isOpenNow
+    ? ru.places.emptyOpenNowHint
+    : isWorkFriendly
+      ? ru.places.emptyWorkHint
+      : ru.places.emptyHint;
 
   return (
     <main className="page-shell">
@@ -111,7 +143,10 @@ export default async function CityPlacesPage({
         <p className="hero-description">{ru.places.heroDescription}</p>
       </section>
 
+      <ScenarioBar openNow={isOpenNow} facets={facets} />
+
       <PlaceFilters
+        openNow={openNow}
         workFriendly={workFriendly}
         indoor={indoor}
         outdoor={outdoor}
@@ -130,8 +165,8 @@ export default async function CityPlacesPage({
 
       {total === 0 ? (
         <section className="empty-state">
-          <h3>{isWorkFriendly ? ru.places.emptyWorkTitle : ru.places.emptyTitle}</h3>
-          <p>{isWorkFriendly ? ru.places.emptyWorkHint : ru.places.emptyHint}</p>
+          <h3>{emptyTitle}</h3>
+          <p>{emptyHint}</p>
         </section>
       ) : (
         <>
@@ -150,6 +185,7 @@ export default async function CityPlacesPage({
             currentPage={safePage}
             totalPages={totalPages}
             basePath={basePath}
+            openNow={openNow}
             workFriendly={workFriendly}
             indoor={indoor}
             outdoor={outdoor}
