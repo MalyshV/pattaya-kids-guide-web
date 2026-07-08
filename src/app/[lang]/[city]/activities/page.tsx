@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { ActivityCard } from "@/components/activities/activity-card";
 import { ActivityFilters } from "@/components/activities/activity-filters";
+import { ActivitiesPagination } from "@/components/activities/activities-pagination";
 import { mapActivityToListItem } from "@/mappers/activity.mapper";
 import { getCityActivities } from "@/services/activities.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
@@ -12,6 +13,8 @@ import {
 } from "@/lib/activities/activity-filter";
 import { ru } from "@/content/ru";
 
+const PAGE_SIZE = 6;
+
 type PageProps = {
   params: Promise<{ lang: string; city: string }>;
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -19,6 +22,20 @@ type PageProps = {
 
 function getSingleSearchParam(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
+}
+
+function parsePositiveNumberParam(value: string | undefined): number | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    return undefined;
+  }
+
+  return parsed;
 }
 
 export default async function CityActivitiesPage({
@@ -36,6 +53,8 @@ export default async function CityActivitiesPage({
   const resolvedSearchParams = (await searchParams) ?? {};
   const activeAge = parseAgeBucket(getSingleSearchParam(resolvedSearchParams.age));
   const activeCategory = getSingleSearchParam(resolvedSearchParams.category);
+  const currentPage =
+    parsePositiveNumberParam(getSingleSearchParam(resolvedSearchParams.page)) ?? 1;
 
   const activities = await getCityActivities(city.id);
   const now = new Date();
@@ -60,6 +79,10 @@ export default async function CityActivitiesPage({
     .filter((a) => (activeAge ? matchesAgeBucket(a, activeAge) : true))
     .filter((a) => (activeCategory ? matchesCategory(a, activeCategory) : true))
     .sort((a, b) => activitySortRank(a, now) - activitySortRank(b, now));
+
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const pageItems = items.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   return (
     <main className="page-shell">
@@ -89,11 +112,21 @@ export default async function CityActivitiesPage({
           <p>{isFiltered ? ru.activities.emptyFilteredHint : ru.activities.emptyHint}</p>
         </section>
       ) : (
-        <section className="activities-grid">
-          {items.map((activity) => (
-            <ActivityCard key={activity.id} activity={activity} basePath={basePath} />
-          ))}
-        </section>
+        <>
+          <section className="activities-grid">
+            {pageItems.map((activity) => (
+              <ActivityCard key={activity.id} activity={activity} basePath={basePath} />
+            ))}
+          </section>
+
+          <ActivitiesPagination
+            currentPage={safePage}
+            totalPages={totalPages}
+            basePath={basePath}
+            age={activeAge ?? undefined}
+            category={activeCategory}
+          />
+        </>
       )}
     </main>
   );

@@ -70,6 +70,8 @@ function buildApprovedPlacesWhere(
     ...(filter?.outdoor !== undefined ? { outdoor: filter.outdoor } : {}),
     ...(filter?.hasFood !== undefined ? { hasFood: filter.hasFood } : {}),
     ...(filter?.hasWifi !== undefined ? { hasWifi: filter.hasWifi } : {}),
+    ...(filter?.hasAirCon !== undefined ? { hasAirCon: filter.hasAirCon } : {}),
+    ...(filter?.hasParking !== undefined ? { hasParking: filter.hasParking } : {}),
     ...(filter?.canLeaveChild !== undefined
       ? { canLeaveChild: filter.canLeaveChild }
       : {}),

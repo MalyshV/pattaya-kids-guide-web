@@ -3,6 +3,8 @@ export type PlacesFilter = {
   outdoor?: boolean;
   hasFood?: boolean;
   hasWifi?: boolean;
+  hasAirCon?: boolean;
+  hasParking?: boolean;
   canLeaveChild?: boolean;
   animalContact?: boolean;
   /** Композит «Можно поработать»: раскрывается в hasWifi && hasAirCon && hasCafeSeating (см. сервис) */
@@ -44,6 +46,8 @@ export function parsePlacesListQuery(searchParams: URLSearchParams): PlacesListQ
       outdoor: parseBooleanParam(searchParams.get("outdoor")),
       hasFood: parseBooleanParam(searchParams.get("hasFood")),
       hasWifi: parseBooleanParam(searchParams.get("hasWifi")),
+      hasAirCon: parseBooleanParam(searchParams.get("hasAirCon")),
+      hasParking: parseBooleanParam(searchParams.get("hasParking")),
       canLeaveChild: parseBooleanParam(searchParams.get("canLeaveChild")),
       animalContact: parseBooleanParam(searchParams.get("animalContact")),
       workFriendly: parseBooleanParam(searchParams.get("workFriendly")),

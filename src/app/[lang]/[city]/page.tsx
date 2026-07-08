@@ -72,6 +72,8 @@ export default async function CityPlacesPage({
   const outdoor = getSingleSearchParam(resolvedSearchParams.outdoor);
   const hasFood = getSingleSearchParam(resolvedSearchParams.hasFood);
   const hasWifi = getSingleSearchParam(resolvedSearchParams.hasWifi);
+  const hasAirCon = getSingleSearchParam(resolvedSearchParams.hasAirCon);
+  const hasParking = getSingleSearchParam(resolvedSearchParams.hasParking);
   const canLeaveChild = getSingleSearchParam(resolvedSearchParams.canLeaveChild);
   const animalContact = getSingleSearchParam(resolvedSearchParams.animalContact);
   const workFriendly = getSingleSearchParam(resolvedSearchParams.workFriendly);
@@ -92,6 +94,8 @@ export default async function CityPlacesPage({
     outdoor,
     hasFood,
     hasWifi,
+    hasAirCon,
+    hasParking,
     canLeaveChild,
     animalContact,
   };
@@ -102,6 +106,8 @@ export default async function CityPlacesPage({
       outdoor: parseBooleanParam(outdoor),
       hasFood: parseBooleanParam(hasFood),
       hasWifi: parseBooleanParam(hasWifi),
+      hasAirCon: parseBooleanParam(hasAirCon),
+      hasParking: parseBooleanParam(hasParking),
       canLeaveChild: parseBooleanParam(canLeaveChild),
       animalContact: parseBooleanParam(animalContact),
       workFriendly: parseBooleanParam(workFriendly),
@@ -183,6 +189,8 @@ export default async function CityPlacesPage({
         outdoor={outdoor}
         hasFood={hasFood}
         hasWifi={hasWifi}
+        hasAirCon={hasAirCon}
+        hasParking={hasParking}
         canLeaveChild={canLeaveChild}
         animalContact={animalContact}
       />
@@ -224,6 +232,8 @@ export default async function CityPlacesPage({
             outdoor={outdoor}
             hasFood={hasFood}
             hasWifi={hasWifi}
+            hasAirCon={hasAirCon}
+            hasParking={hasParking}
             canLeaveChild={canLeaveChild}
             animalContact={animalContact}
           />

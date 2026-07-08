@@ -16,6 +16,8 @@ type PlaceFiltersProps = {
   outdoor?: string;
   hasFood?: string;
   hasWifi?: string;
+  hasAirCon?: string;
+  hasParking?: string;
   canLeaveChild?: string;
   animalContact?: string;
 };
@@ -25,6 +27,8 @@ type FilterKey =
   | "outdoor"
   | "hasFood"
   | "hasWifi"
+  | "hasAirCon"
+  | "hasParking"
   | "canLeaveChild"
   | "animalContact";
 
@@ -40,6 +44,8 @@ const FILTERS: FilterConfig[] = [
   { name: "outdoor", label: ru.placeFilters.labels.outdoor },
   { name: "hasFood", label: ru.placeFilters.labels.hasFood },
   { name: "hasWifi", label: ru.placeFilters.labels.hasWifi },
+  { name: "hasAirCon", label: ru.placeFilters.labels.hasAirCon },
+  { name: "hasParking", label: ru.placeFilters.labels.hasParking },
   { name: "canLeaveChild", label: ru.placeFilters.labels.canLeaveChild },
   { name: "animalContact", label: ru.placeFilters.labels.animalContact },
 ];
@@ -50,6 +56,8 @@ function buildInitialState(props: PlaceFiltersProps): FiltersState {
     outdoor: props.outdoor === "true",
     hasFood: props.hasFood === "true",
     hasWifi: props.hasWifi === "true",
+    hasAirCon: props.hasAirCon === "true",
+    hasParking: props.hasParking === "true",
     canLeaveChild: props.canLeaveChild === "true",
     animalContact: props.animalContact === "true",
   };
@@ -109,6 +117,8 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
       outdoor: false,
       hasFood: false,
       hasWifi: false,
+      hasAirCon: false,
+      hasParking: false,
       canLeaveChild: false,
       animalContact: false,
     };

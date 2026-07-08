@@ -97,6 +97,8 @@ export const ru = {
       outdoor: "На улице",
       hasFood: "Еда",
       hasWifi: "Wi-Fi",
+      hasAirCon: "Кондиционер",
+      hasParking: "Парковка",
       canLeaveChild: "Можно оставить ребёнка",
       animalContact: "Животные",
     },
@@ -293,5 +295,6 @@ export const ru = {
     next: "Дальше",
     placesAria: "Постраничная навигация по местам",
     eventsAria: "Постраничная навигация по событиям",
+    activitiesAria: "Постраничная навигация по занятиям",
   },
 };

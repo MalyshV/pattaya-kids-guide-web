@@ -1,83 +1,50 @@
 import Link from "next/link";
 import { ru } from "@/content/ru";
 
-type PlacesPaginationProps = {
+type ActivitiesPaginationProps = {
   currentPage: number;
   totalPages: number;
   basePath: string;
-  openNow?: string;
-  openMorning?: string;
-  shelter?: string;
-  workFriendly?: string;
-  indoor?: string;
-  outdoor?: string;
-  hasFood?: string;
-  hasWifi?: string;
-  hasAirCon?: string;
-  hasParking?: string;
-  canLeaveChild?: string;
-  animalContact?: string;
+  age?: string;
+  category?: string;
 };
 
 function buildPageHref(
   page: number,
-  params: Record<string, string | undefined>,
+  params: { age?: string; category?: string },
   basePath: string,
 ): string {
   const searchParams = new URLSearchParams();
 
-  for (const [key, value] of Object.entries(params)) {
-    if (value) {
-      searchParams.set(key, value);
-    }
+  if (params.age) {
+    searchParams.set("age", params.age);
+  }
+  if (params.category) {
+    searchParams.set("category", params.category);
   }
 
   searchParams.set("page", String(page));
 
-  return `${basePath}?${searchParams.toString()}`;
+  return `${basePath}/activities?${searchParams.toString()}`;
 }
 
-export function PlacesPagination({
+export function ActivitiesPagination({
   currentPage,
   totalPages,
   basePath,
-  openNow,
-  openMorning,
-  shelter,
-  workFriendly,
-  indoor,
-  outdoor,
-  hasFood,
-  hasWifi,
-  hasAirCon,
-  hasParking,
-  canLeaveChild,
-  animalContact,
-}: PlacesPaginationProps): React.ReactElement | null {
+  age,
+  category,
+}: ActivitiesPaginationProps): React.ReactElement | null {
   if (totalPages <= 1) {
     return null;
   }
 
-  const baseParams = {
-    openNow,
-    openMorning,
-    shelter,
-    workFriendly,
-    indoor,
-    outdoor,
-    hasFood,
-    hasWifi,
-    hasAirCon,
-    hasParking,
-    canLeaveChild,
-    animalContact,
-  };
-
+  const params = { age, category };
   const hasPrevious = currentPage > 1;
   const hasNext = currentPage < totalPages;
 
   return (
-    <nav className="pagination" aria-label={ru.pagination.placesAria}>
+    <nav className="pagination" aria-label={ru.pagination.activitiesAria}>
       <div className="pagination-info">
         {ru.pagination.pageOf(currentPage, totalPages)}
       </div>
@@ -86,7 +53,7 @@ export function PlacesPagination({
         {hasPrevious ? (
           <Link
             className="pagination-link"
-            href={buildPageHref(currentPage - 1, baseParams, basePath)}
+            href={buildPageHref(currentPage - 1, params, basePath)}
           >
             ← {ru.pagination.previous}
           </Link>
@@ -99,7 +66,7 @@ export function PlacesPagination({
         {hasNext ? (
           <Link
             className="pagination-link"
-            href={buildPageHref(currentPage + 1, baseParams, basePath)}
+            href={buildPageHref(currentPage + 1, params, basePath)}
           >
             {ru.pagination.next} →
           </Link>
