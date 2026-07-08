@@ -18,6 +18,12 @@ export const OPEN_LONG_MIN = 120;
  * собираешься и едешь, оно как раз откроется. Одна константа — легко поменять.
  */
 export const OPENING_SOON_MIN = 30;
+/**
+ * Открытие не позже этого времени (минуты от полуночи) = место «работает с
+ * утра» (сценарий «Открыто с утра»). 9:00 — из видения продукта; одна
+ * константа, легко поменять на 10:00, если по данным утренних мест мало.
+ */
+export const MORNING_THRESHOLD_MIN = 9 * 60;
 
 export type OpenStatus =
   | { kind: "open"; hoursLeft: number | null }
@@ -181,6 +187,33 @@ export function isGoNowStatus(status: OpenStatus): boolean {
     return status.minutesUntilOpen <= OPENING_SOON_MIN;
   }
   return false;
+}
+
+/**
+ * Сценарий «Открыто с утра»: сегодня у места есть рабочий интервал, который
+ * открывается не позже MORNING_THRESHOLD_MIN (к 9:00). В отличие от «Пойти
+ * сейчас» не зависит от текущей минуты — это про раннее открытие сегодня
+ * (родитель планирует утро). Сегодня выходной / нет расписания → false (честно
+ * не обещаем «утреннее», раз сегодня не работает).
+ */
+export function opensEarlyToday(
+  schedules: ScheduleInput[],
+  timezone: string,
+  now: Date = new Date(),
+): boolean {
+  if (schedules.length === 0) {
+    return false;
+  }
+
+  const { day } = nowInCity(timezone, now);
+
+  return schedules.some((s) => {
+    if (s.day !== day || s.isClosed) {
+      return false;
+    }
+    const open = parseHhMm(s.openTime);
+    return open !== null && open <= MORNING_THRESHOLD_MIN;
+  });
 }
 
 /**

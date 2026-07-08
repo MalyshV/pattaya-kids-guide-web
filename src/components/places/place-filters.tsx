@@ -9,6 +9,7 @@ type PlaceFiltersProps = {
   // отдельными чипами — здесь их только сохраняем, чтобы «Показать»/«Сбросить»
   // их не сбрасывали.
   openNow?: string;
+  openMorning?: string;
   workFriendly?: string;
   shelter?: string;
   indoor?: string;
@@ -73,6 +74,9 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
     const params = new URLSearchParams();
     if (props.openNow === "true") {
       params.set("openNow", "true");
+    }
+    if (props.openMorning === "true") {
+      params.set("openMorning", "true");
     }
     if (props.workFriendly === "true") {
       params.set("workFriendly", "true");

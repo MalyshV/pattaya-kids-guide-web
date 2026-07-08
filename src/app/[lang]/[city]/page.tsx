@@ -8,6 +8,7 @@ import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import {
   computeOpenStatus,
   isGoNowStatus,
+  opensEarlyToday,
   statusSortRank,
 } from "@/lib/schedule/open-status";
 import { ru } from "@/content/ru";
@@ -75,12 +76,14 @@ export default async function CityPlacesPage({
   const animalContact = getSingleSearchParam(resolvedSearchParams.animalContact);
   const workFriendly = getSingleSearchParam(resolvedSearchParams.workFriendly);
   const openNow = getSingleSearchParam(resolvedSearchParams.openNow);
+  const openMorning = getSingleSearchParam(resolvedSearchParams.openMorning);
   const shelter = getSingleSearchParam(resolvedSearchParams.shelter);
   const pageParam = getSingleSearchParam(resolvedSearchParams.page);
 
   const currentPage = parsePositiveNumberParam(pageParam) ?? 1;
   const isWorkFriendly = parseBooleanParam(workFriendly) === true;
   const isOpenNow = parseBooleanParam(openNow) === true;
+  const isOpenMorning = parseBooleanParam(openMorning) === true;
   const isShelter = parseBooleanParam(shelter) === true;
 
   // Фасеты — рядовые фильтры (не сценарии), переносим между чипами и пагинацией.
@@ -115,10 +118,18 @@ export default async function CityPlacesPage({
     }))
     .sort((a, b) => statusSortRank(a.status) - statusSortRank(b.status));
 
-  // Сценарий «Пойти сейчас» схлопывает список до открытых сейчас / вот-вот откроются.
-  const visiblePlaces = isOpenNow
-    ? placesWithStatus.filter(({ status }) => isGoNowStatus(status))
-    : placesWithStatus;
+  // Сценарии по расписанию — постфильтры (статус/часы вычисляются, в БД их нет).
+  let visiblePlaces = placesWithStatus;
+  if (isOpenNow) {
+    // «Пойти сейчас»: открыто сейчас или вот-вот откроется.
+    visiblePlaces = visiblePlaces.filter(({ status }) => isGoNowStatus(status));
+  }
+  if (isOpenMorning) {
+    // «Открыто с утра»: сегодня открывается рано (к 9:00).
+    visiblePlaces = visiblePlaces.filter(({ place }) =>
+      opensEarlyToday(place.schedules, city.timezone),
+    );
+  }
 
   const total = visiblePlaces.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -128,18 +139,22 @@ export default async function CityPlacesPage({
   // Пустое состояние честно объясняет причину — приоритет у активного сценария.
   const emptyTitle = isOpenNow
     ? ru.places.emptyOpenNowTitle
-    : isShelter
-      ? ru.places.emptyShelterTitle
-      : isWorkFriendly
-        ? ru.places.emptyWorkTitle
-        : ru.places.emptyTitle;
+    : isOpenMorning
+      ? ru.places.emptyMorningTitle
+      : isShelter
+        ? ru.places.emptyShelterTitle
+        : isWorkFriendly
+          ? ru.places.emptyWorkTitle
+          : ru.places.emptyTitle;
   const emptyHint = isOpenNow
     ? ru.places.emptyOpenNowHint
-    : isShelter
-      ? ru.places.emptyShelterHint
-      : isWorkFriendly
-        ? ru.places.emptyWorkHint
-        : ru.places.emptyHint;
+    : isOpenMorning
+      ? ru.places.emptyMorningHint
+      : isShelter
+        ? ru.places.emptyShelterHint
+        : isWorkFriendly
+          ? ru.places.emptyWorkHint
+          : ru.places.emptyHint;
 
   return (
     <main className="page-shell">
@@ -152,6 +167,7 @@ export default async function CityPlacesPage({
       <ScenarioBar
         active={{
           openNow: isOpenNow,
+          openMorning: isOpenMorning,
           workFriendly: isWorkFriendly,
           shelter: isShelter,
         }}
@@ -160,6 +176,7 @@ export default async function CityPlacesPage({
 
       <PlaceFilters
         openNow={openNow}
+        openMorning={openMorning}
         shelter={shelter}
         workFriendly={workFriendly}
         indoor={indoor}
@@ -200,6 +217,7 @@ export default async function CityPlacesPage({
             totalPages={totalPages}
             basePath={basePath}
             openNow={openNow}
+            openMorning={openMorning}
             shelter={shelter}
             workFriendly={workFriendly}
             indoor={indoor}

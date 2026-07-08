@@ -6,6 +6,7 @@ type PlacesPaginationProps = {
   totalPages: number;
   basePath: string;
   openNow?: string;
+  openMorning?: string;
   shelter?: string;
   workFriendly?: string;
   indoor?: string;
@@ -39,6 +40,7 @@ export function PlacesPagination({
   totalPages,
   basePath,
   openNow,
+  openMorning,
   shelter,
   workFriendly,
   indoor,
@@ -54,6 +56,7 @@ export function PlacesPagination({
 
   const baseParams = {
     openNow,
+    openMorning,
     shelter,
     workFriendly,
     indoor,

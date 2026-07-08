@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { ru } from "@/content/ru";
 
-type ScenarioKey = "openNow" | "workFriendly" | "shelter";
+type ScenarioKey = "openNow" | "openMorning" | "workFriendly" | "shelter";
 
 type ScenarioBarProps = {
   // Какие сценарии сейчас включены.
@@ -23,6 +23,12 @@ const SCENARIOS: Array<{
     label: ru.scenarios.openNow,
     hint: ru.scenarios.openNowHint,
     activeHint: ru.scenarios.openNowActive,
+  },
+  {
+    key: "openMorning",
+    label: ru.scenarios.openMorning,
+    hint: ru.scenarios.openMorningHint,
+    activeHint: ru.scenarios.openMorningActive,
   },
   {
     key: "workFriendly",
