@@ -1,0 +1,31 @@
+import { describe, expect, it } from "vitest";
+import { formatAgeRange, fromAgeLabel } from "./format-age";
+
+describe("fromAgeLabel («можно оставить с…»)", () => {
+  it("месяцы до года, родительный падеж после года", () => {
+    expect(fromAgeLabel(6)).toBe("с 6 мес");
+    expect(fromAgeLabel(12)).toBe("с 1 года");
+    expect(fromAgeLabel(36)).toBe("с 3 лет");
+  });
+});
+
+describe("formatAgeRange (возраст занятия)", () => {
+  it("нет данных → null (секция не показывается)", () => {
+    expect(formatAgeRange(null, null)).toBeNull();
+  });
+
+  it("только потолок → «до N»", () => {
+    expect(formatAgeRange(null, 36)).toBe("до 3 лет");
+    expect(formatAgeRange(0, 36)).toBe("до 3 лет");
+    expect(formatAgeRange(null, 12)).toBe("до 1 года");
+  });
+
+  it("только нижняя граница → «от N»", () => {
+    expect(formatAgeRange(36, null)).toBe("от 3 лет");
+  });
+
+  it("полный диапазон, месяцы и склонения лет", () => {
+    expect(formatAgeRange(4, 144)).toBe("4 мес – 12 лет");
+    expect(formatAgeRange(12, 24)).toBe("1 год – 2 года");
+  });
+});

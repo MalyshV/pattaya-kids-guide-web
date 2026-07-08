@@ -10,14 +10,17 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "gaps": "tsx prisma/gaps.ts",
-    "check": "npm run lint && npm run typecheck",
+    "check": "npm run lint && npm run typecheck && npm run test",
     "fix": "npm run format && npm run lint:fix",
     "prepare": "husky"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.4.1",
     "@prisma/client": "^7.4.1",
+    "@vercel/analytics": "^2.0.1",
     "next": "16.1.6",
     "pg": "^8.18.0",
     "prisma": "^7.4.1",
@@ -37,7 +40,8 @@
     "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
