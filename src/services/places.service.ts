@@ -152,6 +152,32 @@ export async function getAllApprovedPlaces(
   });
 }
 
+// Площадки дня рождения для лендинга «Дни рождения»: одобренные места города,
+// где подтверждён факт «проводят» (birthdayInfo.hasPackages). Контакты — чтобы
+// родитель мог связаться прямо с лендинга.
+export type BirthdayPlace = Prisma.PlaceGetPayload<{
+  include: {
+    birthdayInfo: true;
+    contacts: true;
+  };
+}>;
+
+export async function getBirthdayPlaces(cityId: string): Promise<BirthdayPlace[]> {
+  return prisma.place.findMany({
+    where: {
+      status: "APPROVED",
+      ...demoFilter(),
+      cityId,
+      birthdayInfo: { hasPackages: true },
+    },
+    orderBy: { name: "asc" },
+    include: {
+      birthdayInfo: true,
+      contacts: { orderBy: { order: "asc" } },
+    },
+  });
+}
+
 // React cache: generateMetadata и страница зовут функцию с теми же аргументами —
 // в БД в рамках одного запроса уходит один запрос
 export const getApprovedPlaceBySlug = cache(async function getApprovedPlaceBySlug(

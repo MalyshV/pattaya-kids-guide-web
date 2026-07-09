@@ -29,7 +29,8 @@ function NavLinks({
   const pathname = usePathname();
   const isEvents = pathname.startsWith(`${basePath}/events`);
   const isActivities = pathname.startsWith(`${basePath}/activities`);
-  const isPlaces = !isEvents && !isActivities;
+  const isBirthdays = pathname.startsWith(`${basePath}/birthdays`);
+  const isPlaces = !isEvents && !isActivities && !isBirthdays;
 
   return (
     <nav className="site-nav" aria-label={ru.nav.aria}>
@@ -50,6 +51,12 @@ function NavLinks({
         className={`site-nav-link${isActivities ? " site-nav-link-active" : ""}`}
       >
         {ru.nav.activities}
+      </Link>
+      <Link
+        href={withAge(`${basePath}/birthdays`, age)}
+        className={`site-nav-link${isBirthdays ? " site-nav-link-active" : ""}`}
+      >
+        {ru.nav.birthdays}
       </Link>
     </nav>
   );

@@ -28,7 +28,8 @@ export type PlaceBirthdayInfoDto = {
   hasPackages: boolean;
   minGuests: number | null;
   maxGuests: number | null;
-  depositRequired: boolean;
+  /** tri-state: null = «уточняется» */
+  depositRequired: boolean | null;
   preBookingDays: number | null;
   notes: string | null;
 } | null;

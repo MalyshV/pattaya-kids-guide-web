@@ -31,6 +31,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     entries.push({ url: cityBase, lastModified: new Date() });
     entries.push({ url: `${cityBase}/events`, lastModified: new Date() });
+    entries.push({ url: `${cityBase}/activities`, lastModified: new Date() });
+    entries.push({ url: `${cityBase}/birthdays`, lastModified: new Date() });
 
     for (const place of city.places) {
       entries.push({

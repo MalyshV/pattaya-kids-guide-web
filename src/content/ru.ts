@@ -17,6 +17,7 @@ export const ru = {
     places: "Места",
     events: "События",
     activities: "Занятия",
+    birthdays: "Дни рождения",
     aria: "Разделы сайта",
   },
 
@@ -141,6 +142,28 @@ export const ru = {
     shelterActive: "Показываю, где укрыться от жары и дождя",
   },
 
+  // Лендинг «Дни рождения»: все площадки с пакетами и условиями в одном месте.
+  birthdays: {
+    metaTitle: (cityName: string): string =>
+      `День рождения ребёнка в ${cityName === "Паттайя" ? "Паттайе" : cityName}: площадки, пакеты и цены`,
+    heroTitle: "День рождения ребёнка в Паттайе",
+    heroDescription:
+      "Площадки, где проводят детские дни рождения: пакеты, цены, депозиты и контакты — всё проверено и собрано в одном месте.",
+    guestsLabel: "Гости:",
+    guestsFrom: (min: number): string => `от ${min}`,
+    guestsRange: (min: number, max: number): string => `${min}–${max}`,
+    depositLabel: "Депозит:",
+    depositYes: "Да",
+    depositNo: "Нет",
+    preBookLabel: "Бронировать:",
+    preBookDays: (days: number): string =>
+      `за ${days} ${plural(days, ["день", "дня", "дней"])}`,
+    openPlace: "Страница места",
+    emptyTitle: "Площадки собираются",
+    emptyHint:
+      "Мы уточняем пакеты дней рождения у мест города — скоро здесь появится подборка.",
+  },
+
   placeDetails: {
     back: "← Назад к местам",
     eyebrow: "Место",
@@ -213,6 +236,7 @@ export const ru = {
     staffLanguagesTitle: "Язык персонала",
     birthdayTitle: "День рождения",
     birthdayHas: "Здесь проводят детские дни рождения",
+    birthdayAllLink: "Все площадки для дня рождения",
     categoriesTitle: "Категории",
     upcomingTitle: "Ближайшие события здесь",
     noUpcoming: "Пока ближайших событий нет.",

@@ -377,6 +377,9 @@ export default async function PlaceDetailsPage({
           {dto.birthdayInfo.notes ? (
             <p className="empty-text">{dto.birthdayInfo.notes}</p>
           ) : null}
+          <Link href={`${basePath}/birthdays`} className="map-link">
+            {ru.placeDetails.birthdayAllLink} <span aria-hidden="true">→</span>
+          </Link>
         </section>
       )}
 

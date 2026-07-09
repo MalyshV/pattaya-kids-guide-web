@@ -458,27 +458,27 @@ async function main() {
     },
   });
 
-  // День рождения The Play Barn (условия пока тестовые — уточнить)
+  // День рождения The Play Barn: подтверждён только ФАКТ «проводят» (была
+  // ДР-зона на визите Вероники). Пакеты/гости/депозит НЕ подтверждены — числа
+  // не выдумываем, null=«уточняется». Заполнить после уточнения у места.
   await prisma.placeBirthdayInfo.upsert({
     where: { placeId: playBarn.id },
     update: {
       hasPackages: true,
-      minGuests: 8,
-      maxGuests: 15,
-      depositRequired: true,
-      preBookingDays: 5,
-      notes:
-        "Проводят детские дни рождения. Точные пакеты и условия уточняются (пока тестовые данные).",
+      minGuests: null,
+      maxGuests: null,
+      depositRequired: null,
+      preBookingDays: null,
+      notes: "Проводят детские дни рождения. Пакеты, цены и условия уточняются.",
     },
     create: {
       placeId: playBarn.id,
       hasPackages: true,
-      minGuests: 8,
-      maxGuests: 15,
-      depositRequired: true,
-      preBookingDays: 5,
-      notes:
-        "Проводят детские дни рождения. Точные пакеты и условия уточняются (пока тестовые данные).",
+      minGuests: null,
+      maxGuests: null,
+      depositRequired: null,
+      preBookingDays: null,
+      notes: "Проводят детские дни рождения. Пакеты, цены и условия уточняются.",
     },
   });
 

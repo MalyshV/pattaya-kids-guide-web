@@ -264,6 +264,52 @@ input {
   outline-offset: 3px;
 }
 
+/* Лендинг «Дни рождения»: крупные карточки площадок с пакетами и контактами */
+
+.birthday-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.birthday-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.birthday-card-body {
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.birthday-card-title {
+  font-size: 20px;
+  margin: 0;
+}
+
+.birthday-card-address {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.birthday-card-notes {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+.birthday-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font-size: 14px;
+}
+
 /* Возраст ребёнка — сквозной вопрос над сценариями. Активный чип — тёплый
    терракот (не sage: возраст — контекст, а не сценарий). */
 

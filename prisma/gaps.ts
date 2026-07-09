@@ -53,7 +53,7 @@ async function main(): Promise<void> {
       NOT: { name: { startsWith: "[Демо]" } },
     },
     orderBy: { name: "asc" },
-    include: { programs: { orderBy: { order: "asc" } } },
+    include: { programs: { orderBy: { order: "asc" } }, birthdayInfo: true },
   });
 
   console.log("\n📋 Пробелы в данных — что осталось собрать");
@@ -86,6 +86,11 @@ async function main(): Promise<void> {
         const typeLabel = PROGRAM_TYPE_LABELS[program.type] ?? program.type;
         gaps.push(`Цена: «${program.name}» (${typeLabel})`);
       }
+    }
+
+    // ДР подтверждён, но условия (депозит/гости/пакеты) не собраны
+    if (place.birthdayInfo?.hasPackages && place.birthdayInfo.depositRequired === null) {
+      gaps.push("День рождения: пакеты, цены и условия");
     }
 
     if (gaps.length === 0) {

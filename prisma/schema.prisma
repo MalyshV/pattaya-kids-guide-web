@@ -311,7 +311,8 @@ model PlaceBirthdayInfo {
   hasPackages     Boolean
   minGuests       Int?
   maxGuests       Int?
-  depositRequired Boolean
+  /// tri-state: true/false/null=«уточняется» (как признаки Place)
+  depositRequired Boolean?
   preBookingDays  Int?
   notes           String?
   lastUpdatedAt   DateTime @updatedAt
