@@ -244,6 +244,8 @@ input {
 .filter-toggle input {
   width: 16px;
   height: 16px;
+  /* фикс-размер: флекс сжимал чекбокс рядом с длинным текстом */
+  flex: none;
   cursor: pointer;
 }
 
