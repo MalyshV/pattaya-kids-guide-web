@@ -200,9 +200,11 @@ input {
 }
 
 .filters-grid {
-  /* minmax 140 — на телефоне фасеты встают по два в ряд, а не столбиком */
+  /* минимум колонки вмещает самое длинное слово («Кондиционер») — иначе на
+     широком экране auto-fit сжимает чип и текст торчит; на телефоне по-прежнему
+     два в ряд */
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(164px, 1fr));
   gap: 12px;
 }
 
@@ -220,6 +222,19 @@ input {
   color: var(--foreground);
   cursor: pointer;
   transition: background 0.15s ease;
+}
+
+/* узкие телефоны: компактнее отступы чипа, чтобы два в ряд влезали и там
+   (блок стоит ПОСЛЕ базового .filter-toggle — иначе базовый его перекроет) */
+@media (max-width: 420px) {
+  .filters-grid {
+    grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  }
+
+  .filter-toggle {
+    padding: 12px 8px;
+    gap: 7px;
+  }
 }
 
 .filter-toggle:hover {
