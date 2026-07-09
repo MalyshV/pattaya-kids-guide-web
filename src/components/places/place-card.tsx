@@ -3,7 +3,7 @@ import type { PlaceListItemDto } from "@/dto/place-list-item.dto";
 import { OpenStatusBadge } from "@/components/places/open-status-badge";
 import { PlaceImage } from "@/components/places/place-image";
 import type { OpenStatus } from "@/lib/schedule/open-status";
-import { ru } from "@/content/ru";
+import { getDictionary, langFromPath } from "@/content/dictionary";
 
 type PlaceCardProps = {
   place: PlaceListItemDto;
@@ -16,6 +16,8 @@ export function PlaceCard({
   basePath,
   status,
 }: PlaceCardProps): React.ReactElement {
+  const lang = langFromPath(basePath);
+  const dict = getDictionary(lang);
   const isClosedToday = status?.kind === "closedToday";
 
   return (
@@ -38,44 +40,44 @@ export function PlaceCard({
 
         <div className="place-badges">
           {place.indoor ? (
-            <span className="place-badge">{ru.places.badgeIndoor}</span>
+            <span className="place-badge">{dict.places.badgeIndoor}</span>
           ) : null}
           {place.outdoor ? (
-            <span className="place-badge">{ru.places.badgeOutdoor}</span>
+            <span className="place-badge">{dict.places.badgeOutdoor}</span>
           ) : null}
         </div>
       </div>
 
       {status && status.kind !== "unknown" ? (
         <div className="place-card-status">
-          <OpenStatusBadge status={status} />
+          <OpenStatusBadge status={status} lang={lang} />
         </div>
       ) : null}
 
       <p className="place-card-description">
-        {place.description ?? ru.common.descriptionFallback}
+        {place.description ?? dict.common.descriptionFallback}
       </p>
 
-      <p className="place-card-address">{place.address ?? ru.places.addressFallback}</p>
+      <p className="place-card-address">{place.address ?? dict.places.addressFallback}</p>
 
       <div className="feature-list">
         {place.hasFood ? (
-          <span className="feature-chip">{ru.places.features.food}</span>
+          <span className="feature-chip">{dict.places.features.food}</span>
         ) : null}
         {place.hasWifi ? (
-          <span className="feature-chip">{ru.places.features.wifi}</span>
+          <span className="feature-chip">{dict.places.features.wifi}</span>
         ) : null}
         {place.canLeaveChild ? (
-          <span className="feature-chip">{ru.places.features.childDropOff}</span>
+          <span className="feature-chip">{dict.places.features.childDropOff}</span>
         ) : null}
         {place.animalContact ? (
-          <span className="feature-chip">{ru.places.features.animals}</span>
+          <span className="feature-chip">{dict.places.features.animals}</span>
         ) : null}
       </div>
 
       <div className="place-card-actions">
         <Link href={`${basePath}/places/${place.slug}`} className="place-card-cta">
-          <span className="place-card-cta-text">{ru.common.detailsCta}</span>
+          <span className="place-card-cta-text">{dict.common.detailsCta}</span>
           <span className="place-card-cta-arrow" aria-hidden="true">
             →
           </span>

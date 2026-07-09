@@ -3,7 +3,8 @@ import type { EventListItemDto } from "@/dto/event-list-item.dto";
 import { PlaceImage } from "@/components/places/place-image";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import type { EventLifecycle } from "@/lib/events/event-lifecycle";
-import { ru } from "@/content/ru";
+import { dateLocale, getDictionary, langFromPath } from "@/content/dictionary";
+import type { Dictionary } from "@/content/dictionary";
 
 type EventCardProps = {
   event: EventListItemDto;
@@ -11,12 +12,12 @@ type EventCardProps = {
   status?: EventLifecycle;
 };
 
-function formatDate(value: string | null): string {
+function formatDate(value: string | null, dict: Dictionary, lang: string): string {
   if (!value) {
-    return ru.eventCard.dateTbd;
+    return dict.eventCard.dateTbd;
   }
 
-  return new Date(value).toLocaleDateString("ru-RU", {
+  return new Date(value).toLocaleDateString(dateLocale(lang), {
     day: "numeric",
     month: "short",
   });
@@ -27,6 +28,8 @@ export function EventCard({
   basePath,
   status,
 }: EventCardProps): React.ReactElement {
+  const lang = langFromPath(basePath);
+  const dict = getDictionary(lang);
   const isPast = status === "past";
 
   return (
@@ -46,35 +49,39 @@ export function EventCard({
         </div>
       </div>
 
-      <EventStatusBadge status={status} wrapperClassName="event-card-status" />
+      <EventStatusBadge
+        status={status}
+        wrapperClassName="event-card-status"
+        lang={lang}
+      />
 
       <p className="event-card-description">
-        {event.description ?? ru.common.descriptionFallback}
+        {event.description ?? dict.common.descriptionFallback}
       </p>
 
       <div className="feature-list">
         <span className="feature-chip">
-          {ru.eventCard.starts} {formatDate(event.startDate)}
+          {dict.eventCard.starts} {formatDate(event.startDate, dict, lang)}
         </span>
         <span className="feature-chip">
-          {ru.eventCard.ends}{" "}
-          {event.endDate ? formatDate(event.endDate) : ru.eventCard.dateTbd}
+          {dict.eventCard.ends}{" "}
+          {event.endDate ? formatDate(event.endDate, dict, lang) : dict.eventCard.dateTbd}
         </span>
       </div>
 
       <p className="event-card-location">
-        {event.locationName ?? event.address ?? ru.eventCard.locationTbd}
+        {event.locationName ?? event.address ?? dict.eventCard.locationTbd}
       </p>
 
       {event.place ? (
         <p className="event-card-place">
-          {ru.eventCard.placeLabel}: {event.place.name}
+          {dict.eventCard.placeLabel}: {event.place.name}
         </p>
       ) : null}
 
       <div className="event-card-actions">
         <Link href={`${basePath}/events/${event.slug}`} className="event-card-cta">
-          <span className="event-card-cta-text">{ru.common.detailsCta}</span>
+          <span className="event-card-cta-text">{dict.common.detailsCta}</span>
           <span className="event-card-cta-arrow" aria-hidden="true">
             →
           </span>
@@ -85,7 +92,7 @@ export function EventCard({
             href={`${basePath}/places/${event.place.slug}`}
             className="event-card-secondary-link"
           >
-            {ru.eventCard.viewPlace}
+            {dict.eventCard.viewPlace}
           </Link>
         ) : null}
       </div>

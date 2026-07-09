@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ru } from "@/content/ru";
+import { getDictionary, langFromPath } from "@/content/dictionary";
 
 // Возраст спрашивает общий AgeQuestion над этим блоком (сквозной вход по всему
 // сайту) — здесь остаётся только фильтр по типу занятий.
@@ -37,6 +37,8 @@ export function ActivityFilters({
   activeCategory,
   categories,
 }: ActivityFiltersProps): React.ReactElement | null {
+  const dict = getDictionary(langFromPath(basePath));
+
   if (categories.length === 0) {
     return null;
   }
@@ -44,13 +46,13 @@ export function ActivityFilters({
   return (
     <section className="filters-panel">
       <div className="activity-filter-row">
-        <span className="filter-group-label">{ru.activities.filterTypeTitle}</span>
+        <span className="filter-group-label">{dict.activities.filterTypeTitle}</span>
         <div className="filter-chips">
           <Link
             href={buildHref(basePath, { age: activeAge })}
             className={chipClass(!activeCategory)}
           >
-            {ru.activities.filterAll}
+            {dict.activities.filterAll}
           </Link>
           {categories.map((category) => (
             <Link

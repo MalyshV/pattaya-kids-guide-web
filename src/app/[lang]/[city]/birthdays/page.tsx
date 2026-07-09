@@ -11,23 +11,25 @@ import {
   isExternalContact,
   showsContactValue,
 } from "@/lib/contacts/contact-link";
-import { ru } from "@/content/ru";
+import { getDictionary } from "@/content/dictionary";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string }>;
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { city: citySlug } = await params;
+  const { lang, city: citySlug } = await params;
   const city = await getCityBySlug(citySlug);
 
   if (!city) {
     return {};
   }
 
+  const dict = getDictionary(lang);
+
   return {
-    title: `${ru.birthdays.metaTitle(city.name)} — ${ru.brand}`,
-    description: ru.birthdays.heroDescription,
+    title: `${dict.birthdays.metaTitle(city.name)} — ${dict.brand}`,
+    description: dict.birthdays.heroDescription,
   };
 }
 
@@ -47,6 +49,7 @@ export default async function BirthdaysPage({
     notFound();
   }
 
+  const dict = getDictionary(lang);
   const basePath = cityBasePath(lang, citySlug);
   const places = await getBirthdayPlaces(city.id);
   const items = places.map(mapBirthdayPlaceToDto);
@@ -55,14 +58,14 @@ export default async function BirthdaysPage({
     <main className="page-shell">
       <section className="hero">
         <p className="eyebrow">{city.name}</p>
-        <h1 className="hero-title">{ru.birthdays.heroTitle}</h1>
-        <p className="hero-description">{ru.birthdays.heroDescription}</p>
+        <h1 className="hero-title">{dict.birthdays.heroTitle}</h1>
+        <p className="hero-description">{dict.birthdays.heroDescription}</p>
       </section>
 
       {items.length === 0 ? (
         <section className="empty-state">
-          <h3>{ru.birthdays.emptyTitle}</h3>
-          <p>{ru.birthdays.emptyHint}</p>
+          <h3>{dict.birthdays.emptyTitle}</h3>
+          <p>{dict.birthdays.emptyHint}</p>
         </section>
       ) : (
         <section className="birthday-list">
@@ -90,24 +93,25 @@ export default async function BirthdaysPage({
                 <div className="birthday-facts">
                   {place.minGuests != null ? (
                     <span className="birthday-fact">
-                      <strong>{ru.birthdays.guestsLabel}</strong>{" "}
+                      <strong>{dict.birthdays.guestsLabel}</strong>{" "}
                       {place.maxGuests != null
-                        ? ru.birthdays.guestsRange(place.minGuests, place.maxGuests)
-                        : ru.birthdays.guestsFrom(place.minGuests)}
+                        ? dict.birthdays.guestsRange(place.minGuests, place.maxGuests)
+                        : dict.birthdays.guestsFrom(place.minGuests)}
                     </span>
                   ) : null}
                   <span className="birthday-fact">
-                    <strong>{ru.birthdays.depositLabel}</strong>{" "}
+                    <strong>{dict.birthdays.depositLabel}</strong>{" "}
                     <FactValue
                       value={place.depositRequired}
-                      yes={ru.birthdays.depositYes}
-                      no={ru.birthdays.depositNo}
+                      lang={lang}
+                      yes={dict.birthdays.depositYes}
+                      no={dict.birthdays.depositNo}
                     />
                   </span>
                   {place.preBookingDays != null ? (
                     <span className="birthday-fact">
-                      <strong>{ru.birthdays.preBookLabel}</strong>{" "}
-                      {ru.birthdays.preBookDays(place.preBookingDays)}
+                      <strong>{dict.birthdays.preBookLabel}</strong>{" "}
+                      {dict.birthdays.preBookDays(place.preBookingDays)}
                     </span>
                   ) : null}
                 </div>
@@ -116,7 +120,7 @@ export default async function BirthdaysPage({
                   <div className="contacts-list">
                     {place.contacts.map((contact) => {
                       const channel =
-                        (ru.placeDetails.contactChannels as Record<string, string>)[
+                        (dict.placeDetails.contactChannels as Record<string, string>)[
                           contact.type
                         ] ?? contact.type;
                       const external = isExternalContact(contact.type);
@@ -150,7 +154,9 @@ export default async function BirthdaysPage({
                     href={`${basePath}/places/${place.slug}`}
                     className="place-card-cta"
                   >
-                    <span className="place-card-cta-text">{ru.birthdays.openPlace}</span>
+                    <span className="place-card-cta-text">
+                      {dict.birthdays.openPlace}
+                    </span>
                     <span className="place-card-cta-arrow" aria-hidden="true">
                       →
                     </span>

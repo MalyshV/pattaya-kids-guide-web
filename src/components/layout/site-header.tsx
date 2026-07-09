@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { ru } from "@/content/ru";
+import { SUPPORTED_LANGS } from "@/content/dictionary";
+import { useDictionary, useLang } from "@/lib/i18n/use-dictionary";
 
 type SiteHeaderProps = {
   basePath: string;
@@ -27,44 +28,81 @@ function NavLinks({
   age: string | null;
 }): React.ReactElement {
   const pathname = usePathname();
+  const dict = useDictionary();
   const isEvents = pathname.startsWith(`${basePath}/events`);
   const isActivities = pathname.startsWith(`${basePath}/activities`);
   const isBirthdays = pathname.startsWith(`${basePath}/birthdays`);
   const isPlaces = !isEvents && !isActivities && !isBirthdays;
 
   return (
-    <nav className="site-nav" aria-label={ru.nav.aria}>
+    <nav className="site-nav" aria-label={dict.nav.aria}>
       <Link
         href={withAge(basePath, age)}
         className={`site-nav-link${isPlaces ? " site-nav-link-active" : ""}`}
       >
-        {ru.nav.places}
+        {dict.nav.places}
       </Link>
       <Link
         href={withAge(`${basePath}/events`, age)}
         className={`site-nav-link${isEvents ? " site-nav-link-active" : ""}`}
       >
-        {ru.nav.events}
+        {dict.nav.events}
       </Link>
       <Link
         href={withAge(`${basePath}/activities`, age)}
         className={`site-nav-link${isActivities ? " site-nav-link-active" : ""}`}
       >
-        {ru.nav.activities}
+        {dict.nav.activities}
       </Link>
       <Link
         href={withAge(`${basePath}/birthdays`, age)}
         className={`site-nav-link${isBirthdays ? " site-nav-link-active" : ""}`}
       >
-        {ru.nav.birthdays}
+        {dict.nav.birthdays}
       </Link>
     </nav>
   );
 }
 
-function NavLinksWithAge({ basePath }: { basePath: string }): React.ReactElement {
+/** RU | EN: тот же путь с заменённым языковым сегментом, query сохраняется. */
+function LangSwitch(): React.ReactElement {
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  return <NavLinks basePath={basePath} age={searchParams.get("age")} />;
+  const currentLang = useLang();
+
+  const query = searchParams.toString();
+
+  return (
+    <div className="lang-switch" aria-label="Language">
+      {SUPPORTED_LANGS.map((lang) => {
+        const segments = pathname.split("/");
+        segments[1] = lang;
+        const href = `${segments.join("/")}${query ? `?${query}` : ""}`;
+        const isActive = lang === currentLang;
+
+        return (
+          <Link
+            key={lang}
+            href={href}
+            className={`lang-switch-link${isActive ? " lang-switch-active" : ""}`}
+            aria-current={isActive ? "true" : undefined}
+          >
+            {lang.toUpperCase()}
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+function HeaderRight({ basePath }: { basePath: string }): React.ReactElement {
+  const searchParams = useSearchParams();
+  return (
+    <div className="site-header-right">
+      <NavLinks basePath={basePath} age={searchParams.get("age")} />
+      <LangSwitch />
+    </div>
+  );
 }
 
 export function SiteHeader({ basePath }: SiteHeaderProps): React.ReactElement {
@@ -72,12 +110,18 @@ export function SiteHeader({ basePath }: SiteHeaderProps): React.ReactElement {
     <header className="site-header">
       <div className="site-header-inner">
         <Link href={basePath} className="site-brand">
-          {ru.brand}
+          Pattaya Kids Guide
         </Link>
 
         {/* useSearchParams требует Suspense; fallback — те же ссылки без age */}
-        <Suspense fallback={<NavLinks basePath={basePath} age={null} />}>
-          <NavLinksWithAge basePath={basePath} />
+        <Suspense
+          fallback={
+            <div className="site-header-right">
+              <NavLinks basePath={basePath} age={null} />
+            </div>
+          }
+        >
+          <HeaderRight basePath={basePath} />
         </Suspense>
       </div>
     </header>

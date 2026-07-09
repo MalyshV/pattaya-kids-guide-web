@@ -1,8 +1,10 @@
 import type { EventLifecycle } from "@/lib/events/event-lifecycle";
-import { ru } from "@/content/ru";
+import { getDictionary } from "@/content/dictionary";
 
 type EventStatusBadgeProps = {
   status?: EventLifecycle;
+  /** язык страницы (подписи статуса) */
+  lang?: string;
   /** Класс обёртки (отступы места использования); без него — голая пилюля. */
   wrapperClassName?: string;
 };
@@ -14,19 +16,21 @@ type EventStatusBadgeProps = {
  */
 export function EventStatusBadge({
   status,
+  lang = "ru",
   wrapperClassName,
 }: EventStatusBadgeProps): React.ReactElement | null {
   if (status !== "ongoing" && status !== "past") {
     return null;
   }
 
+  const dict = getDictionary(lang);
   const pill = (
     <span
       className={`open-status ${
         status === "ongoing" ? "open-status-open" : "open-status-closed"
       }`}
     >
-      {status === "ongoing" ? ru.eventCard.statusOngoing : ru.eventCard.statusPast}
+      {status === "ongoing" ? dict.eventCard.statusOngoing : dict.eventCard.statusPast}
     </span>
   );
 

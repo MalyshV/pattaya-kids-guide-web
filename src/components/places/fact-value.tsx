@@ -1,8 +1,10 @@
-import { ru } from "@/content/ru";
+import { getDictionary } from "@/content/dictionary";
 
 type FactValueProps = {
   /** true = есть, false = точно нет, null = данные ещё не проверены */
   value: boolean | null;
+  /** язык страницы — для дефолтных подписей и «уточняется» */
+  lang?: string;
   yes?: string;
   no?: string;
 };
@@ -14,12 +16,15 @@ type FactValueProps = {
  */
 export function FactValue({
   value,
-  yes = ru.common.yes,
-  no = ru.common.no,
+  lang = "ru",
+  yes,
+  no,
 }: FactValueProps): React.ReactElement {
+  const dict = getDictionary(lang);
+
   if (value == null) {
-    return <span className="value-unknown">{ru.common.unknown}</span>;
+    return <span className="value-unknown">{dict.common.unknown}</span>;
   }
 
-  return <>{value ? yes : no}</>;
+  return <>{value ? (yes ?? dict.common.yes) : (no ?? dict.common.no)}</>;
 }

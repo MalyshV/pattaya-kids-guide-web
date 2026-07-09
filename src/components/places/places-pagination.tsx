@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ru } from "@/content/ru";
+import { getDictionary, langFromPath } from "@/content/dictionary";
 
 type PlacesPaginationProps = {
   currentPage: number;
@@ -56,6 +56,8 @@ export function PlacesPagination({
   canLeaveChild,
   animalContact,
 }: PlacesPaginationProps): React.ReactElement | null {
+  const dict = getDictionary(langFromPath(basePath));
+
   if (totalPages <= 1) {
     return null;
   }
@@ -80,9 +82,9 @@ export function PlacesPagination({
   const hasNext = currentPage < totalPages;
 
   return (
-    <nav className="pagination" aria-label={ru.pagination.placesAria}>
+    <nav className="pagination" aria-label={dict.pagination.placesAria}>
       <div className="pagination-info">
-        {ru.pagination.pageOf(currentPage, totalPages)}
+        {dict.pagination.pageOf(currentPage, totalPages)}
       </div>
 
       <div className="pagination-actions">
@@ -91,11 +93,11 @@ export function PlacesPagination({
             className="pagination-link"
             href={buildPageHref(currentPage - 1, baseParams, basePath)}
           >
-            ← {ru.pagination.previous}
+            ← {dict.pagination.previous}
           </Link>
         ) : (
           <span className="pagination-link pagination-link-disabled">
-            ← {ru.pagination.previous}
+            ← {dict.pagination.previous}
           </span>
         )}
 
@@ -104,11 +106,11 @@ export function PlacesPagination({
             className="pagination-link"
             href={buildPageHref(currentPage + 1, baseParams, basePath)}
           >
-            {ru.pagination.next} →
+            {dict.pagination.next} →
           </Link>
         ) : (
           <span className="pagination-link pagination-link-disabled">
-            {ru.pagination.next} →
+            {dict.pagination.next} →
           </span>
         )}
       </div>

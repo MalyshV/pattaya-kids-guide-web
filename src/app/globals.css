@@ -831,6 +831,38 @@ input {
   outline-offset: 3px;
 }
 
+/* переключатель языка в шапке: тихие RU | EN */
+.site-header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.lang-switch {
+  display: flex;
+  gap: 2px;
+}
+
+.lang-switch-link {
+  padding: 5px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.lang-switch-link:hover {
+  background: var(--surface-muted);
+}
+
+.lang-switch-active {
+  color: var(--foreground);
+  background: var(--surface-muted);
+}
+
 /* сводка-чипы в шапке места: решающие факты без прокрутки */
 .hero-facts {
   display: flex;

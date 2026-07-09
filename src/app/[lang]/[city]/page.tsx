@@ -13,7 +13,7 @@ import {
   opensEarlyToday,
   statusSortRank,
 } from "@/lib/schedule/open-status";
-import { ru } from "@/content/ru";
+import { getDictionary } from "@/content/dictionary";
 
 const PAGE_SIZE = 6;
 
@@ -67,6 +67,7 @@ export default async function CityPlacesPage({
     notFound();
   }
 
+  const dict = getDictionary(lang);
   const basePath = cityBasePath(lang, citySlug);
   const resolvedSearchParams = (await searchParams) ?? {};
 
@@ -160,30 +161,30 @@ export default async function CityPlacesPage({
 
   // Пустое состояние честно объясняет причину — приоритет у активного сценария.
   const emptyTitle = isOpenNow
-    ? ru.places.emptyOpenNowTitle
+    ? dict.places.emptyOpenNowTitle
     : isOpenMorning
-      ? ru.places.emptyMorningTitle
+      ? dict.places.emptyMorningTitle
       : isShelter
-        ? ru.places.emptyShelterTitle
+        ? dict.places.emptyShelterTitle
         : isWorkFriendly
-          ? ru.places.emptyWorkTitle
-          : ru.places.emptyTitle;
+          ? dict.places.emptyWorkTitle
+          : dict.places.emptyTitle;
   const emptyHint = isOpenNow
-    ? ru.places.emptyOpenNowHint
+    ? dict.places.emptyOpenNowHint
     : isOpenMorning
-      ? ru.places.emptyMorningHint
+      ? dict.places.emptyMorningHint
       : isShelter
-        ? ru.places.emptyShelterHint
+        ? dict.places.emptyShelterHint
         : isWorkFriendly
-          ? ru.places.emptyWorkHint
-          : ru.places.emptyHint;
+          ? dict.places.emptyWorkHint
+          : dict.places.emptyHint;
 
   return (
     <main className="page-shell">
       <section className="hero">
         <p className="eyebrow">{city.name}</p>
-        <h1 className="hero-title">{ru.places.heroTitle}</h1>
-        <p className="hero-description">{ru.places.heroDescription}</p>
+        <h1 className="hero-title">{dict.places.heroTitle}</h1>
+        <p className="hero-description">{dict.places.heroDescription}</p>
       </section>
 
       <AgeQuestion
@@ -233,8 +234,8 @@ export default async function CityPlacesPage({
 
       <section className="results-header">
         <div>
-          <h2>{ru.places.sectionTitle}</h2>
-          <p>{ru.places.count(total)}</p>
+          <h2>{dict.places.sectionTitle}</h2>
+          <p>{dict.places.count(total)}</p>
         </div>
       </section>
 

@@ -3,7 +3,7 @@
 import { useOptimistic, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { AGE_BUCKETS } from "@/lib/age/age-buckets";
-import { ru } from "@/content/ru";
+import { useDictionary } from "@/lib/i18n/use-dictionary";
 
 type AgeQuestionProps = {
   /** Путь страницы, на которой стоит вопрос (фильтр применяется на месте). */
@@ -49,8 +49,9 @@ export function AgeQuestion({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [shownBuckets, setShownBuckets] = useOptimistic(activeBuckets);
+  const dict = useDictionary();
 
-  const bucketLabels = ru.age.buckets as Record<string, string>;
+  const bucketLabels = dict.age.buckets as Record<string, string>;
   const hasSelection = shownBuckets.length > 0;
 
   function applyBuckets(nextBuckets: string[]): void {
@@ -72,9 +73,9 @@ export function AgeQuestion({
   return (
     <section
       className={`age-question${isPending ? " chips-pending" : ""}`}
-      aria-label={ru.age.question}
+      aria-label={dict.age.question}
     >
-      <span className="age-question-title">{ru.age.question}</span>
+      <span className="age-question-title">{dict.age.question}</span>
       <div className="age-chips">
         {AGE_BUCKETS.map((bucket) => {
           const isActive = shownBuckets.includes(bucket.key);
@@ -97,13 +98,13 @@ export function AgeQuestion({
             className="age-chip age-chip-reset"
             onClick={() => applyBuckets([])}
           >
-            {ru.age.all}
+            {dict.age.all}
           </button>
         ) : null}
       </div>
       {hasSelection ? (
         <p className="age-active-hint">
-          {ru.age.showingFor(shownBuckets.map((key) => bucketLabels[key] ?? key))}
+          {dict.age.showingFor(shownBuckets.map((key) => bucketLabels[key] ?? key))}
         </p>
       ) : null}
     </section>

@@ -10,14 +10,14 @@ import { PlaceImage } from "@/components/places/place-image";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { metaDescription } from "@/lib/seo/meta";
-import { ru } from "@/content/ru";
+import { dateLocale, getDictionary, type Dictionary } from "@/content/dictionary";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string; slug: string }>;
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { city: citySlug, slug } = await params;
+  const { lang, city: citySlug, slug } = await params;
   const city = await getCityBySlug(citySlug);
 
   if (!city) {
@@ -30,9 +30,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {};
   }
 
+  const dict = getDictionary(lang);
+
   return {
-    title: `${event.title} — ${ru.brand}`,
-    description: metaDescription(event.description, ru.meta.description),
+    title: `${event.title} — ${dict.brand}`,
+    description: metaDescription(event.description, dict.meta.description),
   };
 }
 
@@ -45,19 +47,21 @@ function formatEventWhen(
   start: string | Date | null,
   end: string | Date | null,
   timezone: string,
+  lang: string,
+  dict: Dictionary,
 ): string {
   if (!start) {
-    return ru.eventDetails.notSpecified;
+    return dict.eventDetails.notSpecified;
   }
 
   const startDate = start instanceof Date ? start : new Date(start);
-  const dateFmt = new Intl.DateTimeFormat("ru-RU", {
+  const dateFmt = new Intl.DateTimeFormat(dateLocale(lang), {
     timeZone: timezone,
     day: "numeric",
     month: "long",
     year: "numeric",
   });
-  const timeFmt = new Intl.DateTimeFormat("ru-RU", {
+  const timeFmt = new Intl.DateTimeFormat(dateLocale(lang), {
     timeZone: timezone,
     hour: "2-digit",
     minute: "2-digit",
@@ -93,6 +97,7 @@ export default async function EventDetailsPage({
     notFound();
   }
 
+  const dict = getDictionary(lang);
   const basePath = cityBasePath(lang, citySlug);
   const event = await getApprovedEventBySlug(slug, city.id);
 
@@ -113,7 +118,7 @@ export default async function EventDetailsPage({
     <main className="page-shell">
       <div className="back-link-wrapper">
         <Link href={`${basePath}/events`} className="back-link">
-          {ru.eventDetails.back}
+          {dict.eventDetails.back}
         </Link>
         <ShareButton title={dto.title} />
       </div>
@@ -121,45 +126,49 @@ export default async function EventDetailsPage({
       <PlaceImage url={dto.imageUrl} alt={dto.title} className="place-image-hero" />
 
       <section className="hero">
-        <p className="eyebrow">{ru.eventDetails.eyebrow}</p>
+        <p className="eyebrow">{dict.eventDetails.eyebrow}</p>
         <h1 className="hero-title">{dto.title}</h1>
-        <EventStatusBadge status={eventStatus} wrapperClassName="hero-status" />
+        <EventStatusBadge
+          status={eventStatus}
+          lang={lang}
+          wrapperClassName="hero-status"
+        />
         <p className="hero-description">
-          {dto.description ?? ru.common.descriptionFallback}
+          {dto.description ?? dict.common.descriptionFallback}
         </p>
       </section>
 
       <section className="details-section">
-        <h2 className="section-title">{ru.eventDetails.detailsTitle}</h2>
+        <h2 className="section-title">{dict.eventDetails.detailsTitle}</h2>
 
         <div className="details-grid">
           <div>
-            <strong>{ru.eventDetails.when}:</strong>{" "}
-            {formatEventWhen(dto.startDate, dto.endDate, city.timezone)}
+            <strong>{dict.eventDetails.when}:</strong>{" "}
+            {formatEventWhen(dto.startDate, dto.endDate, city.timezone, lang, dict)}
           </div>
 
           <div>
-            <strong>{ru.eventDetails.location}:</strong>{" "}
-            {dto.locationName ?? ru.eventDetails.notSpecified}
+            <strong>{dict.eventDetails.location}:</strong>{" "}
+            {dto.locationName ?? dict.eventDetails.notSpecified}
           </div>
 
           <div>
-            <strong>{ru.eventDetails.address}:</strong>{" "}
-            {dto.address ?? ru.eventDetails.notSpecified}
+            <strong>{dict.eventDetails.address}:</strong>{" "}
+            {dto.address ?? dict.eventDetails.notSpecified}
           </div>
         </div>
       </section>
 
       <section className="details-section">
-        <h2 className="section-title">{ru.eventDetails.placeTitle}</h2>
+        <h2 className="section-title">{dict.eventDetails.placeTitle}</h2>
 
         {dto.place ? (
           <Link href={`${basePath}/places/${dto.place.slug}`} className="linked-place">
-            <span className="linked-place-label">{ru.eventDetails.placeLabel}</span>
+            <span className="linked-place-label">{dict.eventDetails.placeLabel}</span>
             <span className="linked-place-name">{dto.place.name}</span>
           </Link>
         ) : (
-          <p className="empty-text">{ru.eventDetails.noPlace}</p>
+          <p className="empty-text">{dict.eventDetails.noPlace}</p>
         )}
       </section>
     </main>

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ru } from "@/content/ru";
+import { getDictionary, langFromPath } from "@/content/dictionary";
+import type { Dictionary } from "@/content/dictionary";
 
 type EventFiltersProps = {
   type?: string;
@@ -11,28 +12,32 @@ type EventTypeOption = {
   label: string;
 };
 
-const EVENT_TYPE_OPTIONS: EventTypeOption[] = [
-  { value: "upcoming", label: ru.eventFilters.labels.upcoming },
-  { value: "ongoing", label: ru.eventFilters.labels.ongoing },
-  { value: "past", label: ru.eventFilters.labels.past },
-];
+function buildEventTypeOptions(dict: Dictionary): EventTypeOption[] {
+  return [
+    { value: "upcoming", label: dict.eventFilters.labels.upcoming },
+    { value: "ongoing", label: dict.eventFilters.labels.ongoing },
+    { value: "past", label: dict.eventFilters.labels.past },
+  ];
+}
 
 export function EventFilters({ type, basePath }: EventFiltersProps): React.ReactElement {
+  const dict = getDictionary(langFromPath(basePath));
+
   return (
     <section className="filters-panel">
       <div className="filters-panel-header">
         <div>
-          <h2 className="section-title">{ru.eventFilters.title}</h2>
-          <p className="section-subtitle">{ru.eventFilters.subtitle}</p>
+          <h2 className="section-title">{dict.eventFilters.title}</h2>
+          <p className="section-subtitle">{dict.eventFilters.subtitle}</p>
         </div>
 
         <Link className="reset-link" href={`${basePath}/events`}>
-          {ru.eventFilters.showAll}
+          {dict.eventFilters.showAll}
         </Link>
       </div>
 
       <div className="filters-grid">
-        {EVENT_TYPE_OPTIONS.map((option) => {
+        {buildEventTypeOptions(dict).map((option) => {
           const isActive = type === option.value;
 
           return (

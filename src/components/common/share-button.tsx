@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ru } from "@/content/ru";
+import { useDictionary } from "@/lib/i18n/use-dictionary";
 
 type ShareButtonProps = {
   /** Заголовок для системного окна «поделиться» (название места/события/занятия). */
@@ -34,6 +34,7 @@ function legacyCopy(url: string): boolean {
 
 export function ShareButton({ title }: ShareButtonProps): React.ReactElement {
   const [copied, setCopied] = useState(false);
+  const dict = useDictionary();
 
   function markCopied(): void {
     setCopied(true);
@@ -68,7 +69,7 @@ export function ShareButton({ title }: ShareButtonProps): React.ReactElement {
       className={`share-button${copied ? " share-button-copied" : ""}`}
       onClick={handleShare}
     >
-      {copied ? ru.share.copied : ru.share.cta}
+      {copied ? dict.share.copied : dict.share.cta}
     </button>
   );
 }

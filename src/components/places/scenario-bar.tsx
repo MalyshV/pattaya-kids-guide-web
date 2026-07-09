@@ -1,8 +1,9 @@
 "use client";
 
-import { useOptimistic, useTransition } from "react";
+import { useMemo, useOptimistic, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ru } from "@/content/ru";
+import { useDictionary } from "@/lib/i18n/use-dictionary";
+import type { Dictionary } from "@/content/dictionary";
 
 type ScenarioKey = "openNow" | "openMorning" | "workFriendly" | "shelter";
 
@@ -13,45 +14,50 @@ type ScenarioBarProps = {
   facets: Record<string, string | undefined>;
 };
 
-const SCENARIOS: Array<{
+function buildScenarios(dict: Dictionary): Array<{
   key: ScenarioKey;
   label: string;
   hint: string;
   activeHint: string;
-}> = [
-  {
-    key: "openNow",
-    label: ru.scenarios.openNow,
-    hint: ru.scenarios.openNowHint,
-    activeHint: ru.scenarios.openNowActive,
-  },
-  {
-    key: "openMorning",
-    label: ru.scenarios.openMorning,
-    hint: ru.scenarios.openMorningHint,
-    activeHint: ru.scenarios.openMorningActive,
-  },
-  {
-    key: "workFriendly",
-    label: ru.scenarios.workFriendly,
-    hint: ru.scenarios.workFriendlyHint,
-    activeHint: ru.scenarios.workFriendlyActive,
-  },
-  {
-    key: "shelter",
-    label: ru.scenarios.shelter,
-    hint: ru.scenarios.shelterHint,
-    activeHint: ru.scenarios.shelterActive,
-  },
-];
+}> {
+  return [
+    {
+      key: "openNow",
+      label: dict.scenarios.openNow,
+      hint: dict.scenarios.openNowHint,
+      activeHint: dict.scenarios.openNowActive,
+    },
+    {
+      key: "openMorning",
+      label: dict.scenarios.openMorning,
+      hint: dict.scenarios.openMorningHint,
+      activeHint: dict.scenarios.openMorningActive,
+    },
+    {
+      key: "workFriendly",
+      label: dict.scenarios.workFriendly,
+      hint: dict.scenarios.workFriendlyHint,
+      activeHint: dict.scenarios.workFriendlyActive,
+    },
+    {
+      key: "shelter",
+      label: dict.scenarios.shelter,
+      hint: dict.scenarios.shelterHint,
+      activeHint: dict.scenarios.shelterActive,
+    },
+  ];
+}
 
 export function ScenarioBar({ active, facets }: ScenarioBarProps): React.ReactElement {
   const router = useRouter();
   const pathname = usePathname();
+  const dict = useDictionary();
   const [isPending, startTransition] = useTransition();
   // Оптимистичное состояние: чип переключается В МОМЕНТ тапа, не дожидаясь
   // ответа сервера (~0.3с на проде) — иначе кажется, что «не нажалось».
   const [shownActive, setShownActive] = useOptimistic(active);
+
+  const SCENARIOS = useMemo(() => buildScenarios(dict), [dict]);
 
   // Один клик = результат: сценарий срабатывает сразу, без «Показать».
   // Сохраняем фасеты и другие активные сценарии — инвертируем только нажатый.
@@ -84,7 +90,7 @@ export function ScenarioBar({ active, facets }: ScenarioBarProps): React.ReactEl
   return (
     <section
       className={`scenario-bar${isPending ? " chips-pending" : ""}`}
-      aria-label={ru.scenarios.title}
+      aria-label={dict.scenarios.title}
     >
       <div className="scenario-chips">
         {SCENARIOS.map((scenario) => (

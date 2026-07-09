@@ -9,7 +9,7 @@ import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { activitySortRank } from "@/lib/activities/activity-sort";
 import { matchesAnyAgeBucket, parseAgeBuckets } from "@/lib/age/age-buckets";
 import { matchesCategory } from "@/lib/activities/activity-filter";
-import { ru } from "@/content/ru";
+import { getDictionary } from "@/content/dictionary";
 
 const PAGE_SIZE = 6;
 
@@ -47,6 +47,7 @@ export default async function CityActivitiesPage({
     notFound();
   }
 
+  const dict = getDictionary(lang);
   const basePath = cityBasePath(lang, citySlug);
   const resolvedSearchParams = (await searchParams) ?? {};
   const age = getSingleSearchParam(resolvedSearchParams.age);
@@ -87,8 +88,8 @@ export default async function CityActivitiesPage({
     <main className="page-shell">
       <section className="hero">
         <p className="eyebrow">{city.name}</p>
-        <h1 className="hero-title">{ru.activities.heroTitle}</h1>
-        <p className="hero-description">{ru.activities.heroDescription}</p>
+        <h1 className="hero-title">{dict.activities.heroTitle}</h1>
+        <p className="hero-description">{dict.activities.heroDescription}</p>
       </section>
 
       <AgeQuestion
@@ -106,15 +107,17 @@ export default async function CityActivitiesPage({
 
       <section className="results-header">
         <div>
-          <h2>{ru.activities.sectionTitle}</h2>
-          <p>{ru.activities.count(items.length)}</p>
+          <h2>{dict.activities.sectionTitle}</h2>
+          <p>{dict.activities.count(items.length)}</p>
         </div>
       </section>
 
       {items.length === 0 ? (
         <section className="empty-state">
-          <h3>{ru.activities.emptyTitle}</h3>
-          <p>{isFiltered ? ru.activities.emptyFilteredHint : ru.activities.emptyHint}</p>
+          <h3>{dict.activities.emptyTitle}</h3>
+          <p>
+            {isFiltered ? dict.activities.emptyFilteredHint : dict.activities.emptyHint}
+          </p>
         </section>
       ) : (
         <>

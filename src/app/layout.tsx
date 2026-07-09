@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
+import { HtmlLangSync } from "@/components/layout/html-lang-sync";
 import { ru } from "@/content/ru";
 
 const geistSans = Geist({
@@ -31,6 +32,8 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         {children}
+        {/* <html lang> по языку страницы (корневой layout не знает params.lang) */}
+        <HtmlLangSync />
         {/* Vercel Analytics: без cookies (баннер согласия не нужен);
             локально молчит, активируется на Vercel-деплое */}
         <Analytics />

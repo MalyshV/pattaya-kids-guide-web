@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ru } from "@/content/ru";
+import { getDictionary, langFromPath } from "@/content/dictionary";
 
 type ActivitiesPaginationProps = {
   currentPage: number;
@@ -35,6 +35,8 @@ export function ActivitiesPagination({
   age,
   category,
 }: ActivitiesPaginationProps): React.ReactElement | null {
+  const dict = getDictionary(langFromPath(basePath));
+
   if (totalPages <= 1) {
     return null;
   }
@@ -44,9 +46,9 @@ export function ActivitiesPagination({
   const hasNext = currentPage < totalPages;
 
   return (
-    <nav className="pagination" aria-label={ru.pagination.activitiesAria}>
+    <nav className="pagination" aria-label={dict.pagination.activitiesAria}>
       <div className="pagination-info">
-        {ru.pagination.pageOf(currentPage, totalPages)}
+        {dict.pagination.pageOf(currentPage, totalPages)}
       </div>
 
       <div className="pagination-actions">
@@ -55,11 +57,11 @@ export function ActivitiesPagination({
             className="pagination-link"
             href={buildPageHref(currentPage - 1, params, basePath)}
           >
-            ← {ru.pagination.previous}
+            ← {dict.pagination.previous}
           </Link>
         ) : (
           <span className="pagination-link pagination-link-disabled">
-            ← {ru.pagination.previous}
+            ← {dict.pagination.previous}
           </span>
         )}
 
@@ -68,11 +70,11 @@ export function ActivitiesPagination({
             className="pagination-link"
             href={buildPageHref(currentPage + 1, params, basePath)}
           >
-            {ru.pagination.next} →
+            {dict.pagination.next} →
           </Link>
         ) : (
           <span className="pagination-link pagination-link-disabled">
-            {ru.pagination.next} →
+            {dict.pagination.next} →
           </span>
         )}
       </div>

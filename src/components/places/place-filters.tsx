@@ -2,7 +2,8 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ru } from "@/content/ru";
+import { useDictionary } from "@/lib/i18n/use-dictionary";
+import type { Dictionary } from "@/content/dictionary";
 
 type PlaceFiltersProps = {
   // Сценарии-чипы и возраст живут выше — здесь их только сохраняем, чтобы
@@ -39,16 +40,18 @@ type FilterConfig = {
   label: string;
 };
 
-const FILTERS: FilterConfig[] = [
-  { name: "indoor", label: ru.placeFilters.labels.indoor },
-  { name: "outdoor", label: ru.placeFilters.labels.outdoor },
-  { name: "hasFood", label: ru.placeFilters.labels.hasFood },
-  { name: "hasWifi", label: ru.placeFilters.labels.hasWifi },
-  { name: "hasAirCon", label: ru.placeFilters.labels.hasAirCon },
-  { name: "hasParking", label: ru.placeFilters.labels.hasParking },
-  { name: "canLeaveChild", label: ru.placeFilters.labels.canLeaveChild },
-  { name: "animalContact", label: ru.placeFilters.labels.animalContact },
-];
+function buildFilters(dict: Dictionary): FilterConfig[] {
+  return [
+    { name: "indoor", label: dict.placeFilters.labels.indoor },
+    { name: "outdoor", label: dict.placeFilters.labels.outdoor },
+    { name: "hasFood", label: dict.placeFilters.labels.hasFood },
+    { name: "hasWifi", label: dict.placeFilters.labels.hasWifi },
+    { name: "hasAirCon", label: dict.placeFilters.labels.hasAirCon },
+    { name: "hasParking", label: dict.placeFilters.labels.hasParking },
+    { name: "canLeaveChild", label: dict.placeFilters.labels.canLeaveChild },
+    { name: "animalContact", label: dict.placeFilters.labels.animalContact },
+  ];
+}
 
 function buildInitialState(props: PlaceFiltersProps): FiltersState {
   return {
@@ -66,7 +69,9 @@ function buildInitialState(props: PlaceFiltersProps): FiltersState {
 export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
   const router = useRouter();
   const pathname = usePathname();
+  const dict = useDictionary();
 
+  const FILTERS = useMemo(() => buildFilters(dict), [dict]);
   const initialState = useMemo(() => buildInitialState(props), [props]);
   const [filters, setFilters] = useState<FiltersState>(initialState);
   // Отклик на «Применить»: на проде ответ идёт ~0.3с — без индикации кажется,
@@ -143,12 +148,12 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
     <section className="filters-panel">
       <div className="filters-panel-header">
         <div>
-          <h2 className="section-title">{ru.placeFilters.title}</h2>
-          <p className="section-subtitle">{ru.placeFilters.subtitle}</p>
+          <h2 className="section-title">{dict.placeFilters.title}</h2>
+          <p className="section-subtitle">{dict.placeFilters.subtitle}</p>
         </div>
 
         <button className="reset-link reset-button" type="button" onClick={handleReset}>
-          {ru.placeFilters.reset}
+          {dict.placeFilters.reset}
         </button>
       </div>
 
@@ -172,7 +177,7 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
             type="submit"
             aria-busy={isPending}
           >
-            {isPending ? ru.placeFilters.applying : ru.placeFilters.apply}
+            {isPending ? dict.placeFilters.applying : dict.placeFilters.apply}
           </button>
         </div>
       </form>

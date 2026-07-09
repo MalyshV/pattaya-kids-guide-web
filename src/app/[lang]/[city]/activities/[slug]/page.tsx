@@ -10,14 +10,14 @@ import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { formatAgeRange } from "@/lib/age/format-age";
 import { metaDescription } from "@/lib/seo/meta";
-import { ru } from "@/content/ru";
+import { dateLocale, getDictionary, type Dictionary } from "@/content/dictionary";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string; slug: string }>;
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { city: citySlug, slug } = await params;
+  const { lang, city: citySlug, slug } = await params;
   const city = await getCityBySlug(citySlug);
 
   if (!city) {
@@ -30,20 +30,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {};
   }
 
+  const dict = getDictionary(lang);
+
   return {
-    title: `${activity.name} — ${ru.brand}`,
-    description: metaDescription(activity.description, ru.meta.description),
+    title: `${activity.name} — ${dict.brand}`,
+    description: metaDescription(activity.description, dict.meta.description),
   };
 }
 
-function formatMoney(amount: number, currency: string): string {
-  return `${amount.toLocaleString("ru-RU")} ${currency}`;
+function formatMoney(amount: number, currency: string, lang: string): string {
+  return `${amount.toLocaleString(dateLocale(lang))} ${currency}`;
 }
 
-function parentBadgeLabel(value: boolean | null): string {
-  if (value === true) return ru.activityDetails.withParent;
-  if (value === false) return ru.activityDetails.withoutParent;
-  return ru.activityDetails.parentDepends;
+function parentBadgeLabel(value: boolean | null, dict: Dictionary): string {
+  if (value === true) return dict.activityDetails.withParent;
+  if (value === false) return dict.activityDetails.withoutParent;
+  return dict.activityDetails.parentDepends;
 }
 
 function parentBadgeClass(value: boolean | null): string {
@@ -63,6 +65,7 @@ export default async function ActivityDetailsPage({
     notFound();
   }
 
+  const dict = getDictionary(lang);
   const basePath = cityBasePath(lang, citySlug);
   const activity = await getActivityBySlug(slug, city.id);
 
@@ -72,7 +75,7 @@ export default async function ActivityDetailsPage({
 
   const dto = mapActivityToListItem(activity);
   const typeLabel =
-    (ru.placeDetails.programTypes as Record<string, string>)[dto.type] ?? dto.type;
+    (dict.placeDetails.programTypes as Record<string, string>)[dto.type] ?? dto.type;
 
   // Лагерь с датами показывает живой статус (идёт/скоро/прошло); регулярные — нет.
   const status =
@@ -84,13 +87,13 @@ export default async function ActivityDetailsPage({
         )
       : undefined;
 
-  const ageRange = formatAgeRange(dto.minAgeMonths, dto.maxAgeMonths);
+  const ageRange = formatAgeRange(dto.minAgeMonths, dto.maxAgeMonths, lang);
 
   return (
     <main className="page-shell">
       <div className="back-link-wrapper">
         <Link href={`${basePath}/activities`} className="back-link">
-          {ru.activityDetails.back}
+          {dict.activityDetails.back}
         </Link>
         <ShareButton title={dto.name} />
       </div>
@@ -104,7 +107,7 @@ export default async function ActivityDetailsPage({
             чтобы вспомнить, куда это вообще ходить */}
         {dto.place || dto.venueName ? (
           <p className="hero-venue">
-            {ru.activityDetails.heroWhere}{" "}
+            {dict.activityDetails.heroWhere}{" "}
             {dto.place ? (
               <Link href={`${basePath}/places/${dto.place.slug}`}>{dto.place.name}</Link>
             ) : (
@@ -114,37 +117,37 @@ export default async function ActivityDetailsPage({
         ) : null}
         {status ? (
           <div className="hero-status">
-            <EventStatusBadge status={status} />
+            <EventStatusBadge status={status} lang={lang} />
           </div>
         ) : null}
         {dto.description ? <p className="hero-description">{dto.description}</p> : null}
       </section>
 
       <section className="details-section">
-        <h2 className="section-title">{ru.placeDetails.detailsTitle}</h2>
+        <h2 className="section-title">{dict.placeDetails.detailsTitle}</h2>
         <div className="details-grid">
           {ageRange ? (
             <div>
-              <strong>{ru.activities.ageLabel}</strong> {ageRange}
+              <strong>{dict.activities.ageLabel}</strong> {ageRange}
             </div>
           ) : null}
 
           <div>
-            <strong>{ru.placeDetails.pricingTitle}:</strong>{" "}
+            <strong>{dict.placeDetails.pricingTitle}:</strong>{" "}
             {dto.price != null ? (
               <>
                 {dto.oldPrice != null ? (
                   <span className="program-old-price">
-                    {ru.placeDetails.programOldPrice(
-                      formatMoney(dto.oldPrice, dto.currency),
+                    {dict.placeDetails.programOldPrice(
+                      formatMoney(dto.oldPrice, dto.currency, lang),
                     )}
                   </span>
                 ) : null}{" "}
-                {formatMoney(dto.price, dto.currency)}
+                {formatMoney(dto.price, dto.currency, lang)}
                 {dto.priceUnit ? ` ${dto.priceUnit}` : ""}
               </>
             ) : (
-              <span className="value-unknown">{ru.placeDetails.priceUnknown}</span>
+              <span className="value-unknown">{dict.placeDetails.priceUnknown}</span>
             )}
           </div>
         </div>
@@ -152,7 +155,7 @@ export default async function ActivityDetailsPage({
 
       {dto.categories.length > 0 ? (
         <section className="details-section">
-          <h2 className="section-title">{ru.placeDetails.categoriesTitle}</h2>
+          <h2 className="section-title">{dict.placeDetails.categoriesTitle}</h2>
           <div className="category-list">
             {dto.categories.map((category) => (
               <span key={category.id} className="category-chip">
@@ -165,14 +168,14 @@ export default async function ActivityDetailsPage({
 
       {dto.classes.length > 0 ? (
         <section className="details-section">
-          <h2 className="section-title">{ru.activityDetails.classesTitle}</h2>
+          <h2 className="section-title">{dict.activityDetails.classesTitle}</h2>
           <div className="class-table-wrap">
             <table className="class-table">
               <thead>
                 <tr>
-                  <th>{ru.activityDetails.classCol}</th>
-                  <th>{ru.activityDetails.ageCol}</th>
-                  <th>{ru.activityDetails.timeCol}</th>
+                  <th>{dict.activityDetails.classCol}</th>
+                  <th>{dict.activityDetails.ageCol}</th>
+                  <th>{dict.activityDetails.timeCol}</th>
                 </tr>
               </thead>
               <tbody>
@@ -181,7 +184,7 @@ export default async function ActivityDetailsPage({
                     <th scope="row">
                       <span className="class-name">{cls.name}</span>
                       <span className={parentBadgeClass(cls.parentRequired)}>
-                        {parentBadgeLabel(cls.parentRequired)}
+                        {parentBadgeLabel(cls.parentRequired, dict)}
                       </span>
                     </th>
                     <td>{cls.ageLabel}</td>
@@ -199,13 +202,13 @@ export default async function ActivityDetailsPage({
               </tbody>
             </table>
           </div>
-          <p className="class-legend">{ru.activityDetails.classLegend}</p>
+          <p className="class-legend">{dict.activityDetails.classLegend}</p>
         </section>
       ) : null}
 
       {dto.place || dto.venueName ? (
         <section className="details-section">
-          <h2 className="section-title">{ru.activityDetails.whereTitle}</h2>
+          <h2 className="section-title">{dict.activityDetails.whereTitle}</h2>
           {dto.place ? (
             <Link
               href={`${basePath}/places/${dto.place.slug}`}

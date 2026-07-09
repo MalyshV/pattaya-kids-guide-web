@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ru } from "@/content/ru";
+import { useDictionary } from "@/lib/i18n/use-dictionary";
 
 /**
  * «Наверх» — плавающая кнопка после прокрутки страницы (списки и длинные
@@ -9,6 +9,8 @@ import { ru } from "@/content/ru";
  */
 export function BackToTop(): React.ReactElement | null {
   const [visible, setVisible] = useState(false);
+  // Хук вызывается до раннего return — хуки нельзя вызывать условно.
+  const dict = useDictionary();
 
   useEffect(() => {
     function onScroll(): void {
@@ -28,7 +30,7 @@ export function BackToTop(): React.ReactElement | null {
     <button
       type="button"
       className="back-to-top"
-      aria-label={ru.common.backToTop}
+      aria-label={dict.common.backToTop}
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
     >
       ↑

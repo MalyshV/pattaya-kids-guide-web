@@ -2,16 +2,9 @@ import { cache } from "react";
 import { prisma } from "@/db/prisma";
 import type { City } from "@prisma/client";
 
-/** Язык по умолчанию (пока единственный). */
-export const DEFAULT_LANG = "ru";
-
-/** Город по умолчанию. */
-export const DEFAULT_CITY_SLUG = "pattaya";
-
-/** Префикс пути города: `/ru/pattaya`. Язык и город — сегменты URL. */
-export function cityBasePath(lang: string, citySlug: string): string {
-  return `/${lang}/${citySlug}`;
-}
+// Чистые константы/хелперы путей живут в base-path.ts (клиенто-безопасно);
+// реэкспорт сохраняет существующие серверные импорты из этого модуля.
+export { cityBasePath, DEFAULT_CITY_SLUG, DEFAULT_LANG } from "./base-path";
 
 /**
  * Резолвит город по slug. Кешируется в пределах одного запроса (React cache),

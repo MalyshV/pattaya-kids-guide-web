@@ -1,8 +1,10 @@
 import type { OpenStatus } from "@/lib/schedule/open-status";
-import { ru } from "@/content/ru";
+import { getDictionary, type Dictionary } from "@/content/dictionary";
 
 type OpenStatusBadgeProps = {
   status: OpenStatus;
+  /** язык страницы (подписи статуса) */
+  lang?: string;
 };
 
 type Rendered = {
@@ -10,25 +12,25 @@ type Rendered = {
   text: string;
 };
 
-function render(status: OpenStatus): Rendered | null {
+function render(status: OpenStatus, dict: Dictionary): Rendered | null {
   switch (status.kind) {
     case "open":
       return {
         className: "open-status-open",
         text:
           status.hoursLeft !== null
-            ? ru.openStatus.openHours(status.hoursLeft)
-            : ru.openStatus.openNow,
+            ? dict.openStatus.openHours(status.hoursLeft)
+            : dict.openStatus.openNow,
       };
     case "opensLater":
       return {
         className: "open-status-open",
-        text: ru.openStatus.opensAt(status.opensAt),
+        text: dict.openStatus.opensAt(status.opensAt),
       };
     case "closingSoon":
-      return { className: "open-status-soon", text: ru.openStatus.closingSoon };
+      return { className: "open-status-soon", text: dict.openStatus.closingSoon };
     case "closedToday":
-      return { className: "open-status-closed", text: ru.openStatus.closedToday };
+      return { className: "open-status-closed", text: dict.openStatus.closedToday };
     case "unknown":
       return null;
   }
@@ -36,8 +38,9 @@ function render(status: OpenStatus): Rendered | null {
 
 export function OpenStatusBadge({
   status,
+  lang = "ru",
 }: OpenStatusBadgeProps): React.ReactElement | null {
-  const rendered = render(status);
+  const rendered = render(status, getDictionary(lang));
   if (!rendered) {
     return null;
   }

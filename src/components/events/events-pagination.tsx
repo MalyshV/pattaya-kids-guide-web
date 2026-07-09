@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ru } from "@/content/ru";
+import { getDictionary, langFromPath } from "@/content/dictionary";
 
 type EventsPaginationProps = {
   currentPage: number;
@@ -26,6 +26,8 @@ export function EventsPagination({
   type,
   basePath,
 }: EventsPaginationProps): React.ReactElement | null {
+  const dict = getDictionary(langFromPath(basePath));
+
   if (totalPages <= 1) {
     return null;
   }
@@ -34,9 +36,9 @@ export function EventsPagination({
   const hasNext = currentPage < totalPages;
 
   return (
-    <nav className="pagination" aria-label={ru.pagination.eventsAria}>
+    <nav className="pagination" aria-label={dict.pagination.eventsAria}>
       <div className="pagination-info">
-        {ru.pagination.pageOf(currentPage, totalPages)}
+        {dict.pagination.pageOf(currentPage, totalPages)}
       </div>
 
       <div className="pagination-actions">
@@ -45,11 +47,11 @@ export function EventsPagination({
             className="pagination-link"
             href={buildPageHref(currentPage - 1, type, basePath)}
           >
-            ← {ru.pagination.previous}
+            ← {dict.pagination.previous}
           </Link>
         ) : (
           <span className="pagination-link pagination-link-disabled">
-            ← {ru.pagination.previous}
+            ← {dict.pagination.previous}
           </span>
         )}
 
@@ -58,11 +60,11 @@ export function EventsPagination({
             className="pagination-link"
             href={buildPageHref(currentPage + 1, type, basePath)}
           >
-            {ru.pagination.next} →
+            {dict.pagination.next} →
           </Link>
         ) : (
           <span className="pagination-link pagination-link-disabled">
-            {ru.pagination.next} →
+            {dict.pagination.next} →
           </span>
         )}
       </div>

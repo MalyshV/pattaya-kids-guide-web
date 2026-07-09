@@ -6,7 +6,7 @@ import { mapEventListItemToDto } from "@/mappers/event.mapper";
 import { getAllApprovedEvents } from "@/services/events.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeEventStatus, eventSortRank } from "@/lib/events/event-lifecycle";
-import { ru } from "@/content/ru";
+import { getDictionary } from "@/content/dictionary";
 
 const PAGE_SIZE = 6;
 
@@ -58,6 +58,7 @@ export default async function CityEventsPage({
     notFound();
   }
 
+  const dict = getDictionary(lang);
   const basePath = cityBasePath(lang, citySlug);
   const resolvedSearchParams = (await searchParams) ?? {};
 
@@ -105,23 +106,23 @@ export default async function CityEventsPage({
     <main className="page-shell">
       <section className="hero">
         <p className="eyebrow">{city.name}</p>
-        <h1 className="hero-title">{ru.events.heroTitle}</h1>
-        <p className="hero-description">{ru.events.heroDescription}</p>
+        <h1 className="hero-title">{dict.events.heroTitle}</h1>
+        <p className="hero-description">{dict.events.heroDescription}</p>
       </section>
 
       <EventFilters type={type} basePath={basePath} />
 
       <section className="results-header">
         <div>
-          <h2>{ru.events.sectionTitle}</h2>
-          <p>{ru.events.count(total)}</p>
+          <h2>{dict.events.sectionTitle}</h2>
+          <p>{dict.events.count(total)}</p>
         </div>
       </section>
 
       {total === 0 ? (
         <section className="empty-state">
-          <h3>{ru.events.emptyTitle}</h3>
-          <p>{ru.events.emptyHint}</p>
+          <h3>{dict.events.emptyTitle}</h3>
+          <p>{dict.events.emptyHint}</p>
         </section>
       ) : (
         <>

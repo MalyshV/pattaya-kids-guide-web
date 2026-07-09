@@ -9,6 +9,24 @@ describe("fromAgeLabel («можно оставить с…»)", () => {
   });
 });
 
+describe("fromAgeLabel — английский", () => {
+  it("месяцы и годы с правильным числом", () => {
+    expect(fromAgeLabel(6, "en")).toBe("from 6 months");
+    expect(fromAgeLabel(12, "en")).toBe("from 1 year");
+    expect(fromAgeLabel(36, "en")).toBe("from 3 years");
+  });
+});
+
+describe("formatAgeRange — английский", () => {
+  it("up to / from / полный диапазон", () => {
+    expect(formatAgeRange(null, 36, "en")).toBe("up to 3 years");
+    expect(formatAgeRange(36, null, "en")).toBe("from 3 years");
+    expect(formatAgeRange(4, 144, "en")).toBe("4 months – 12 years");
+    expect(formatAgeRange(12, 24, "en")).toBe("1 year – 2 years");
+    expect(formatAgeRange(null, null, "en")).toBeNull();
+  });
+});
+
 describe("formatAgeRange (возраст занятия)", () => {
   it("нет данных → null (секция не показывается)", () => {
     expect(formatAgeRange(null, null)).toBeNull();
