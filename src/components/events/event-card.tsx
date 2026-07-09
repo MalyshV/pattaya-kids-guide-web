@@ -37,7 +37,11 @@ export function EventCard({
 
       <div className="event-card-header">
         <div>
-          <h3 className="event-card-title">{event.title}</h3>
+          <h3 className="event-card-title">
+            <Link href={`${basePath}/events/${event.slug}`} className="card-title-link">
+              {event.title}
+            </Link>
+          </h3>
           <p className="event-card-slug">/{event.slug}</p>
         </div>
       </div>

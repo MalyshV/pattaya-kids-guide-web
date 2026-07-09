@@ -39,6 +39,7 @@ export const ru = {
     negative: "Нет",
     // третье состояние факта: данные ещё не проверены (не выдаём пробел за «нет»)
     unknown: "уточняется",
+    backToTop: "Наверх",
   },
 
   share: {
@@ -109,7 +110,7 @@ export const ru = {
     title: "Фильтры",
     subtitle: "Выберите, что важно",
     reset: "Сбросить",
-    apply: "Показать",
+    apply: "Применить",
     labels: {
       indoor: "В помещении",
       outdoor: "На улице",
@@ -257,6 +258,8 @@ export const ru = {
 
   activityDetails: {
     back: "← Назад к занятиям",
+    // краткое «где» в шапке — чтобы не листать вниз ради главного вопроса
+    heroWhere: "Где:",
     whereTitle: "Где проходит",
     classesTitle: "Классы и расписание",
     classCol: "Класс",

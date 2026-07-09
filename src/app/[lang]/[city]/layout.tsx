@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BackToTop } from "@/components/common/back-to-top";
 import { SiteHeader } from "@/components/layout/site-header";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { ru } from "@/content/ru";
@@ -38,6 +39,7 @@ export default async function CityLayout({
     <>
       <SiteHeader basePath={cityBasePath(lang, city)} />
       {children}
+      <BackToTop />
     </>
   );
 }

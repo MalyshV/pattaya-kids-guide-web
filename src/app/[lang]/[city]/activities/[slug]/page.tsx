@@ -100,6 +100,18 @@ export default async function ActivityDetailsPage({
       <section className="hero">
         <p className="eyebrow">{typeLabel}</p>
         <h1 className="hero-title">{dto.name}</h1>
+        {/* «где» сразу в шапке: вернувшись на страницу, не нужно листать вниз,
+            чтобы вспомнить, куда это вообще ходить */}
+        {dto.place || dto.venueName ? (
+          <p className="hero-venue">
+            {ru.activityDetails.heroWhere}{" "}
+            {dto.place ? (
+              <Link href={`${basePath}/places/${dto.place.slug}`}>{dto.place.name}</Link>
+            ) : (
+              dto.venueName
+            )}
+          </p>
+        ) : null}
         {status ? (
           <div className="hero-status">
             <EventStatusBadge status={status} />
@@ -173,7 +185,15 @@ export default async function ActivityDetailsPage({
                       </span>
                     </th>
                     <td>{cls.ageLabel}</td>
-                    <td className="class-schedule">{cls.schedule}</td>
+                    <td className="class-schedule">
+                      {/* пара «день время» не разрывается при переносе строки */}
+                      {cls.schedule.split(" · ").map((slot, index) => (
+                        <span key={slot + index}>
+                          {index > 0 ? " · " : ""}
+                          <span className="class-slot">{slot}</span>
+                        </span>
+                      ))}
+                    </td>
                   </tr>
                 ))}
               </tbody>

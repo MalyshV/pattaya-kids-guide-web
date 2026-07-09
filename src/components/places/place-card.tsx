@@ -28,7 +28,11 @@ export function PlaceCard({
 
       <div className="place-card-header">
         <div>
-          <h3 className="place-card-title">{place.name}</h3>
+          <h3 className="place-card-title">
+            <Link href={`${basePath}/places/${place.slug}`} className="card-title-link">
+              {place.name}
+            </Link>
+          </h3>
           <p className="place-card-slug">/{place.slug}</p>
         </div>
 
