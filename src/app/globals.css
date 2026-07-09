@@ -295,11 +295,24 @@ input {
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--foreground);
+  font-family: inherit;
   font-size: 13px;
   text-decoration: none;
+  cursor: pointer;
   transition:
     background 0.15s ease,
     border-color 0.15s ease;
+}
+
+/* пока сервер отвечает — чипы слегка приглушаются (оптимистичный отклик
+   уже переключил выбранный) */
+.chips-pending .age-chip,
+.chips-pending .scenario-chip {
+  opacity: 0.75;
+}
+
+.primary-button-pending {
+  opacity: 0.8;
 }
 
 .age-chip:hover {

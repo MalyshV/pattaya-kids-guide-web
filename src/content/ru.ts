@@ -111,6 +111,7 @@ export const ru = {
     subtitle: "Выберите, что важно",
     reset: "Сбросить",
     apply: "Применить",
+    applying: "Применяю…",
     labels: {
       indoor: "В помещении",
       outdoor: "На улице",

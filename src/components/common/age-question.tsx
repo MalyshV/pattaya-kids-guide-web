@@ -1,4 +1,7 @@
-import Link from "next/link";
+"use client";
+
+import { useOptimistic, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { AGE_BUCKETS } from "@/lib/age/age-buckets";
 import { ru } from "@/content/ru";
 
@@ -33,53 +36,74 @@ function buildHref(
 }
 
 /**
- * «Сколько лет ребёнку?» — сквозной вход по возрасту. Чипы-ссылки: тап
- * добавляет/убирает корзину (мультивыбор — детей может быть двое), выбор живёт
- * в URL и переносится шапкой между разделами.
+ * «Сколько лет ребёнку?» — сквозной вход по возрасту. Тап добавляет/убирает
+ * корзину (мультивыбор — детей может быть двое), выбор живёт в URL и
+ * переносится шапкой между разделами. Чип переключается оптимистично — в
+ * момент тапа, не дожидаясь ответа сервера.
  */
 export function AgeQuestion({
   pathname,
   activeBuckets,
   preservedParams = {},
 }: AgeQuestionProps): React.ReactElement {
-  const hasSelection = activeBuckets.length > 0;
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [shownBuckets, setShownBuckets] = useOptimistic(activeBuckets);
+
   const bucketLabels = ru.age.buckets as Record<string, string>;
+  const hasSelection = shownBuckets.length > 0;
+
+  function applyBuckets(nextBuckets: string[]): void {
+    startTransition(() => {
+      setShownBuckets(nextBuckets);
+      router.push(buildHref(pathname, nextBuckets, preservedParams));
+    });
+  }
+
+  function toggle(key: string): void {
+    const next = shownBuckets.includes(key)
+      ? shownBuckets.filter((bucket) => bucket !== key)
+      : AGE_BUCKETS.filter((b) => shownBuckets.includes(b.key) || b.key === key).map(
+          (b) => b.key,
+        );
+    applyBuckets(next);
+  }
 
   return (
-    <section className="age-question" aria-label={ru.age.question}>
+    <section
+      className={`age-question${isPending ? " chips-pending" : ""}`}
+      aria-label={ru.age.question}
+    >
       <span className="age-question-title">{ru.age.question}</span>
       <div className="age-chips">
         {AGE_BUCKETS.map((bucket) => {
-          const isActive = activeBuckets.includes(bucket.key);
-          const nextBuckets = isActive
-            ? activeBuckets.filter((key) => key !== bucket.key)
-            : AGE_BUCKETS.filter(
-                (b) => activeBuckets.includes(b.key) || b.key === bucket.key,
-              ).map((b) => b.key);
+          const isActive = shownBuckets.includes(bucket.key);
 
           return (
-            <Link
+            <button
               key={bucket.key}
-              href={buildHref(pathname, nextBuckets, preservedParams)}
+              type="button"
               className={`age-chip${isActive ? " age-chip-active" : ""}`}
               aria-pressed={isActive}
+              onClick={() => toggle(bucket.key)}
             >
               {bucketLabels[bucket.key] ?? bucket.key}
-            </Link>
+            </button>
           );
         })}
         {hasSelection ? (
-          <Link
-            href={buildHref(pathname, [], preservedParams)}
+          <button
+            type="button"
             className="age-chip age-chip-reset"
+            onClick={() => applyBuckets([])}
           >
             {ru.age.all}
-          </Link>
+          </button>
         ) : null}
       </div>
       {hasSelection ? (
         <p className="age-active-hint">
-          {ru.age.showingFor(activeBuckets.map((key) => bucketLabels[key] ?? key))}
+          {ru.age.showingFor(shownBuckets.map((key) => bucketLabels[key] ?? key))}
         </p>
       ) : null}
     </section>

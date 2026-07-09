@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ru } from "@/content/ru";
 
@@ -69,6 +69,9 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
 
   const initialState = useMemo(() => buildInitialState(props), [props]);
   const [filters, setFilters] = useState<FiltersState>(initialState);
+  // Отклик на «Применить»: на проде ответ идёт ~0.3с — без индикации кажется,
+  // что кнопка не сработала.
+  const [isPending, startTransition] = useTransition();
 
   function handleToggle(name: FilterKey): void {
     setFilters((current) => ({
@@ -111,7 +114,9 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
 
     const queryString = searchParams.toString();
 
-    router.push(queryString ? `${pathname}?${queryString}` : pathname);
+    startTransition(() => {
+      router.push(queryString ? `${pathname}?${queryString}` : pathname);
+    });
   }
 
   function handleReset(): void {
@@ -129,7 +134,9 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
     setFilters(emptyState);
     // Сброс фасетов не трогает сценарий-чипы — у них свой переключатель.
     const queryString = scenarioParams().toString();
-    router.push(queryString ? `${pathname}?${queryString}` : pathname);
+    startTransition(() => {
+      router.push(queryString ? `${pathname}?${queryString}` : pathname);
+    });
   }
 
   return (
@@ -160,8 +167,12 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
         </div>
 
         <div className="filters-actions">
-          <button className="primary-button" type="submit">
-            {ru.placeFilters.apply}
+          <button
+            className={`primary-button${isPending ? " primary-button-pending" : ""}`}
+            type="submit"
+            aria-busy={isPending}
+          >
+            {isPending ? ru.placeFilters.applying : ru.placeFilters.apply}
           </button>
         </div>
       </form>

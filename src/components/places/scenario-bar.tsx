@@ -1,5 +1,6 @@
 "use client";
 
+import { useOptimistic, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ru } from "@/content/ru";
 
@@ -47,10 +48,15 @@ const SCENARIOS: Array<{
 export function ScenarioBar({ active, facets }: ScenarioBarProps): React.ReactElement {
   const router = useRouter();
   const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
+  // Оптимистичное состояние: чип переключается В МОМЕНТ тапа, не дожидаясь
+  // ответа сервера (~0.3с на проде) — иначе кажется, что «не нажалось».
+  const [shownActive, setShownActive] = useOptimistic(active);
 
   // Один клик = результат: сценарий срабатывает сразу, без «Показать».
   // Сохраняем фасеты и другие активные сценарии — инвертируем только нажатый.
   function toggle(key: ScenarioKey): void {
+    const nextActive = { ...shownActive, [key]: !shownActive[key] };
     const params = new URLSearchParams();
 
     for (const [facetKey, value] of Object.entries(facets)) {
@@ -60,29 +66,33 @@ export function ScenarioBar({ active, facets }: ScenarioBarProps): React.ReactEl
     }
 
     for (const scenario of SCENARIOS) {
-      const willBeActive =
-        scenario.key === key ? !active[scenario.key] : active[scenario.key];
-      if (willBeActive) {
+      if (nextActive[scenario.key]) {
         params.set(scenario.key, "true");
       }
     }
 
     // Смена сценария всегда возвращает к первой странице.
     const query = params.toString();
-    router.push(query ? `${pathname}?${query}` : pathname);
+    startTransition(() => {
+      setShownActive(nextActive);
+      router.push(query ? `${pathname}?${query}` : pathname);
+    });
   }
 
-  const activeHints = SCENARIOS.filter((scenario) => active[scenario.key]);
+  const activeHints = SCENARIOS.filter((scenario) => shownActive[scenario.key]);
 
   return (
-    <section className="scenario-bar" aria-label={ru.scenarios.title}>
+    <section
+      className={`scenario-bar${isPending ? " chips-pending" : ""}`}
+      aria-label={ru.scenarios.title}
+    >
       <div className="scenario-chips">
         {SCENARIOS.map((scenario) => (
           <button
             key={scenario.key}
             type="button"
-            className={`scenario-chip${active[scenario.key] ? " scenario-chip-active" : ""}`}
-            aria-pressed={active[scenario.key]}
+            className={`scenario-chip${shownActive[scenario.key] ? " scenario-chip-active" : ""}`}
+            aria-pressed={shownActive[scenario.key]}
             title={scenario.hint}
             onClick={() => toggle(scenario.key)}
           >
