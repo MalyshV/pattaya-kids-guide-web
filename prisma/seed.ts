@@ -33,6 +33,9 @@ async function main() {
     where: { countryId_slug: { countryId: thailand.id, slug: "pattaya" } },
     update: {
       name: "Паттайя",
+      nameEn: "Pattaya",
+      seoDescriptionEn:
+        "A calm guide to kids' places and events in Pattaya: where to go with your child in the morning, after kindergarten and at weekends — with prices and birthday venues.",
       seoDescription:
         "Спокойный гид по детским местам и событиям Паттайи: куда пойти с ребёнком утром, после сада и на выходных — с ценами, Thai-price и днями рождения.",
       timezone: "Asia/Bangkok",
@@ -43,6 +46,9 @@ async function main() {
       countryId: thailand.id,
       slug: "pattaya",
       name: "Паттайя",
+      nameEn: "Pattaya",
+      seoDescriptionEn:
+        "A calm guide to kids' places and events in Pattaya: where to go with your child in the morning, after kindergarten and at weekends — with prices and birthday venues.",
       seoDescription:
         "Спокойный гид по детским местам и событиям Паттайи: куда пойти с ребёнком утром, после сада и на выходных — с ценами, Thai-price и днями рождения.",
       timezone: "Asia/Bangkok",
@@ -56,14 +62,14 @@ async function main() {
   // 1. EVENT CATEGORIES
   // =========================
   const eventCategoriesData = [
-    { slug: "workshop", name: "Мастер-класс" },
-    { slug: "festival", name: "Фестиваль" },
-    { slug: "kids-activity", name: "Детская активность" },
+    { slug: "workshop", name: "Мастер-класс", nameEn: "Workshop" },
+    { slug: "festival", name: "Фестиваль", nameEn: "Festival" },
+    { slug: "kids-activity", name: "Детская активность", nameEn: "Kids activity" },
   ];
   for (const category of eventCategoriesData) {
     await prisma.eventCategory.upsert({
       where: { slug: category.slug },
-      update: { name: category.name },
+      update: { name: category.name, nameEn: category.nameEn },
       create: category,
     });
   }
@@ -88,14 +94,19 @@ async function main() {
   // 2. PLACE CATEGORIES (русские названия; slug — англ. идентификатор)
   // =========================
   const placeCategoriesData = [
-    { slug: "indoor-playground", name: "Крытая игровая", order: 1 },
-    { slug: "cafe", name: "Кафе", order: 2 },
-    { slug: "playground", name: "Игровая площадка", order: 3 },
+    {
+      slug: "indoor-playground",
+      name: "Крытая игровая",
+      nameEn: "Indoor playground",
+      order: 1,
+    },
+    { slug: "cafe", name: "Кафе", nameEn: "Café", order: 2 },
+    { slug: "playground", name: "Игровая площадка", nameEn: "Playground", order: 3 },
   ];
   for (const category of placeCategoriesData) {
     await prisma.category.upsert({
       where: { slug: category.slug },
-      update: { name: category.name, order: category.order },
+      update: { name: category.name, nameEn: category.nameEn, order: category.order },
       create: category,
     });
   }
@@ -114,13 +125,13 @@ async function main() {
   // =========================
   const ageGroup3to6 = await prisma.ageGroup.upsert({
     where: { minAge_maxAge: { minAge: 3, maxAge: 6 } },
-    update: { name: "3–6 лет" },
-    create: { name: "3–6 лет", minAge: 3, maxAge: 6 },
+    update: { name: "3–6 лет", nameEn: "3–6 years" },
+    create: { name: "3–6 лет", nameEn: "3–6 years", minAge: 3, maxAge: 6 },
   });
   const ageGroupUnder2 = await prisma.ageGroup.upsert({
     where: { minAge_maxAge: { minAge: 0, maxAge: 2 } },
-    update: { name: "0–2 года" },
-    create: { name: "0–2 года", minAge: 0, maxAge: 2 },
+    update: { name: "0–2 года", nameEn: "0–2 years" },
+    create: { name: "0–2 года", nameEn: "0–2 years", minAge: 0, maxAge: 2 },
   });
 
   const indoorPlaygroundCategory = await prisma.category.findUnique({
@@ -144,14 +155,23 @@ async function main() {
   // =========================
   // Парковка НЕ в этом списке: поднята до колонки Place.hasParking (см. очистку ниже)
   const amenitiesData = [
-    { slug: "cafe-on-site", name: "Кафе" },
-    { slug: "wifi", name: "Wi-Fi" },
+    { slug: "cafe-on-site", name: "Кафе", nameEn: "Café" },
+    { slug: "wifi", name: "Wi-Fi", nameEn: "Wi-Fi" },
   ];
   for (const amenity of amenitiesData) {
     await prisma.amenity.upsert({
       where: { slug: amenity.slug },
-      update: { name: amenity.name, groupId: foodComfortGroup.id },
-      create: { name: amenity.name, slug: amenity.slug, groupId: foodComfortGroup.id },
+      update: {
+        name: amenity.name,
+        nameEn: amenity.nameEn,
+        groupId: foodComfortGroup.id,
+      },
+      create: {
+        name: amenity.name,
+        nameEn: amenity.nameEn,
+        slug: amenity.slug,
+        groupId: foodComfortGroup.id,
+      },
     });
   }
 
@@ -159,19 +179,24 @@ async function main() {
   // 5b. КАТЕГОРИИ ЗАНЯТИЙ (справочник для раздела «Занятия»; slug — англ.)
   // =========================
   const activityCategoriesData = [
-    { slug: "early-development", name: "Раннее развитие", order: 1 },
-    { slug: "swimming", name: "Плавание", order: 2 },
-    { slug: "gymnastics", name: "Гимнастика", order: 3 },
-    { slug: "dance", name: "Танцы", order: 4 },
-    { slug: "art", name: "Рисование", order: 5 },
-    { slug: "music", name: "Музыка", order: 6 },
-    { slug: "math", name: "Математика", order: 7 },
-    { slug: "cooking", name: "Кулинария", order: 8 },
+    {
+      slug: "early-development",
+      name: "Раннее развитие",
+      nameEn: "Early development",
+      order: 1,
+    },
+    { slug: "swimming", name: "Плавание", nameEn: "Swimming", order: 2 },
+    { slug: "gymnastics", name: "Гимнастика", nameEn: "Gymnastics", order: 3 },
+    { slug: "dance", name: "Танцы", nameEn: "Dance", order: 4 },
+    { slug: "art", name: "Рисование", nameEn: "Art", order: 5 },
+    { slug: "music", name: "Музыка", nameEn: "Music", order: 6 },
+    { slug: "math", name: "Математика", nameEn: "Math", order: 7 },
+    { slug: "cooking", name: "Кулинария", nameEn: "Cooking", order: 8 },
   ];
   for (const category of activityCategoriesData) {
     await prisma.activityCategory.upsert({
       where: { slug: category.slug },
-      update: { name: category.name, order: category.order },
+      update: { name: category.name, nameEn: category.nameEn, order: category.order },
       create: category,
     });
   }
@@ -316,6 +341,8 @@ async function main() {
     name: "The Play Barn",
     description:
       "Семейная игровая в Паттайе: крытая зона с кондиционером (сухой бассейн, мягкие горки, двухуровневый игровой лабиринт, комната для малышей до 2 лет) и уличная площадка с качелями. Спокойное кафе для родителей, Wi-Fi и парковка. Можно оставить ребёнка под присмотром аниматора. Персонал и в кафе, и на присмотре понимает тайский и английский. Иногда проходят творческие мастер-классы и мини-праздники.",
+    descriptionEn:
+      "A family play space in Pattaya: an air-conditioned indoor zone (ball pit, soft slides, a two-level play maze and a room for toddlers under 2) plus an outdoor playground with swings. A calm café for parents, Wi-Fi and parking. You can leave your child with a play supervisor. Staff in the café and at supervision understand Thai and English. Occasional craft workshops and mini-celebrations.",
     address: "5 Soi Siam Country Club Road, Pong, Bang Lamung, Chonburi 20150",
     latitude: 12.9180161,
     longitude: 100.9727834,
@@ -368,13 +395,13 @@ async function main() {
 
   // Языки персонала (справочник) + привязка к The Play Barn (тайский и английский)
   const languagesData = [
-    { code: "th", name: "Тайский" },
-    { code: "en", name: "Английский" },
+    { code: "th", name: "Тайский", nameEn: "Thai" },
+    { code: "en", name: "Английский", nameEn: "English" },
   ];
   for (const language of languagesData) {
     const record = await prisma.language.upsert({
       where: { code: language.code },
-      update: { name: language.name },
+      update: { name: language.name, nameEn: language.nameEn },
       create: language,
     });
     await prisma.placeStaffLanguage.upsert({
@@ -470,6 +497,8 @@ async function main() {
       depositRequired: null,
       preBookingDays: null,
       notes: "Проводят детские дни рождения. Пакеты, цены и условия уточняются.",
+      notesEn:
+        "They host kids' birthday parties. Packages, prices and terms to be confirmed.",
     },
     create: {
       placeId: playBarn.id,
@@ -479,6 +508,8 @@ async function main() {
       depositRequired: null,
       preBookingDays: null,
       notes: "Проводят детские дни рождения. Пакеты, цены и условия уточняются.",
+      notesEn:
+        "They host kids' birthday parties. Packages, prices and terms to be confirmed.",
     },
   });
 
@@ -491,6 +522,8 @@ async function main() {
         topic: "socks",
         order: 1,
         text: "Носки обязательны: подойдут любые нескользящие, но нужна чистая пара с собой — не та, в которой пришли. Правила с открытия могли измениться — уточняем.",
+        textEn:
+          "Socks are required: any non-slip pair works, but bring a clean pair with you — not the ones you walked in. Rules may have changed since opening — we're double-checking.",
         verifiedAt: null,
       },
     ],
@@ -522,8 +555,11 @@ async function main() {
   // с англ. (ориг. «Father's Day Handprint Card Workshop»).
   const playBarnFathersDayData = {
     title: "Мастер-класс «Открытка ко Дню отца из ладошек»",
+    titleEn: "Father's Day handprint card workshop",
     description:
       "Дети делают открытку ко Дню отца из отпечатков ладошек — подходит для любого возраста. Нужна предварительная запись, мест немного. Вход 300 ฿.",
+    descriptionEn:
+      "Kids make a Father's Day card from handprints — suitable for any age. Booking required, spots are limited. Entry 300 ฿.",
     startDate: new Date("2026-06-17T08:30:00Z"),
     endDate: new Date("2026-06-17T10:30:00Z"),
     locationName: "The Play Barn",
@@ -574,11 +610,15 @@ async function main() {
       slug: "play-barn-barnyard-cubs",
       type: "COURSE",
       name: "Игровая группа Barnyard Cubs",
+      nameEn: "Barnyard Cubs playgroup",
       description:
         "Музыка, танцы и сенсорные игры для малышей до 3 лет. Творчество, песенки на английском и тайском, свободная игра в прохладном помещении с кондиционером, развитие и новые друзья. По понедельникам и пятницам, 14:00–16:00. Кофе или смузи для взрослого и перекусы включены.",
+      descriptionEn:
+        "Music, dancing and sensory play for little ones under 3. Crafts, songs in English and Thai, free play in a cool air-conditioned room, development and new friends. Mondays and Fridays, 14:00–16:00. A coffee or smoothie for the adult and snacks included.",
       price: 300,
       currency: "THB",
       priceUnit: "за ребёнка и взрослого",
+      priceUnitEn: "per child + adult",
       minAgeMonths: 0,
       maxAgeMonths: 36,
       order: 1,
@@ -608,6 +648,8 @@ async function main() {
     imageUrl: "/images/places/laridea.jpg", // фото входа (тест, визит Вероники 2026-07-07)
     description:
       "Детское кафе с крытой игровой в северной Паттайе (Again, рядом с Terminal 21). Игровая зона с кондиционером для детей 1–7 лет, спешелти-кофе, Wi-Fi и кафе со столиками, где родителю удобно посидеть за ноутбуком. Можно оставить ребёнка под присмотром. Персонал говорит по-тайски и по-английски. По выходным — мастер-классы для детей (кулинария, научные опыты), проводят дни рождения, летом работает детский лагерь. Для постоянных гостей — абонементы и клубные скидки.",
+    descriptionEn:
+      "A kids' café with an indoor playground in North Pattaya (Again, near Terminal 21). An air-conditioned play zone for ages 1–7, specialty coffee, Wi-Fi and café tables where a parent can comfortably work on a laptop. Child drop-off with supervision available. Staff speak Thai and English. Weekend workshops for kids (cooking, science experiments), birthday parties, and a summer camp. Memberships and club discounts for regulars.",
     address: "179, 40, Muang Pattaya, Bang Lamung District, Chon Buri 20150",
     latitude: 12.9517251,
     longitude: 100.8891907,
@@ -625,6 +667,7 @@ async function main() {
     hasCafeSeating: true,
     hasPowerOutlets: null, // кафе до входа — без розеток (заряжают на стойке); внутренняя зона — уточняется
     entryPriceNote: "В будни при посещении до 15:00 — скидка 10%. Цены с НДС 7%.",
+    entryPriceNoteEn: "10% off on weekdays before 15:00. Prices include 7% VAT.",
     status: "APPROVED" as const,
     cityId: pattaya.id,
   };
@@ -661,8 +704,8 @@ async function main() {
   // Возраст LariDea: 1–7 лет (официальный диапазон игровой из их профиля)
   const ageGroup1to7 = await prisma.ageGroup.upsert({
     where: { minAge_maxAge: { minAge: 1, maxAge: 7 } },
-    update: { name: "1–7 лет" },
-    create: { name: "1–7 лет", minAge: 1, maxAge: 7 },
+    update: { name: "1–7 лет", nameEn: "1–7 years" },
+    create: { name: "1–7 лет", nameEn: "1–7 years", minAge: 1, maxAge: 7 },
   });
   await prisma.placeAgeGroup.upsert({
     where: {
@@ -689,6 +732,8 @@ async function main() {
   // День рождения LariDea (официальные пакеты из Instagram, март 2026)
   const lariDeaBirthdayNotes =
     "Три пакета: «Little Joy» — от 946 ฿ за ребёнка (от 5 детей, 2 часа), «Happy Moments» — 1 166 ฿ (от 10 детей), «Magic Day» — 1 496 ฿ (от 10 детей, 4 часа, приватная игровая). Депозит 50%, цены включают VAT. Допы: декор, фотограф, шоу.";
+  const lariDeaBirthdayNotesEn =
+    "Three packages: “Little Joy” — from 946 ฿ per child (from 5 kids, 2 hours), “Happy Moments” — 1,166 ฿ (from 10 kids), “Magic Day” — 1,496 ฿ (from 10 kids, 4 hours, private playground). 50% deposit, prices include VAT. Add-ons: decor, photographer, show.";
   await prisma.placeBirthdayInfo.upsert({
     where: { placeId: lariDea.id },
     update: {
@@ -698,6 +743,7 @@ async function main() {
       depositRequired: true,
       preBookingDays: null,
       notes: lariDeaBirthdayNotes,
+      notesEn: lariDeaBirthdayNotesEn,
     },
     create: {
       placeId: lariDea.id,
@@ -707,6 +753,7 @@ async function main() {
       depositRequired: true,
       preBookingDays: null,
       notes: lariDeaBirthdayNotes,
+      notesEn: lariDeaBirthdayNotesEn,
     },
   });
 
@@ -727,10 +774,18 @@ async function main() {
   await prisma.placeEntryPrice.deleteMany({ where: { placeId: lariDea.id } });
   await prisma.placeEntryPrice.createMany({
     data: [
-      { placeId: lariDea.id, label: "1 час", childPrice: 196, adultPrice: 95, order: 1 },
+      {
+        placeId: lariDea.id,
+        label: "1 час",
+        labelEn: "1 hour",
+        childPrice: 196,
+        adultPrice: 95,
+        order: 1,
+      },
       {
         placeId: lariDea.id,
         label: "3 часа",
+        labelEn: "3 hours",
         childPrice: 436,
         adultPrice: 185,
         order: 2,
@@ -738,6 +793,7 @@ async function main() {
       {
         placeId: lariDea.id,
         label: "5 часов",
+        labelEn: "5 hours",
         childPrice: 603,
         adultPrice: 262,
         order: 3,
@@ -769,6 +825,8 @@ async function main() {
         topic: "socks",
         order: 1,
         text: "В игровую пускают только в фирменных носках LariDea (со своими нельзя): 50 ฿, обязательны и детям, и взрослым. По абонементу первая пара — бесплатно, а в пакеты дня рождения детские носки уже включены (взрослым — нет).",
+        textEn:
+          "The playground only allows LariDea-branded socks (your own won't do): 50 ฿, required for both kids and adults. With a membership the first pair is free, and birthday packages already include kids' socks (adults' are not).",
         verifiedAt: lariDeaVisit,
       },
       {
@@ -776,6 +834,8 @@ async function main() {
         topic: "happy-hour",
         order: 3,
         text: "«Счастливый час» для родителей: по будням 11:00–14:00 — бесплатные кофе и сок, пока дети играют.",
+        textEn:
+          "Parents' happy hour: on weekdays 11:00–14:00 coffee and juice are free while the kids play.",
         verifiedAt: lariDeaVisit,
       },
     ],
@@ -837,11 +897,15 @@ async function main() {
         slug: "laridea-summer-camp",
         type: "CAMP",
         name: "Летний лагерь",
+        nameEn: "Summer camp",
         description:
           "Тематические недели для детей 3–8 лет, будни 11:30–15:00: каждую неделю новая тема — от «Исследователей природы» до «Великого зелёного леса». Аквагрим, водные татуировки, творческие мастер-классы, много игр; питание и вода включены. Скидки при покупке нескольких недель: 2 — 5%, 4 — 10%, 7 — 15%.",
+        descriptionEn:
+          "Themed weeks for kids 3–8, weekdays 11:30–15:00: a new theme every week — from Nature Explorers to the Great Green Forest. Face painting, water tattoos, craft workshops and lots of games; meals and water included. Multi-week discounts: 2 — 5%, 4 — 10%, 7 — 15%.",
         price: 4900,
         currency: "THB",
         priceUnit: "/ неделя",
+        priceUnitEn: "/ week",
         minAgeMonths: 36,
         maxAgeMonths: 96,
         // 29 июня 11:30 — 14 августа 15:00 по Бангкоку (UTC+7)
@@ -853,43 +917,58 @@ async function main() {
         placeId: lariDea.id,
         type: "MEMBERSHIP",
         name: "Абонемент Rainbow Polly",
+        nameEn: "Rainbow Polly pass",
         description:
           "30 дней · безлимитные входы · весь день · 1 ребёнок + 1 взрослый · первая пара носков бесплатно.",
+        descriptionEn:
+          "30 days · unlimited visits · all day · 1 child + 1 adult · first pair of socks free.",
         price: 3850,
         currency: "THB",
         priceUnit: "/ 30 дней",
+        priceUnitEn: "/ 30 days",
         order: 2,
       },
       {
         placeId: lariDea.id,
         type: "MEMBERSHIP",
         name: "Абонемент Astro Polly",
+        nameEn: "Astro Polly pass",
         description:
           "60 дней · 16 входов по 3 часа · 1 ребёнок + 1 взрослый · первая пара носков бесплатно.",
+        descriptionEn:
+          "60 days · 16 visits of 3 hours each · 1 child + 1 adult · first pair of socks free.",
         price: 4839,
         oldPrice: 6912,
         currency: "THB",
         priceUnit: "/ 60 дней",
+        priceUnitEn: "/ 60 days",
         order: 3,
       },
       {
         placeId: lariDea.id,
         type: "MEMBERSHIP",
         name: "Абонемент на 6 месяцев",
+        nameEn: "6-month pass",
         description:
           "180 дней · безлимитные входы · весь день · 1 ребёнок + 1 взрослый · первая пара носков бесплатно.",
+        descriptionEn:
+          "180 days · unlimited visits · all day · 1 child + 1 adult · first pair of socks free.",
         price: 15400,
         oldPrice: 23100,
         currency: "THB",
         priceUnit: "/ 180 дней",
+        priceUnitEn: "/ 180 days",
         order: 4,
       },
       {
         placeId: lariDea.id,
         type: "MEMBERSHIP",
         name: "Клубное членство",
+        nameEn: "Club membership",
         description:
           "Клубная программа с преимуществами: −30% на игровую, −15% на мероприятия и мастер-классы, −10% в кафе, −15% на услуги няни, приоритетный доступ и приглашения на эксклюзивные мастер-классы. Условия вступления уточняются.",
+        descriptionEn:
+          "A club programme with perks: −30% on the playground, −15% on events and workshops, −10% in the café, −15% on nanny services, priority access and invitations to exclusive workshops. Joining terms to be confirmed.",
         // цена не опубликована — карточка покажет только преимущества
         order: 5,
       },
@@ -904,11 +983,15 @@ async function main() {
       slug: "laridea-cooking-day",
       type: "COURSE",
       name: "День готовки: свой капкейк",
+      nameEn: "Cooking day: make your own cupcake",
       description:
         "Творческое кулинарное занятие по выходным: ребёнок сам готовит и украшает капкейк. В стоимость входит 1 час игровой; цена за ребёнка и взрослого. Для членов клуба — 250 ฿.",
+      descriptionEn:
+        "A creative weekend cooking class: your child bakes and decorates their own cupcake. The price includes 1 hour of playground time and covers one child + one adult. Club members — 250 ฿.",
       price: 499,
       currency: "THB",
       priceUnit: "за ребёнка и взрослого",
+      priceUnitEn: "per child + adult",
       order: 6,
     },
   });
@@ -933,6 +1016,8 @@ async function main() {
     name: "The Little Gym Pattaya",
     description:
       "Детская спортивно-развивающая школа (сеть The Little Gym) в центре Паттайи. Классы гимнастики и активного развития для детей от 4 месяцев до 12 лет — по возрастным группам, через игру. «Красные» занятия (45 мин) проходят вместе с родителем, «синие» (1 час) — ребёнок занимается самостоятельно, пока вы наблюдаете из лобби. Летом работает лагерь. Первое пробное занятие — бесплатно.",
+    descriptionEn:
+      "A kids' sports and development school (The Little Gym network) in central Pattaya. Gymnastics and active development classes for ages 4 months to 12 years — by age group, through play. “Red” classes (45 min) are taken together with a parent; in “blue” classes (1 hour) the child trains independently while you watch from the lobby. A camp runs in summer. The first trial class is free.",
     address:
       "353/53-55, Nong Prue, Bang Lamung District, Chon Buri 20150 (Numchai Fair, центр Паттайи)",
     latitude: 12.9337251,
@@ -963,8 +1048,8 @@ async function main() {
   // Возраст The Little Gym: 4 мес – 12 лет (0–2, 3–6, 7–12)
   const ageGroup7to12 = await prisma.ageGroup.upsert({
     where: { minAge_maxAge: { minAge: 7, maxAge: 12 } },
-    update: { name: "7–12 лет" },
-    create: { name: "7–12 лет", minAge: 7, maxAge: 12 },
+    update: { name: "7–12 лет", nameEn: "7–12 years" },
+    create: { name: "7–12 лет", nameEn: "7–12 years", minAge: 7, maxAge: 12 },
   });
   for (const groupId of [ageGroupUnder2.id, ageGroup3to6.id, ageGroup7to12.id]) {
     await prisma.placeAgeGroup.upsert({
@@ -1047,8 +1132,11 @@ async function main() {
       slug: "little-gym-gymnastics",
       type: "COURSE",
       name: "Гимнастика и активное развитие",
+      nameEn: "Gymnastics and active development",
       description:
         "Классы гимнастики и активного развития по возрастным группам от 4 месяцев до 12 лет — через игру. Занятия со вторника по воскресенье (понедельник — выходной). Первое пробное занятие бесплатно. Деление на классы, расписание и участие родителя — в таблице ниже.",
+      descriptionEn:
+        "Gymnastics and active development classes by age group, from 4 months to 12 years — through play. Classes Tuesday to Sunday (closed on Mondays). The first trial class is free. Class levels, schedule and parent participation — in the table below.",
       minAgeMonths: 4,
       maxAgeMonths: 144,
       order: 1,
@@ -1074,90 +1162,112 @@ async function main() {
         programId: gymProgram.id,
         name: "Bugs",
         ageLabel: "4–10 мес",
+        ageLabelEn: "4–10 mo",
         minAgeMonths: 4,
         maxAgeMonths: 10,
         parentRequired: true,
         schedule: "Ср 10:00 · Вс 09:15",
+        scheduleEn: "Wed 10:00 · Sun 09:15",
         order: 1,
       },
       {
         programId: gymProgram.id,
         name: "Birds",
         ageLabel: "10–19 мес",
+        ageLabelEn: "10–19 mo",
         minAgeMonths: 10,
         maxAgeMonths: 19,
         parentRequired: true,
         schedule: "Вт 10:00 · Чт 14:00 · Сб 10:00 · Вс 13:30",
+        scheduleEn: "Tue 10:00 · Thu 14:00 · Sat 10:00 · Sun 13:30",
         order: 2,
       },
       {
         programId: gymProgram.id,
         name: "Beasts",
         ageLabel: "19–30 мес",
+        ageLabelEn: "19–30 mo",
         minAgeMonths: 19,
         maxAgeMonths: 30,
         parentRequired: true,
         schedule: "Вт 11:00 · Ср 11:00 · Чт 15:00 · Пт 10:00 · Сб 11:00 · Вс 10:00",
+        scheduleEn:
+          "Tue 11:00 · Wed 11:00 · Thu 15:00 · Fri 10:00 · Sat 11:00 · Sun 10:00",
         order: 3,
       },
       {
         programId: gymProgram.id,
         name: "Super beasts",
         ageLabel: "30 мес – 3 г",
+        ageLabelEn: "30 mo – 3 y",
         minAgeMonths: 30,
         maxAgeMonths: 36,
         parentRequired: true,
         schedule: "Вт 11:00 · Ср 11:00 · Чт 15:00 · Пт 10:00 · Сб 11:00 · Вс 10:00",
+        scheduleEn:
+          "Tue 11:00 · Wed 11:00 · Thu 15:00 · Fri 10:00 · Sat 11:00 · Sun 10:00",
         order: 4,
       },
       {
         programId: gymProgram.id,
         name: "Super beasts",
         ageLabel: "30 мес – 3 г",
+        ageLabelEn: "30 mo – 3 y",
         minAgeMonths: 30,
         maxAgeMonths: 36,
         parentRequired: false,
         schedule: "Вт 16:15 · Ср 14:30 · Чт 16:00 · Пт 11:00 · Сб 13:30 · Вс 11:00",
+        scheduleEn:
+          "Tue 16:15 · Wed 14:30 · Thu 16:00 · Fri 11:00 · Sat 13:30 · Sun 11:00",
         order: 5,
       },
       {
         programId: gymProgram.id,
         name: "Funny bugs",
         ageLabel: "3–4 г",
+        ageLabelEn: "3–4 y",
         minAgeMonths: 36,
         maxAgeMonths: 48,
         parentRequired: false,
         schedule: "Вт 16:15 · Ср 14:30 · Чт 16:00 · Пт 11:00 · Сб 13:30 · Вс 11:00",
+        scheduleEn:
+          "Tue 16:15 · Wed 14:30 · Thu 16:00 · Fri 11:00 · Sat 13:30 · Sun 11:00",
         order: 6,
       },
       {
         programId: gymProgram.id,
         name: "Giggle worms",
         ageLabel: "4–5 лет",
+        ageLabelEn: "4–5 y",
         minAgeMonths: 48,
         maxAgeMonths: 60,
         parentRequired: false,
         schedule: "Вт 15:00 · Ср 16:00 · Пт 16:00 · Сб 15:00 · Вс 14:30",
+        scheduleEn: "Tue 15:00 · Wed 16:00 · Fri 16:00 · Sat 15:00 · Sun 14:30",
         order: 7,
       },
       {
         programId: gymProgram.id,
         name: "Good Friends",
         ageLabel: "5–6 лет",
+        ageLabelEn: "5–6 y",
         minAgeMonths: 60,
         maxAgeMonths: 72,
         parentRequired: false,
         schedule: "Вт 15:00 · Ср 16:00 · Пт 16:00 · Сб 15:00 · Вс 14:30",
+        scheduleEn: "Tue 15:00 · Wed 16:00 · Fri 16:00 · Sat 15:00 · Sun 14:30",
         order: 8,
       },
       {
         programId: gymProgram.id,
         name: "Flips/Hotshots",
         ageLabel: "6–12 лет",
+        ageLabelEn: "6–12 y",
         minAgeMonths: 72,
         maxAgeMonths: 144,
         parentRequired: false,
         schedule: "Вт 17:30 · Чт 17:30 · Пт 17:30 · Сб 16:30",
+        scheduleEn: "Tue 17:30 · Thu 17:30 · Fri 17:30 · Sat 16:30",
         order: 9,
       },
     ],

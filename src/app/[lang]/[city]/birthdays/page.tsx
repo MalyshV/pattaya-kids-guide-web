@@ -12,6 +12,7 @@ import {
   showsContactValue,
 } from "@/lib/contacts/contact-link";
 import { getDictionary } from "@/content/dictionary";
+import { localizedCityName } from "@/lib/i18n/localize";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string }>;
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const dict = getDictionary(lang);
 
   return {
-    title: `${dict.birthdays.metaTitle(city.name)} — ${dict.brand}`,
+    title: `${dict.birthdays.metaTitle(localizedCityName(city, lang))} — ${dict.brand}`,
     description: dict.birthdays.heroDescription,
   };
 }
@@ -52,12 +53,12 @@ export default async function BirthdaysPage({
   const dict = getDictionary(lang);
   const basePath = cityBasePath(lang, citySlug);
   const places = await getBirthdayPlaces(city.id);
-  const items = places.map(mapBirthdayPlaceToDto);
+  const items = places.map((place) => mapBirthdayPlaceToDto(place, lang));
 
   return (
     <main className="page-shell">
       <section className="hero">
-        <p className="eyebrow">{city.name}</p>
+        <p className="eyebrow">{localizedCityName(city, lang)}</p>
         <h1 className="hero-title">{dict.birthdays.heroTitle}</h1>
         <p className="hero-description">{dict.birthdays.heroDescription}</p>
       </section>

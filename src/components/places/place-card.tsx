@@ -4,6 +4,7 @@ import { OpenStatusBadge } from "@/components/places/open-status-badge";
 import { PlaceImage } from "@/components/places/place-image";
 import type { OpenStatus } from "@/lib/schedule/open-status";
 import { getDictionary, langFromPath } from "@/content/dictionary";
+import { pickLocalized } from "@/lib/i18n/localize";
 
 type PlaceCardProps = {
   place: PlaceListItemDto;
@@ -55,7 +56,8 @@ export function PlaceCard({
       ) : null}
 
       <p className="place-card-description">
-        {place.description ?? dict.common.descriptionFallback}
+        {pickLocalized(place.description, place.descriptionEn, lang) ??
+          dict.common.descriptionFallback}
       </p>
 
       <p className="place-card-address">{place.address ?? dict.places.addressFallback}</p>

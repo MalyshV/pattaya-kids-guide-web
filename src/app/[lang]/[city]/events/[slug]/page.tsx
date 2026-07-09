@@ -105,7 +105,7 @@ export default async function EventDetailsPage({
     notFound();
   }
 
-  const dto: EventDetailsDto = mapEventDetailsToDto(event);
+  const dto: EventDetailsDto = mapEventDetailsToDto(event, lang);
   const eventStatus = dto.startDate
     ? computeEventStatus(
         new Date(dto.startDate),

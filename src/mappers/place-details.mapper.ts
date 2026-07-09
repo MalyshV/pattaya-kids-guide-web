@@ -1,5 +1,6 @@
 import type { PlaceDetailsDto } from "@/dto/place-details.dto";
 import { mapPlaceToDto } from "@/mappers/place.mapper";
+import { pickLocalized } from "@/lib/i18n/localize";
 import type { Prisma } from "@prisma/client";
 
 type PlaceWithDetails = Prisma.PlaceGetPayload<{
@@ -39,17 +40,20 @@ type PlaceWithDetails = Prisma.PlaceGetPayload<{
   };
 }>;
 
-export function mapPlaceDetailsToDto(place: PlaceWithDetails): PlaceDetailsDto {
+export function mapPlaceDetailsToDto(
+  place: PlaceWithDetails,
+  lang: string = "ru",
+): PlaceDetailsDto {
   return {
-    ...mapPlaceToDto(place),
+    ...mapPlaceToDto(place, lang),
     categories: place.categories.map((link) => ({
       id: link.category.id,
-      name: link.category.name,
+      name: pickLocalized(link.category.name, link.category.nameEn, lang),
       slug: link.category.slug,
     })),
     amenities: place.amenities.map((link) => ({
       id: link.amenity.id,
-      name: link.amenity.name,
+      name: pickLocalized(link.amenity.name, link.amenity.nameEn, lang),
       slug: link.amenity.slug,
       group: {
         id: link.amenity.group.id,
@@ -59,7 +63,7 @@ export function mapPlaceDetailsToDto(place: PlaceWithDetails): PlaceDetailsDto {
     })),
     ageGroups: place.ageGroups.map((link) => ({
       id: link.ageGroup.id,
-      name: link.ageGroup.name,
+      name: pickLocalized(link.ageGroup.name, link.ageGroup.nameEn, lang),
       minAge: link.ageGroup.minAge,
       maxAge: link.ageGroup.maxAge,
     })),
@@ -70,7 +74,11 @@ export function mapPlaceDetailsToDto(place: PlaceWithDetails): PlaceDetailsDto {
           maxGuests: place.birthdayInfo.maxGuests,
           depositRequired: place.birthdayInfo.depositRequired,
           preBookingDays: place.birthdayInfo.preBookingDays,
-          notes: place.birthdayInfo.notes,
+          notes: pickLocalized(
+            place.birthdayInfo.notes,
+            place.birthdayInfo.notesEn,
+            lang,
+          ),
         }
       : null,
     schedules: place.schedules.map((schedule) => ({
@@ -88,12 +96,12 @@ export function mapPlaceDetailsToDto(place: PlaceWithDetails): PlaceDetailsDto {
     })),
     entryPrices: place.entryPrices.map((tier) => ({
       id: tier.id,
-      label: tier.label,
+      label: pickLocalized(tier.label, tier.labelEn, lang),
       childPrice: tier.childPrice,
       adultPrice: tier.adultPrice,
       currency: tier.currency,
     })),
-    entryPriceNote: place.entryPriceNote,
+    entryPriceNote: pickLocalized(place.entryPriceNote, place.entryPriceNoteEn, lang),
     photos: place.photos.map((photo) => ({
       id: photo.id,
       url: photo.url,
@@ -102,11 +110,11 @@ export function mapPlaceDetailsToDto(place: PlaceWithDetails): PlaceDetailsDto {
     staffLanguages: place.staffLanguages.map((link) => ({
       id: link.language.id,
       code: link.language.code,
-      name: link.language.name,
+      name: pickLocalized(link.language.name, link.language.nameEn, lang),
     })),
     tips: place.tips.map((tip) => ({
       id: tip.id,
-      text: tip.text,
+      text: pickLocalized(tip.text, tip.textEn, lang),
       topic: tip.topic,
       verifiedAt: tip.verifiedAt,
     })),
@@ -119,12 +127,12 @@ export function mapPlaceDetailsToDto(place: PlaceWithDetails): PlaceDetailsDto {
       id: program.id,
       slug: program.slug,
       type: program.type,
-      name: program.name,
-      description: program.description,
+      name: pickLocalized(program.name, program.nameEn, lang),
+      description: pickLocalized(program.description, program.descriptionEn, lang),
       price: program.price,
       oldPrice: program.oldPrice,
       currency: program.currency,
-      priceUnit: program.priceUnit,
+      priceUnit: pickLocalized(program.priceUnit, program.priceUnitEn, lang),
       startDate: program.startDate,
       endDate: program.endDate,
     })),

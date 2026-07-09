@@ -14,6 +14,7 @@ import {
   statusSortRank,
 } from "@/lib/schedule/open-status";
 import { getDictionary } from "@/content/dictionary";
+import { localizedCityName } from "@/lib/i18n/localize";
 
 const PAGE_SIZE = 6;
 
@@ -182,7 +183,7 @@ export default async function CityPlacesPage({
   return (
     <main className="page-shell">
       <section className="hero">
-        <p className="eyebrow">{city.name}</p>
+        <p className="eyebrow">{localizedCityName(city, lang)}</p>
         <h1 className="hero-title">{dict.places.heroTitle}</h1>
         <p className="hero-description">{dict.places.heroDescription}</p>
       </section>

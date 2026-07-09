@@ -1,13 +1,14 @@
 import type { PlaceDto } from "@/dto/place.dto";
+import { pickLocalized } from "@/lib/i18n/localize";
 import type { Place } from "@prisma/client";
 import type { Prisma } from "@prisma/client";
 
-export function mapPlaceToDto(place: Place): PlaceDto {
+export function mapPlaceToDto(place: Place, lang: string = "ru"): PlaceDto {
   return {
     id: place.id,
     name: place.name,
     slug: place.slug,
-    description: place.description,
+    description: pickLocalized(place.description, place.descriptionEn, lang),
     imageUrl: place.imageUrl,
     address: place.address,
     latitude: place.latitude,

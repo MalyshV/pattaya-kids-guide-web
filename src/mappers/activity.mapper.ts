@@ -1,18 +1,22 @@
 import type { ActivityListItemDto } from "@/dto/activity-list-item.dto";
 import type { ActivityWithPlace } from "@/services/activities.service";
+import { pickLocalized } from "@/lib/i18n/localize";
 
-export function mapActivityToListItem(activity: ActivityWithPlace): ActivityListItemDto {
+export function mapActivityToListItem(
+  activity: ActivityWithPlace,
+  lang: string = "ru",
+): ActivityListItemDto {
   return {
     id: activity.id,
     slug: activity.slug,
     imageUrl: activity.imageUrl,
     type: activity.type,
-    name: activity.name,
-    description: activity.description,
+    name: pickLocalized(activity.name, activity.nameEn, lang),
+    description: pickLocalized(activity.description, activity.descriptionEn, lang),
     price: activity.price,
     oldPrice: activity.oldPrice,
     currency: activity.currency,
-    priceUnit: activity.priceUnit,
+    priceUnit: pickLocalized(activity.priceUnit, activity.priceUnitEn, lang),
     minAgeMonths: activity.minAgeMonths,
     maxAgeMonths: activity.maxAgeMonths,
     startDate: activity.startDate,
@@ -24,21 +28,21 @@ export function mapActivityToListItem(activity: ActivityWithPlace): ActivityList
           address: activity.place.address,
         }
       : null,
-    venueName: activity.venueName,
+    venueName: pickLocalized(activity.venueName, activity.venueNameEn, lang),
     venueAddress: activity.venueAddress,
     categories: activity.categories.map((link) => ({
       id: link.category.id,
-      name: link.category.name,
+      name: pickLocalized(link.category.name, link.category.nameEn, lang),
       slug: link.category.slug,
     })),
     classes: activity.classes.map((cls) => ({
       id: cls.id,
       name: cls.name,
-      ageLabel: cls.ageLabel,
+      ageLabel: pickLocalized(cls.ageLabel, cls.ageLabelEn, lang),
       minAgeMonths: cls.minAgeMonths,
       maxAgeMonths: cls.maxAgeMonths,
       parentRequired: cls.parentRequired,
-      schedule: cls.schedule,
+      schedule: pickLocalized(cls.schedule, cls.scheduleEn, lang),
     })),
   };
 }

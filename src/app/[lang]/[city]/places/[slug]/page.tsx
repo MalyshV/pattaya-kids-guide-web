@@ -172,8 +172,8 @@ export default async function PlaceDetailsPage({
   }
 
   const events = await getUpcomingApprovedEventsByPlaceId(place.id);
-  const eventDtos = events.map(mapEventToDto);
-  const dto: PlaceDetailsDto = mapPlaceDetailsToDto(place);
+  const eventDtos = events.map((event) => mapEventToDto(event, lang));
+  const dto: PlaceDetailsDto = mapPlaceDetailsToDto(place, lang);
   const openStatus = computeOpenStatus(dto.schedules, city.timezone);
   const todayEnum = nowInCity(city.timezone).day;
   const summaryChips = buildSummaryChips(dto, todayEnum, lang, dict);

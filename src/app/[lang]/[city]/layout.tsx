@@ -4,6 +4,7 @@ import { BackToTop } from "@/components/common/back-to-top";
 import { SiteHeader } from "@/components/layout/site-header";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { getDictionary, isSupportedLang, SUPPORTED_LANGS } from "@/content/dictionary";
+import { localizedCityName } from "@/lib/i18n/localize";
 
 type LayoutProps = {
   params: Promise<{ lang: string; city: string }>;
@@ -25,7 +26,7 @@ export async function generateMetadata({
   const dict = getDictionary(lang);
 
   return {
-    title: `${dict.brand} — ${city.name}`,
+    title: `${dict.brand} — ${localizedCityName(city, lang)}`,
     // seoDescription в БД пока русский; для en честнее generic-описание словаря
     description:
       lang === "ru"

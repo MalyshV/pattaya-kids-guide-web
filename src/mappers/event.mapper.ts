@@ -1,6 +1,7 @@
 import type { EventDto } from "@/dto/event.dto";
 import type { EventListItemDto } from "@/dto/event-list-item.dto";
 import type { Event, Prisma } from "@prisma/client";
+import { pickLocalized } from "@/lib/i18n/localize";
 
 type EventWithPlace = Prisma.EventGetPayload<{
   include: {
@@ -8,30 +9,33 @@ type EventWithPlace = Prisma.EventGetPayload<{
   };
 }>;
 
-export function mapEventToDto(event: Event): EventDto {
+export function mapEventToDto(event: Event, lang: string = "ru"): EventDto {
   return {
     id: event.id,
-    title: event.title,
+    title: pickLocalized(event.title, event.titleEn, lang),
     slug: event.slug,
     imageUrl: event.imageUrl,
-    description: event.description,
+    description: pickLocalized(event.description, event.descriptionEn, lang),
     startDate: event.startDate.toISOString(),
     endDate: event.endDate ? event.endDate.toISOString() : null,
-    locationName: event.locationName,
+    locationName: pickLocalized(event.locationName, event.locationNameEn, lang),
     address: event.address,
   };
 }
 
-export function mapEventListItemToDto(event: EventWithPlace): EventListItemDto {
+export function mapEventListItemToDto(
+  event: EventWithPlace,
+  lang: string = "ru",
+): EventListItemDto {
   return {
     id: event.id,
-    title: event.title,
+    title: pickLocalized(event.title, event.titleEn, lang),
     slug: event.slug,
     imageUrl: event.imageUrl,
-    description: event.description,
+    description: pickLocalized(event.description, event.descriptionEn, lang),
     startDate: event.startDate.toISOString(),
     endDate: event.endDate ? event.endDate.toISOString() : null,
-    locationName: event.locationName,
+    locationName: pickLocalized(event.locationName, event.locationNameEn, lang),
     address: event.address,
     place: event.place
       ? {

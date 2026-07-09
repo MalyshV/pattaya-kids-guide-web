@@ -10,6 +10,7 @@ import { activitySortRank } from "@/lib/activities/activity-sort";
 import { matchesAnyAgeBucket, parseAgeBuckets } from "@/lib/age/age-buckets";
 import { matchesCategory } from "@/lib/activities/activity-filter";
 import { getDictionary } from "@/content/dictionary";
+import { localizedCityName } from "@/lib/i18n/localize";
 
 const PAGE_SIZE = 6;
 
@@ -75,7 +76,7 @@ export default async function CityActivitiesPage({
 
   const isFiltered = Boolean(ageBuckets.length > 0 || activeCategory);
   const items = activities
-    .map(mapActivityToListItem)
+    .map((activity) => mapActivityToListItem(activity, lang))
     .filter((a) => matchesAnyAgeBucket(a, ageBuckets))
     .filter((a) => (activeCategory ? matchesCategory(a, activeCategory) : true))
     .sort((a, b) => activitySortRank(a, now) - activitySortRank(b, now));
@@ -87,7 +88,7 @@ export default async function CityActivitiesPage({
   return (
     <main className="page-shell">
       <section className="hero">
-        <p className="eyebrow">{city.name}</p>
+        <p className="eyebrow">{localizedCityName(city, lang)}</p>
         <h1 className="hero-title">{dict.activities.heroTitle}</h1>
         <p className="hero-description">{dict.activities.heroDescription}</p>
       </section>

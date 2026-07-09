@@ -7,6 +7,7 @@ import { getAllApprovedEvents } from "@/services/events.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeEventStatus, eventSortRank } from "@/lib/events/event-lifecycle";
 import { getDictionary } from "@/content/dictionary";
+import { localizedCityName } from "@/lib/i18n/localize";
 
 const PAGE_SIZE = 6;
 
@@ -73,18 +74,20 @@ export default async function CityEventsPage({
 
   // Живой статус + сортировка: идёт сейчас → будущие (ближайшие выше) →
   // прошедшие в конец (свежие выше). Сортировка до пагинации, как у мест.
-  const eventsWithStatus = allEvents.map(mapEventListItemToDto).map((event) => {
-    const startMs = event.startDate ? new Date(event.startDate).getTime() : 0;
-    const status = event.startDate
-      ? computeEventStatus(
-          new Date(event.startDate),
-          event.endDate ? new Date(event.endDate) : null,
-          now,
-        )
-      : undefined;
+  const eventsWithStatus = allEvents
+    .map((event) => mapEventListItemToDto(event, lang))
+    .map((event) => {
+      const startMs = event.startDate ? new Date(event.startDate).getTime() : 0;
+      const status = event.startDate
+        ? computeEventStatus(
+            new Date(event.startDate),
+            event.endDate ? new Date(event.endDate) : null,
+            now,
+          )
+        : undefined;
 
-    return { event, status, startMs };
-  });
+      return { event, status, startMs };
+    });
 
   eventsWithStatus.sort((a, b) => {
     const rank = eventSortRank(a.status) - eventSortRank(b.status);
@@ -105,7 +108,7 @@ export default async function CityEventsPage({
   return (
     <main className="page-shell">
       <section className="hero">
-        <p className="eyebrow">{city.name}</p>
+        <p className="eyebrow">{localizedCityName(city, lang)}</p>
         <h1 className="hero-title">{dict.events.heroTitle}</h1>
         <p className="hero-description">{dict.events.heroDescription}</p>
       </section>

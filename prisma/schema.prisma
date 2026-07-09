@@ -74,6 +74,8 @@ model UserVisit {
 model Category {
   id     String          @id @default(cuid())
   name   String
+  /// англ. название (RU/EN фаза 2); null → показываем русское
+  nameEn String?
   slug   String          @unique
   order  Int             @default(0)
   places PlaceCategory[]
@@ -98,6 +100,7 @@ model AmenityGroup {
 model Amenity {
   id         String         @id @default(cuid())
   name       String
+  nameEn     String?
   slug       String         @unique
   groupId    String
   group      AmenityGroup   @relation(fields: [groupId], references: [id])
@@ -116,6 +119,7 @@ model PlaceAmenity {
 model AgeGroup {
   id     String          @id @default(cuid())
   name   String
+  nameEn String?
   minAge Int
   maxAge Int
   places PlaceAgeGroup[]
@@ -177,6 +181,7 @@ model PlaceEntryPrice {
   placeId    String
   /// подпись строки: «1 час», «3 часа», «Разовый вход»
   label      String
+  labelEn    String?
   childPrice Float?
   adultPrice Float?
   currency   String @default("THB")
@@ -193,6 +198,7 @@ model ActivityCategory {
   id       String                    @id @default(cuid())
   slug     String                    @unique
   name     String
+  nameEn   String?
   order    Int                       @default(0)
   programs ProgramActivityCategory[]
 }
@@ -221,7 +227,9 @@ model PlaceProgram {
   slug        String?     @unique
   type        ProgramType
   name        String
+  nameEn      String?
   description String?
+  descriptionEn String?
   /// обложка занятия (путь в public); null = нет фото
   imageUrl    String?
   price       Float?
@@ -230,6 +238,7 @@ model PlaceProgram {
   currency    String      @default("THB")
   /// подпись к цене: «/неделя», «/30 дней», «за ребёнка»
   priceUnit   String?
+  priceUnitEn String?
   /// возраст занятия В МЕСЯЦАХ (чтобы малыши 4 мес не терялись в «годах»);
   /// нужен для фильтра «что подходит моему ребёнку N лет»
   minAgeMonths Int?
@@ -242,6 +251,7 @@ model PlaceProgram {
   classes     PlaceClass[]
   /// текстовое место проведения (когда нет каталожного place — напр. сад)
   venueName    String?
+  venueNameEn  String?
   venueAddress String?
   /// Демо-запись (см. Place.isDemo)
   isDemo      Boolean     @default(false)
@@ -263,11 +273,13 @@ model PlaceClass {
   name           String
   /// человекочитаемый возраст с постера («4–10 мес», «5–6 лет»)
   ageLabel       String
+  ageLabelEn     String?
   minAgeMonths   Int
   maxAgeMonths   Int
   parentRequired Boolean?
   /// недельное расписание строкой: «Вт 11:00 · Ср 11:00 · Чт 15:00…»
   schedule       String
+  scheduleEn     String?
   order          Int          @default(0)
   program        PlaceProgram @relation(fields: [programId], references: [id])
 
@@ -295,6 +307,7 @@ model PlaceTip {
   id         String    @id @default(cuid())
   placeId    String
   text       String
+  textEn     String?
   topic      String?
   order      Int       @default(0)
   /// когда факт последний раз подтверждён (доверие: показываем свежесть;
@@ -315,6 +328,7 @@ model PlaceBirthdayInfo {
   depositRequired Boolean?
   preBookingDays  Int?
   notes           String?
+  notesEn         String?
   lastUpdatedAt   DateTime @updatedAt
   place           Place    @relation(fields: [placeId], references: [id])
 }
@@ -325,6 +339,7 @@ model Language {
   id         String               @id @default(cuid())
   code       String               @unique
   name       String
+  nameEn     String?
   placeLinks PlaceStaffLanguage[]
 }
 
@@ -346,6 +361,7 @@ model Place {
   name               String
   slug               String
   description        String?
+  descriptionEn      String?
   /// обложка места (путь в public, напр. /images/places/laridea.jpg); null = нет фото
   imageUrl           String?
   address            String
@@ -356,6 +372,7 @@ model Place {
   googleMapsUrl      String?
   /// подпись под таблицей входа (PlaceEntryPrice): скидки, НДС и т.п.
   entryPriceNote     String?
+  entryPriceNoteEn   String?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   /// Признаки-факты о месте — nullable (три состояния): true = есть,
@@ -413,6 +430,7 @@ model Place {
 model EventCategory {
   id    String              @id @default(cuid())
   name  String
+  nameEn String?
   slug  String              @unique
   links EventCategoryLink[]
 }
@@ -429,8 +447,10 @@ model EventCategoryLink {
 model Event {
   id                 String              @id @default(cuid())
   title              String
+  titleEn            String?
   slug               String
   description        String?
+  descriptionEn      String?
   /// обложка события (путь в public); null = нет фото
   imageUrl           String?
   /// ДАТЫ (поддержка однодневных, многодневных и recurring)
@@ -438,6 +458,7 @@ model Event {
   endDate            DateTime?
   /// ЛОКАЦИЯ (может существовать без Place)
   locationName       String?
+  locationNameEn     String?
   address            String?
   latitude           Float?
   longitude          Float?
@@ -498,7 +519,9 @@ model City {
   id             String   @id @default(cuid())
   slug           String
   name           String
+  nameEn         String?
   seoDescription String?
+  seoDescriptionEn String?
   latitude       Float?
   longitude      Float?
   timezone       String

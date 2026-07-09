@@ -73,7 +73,7 @@ export default async function ActivityDetailsPage({
     notFound();
   }
 
-  const dto = mapActivityToListItem(activity);
+  const dto = mapActivityToListItem(activity, lang);
   const typeLabel =
     (dict.placeDetails.programTypes as Record<string, string>)[dto.type] ?? dto.type;
 
