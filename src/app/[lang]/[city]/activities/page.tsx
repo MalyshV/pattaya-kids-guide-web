@@ -2,15 +2,13 @@ import { notFound } from "next/navigation";
 import { ActivityCard } from "@/components/activities/activity-card";
 import { ActivityFilters } from "@/components/activities/activity-filters";
 import { ActivitiesPagination } from "@/components/activities/activities-pagination";
+import { AgeQuestion } from "@/components/common/age-question";
 import { mapActivityToListItem } from "@/mappers/activity.mapper";
 import { getCityActivities } from "@/services/activities.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { activitySortRank } from "@/lib/activities/activity-sort";
-import {
-  matchesAgeBucket,
-  matchesCategory,
-  parseAgeBucket,
-} from "@/lib/activities/activity-filter";
+import { matchesAnyAgeBucket, parseAgeBuckets } from "@/lib/age/age-buckets";
+import { matchesCategory } from "@/lib/activities/activity-filter";
 import { ru } from "@/content/ru";
 
 const PAGE_SIZE = 6;
@@ -51,7 +49,8 @@ export default async function CityActivitiesPage({
 
   const basePath = cityBasePath(lang, citySlug);
   const resolvedSearchParams = (await searchParams) ?? {};
-  const activeAge = parseAgeBucket(getSingleSearchParam(resolvedSearchParams.age));
+  const age = getSingleSearchParam(resolvedSearchParams.age);
+  const ageBuckets = parseAgeBuckets(age);
   const activeCategory = getSingleSearchParam(resolvedSearchParams.category);
   const currentPage =
     parsePositiveNumberParam(getSingleSearchParam(resolvedSearchParams.page)) ?? 1;
@@ -73,10 +72,10 @@ export default async function CityActivitiesPage({
   }
   const availableCategories = [...categoryMap.values()].sort((a, b) => a.order - b.order);
 
-  const isFiltered = Boolean(activeAge || activeCategory);
+  const isFiltered = Boolean(ageBuckets.length > 0 || activeCategory);
   const items = activities
     .map(mapActivityToListItem)
-    .filter((a) => (activeAge ? matchesAgeBucket(a, activeAge) : true))
+    .filter((a) => matchesAnyAgeBucket(a, ageBuckets))
     .filter((a) => (activeCategory ? matchesCategory(a, activeCategory) : true))
     .sort((a, b) => activitySortRank(a, now) - activitySortRank(b, now));
 
@@ -92,9 +91,15 @@ export default async function CityActivitiesPage({
         <p className="hero-description">{ru.activities.heroDescription}</p>
       </section>
 
+      <AgeQuestion
+        pathname={`${basePath}/activities`}
+        activeBuckets={ageBuckets}
+        preservedParams={{ category: activeCategory }}
+      />
+
       <ActivityFilters
         basePath={basePath}
-        activeAge={activeAge}
+        activeAge={age}
         activeCategory={activeCategory}
         categories={availableCategories}
       />
@@ -123,7 +128,7 @@ export default async function CityActivitiesPage({
             currentPage={safePage}
             totalPages={totalPages}
             basePath={basePath}
-            age={activeAge ?? undefined}
+            age={age}
             category={activeCategory}
           />
         </>

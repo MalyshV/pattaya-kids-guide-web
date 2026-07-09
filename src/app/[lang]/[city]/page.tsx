@@ -1,9 +1,11 @@
 import { notFound } from "next/navigation";
+import { AgeQuestion } from "@/components/common/age-question";
 import { PlaceCard } from "@/components/places/place-card";
 import { PlaceFilters } from "@/components/places/place-filters";
 import { ScenarioBar } from "@/components/places/scenario-bar";
 import { PlacesPagination } from "@/components/places/places-pagination";
 import { getAllApprovedPlaces } from "@/services/places.service";
+import { parseAgeBuckets, placeAgeGroupsMatch } from "@/lib/age/age-buckets";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import {
   computeOpenStatus,
@@ -80,6 +82,7 @@ export default async function CityPlacesPage({
   const openNow = getSingleSearchParam(resolvedSearchParams.openNow);
   const openMorning = getSingleSearchParam(resolvedSearchParams.openMorning);
   const shelter = getSingleSearchParam(resolvedSearchParams.shelter);
+  const age = getSingleSearchParam(resolvedSearchParams.age);
   const pageParam = getSingleSearchParam(resolvedSearchParams.page);
 
   const currentPage = parsePositiveNumberParam(pageParam) ?? 1;
@@ -87,9 +90,12 @@ export default async function CityPlacesPage({
   const isOpenNow = parseBooleanParam(openNow) === true;
   const isOpenMorning = parseBooleanParam(openMorning) === true;
   const isShelter = parseBooleanParam(shelter) === true;
+  const ageBuckets = parseAgeBuckets(age);
 
   // Фасеты — рядовые фильтры (не сценарии), переносим между чипами и пагинацией.
+  // age здесь же: возраст должен пережить переключение сценария/фасета.
   const facets = {
+    age,
     indoor,
     outdoor,
     hasFood,
@@ -136,6 +142,16 @@ export default async function CityPlacesPage({
       opensEarlyToday(place.schedules, city.timezone),
     );
   }
+  if (ageBuckets.length > 0) {
+    // «Сколько лет ребёнку?»: место подходит хотя бы одному из выбранных
+    // возрастов; место без возрастных групп не прячем (пробел данных).
+    visiblePlaces = visiblePlaces.filter(({ place }) =>
+      placeAgeGroupsMatch(
+        place.ageGroups.map((link) => link.ageGroup),
+        ageBuckets,
+      ),
+    );
+  }
 
   const total = visiblePlaces.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -170,6 +186,25 @@ export default async function CityPlacesPage({
         <p className="hero-description">{ru.places.heroDescription}</p>
       </section>
 
+      <AgeQuestion
+        pathname={basePath}
+        activeBuckets={ageBuckets}
+        preservedParams={{
+          openNow,
+          openMorning,
+          workFriendly,
+          shelter,
+          indoor,
+          outdoor,
+          hasFood,
+          hasWifi,
+          hasAirCon,
+          hasParking,
+          canLeaveChild,
+          animalContact,
+        }}
+      />
+
       <ScenarioBar
         active={{
           openNow: isOpenNow,
@@ -181,6 +216,7 @@ export default async function CityPlacesPage({
       />
 
       <PlaceFilters
+        age={age}
         openNow={openNow}
         openMorning={openMorning}
         shelter={shelter}
@@ -224,6 +260,7 @@ export default async function CityPlacesPage({
             currentPage={safePage}
             totalPages={totalPages}
             basePath={basePath}
+            age={age}
             openNow={openNow}
             openMorning={openMorning}
             shelter={shelter}

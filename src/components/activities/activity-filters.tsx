@@ -1,9 +1,12 @@
 import Link from "next/link";
-import { AGE_BUCKETS } from "@/lib/activities/activity-filter";
 import { ru } from "@/content/ru";
+
+// Возраст спрашивает общий AgeQuestion над этим блоком (сквозной вход по всему
+// сайту) — здесь остаётся только фильтр по типу занятий.
 
 type ActivityFiltersProps = {
   basePath: string;
+  /** Текущий выбор возраста (?age=) — сохраняем в ссылках категорий. */
   activeAge?: string;
   activeCategory?: string;
   categories: { slug: string; name: string }[];
@@ -33,60 +36,36 @@ export function ActivityFilters({
   activeAge,
   activeCategory,
   categories,
-}: ActivityFiltersProps): React.ReactElement {
-  const ageBuckets = ru.activities.ageBuckets as Record<string, string>;
+}: ActivityFiltersProps): React.ReactElement | null {
+  if (categories.length === 0) {
+    return null;
+  }
 
   return (
     <section className="filters-panel">
       <div className="activity-filter-row">
-        <span className="filter-group-label">{ru.activities.filterAgeTitle}</span>
+        <span className="filter-group-label">{ru.activities.filterTypeTitle}</span>
         <div className="filter-chips">
           <Link
-            href={buildHref(basePath, { category: activeCategory })}
-            className={chipClass(!activeAge)}
+            href={buildHref(basePath, { age: activeAge })}
+            className={chipClass(!activeCategory)}
           >
-            {ru.activities.filterAny}
+            {ru.activities.filterAll}
           </Link>
-          {AGE_BUCKETS.map((bucket) => (
+          {categories.map((category) => (
             <Link
-              key={bucket.key}
+              key={category.slug}
               href={buildHref(basePath, {
-                age: bucket.key,
-                category: activeCategory,
+                age: activeAge,
+                category: category.slug,
               })}
-              className={chipClass(activeAge === bucket.key)}
+              className={chipClass(activeCategory === category.slug)}
             >
-              {ageBuckets[bucket.key] ?? bucket.key}
+              {category.name}
             </Link>
           ))}
         </div>
       </div>
-
-      {categories.length > 0 ? (
-        <div className="activity-filter-row">
-          <span className="filter-group-label">{ru.activities.filterTypeTitle}</span>
-          <div className="filter-chips">
-            <Link
-              href={buildHref(basePath, { age: activeAge })}
-              className={chipClass(!activeCategory)}
-            >
-              {ru.activities.filterAll}
-            </Link>
-            {categories.map((category) => (
-              <Link
-                key={category.slug}
-                href={buildHref(basePath, {
-                  age: activeAge,
-                  category: category.slug,
-                })}
-                className={chipClass(activeCategory === category.slug)}
-              >
-                {category.name}
-              </Link>
-            ))}
-          </div>
-        </div>
-      ) : null}
     </section>
   );
 }

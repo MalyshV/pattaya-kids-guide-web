@@ -261,6 +261,68 @@ input {
   outline-offset: 3px;
 }
 
+/* Возраст ребёнка — сквозной вопрос над сценариями. Активный чип — тёплый
+   терракот (не sage: возраст — контекст, а не сценарий). */
+
+.age-question {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-bottom: 14px;
+}
+
+.age-question-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.age-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.age-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 13px;
+  text-decoration: none;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.age-chip:hover {
+  background: #fbf7f2;
+}
+
+.age-chip-active {
+  border-color: var(--accent);
+  background: #fbf1ec;
+  color: #8a4a2e;
+  font-weight: 600;
+}
+
+.age-chip-reset {
+  color: var(--muted);
+  border-style: dashed;
+}
+
+.age-active-hint {
+  margin: 0;
+  flex-basis: 100%;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #8a4a2e;
+}
+
 /* Сценарии — быстрые кнопки-ситуации над фильтрами. */
 
 .scenario-bar {

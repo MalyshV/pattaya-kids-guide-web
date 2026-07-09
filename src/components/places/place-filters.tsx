@@ -5,9 +5,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { ru } from "@/content/ru";
 
 type PlaceFiltersProps = {
-  // Сценарии («Пойти сейчас», «Можно поработать», «Спрятаться от жары») живут
-  // отдельными чипами — здесь их только сохраняем, чтобы «Показать»/«Сбросить»
-  // их не сбрасывали.
+  // Сценарии-чипы и возраст живут выше — здесь их только сохраняем, чтобы
+  // «Показать»/«Сбросить» их не сбрасывали.
+  age?: string;
   openNow?: string;
   openMorning?: string;
   workFriendly?: string;
@@ -77,9 +77,12 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
     }));
   }
 
-  // Активные сценарии-чипы, которые нужно пронести через «Показать»/«Сбросить».
+  // Активные сценарии-чипы и возраст — пронести через «Показать»/«Сбросить».
   function scenarioParams(): URLSearchParams {
     const params = new URLSearchParams();
+    if (props.age) {
+      params.set("age", props.age);
+    }
     if (props.openNow === "true") {
       params.set("openNow", "true");
     }

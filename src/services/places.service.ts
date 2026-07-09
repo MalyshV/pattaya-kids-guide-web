@@ -9,9 +9,10 @@ export type PlacesPaginationParams = {
   limit?: number;
 };
 
-// В список тянем schedules — из них считается живой индикатор «открыто сейчас»
+// В список тянем schedules (живой индикатор «открыто сейчас») и ageGroups
+// (сквозной фильтр «Сколько лет ребёнку?»)
 export type PlaceListItem = Prisma.PlaceGetPayload<{
-  include: { schedules: true };
+  include: { schedules: true; ageGroups: { include: { ageGroup: true } } };
 }>;
 
 export type PaginatedPlacesResult = {
@@ -119,6 +120,7 @@ export async function getApprovedPlaces(
       },
       include: {
         schedules: true,
+        ageGroups: { include: { ageGroup: true } },
       },
     }),
     prisma.place.count({ where }),
@@ -146,7 +148,7 @@ export async function getAllApprovedPlaces(
   return prisma.place.findMany({
     where: buildApprovedPlacesWhere(filter, cityId),
     orderBy: { name: "asc" },
-    include: { schedules: true },
+    include: { schedules: true, ageGroups: { include: { ageGroup: true } } },
   });
 }
 
