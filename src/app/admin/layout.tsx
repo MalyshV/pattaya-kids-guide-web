@@ -1,0 +1,50 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { isAdmin } from "@/lib/admin/auth";
+import { logoutAction } from "@/app/admin/actions";
+
+/**
+ * Оболочка админки. Auth-стража здесь НЕТ намеренно: /admin/login живёт
+ * внутри этого layout (иначе цикл редиректов) — каждая защищённая страница
+ * и каждый server action зовут requireAdmin() сами.
+ * Тексты по-русски без словаря: админка личная, локализация ей не нужна.
+ */
+
+export const metadata: Metadata = {
+  title: "Админка — Pattaya Kids Guide",
+  robots: { index: false, follow: false },
+};
+
+export default async function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}): Promise<React.ReactElement> {
+  const authed = await isAdmin();
+
+  return (
+    <div className="admin-shell">
+      <header className="admin-header">
+        <Link href="/admin/places" className="admin-brand">
+          Pattaya Kids Guide · админка
+        </Link>
+        {authed ? (
+          <nav className="admin-nav" aria-label="Разделы админки">
+            <Link href="/admin/places">Места</Link>
+            <Link href="/admin/events">События</Link>
+            <Link href="/admin/activities">Занятия</Link>
+            <Link href="/" target="_blank" rel="noopener">
+              Открыть сайт ↗
+            </Link>
+            <form action={logoutAction}>
+              <button type="submit" className="admin-link-button">
+                Выйти
+              </button>
+            </form>
+          </nav>
+        ) : null}
+      </header>
+      <main className="admin-main">{children}</main>
+    </div>
+  );
+}
