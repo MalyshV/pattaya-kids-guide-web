@@ -111,6 +111,15 @@ export const ru = {
     nearInvite:
       "Показать ближайшие места? Понадобится доступ к геопозиции — она останется в вашем браузере.",
     nearInviteCta: "Определить моё местоположение",
+    // переключатель Список|Карта и подписи карты
+    viewList: "Список",
+    viewMap: "Карта",
+    viewToggleAria: "Вид: список или карта",
+    mapYouAreHere: "Вы здесь",
+    mapMissingNote: (count: number): string =>
+      `${count} ${plural(count, ["место", "места", "мест"])} без точных координат — ${
+        count === 1 ? "оно есть" : "они есть"
+      } в списке`,
     features: {
       food: "Еда",
       wifi: "Wi-Fi",

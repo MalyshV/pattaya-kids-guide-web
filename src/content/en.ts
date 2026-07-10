@@ -104,6 +104,15 @@ export const en: Dictionary = {
     nearInvite:
       "Show the closest places? This needs your location — it stays in your browser.",
     nearInviteCta: "Use my location",
+    // List|Map toggle and map labels
+    viewList: "List",
+    viewMap: "Map",
+    viewToggleAria: "View: list or map",
+    mapYouAreHere: "You are here",
+    mapMissingNote: (count: number): string =>
+      count === 1
+        ? "1 place has no exact coordinates yet — find it in the list"
+        : `${count} places have no exact coordinates yet — find them in the list`,
     features: {
       food: "Food",
       wifi: "Wi-Fi",

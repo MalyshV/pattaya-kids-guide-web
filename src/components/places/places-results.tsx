@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PlaceCard } from "@/components/places/place-card";
+import { PlacesMap, type PlaceMapMarker } from "@/components/places/places-map";
 import { PlacesPagination } from "@/components/places/places-pagination";
 import { formatDistance, sortByDistance, type GeoPoint } from "@/lib/geo/distance";
 import { useDictionary, useLang } from "@/lib/i18n/use-dictionary";
@@ -28,6 +30,8 @@ type PlacesResultsProps = {
   /** ВСЕ отфильтрованные места в серверном порядке (открытые выше) */
   items: PlaceWithStatus[];
   near: boolean;
+  /** ?view=map — карта вместо списка (уважает те же фильтры) */
+  view: "list" | "map";
   basePath: string;
   currentPage: number;
   totalPages: number;
@@ -49,6 +53,7 @@ type GeoState =
 export function PlacesResults({
   items,
   near,
+  view,
   basePath,
   currentPage,
   totalPages,
@@ -180,43 +185,50 @@ export function PlacesResults({
     };
   }, [nearActive]);
 
-  if (nearActive) {
-    // Ближайшие сверху, все на одной странице (пагинация по расстоянию
-    // сбивала бы с толку); места без координат честно в конце без бейджа.
-    const sorted = sortByDistance(items, geo.origin, ({ place }) =>
-      Number.isFinite(place.latitude) && Number.isFinite(place.longitude)
-        ? { latitude: place.latitude, longitude: place.longitude }
-        : null,
-    );
+  const showMap = view === "map";
 
-    return (
-      <>
-        {/* подсказка про сортировку живёт здесь, а не у чипа: чип не знает,
-            дал ли браузер позицию, и обещал бы «ближайшие» даже при отказе */}
-        <p className="near-status near-sorted-anchor" ref={sortedTopRef}>
-          {dict.scenarios.nearMeActive}
-        </p>
-
-        <section className="places-grid">
-          {sorted.map(({ item, distanceM }) => (
-            <PlaceCard
-              key={item.place.id}
-              place={item.place}
-              basePath={basePath}
-              status={item.status}
-              distanceLabel={
-                distanceM !== null ? formatDistance(distanceM, lang) : undefined
-              }
-            />
-          ))}
-        </section>
-      </>
-    );
+  // ссылка переключателя Список|Карта: те же фильтры, без page (карта
+  // показывает всё, а список честно начинается с первой страницы)
+  function buildViewHref(nextView: "list" | "map"): string {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(pagination)) {
+      if (value) {
+        params.set(key, value);
+      }
+    }
+    params.delete("page");
+    if (nextView === "map") {
+      params.set("view", "map");
+    } else {
+      params.delete("view");
+    }
+    const query = params.toString();
+    return query ? `${basePath}?${query}` : basePath;
   }
 
-  const pageItems = items.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const viewToggle = (
+    <div className="view-toggle" role="group" aria-label={dict.places.viewToggleAria}>
+      <Link
+        href={buildViewHref("list")}
+        scroll={false}
+        className={`view-toggle-option${!showMap ? " view-toggle-active" : ""}`}
+        aria-current={!showMap ? "true" : undefined}
+      >
+        {dict.places.viewList}
+      </Link>
+      <Link
+        href={buildViewHref("map")}
+        scroll={false}
+        className={`view-toggle-option${showMap ? " view-toggle-active" : ""}`}
+        aria-current={showMap ? "true" : undefined}
+      >
+        {dict.places.viewMap}
+      </Link>
+    </div>
+  );
 
-  return (
+  // Статусы геолокации — общие для списка и карты
+  const nearStatus = (
     <>
       {near && geo.kind === "invite" ? (
         <p className="near-status">
@@ -253,6 +265,99 @@ export function PlacesResults({
           {dict.places.nearUnavailable}
         </p>
       ) : null}
+    </>
+  );
+
+  if (showMap) {
+    // Карта показывает ВСЕ отфильтрованные места; при активном «Рядом со мной»
+    // добавляются расстояния в попапах и точка «вы здесь».
+    const withDistance = nearActive
+      ? sortByDistance(items, geo.origin, ({ place }) =>
+          Number.isFinite(place.latitude) && Number.isFinite(place.longitude)
+            ? { latitude: place.latitude, longitude: place.longitude }
+            : null,
+        )
+      : items.map((item) => ({ item, distanceM: null as number | null }));
+
+    const markers: PlaceMapMarker[] = withDistance
+      .filter(
+        ({ item }) =>
+          Number.isFinite(item.place.latitude) && Number.isFinite(item.place.longitude),
+      )
+      .map(({ item, distanceM }) => ({
+        id: item.place.id,
+        name: item.place.name,
+        slug: item.place.slug,
+        latitude: item.place.latitude,
+        longitude: item.place.longitude,
+        distanceLabel: distanceM !== null ? formatDistance(distanceM, lang) : undefined,
+      }));
+
+    // честность: место без координат на карте не покажешь — говорим об этом
+    const missingCount = items.length - markers.length;
+
+    return (
+      <>
+        {viewToggle}
+        {nearStatus}
+        {nearActive ? <p className="near-status">{dict.scenarios.nearMeActive}</p> : null}
+
+        <PlacesMap
+          markers={markers}
+          userPoint={nearActive ? geo.origin : null}
+          basePath={basePath}
+        />
+
+        {missingCount > 0 ? (
+          <p className="near-status map-missing-note">
+            {dict.places.mapMissingNote(missingCount)}
+          </p>
+        ) : null}
+      </>
+    );
+  }
+
+  if (nearActive) {
+    // Ближайшие сверху, все на одной странице (пагинация по расстоянию
+    // сбивала бы с толку); места без координат честно в конце без бейджа.
+    const sorted = sortByDistance(items, geo.origin, ({ place }) =>
+      Number.isFinite(place.latitude) && Number.isFinite(place.longitude)
+        ? { latitude: place.latitude, longitude: place.longitude }
+        : null,
+    );
+
+    return (
+      <>
+        {viewToggle}
+        {/* подсказка про сортировку живёт здесь, а не у чипа: чип не знает,
+            дал ли браузер позицию, и обещал бы «ближайшие» даже при отказе */}
+        <p className="near-status near-sorted-anchor" ref={sortedTopRef}>
+          {dict.scenarios.nearMeActive}
+        </p>
+
+        <section className="places-grid">
+          {sorted.map(({ item, distanceM }) => (
+            <PlaceCard
+              key={item.place.id}
+              place={item.place}
+              basePath={basePath}
+              status={item.status}
+              distanceLabel={
+                distanceM !== null ? formatDistance(distanceM, lang) : undefined
+              }
+            />
+          ))}
+        </section>
+      </>
+    );
+  }
+
+  const pageItems = items.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  return (
+    <>
+      {viewToggle}
+      {nearStatus}
 
       <section className="places-grid">
         {pageItems.map(({ place, status }) => (

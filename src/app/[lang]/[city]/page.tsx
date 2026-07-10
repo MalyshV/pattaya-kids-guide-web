@@ -87,6 +87,9 @@ export default async function CityPlacesPage({
   // «Рядом со мной»: в URL только флаг — координаты остаются в браузере,
   // сортировку по близости делает клиентский PlacesResults
   const near = getSingleSearchParam(resolvedSearchParams.near);
+  // ?view=map — карта вместо списка (те же фильтры)
+  const viewParam = getSingleSearchParam(resolvedSearchParams.view);
+  const view: "list" | "map" = viewParam === "map" ? "map" : "list";
   const age = getSingleSearchParam(resolvedSearchParams.age);
   const pageParam = getSingleSearchParam(resolvedSearchParams.page);
 
@@ -102,6 +105,7 @@ export default async function CityPlacesPage({
   // age здесь же: возраст должен пережить переключение сценария/фасета.
   const facets = {
     age,
+    view: viewParam,
     indoor,
     outdoor,
     hasFood,
@@ -200,6 +204,7 @@ export default async function CityPlacesPage({
           workFriendly,
           shelter,
           near,
+          view: viewParam,
           indoor,
           outdoor,
           hasFood,
@@ -229,6 +234,7 @@ export default async function CityPlacesPage({
         shelter={shelter}
         workFriendly={workFriendly}
         near={near}
+        view={viewParam}
         indoor={indoor}
         outdoor={outdoor}
         hasFood={hasFood}
@@ -260,6 +266,7 @@ export default async function CityPlacesPage({
             status,
           }))}
           near={isNear}
+          view={view}
           basePath={basePath}
           currentPage={safePage}
           totalPages={totalPages}

@@ -488,6 +488,77 @@ input {
   scroll-margin-top: 16px;
 }
 
+/* переключатель Список|Карта — тихий сегмент-контрол в духе чипов */
+.view-toggle {
+  display: inline-flex;
+  gap: 4px;
+  margin: 0 0 14px;
+  padding: 4px;
+  background: var(--surface-muted);
+  border-radius: 999px;
+}
+
+.view-toggle-option {
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.view-toggle-option:hover {
+  color: #4f6b57;
+}
+
+.view-toggle-active {
+  background: #fff;
+  color: #4f6b57;
+  box-shadow: 0 1px 3px rgba(60, 50, 35, 0.12);
+}
+
+/* карта мест */
+.places-map-shell {
+  height: min(65vh, 560px);
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(60, 50, 35, 0.1);
+  /* свой stacking-context: панели Leaflet (z-index до ~700) не всплывают
+     над шапкой и кнопкой «наверх» */
+  isolation: isolate;
+  z-index: 0;
+}
+
+/* маркер места — терракотовая точка с белой обводкой */
+.map-pin {
+  background: var(--accent);
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(60, 50, 35, 0.35);
+}
+
+/* точка «вы здесь» — шалфейная */
+.map-user-dot {
+  background: #4f6b57;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(60, 50, 35, 0.35);
+}
+
+.map-popup a {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.map-popup-distance {
+  margin-top: 2px;
+  color: #4f6b57;
+  font-size: 0.85rem;
+}
+
+.map-missing-note {
+  margin-top: 10px;
+}
+
 /* кнопка-приглашение и «попробовать ещё раз» — тихая текстовая ссылка */
 .near-cta {
   border: none;
