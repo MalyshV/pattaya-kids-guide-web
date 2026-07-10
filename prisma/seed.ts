@@ -349,6 +349,7 @@ async function main() {
     // Проверенная Вероникой карточка места в Google Maps (2026-07-06)
     googleMapsUrl:
       "https://www.google.com/maps/place/Play+Barn+%E0%B9%80%E0%B8%94%E0%B8%AD%E0%B8%B0+%E0%B9%80%E0%B8%9E%E0%B8%A5%E0%B8%A2%E0%B9%8C%E0%B8%9A%E0%B8%B2%E0%B8%A3%E0%B9%8C%E0%B8%99+playground/@12.9180213,100.9702085,1057m/data=!3m2!1e3!4b1!4m6!3m5!1s0x310295808927f515:0x86dc0f9572804c2!8m2!3d12.9180161!4d100.9727834!16s%2Fg%2F11y_xtnq_r",
+    imageUrl: "/images/places/play-barn.jpg", // тест-фото (заменим позже)
     indoor: true,
     outdoor: true,
     hasFood: true,
@@ -392,6 +393,18 @@ async function main() {
       });
     }
   }
+
+  // Галерея The Play Barn: доп. фото (обложка — imageUrl отдельно). Тест-фото.
+  await prisma.placePhoto.deleteMany({ where: { placeId: playBarn.id } });
+  await prisma.placePhoto.createMany({
+    data: [
+      { placeId: playBarn.id, url: "/images/places/play-barn-2.jpg", order: 1 },
+      { placeId: playBarn.id, url: "/images/places/play-barn-3.jpg", order: 2 },
+      { placeId: playBarn.id, url: "/images/places/play-barn-4.jpg", order: 3 },
+      { placeId: playBarn.id, url: "/images/places/play-barn-5.jpg", order: 4 },
+      { placeId: playBarn.id, url: "/images/places/play-barn-6.jpg", order: 5 },
+    ],
+  });
 
   // Языки персонала (справочник) + привязка к The Play Barn (тайский и английский)
   const languagesData = [
@@ -1024,6 +1037,7 @@ async function main() {
     longitude: 100.9042526,
     googleMapsUrl:
       "https://www.google.com/maps/place/The+Little+Gym+Pattaya/@12.9337303,100.9016777,1057m/data=!3m2!1e3!4b1!4m6!3m5!1s0x3102bfff79575b81:0xee3e1ea0276d60a6!8m2!3d12.9337251!4d100.9042526!16s%2Fg%2F11lgzb6sq0",
+    imageUrl: "/images/places/little-gym.jpg", // тест-фото (заменим позже)
     indoor: true,
     outdoor: false,
     hasFood: false,
