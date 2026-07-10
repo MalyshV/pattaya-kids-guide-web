@@ -139,6 +139,15 @@ export const en: Dictionary = {
     },
   },
 
+  // search box for places and activities (instant suggestions)
+  search: {
+    placeholder: "Find a place or activity…",
+    ariaLabel: "Search places and activities",
+    empty: "Nothing found. Try another word — a name, or “trampoline”",
+    typePlace: "place",
+    typeActivity: "activity",
+  },
+
   scenarios: {
     title: "Quick picks",
     openNow: "Go now",
