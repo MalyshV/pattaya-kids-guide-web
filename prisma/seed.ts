@@ -569,6 +569,7 @@ async function main() {
   const playBarnFathersDayData = {
     title: "Мастер-класс «Открытка ко Дню отца из ладошек»",
     titleEn: "Father's Day handprint card workshop",
+    imageUrl: "/images/events/fathers-day-workshop.jpg", // тест-фото (заменим позже)
     description:
       "Дети делают открытку ко Дню отца из отпечатков ладошек — подходит для любого возраста. Нужна предварительная запись, мест немного. Вход 300 ฿.",
     descriptionEn:
@@ -624,6 +625,7 @@ async function main() {
       type: "COURSE",
       name: "Игровая группа Barnyard Cubs",
       nameEn: "Barnyard Cubs playgroup",
+      imageUrl: "/images/activities/barnyard-cubs.jpg", // тест-фото (заменим позже)
       description:
         "Музыка, танцы и сенсорные игры для малышей до 3 лет. Творчество, песенки на английском и тайском, свободная игра в прохладном помещении с кондиционером, развитие и новые друзья. По понедельникам и пятницам, 14:00–16:00. Кофе или смузи для взрослого и перекусы включены.",
       descriptionEn:
@@ -911,6 +913,7 @@ async function main() {
         type: "CAMP",
         name: "Летний лагерь",
         nameEn: "Summer camp",
+        imageUrl: "/images/activities/laridea-summer-camp.jpg", // тест-фото (заменим позже)
         description:
           "Тематические недели для детей 3–8 лет, будни 11:30–15:00: каждую неделю новая тема — от «Исследователей природы» до «Великого зелёного леса». Аквагрим, водные татуировки, творческие мастер-классы, много игр; питание и вода включены. Скидки при покупке нескольких недель: 2 — 5%, 4 — 10%, 7 — 15%.",
         descriptionEn:
@@ -997,6 +1000,7 @@ async function main() {
       type: "COURSE",
       name: "День готовки: свой капкейк",
       nameEn: "Cooking day: make your own cupcake",
+      imageUrl: "/images/activities/laridea-cupcake.jpg", // тест-фото (заменим позже)
       description:
         "Творческое кулинарное занятие по выходным: ребёнок сам готовит и украшает капкейк. В стоимость входит 1 час игровой; цена за ребёнка и взрослого. Для членов клуба — 250 ฿.",
       descriptionEn:
@@ -1147,6 +1151,7 @@ async function main() {
       type: "COURSE",
       name: "Гимнастика и активное развитие",
       nameEn: "Gymnastics and active development",
+      imageUrl: "/images/activities/little-gym-gymnastics.jpg", // тест-фото (заменим позже)
       description:
         "Классы гимнастики и активного развития по возрастным группам от 4 месяцев до 12 лет — через игру. Занятия со вторника по воскресенье (понедельник — выходной). Первое пробное занятие бесплатно. Деление на классы, расписание и участие родителя — в таблице ниже.",
       descriptionEn:
