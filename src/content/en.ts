@@ -93,6 +93,17 @@ export const en: Dictionary = {
     badgeIndoor: "Indoor",
     badgeOutdoor: "Outdoor",
     addressFallback: "Address to be confirmed",
+    // "Near me": geolocation states. Calm tone — denial is a hint, not an error.
+    nearLocating: "Finding what's nearby…",
+    nearDenied:
+      "We couldn't get your location. If you'd like to see what's closest, allow location access in your browser settings.",
+    nearFailed: "We couldn't detect your location.",
+    nearRetry: "Try again",
+    nearUnavailable: "Geolocation isn't available in this browser.",
+    // the ?near=true link may have been shared — no location prompt without consent
+    nearInvite:
+      "Show the closest places? This needs your location — it stays in your browser.",
+    nearInviteCta: "Use my location",
     features: {
       food: "Food",
       wifi: "Wi-Fi",
@@ -133,6 +144,10 @@ export const en: Dictionary = {
     shelter: "Escape the heat",
     shelterHint: "Indoors with aircon, or under a canopy with fans — rain-proof too",
     shelterActive: "Showing places to hide from heat and rain",
+    nearMe: "Near me",
+    nearMeHint: "Closest places first. Your location stays in your browser",
+    nearMeActive:
+      "Closest first; distances are straight-line. Your location stays in the browser",
   },
 
   birthdays: {

@@ -13,6 +13,7 @@ type PlaceFiltersProps = {
   openMorning?: string;
   workFriendly?: string;
   shelter?: string;
+  near?: string;
   indoor?: string;
   outdoor?: string;
   hasFood?: string;
@@ -102,6 +103,9 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
     }
     if (props.shelter === "true") {
       params.set("shelter", "true");
+    }
+    if (props.near === "true") {
+      params.set("near", "true");
     }
     return params;
   }

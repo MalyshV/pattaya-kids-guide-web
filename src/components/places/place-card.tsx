@@ -10,12 +10,15 @@ type PlaceCardProps = {
   place: PlaceListItemDto;
   basePath: string;
   status?: OpenStatus;
+  /** «≈ 800 м» в режиме «Рядом со мной»; расстояние по прямой */
+  distanceLabel?: string;
 };
 
 export function PlaceCard({
   place,
   basePath,
   status,
+  distanceLabel,
 }: PlaceCardProps): React.ReactElement {
   const lang = langFromPath(basePath);
   const dict = getDictionary(lang);
@@ -60,7 +63,12 @@ export function PlaceCard({
           dict.common.descriptionFallback}
       </p>
 
-      <p className="place-card-address">{place.address ?? dict.places.addressFallback}</p>
+      <p className="place-card-address">
+        {place.address ?? dict.places.addressFallback}
+        {distanceLabel ? (
+          <span className="place-card-distance"> · {distanceLabel}</span>
+        ) : null}
+      </p>
 
       <div className="feature-list">
         {place.hasFood ? (

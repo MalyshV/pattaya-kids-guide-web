@@ -10,6 +10,7 @@ type PlacesPaginationProps = {
   openMorning?: string;
   shelter?: string;
   workFriendly?: string;
+  near?: string;
   indoor?: string;
   outdoor?: string;
   hasFood?: string;
@@ -47,6 +48,7 @@ export function PlacesPagination({
   openMorning,
   shelter,
   workFriendly,
+  near,
   indoor,
   outdoor,
   hasFood,
@@ -68,6 +70,7 @@ export function PlacesPagination({
     openMorning,
     shelter,
     workFriendly,
+    near,
     indoor,
     outdoor,
     hasFood,

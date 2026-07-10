@@ -1,7 +1,7 @@
 import type { PlaceDto } from "@/dto/place.dto";
+import type { PlaceListItemDto } from "@/dto/place-list-item.dto";
 import { pickLocalized } from "@/lib/i18n/localize";
 import type { Place } from "@prisma/client";
-import type { Prisma } from "@prisma/client";
 
 export function mapPlaceToDto(place: Place, lang: string = "ru"): PlaceDto {
   return {
@@ -25,5 +25,19 @@ export function mapPlaceToDto(place: Place, lang: string = "ru"): PlaceDto {
     hasParking: place.hasParking,
     hasCafeSeating: place.hasCafeSeating,
     hasPowerOutlets: place.hasPowerOutlets,
+  };
+}
+
+/**
+ * Слим-DTO для списка: карточка локализует описание сама (по basePath),
+ * поэтому en-поле передаём сырым. ВАЖНО: список уходит в клиентский
+ * компонент — сырую Prisma-модель со служебными полями (модерация, заметки)
+ * сериализовать в браузер нельзя, только этот отобранный набор.
+ */
+export function mapPlaceToListItemDto(place: Place): PlaceListItemDto {
+  return {
+    ...mapPlaceToDto(place),
+    description: place.description,
+    descriptionEn: place.descriptionEn,
   };
 }

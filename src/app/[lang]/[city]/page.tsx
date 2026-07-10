@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import { AgeQuestion } from "@/components/common/age-question";
-import { PlaceCard } from "@/components/places/place-card";
 import { PlaceFilters } from "@/components/places/place-filters";
 import { ScenarioBar } from "@/components/places/scenario-bar";
-import { PlacesPagination } from "@/components/places/places-pagination";
+import { PlacesResults } from "@/components/places/places-results";
 import { getAllApprovedPlaces } from "@/services/places.service";
+import { mapPlaceToListItemDto } from "@/mappers/place.mapper";
 import { parseAgeBuckets, placeAgeGroupsMatch } from "@/lib/age/age-buckets";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import {
@@ -84,6 +84,9 @@ export default async function CityPlacesPage({
   const openNow = getSingleSearchParam(resolvedSearchParams.openNow);
   const openMorning = getSingleSearchParam(resolvedSearchParams.openMorning);
   const shelter = getSingleSearchParam(resolvedSearchParams.shelter);
+  // «Рядом со мной»: в URL только флаг — координаты остаются в браузере,
+  // сортировку по близости делает клиентский PlacesResults
+  const near = getSingleSearchParam(resolvedSearchParams.near);
   const age = getSingleSearchParam(resolvedSearchParams.age);
   const pageParam = getSingleSearchParam(resolvedSearchParams.page);
 
@@ -92,6 +95,7 @@ export default async function CityPlacesPage({
   const isOpenNow = parseBooleanParam(openNow) === true;
   const isOpenMorning = parseBooleanParam(openMorning) === true;
   const isShelter = parseBooleanParam(shelter) === true;
+  const isNear = parseBooleanParam(near) === true;
   const ageBuckets = parseAgeBuckets(age);
 
   // Фасеты — рядовые фильтры (не сценарии), переносим между чипами и пагинацией.
@@ -158,7 +162,6 @@ export default async function CityPlacesPage({
   const total = visiblePlaces.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);
-  const pageItems = visiblePlaces.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   // Пустое состояние честно объясняет причину — приоритет у активного сценария.
   const emptyTitle = isOpenNow
@@ -196,6 +199,7 @@ export default async function CityPlacesPage({
           openMorning,
           workFriendly,
           shelter,
+          near,
           indoor,
           outdoor,
           hasFood,
@@ -213,6 +217,7 @@ export default async function CityPlacesPage({
           openMorning: isOpenMorning,
           workFriendly: isWorkFriendly,
           shelter: isShelter,
+          near: isNear,
         }}
         facets={facets}
       />
@@ -223,6 +228,7 @@ export default async function CityPlacesPage({
         openMorning={openMorning}
         shelter={shelter}
         workFriendly={workFriendly}
+        near={near}
         indoor={indoor}
         outdoor={outdoor}
         hasFood={hasFood}
@@ -246,37 +252,35 @@ export default async function CityPlacesPage({
           <p>{emptyHint}</p>
         </section>
       ) : (
-        <>
-          <section className="places-grid">
-            {pageItems.map(({ place, status }) => (
-              <PlaceCard
-                key={place.id}
-                place={place}
-                basePath={basePath}
-                status={status}
-              />
-            ))}
-          </section>
-
-          <PlacesPagination
-            currentPage={safePage}
-            totalPages={totalPages}
-            basePath={basePath}
-            age={age}
-            openNow={openNow}
-            openMorning={openMorning}
-            shelter={shelter}
-            workFriendly={workFriendly}
-            indoor={indoor}
-            outdoor={outdoor}
-            hasFood={hasFood}
-            hasWifi={hasWifi}
-            hasAirCon={hasAirCon}
-            hasParking={hasParking}
-            canLeaveChild={canLeaveChild}
-            animalContact={animalContact}
-          />
-        </>
+        <PlacesResults
+          // слим-DTO вместо сырой Prisma-модели: items сериализуются в браузер,
+          // служебные поля (модерация, заметки) туда попадать не должны
+          items={visiblePlaces.map(({ place, status }) => ({
+            place: mapPlaceToListItemDto(place),
+            status,
+          }))}
+          near={isNear}
+          basePath={basePath}
+          currentPage={safePage}
+          totalPages={totalPages}
+          pageSize={PAGE_SIZE}
+          pagination={{
+            age,
+            openNow,
+            openMorning,
+            shelter,
+            workFriendly,
+            near,
+            indoor,
+            outdoor,
+            hasFood,
+            hasWifi,
+            hasAirCon,
+            hasParking,
+            canLeaveChild,
+            animalContact,
+          }}
+        />
       )}
     </main>
   );

@@ -475,6 +475,30 @@ input {
   color: #4f6b57;
 }
 
+/* «Рядом со мной»: спокойная строка статуса геолокации (определяем/не вышло) */
+.near-status {
+  margin: 0 0 14px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+/* кнопка-приглашение и «попробовать ещё раз» — тихая текстовая ссылка */
+.near-cta {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: #4f6b57;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.near-cta:hover {
+  color: var(--accent);
+}
+
 .results-header {
   margin-bottom: 18px;
 }
@@ -679,6 +703,13 @@ input {
   font-size: 14px;
   line-height: 1.5;
 }
+
+/* расстояние в режиме «Рядом со мной» — тихо, в строке адреса, не разрывается */
+.place-card-distance {
+  color: #4f6b57;
+  white-space: nowrap;
+}
+
 .place-card-actions {
   margin-top: 18px;
 }

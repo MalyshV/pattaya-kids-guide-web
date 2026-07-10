@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
 import type { Dictionary } from "@/content/dictionary";
 
-type ScenarioKey = "openNow" | "openMorning" | "workFriendly" | "shelter";
+type ScenarioKey = "openNow" | "openMorning" | "workFriendly" | "shelter" | "near";
 
 type ScenarioBarProps = {
   // Какие сценарии сейчас включены.
@@ -44,6 +44,15 @@ function buildScenarios(dict: Dictionary): Array<{
       label: dict.scenarios.shelter,
       hint: dict.scenarios.shelterHint,
       activeHint: dict.scenarios.shelterActive,
+    },
+    {
+      // «Рядом со мной» — сортировка, а не фильтр: в URL только флаг near=true,
+      // координаты не покидают браузер. activeHint пустой: чип не знает, дал ли
+      // браузер позицию — честную подсказку показывает places-results.tsx
+      key: "near",
+      label: dict.scenarios.nearMe,
+      hint: dict.scenarios.nearMeHint,
+      activeHint: "",
     },
   ];
 }
@@ -85,7 +94,9 @@ export function ScenarioBar({ active, facets }: ScenarioBarProps): React.ReactEl
     });
   }
 
-  const activeHints = SCENARIOS.filter((scenario) => shownActive[scenario.key]);
+  const activeHints = SCENARIOS.filter(
+    (scenario) => shownActive[scenario.key] && scenario.activeHint,
+  );
 
   return (
     <section
