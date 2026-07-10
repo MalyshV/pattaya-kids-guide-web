@@ -1359,7 +1359,7 @@ async function main() {
     },
     update: {
       title: "[Демо] Детский арт-мастер-класс",
-      imageUrl: "/images/places/sample.svg",
+      imageUrl: "/images/events/demo-event-1.jpg",
       description: "Демонстрационное событие (тестовые данные для разработки).",
       startDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7),
       endDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 2),
@@ -1372,6 +1372,7 @@ async function main() {
     create: {
       title: "[Демо] Детский арт-мастер-класс",
       slug: "kids-art-workshop-pattaya-upcoming",
+      imageUrl: "/images/events/demo-event-1.jpg",
       cityId: pattaya.id,
       description: "Демонстрационное событие (тестовые данные для разработки).",
       startDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7),
@@ -1407,6 +1408,7 @@ async function main() {
     },
     update: {
       title: "[Демо] Игровая зона выходного дня",
+      imageUrl: "/images/events/demo-event-2.jpg",
       description: "Демонстрационное событие: проверка статуса «Сейчас идёт».",
       startDate: new Date(now.getTime() - 1000 * 60 * 60),
       endDate: new Date(now.getTime() + 1000 * 60 * 60 * 3),
@@ -1418,6 +1420,7 @@ async function main() {
     },
     create: {
       title: "[Демо] Игровая зона выходного дня",
+      imageUrl: "/images/events/demo-event-2.jpg",
       slug: "weekend-kids-play-zone-ongoing",
       cityId: pattaya.id,
       description: "Демонстрационное событие: проверка статуса «Сейчас идёт».",
@@ -1454,6 +1457,7 @@ async function main() {
     },
     update: {
       title: "[Демо] Детский фестиваль (прошедший)",
+      imageUrl: "/images/events/demo-event-3.jpg",
       description: "Демонстрационное событие: проверка прошедших событий.",
       startDate: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 10),
       endDate: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 9),
@@ -1465,6 +1469,7 @@ async function main() {
     },
     create: {
       title: "[Демо] Детский фестиваль (прошедший)",
+      imageUrl: "/images/events/demo-event-3.jpg",
       slug: "kids-festival-pattaya-past",
       cityId: pattaya.id,
       description: "Демонстрационное событие: проверка прошедших событий.",
@@ -1501,6 +1506,7 @@ async function main() {
     },
     update: {
       title: "[Демо] Мастер-класс выходного дня",
+      imageUrl: "/images/events/demo-event-4.jpg",
       description: "Демонстрационное событие, привязанное к месту.",
       startDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 3),
       endDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 60 * 2),
@@ -1518,6 +1524,7 @@ async function main() {
     },
     create: {
       title: "[Демо] Мастер-класс выходного дня",
+      imageUrl: "/images/events/demo-event-4.jpg",
       slug: "demo-weekend-kids-workshop",
       cityId: pattaya.id,
       description: "Демонстрационное событие, привязанное к месту.",
