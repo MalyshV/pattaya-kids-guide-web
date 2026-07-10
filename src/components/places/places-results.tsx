@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PlaceCard } from "@/components/places/place-card";
 import { PlacesPagination } from "@/components/places/places-pagination";
@@ -145,6 +145,7 @@ export function PlacesResults({
   }, [near, geo.kind, activatedByGesture, requestPosition]);
 
   const nearActive = near && geo.kind === "ready";
+  const sortedTopRef = useRef<HTMLParagraphElement | null>(null);
 
   // ?page бессмыслен в режиме «ближайшие» (показываем всё без пагинации) —
   // тихо убираем его из URL, чтобы перезагрузка/шеринг не открывали страницу 3
@@ -160,6 +161,25 @@ export function PlacesResults({
     router.replace(`${url.pathname}${url.search}`, { scroll: false });
   }, [nearActive, router]);
 
+  // Чипы — над списком: на телефоне сортировка происходит за нижним краем
+  // экрана, и без скролла кажется, что нажатие не сработало. Как только
+  // ближайшие отсортированы — плавно подводим к результатам.
+  useEffect(() => {
+    if (!nearActive) {
+      return;
+    }
+    // behavior "auto": мгновенный скролл выполняется синхронно и не может
+    // быть отменён — smooth-анимацию браузер гасил из-за одновременной
+    // перестройки списка (проверено: она не начиналась вовсе)
+    const timer = window.setTimeout(() => {
+      sortedTopRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
+    }, 150);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [nearActive]);
+
   if (nearActive) {
     // Ближайшие сверху, все на одной странице (пагинация по расстоянию
     // сбивала бы с толку); места без координат честно в конце без бейджа.
@@ -173,7 +193,9 @@ export function PlacesResults({
       <>
         {/* подсказка про сортировку живёт здесь, а не у чипа: чип не знает,
             дал ли браузер позицию, и обещал бы «ближайшие» даже при отказе */}
-        <p className="near-status">{dict.scenarios.nearMeActive}</p>
+        <p className="near-status near-sorted-anchor" ref={sortedTopRef}>
+          {dict.scenarios.nearMeActive}
+        </p>
 
         <section className="places-grid">
           {sorted.map(({ item, distanceM }) => (

@@ -87,10 +87,12 @@ export function ScenarioBar({ active, facets }: ScenarioBarProps): React.ReactEl
     }
 
     // Смена сценария всегда возвращает к первой странице.
+    // scroll: false — не дёргаем страницу вверх: человек стоит у чипов,
+    // а «Рядом со мной» после определения позиции сам подводит к результатам.
     const query = params.toString();
     startTransition(() => {
       setShownActive(nextActive);
-      router.push(query ? `${pathname}?${query}` : pathname);
+      router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
     });
   }
 
