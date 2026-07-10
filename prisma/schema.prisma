@@ -586,3 +586,24 @@ enum EventSourceType {
   BUSINESS
   IMPORT
 }
+
+/// Журнал публикаций в Telegram-канал: что уже отправлено (защита от дублей).
+/// Отдельная модель без relations — интеграция не трогает основные модели.
+model TelegramPost {
+  id         String             @id @default(cuid())
+  entityType TelegramPostEntity
+  entityId   String
+  /// message_id поста в канале (для будущего редактирования); null = запись
+  /// сделана без отправки (baseline)
+  messageId  Int?
+  /// канал, куда ушёл пост (@pattayakidsguide) — на случай смены канала
+  channelId  String
+  postedAt   DateTime           @default(now())
+
+  @@unique([entityType, entityId])
+}
+
+enum TelegramPostEntity {
+  EVENT
+  PLACE
+}

@@ -15,7 +15,12 @@
     "gaps": "tsx prisma/gaps.ts",
     "check": "npm run lint && npm run typecheck && npm run test",
     "fix": "npm run format && npm run lint:fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "telegram:webhook": "tsx --env-file=.env scripts/telegram/set-webhook.ts",
+    "telegram:test-post": "tsx --env-file=.env scripts/telegram/test-post.ts",
+    "telegram:autopost": "tsx --env-file=.env scripts/telegram/autopost.ts",
+    "telegram:autopost:dry": "tsx --env-file=.env scripts/telegram/autopost.ts --dry-run",
+    "telegram:baseline": "tsx --env-file=.env scripts/telegram/autopost.ts --baseline"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.4.1",
