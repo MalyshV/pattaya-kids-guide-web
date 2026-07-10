@@ -11,7 +11,7 @@ import { computeOpenStatus, nowInCity } from "@/lib/schedule/open-status";
 import { ShareButton } from "@/components/common/share-button";
 import { OpenStatusBadge } from "@/components/places/open-status-badge";
 import { PlaceProgramCard } from "@/components/places/place-program-card";
-import { PlaceImage } from "@/components/places/place-image";
+import { ZoomableImage } from "@/components/common/zoomable-image";
 import { FactValue } from "@/components/places/fact-value";
 import { fromAgeLabel } from "@/lib/age/format-age";
 import {
@@ -199,7 +199,7 @@ export default async function PlaceDetailsPage({
         <ShareButton title={dto.name} />
       </div>
 
-      <PlaceImage url={dto.imageUrl} alt={dto.name} className="place-image-hero" />
+      <ZoomableImage url={dto.imageUrl} alt={dto.name} className="place-image-hero" />
 
       <section className="hero">
         <p className="eyebrow">{dict.placeDetails.eyebrow}</p>
@@ -228,7 +228,7 @@ export default async function PlaceDetailsPage({
           <h2 className="section-title">{dict.placeDetails.photosTitle}</h2>
           <div className="cover-gallery">
             {dto.photos.map((photo) => (
-              <PlaceImage
+              <ZoomableImage
                 key={photo.id}
                 url={photo.url}
                 alt={photo.caption ?? dto.name}

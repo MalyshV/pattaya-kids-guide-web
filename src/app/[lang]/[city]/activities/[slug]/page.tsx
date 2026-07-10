@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { mapActivityToListItem } from "@/mappers/activity.mapper";
 import { getActivityBySlug } from "@/services/activities.service";
 import { ShareButton } from "@/components/common/share-button";
-import { PlaceImage } from "@/components/places/place-image";
+import { ZoomableImage } from "@/components/common/zoomable-image";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
@@ -98,7 +98,7 @@ export default async function ActivityDetailsPage({
         <ShareButton title={dto.name} />
       </div>
 
-      <PlaceImage url={dto.imageUrl} alt={dto.name} className="place-image-hero" />
+      <ZoomableImage url={dto.imageUrl} alt={dto.name} className="place-image-hero" />
 
       <section className="hero">
         <p className="eyebrow">{typeLabel}</p>

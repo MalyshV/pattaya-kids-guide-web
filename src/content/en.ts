@@ -32,6 +32,9 @@ export const en: Dictionary = {
   common: {
     detailsCta: "Details",
     descriptionFallback: "Description coming soon.",
+    // lightbox: click a photo to zoom, the balloon button closes it
+    zoomPhoto: "Zoom photo",
+    closePhoto: "Close photo",
     yes: "Yes",
     no: "No",
     affirmative: "Yes",

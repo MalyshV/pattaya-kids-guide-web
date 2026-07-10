@@ -6,7 +6,7 @@ import { ShareButton } from "@/components/common/share-button";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { mapEventDetailsToDto } from "@/mappers/event-details.mapper";
 import { getApprovedEventBySlug } from "@/services/events.service";
-import { PlaceImage } from "@/components/places/place-image";
+import { ZoomableImage } from "@/components/common/zoomable-image";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { metaDescription } from "@/lib/seo/meta";
@@ -123,7 +123,7 @@ export default async function EventDetailsPage({
         <ShareButton title={dto.title} />
       </div>
 
-      <PlaceImage url={dto.imageUrl} alt={dto.title} className="place-image-hero" />
+      <ZoomableImage url={dto.imageUrl} alt={dto.title} className="place-image-hero" />
 
       <section className="hero">
         <p className="eyebrow">{dict.eventDetails.eyebrow}</p>
