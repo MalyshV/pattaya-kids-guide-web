@@ -5,6 +5,9 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/db/prisma";
 import {
   grantAdminCookie,
+  isLoginLocked,
+  registerFailedLogin,
+  registerSuccessfulLogin,
   requireAdmin,
   revokeAdminCookie,
   verifyPassword,
@@ -22,14 +25,21 @@ import { DEFAULT_CITY_SLUG } from "@/lib/geo/base-path";
 // ── вход/выход ──────────────────────────────────────────────────────────────
 
 export async function loginAction(formData: FormData): Promise<void> {
+  // анти-перебор (по находке аудита): после серии неудач вход замирает,
+  // параллельные запросы больше не обходят паузу
+  if (isLoginLocked()) {
+    redirect("/admin/login?error=locked");
+  }
+
   const password = String(formData.get("password") ?? "");
 
   if (!verifyPassword(password)) {
-    // лёгкий троттлинг перебора: неверный пароль отвечает с паузой
+    registerFailedLogin();
     await new Promise((resolve) => setTimeout(resolve, 800));
-    redirect("/admin/login?error=1");
+    redirect(isLoginLocked() ? "/admin/login?error=locked" : "/admin/login?error=1");
   }
 
+  registerSuccessfulLogin();
   await grantAdminCookie();
   redirect("/admin/places");
 }
@@ -64,10 +74,27 @@ function checkbox(formData: FormData, name: string): boolean {
   return formData.get(name) === "on";
 }
 
+/**
+ * Число из формы. Запятая разруливается честно (по находке аудита):
+ * «349,5» — десятичная; «1,299» — тысячный разделитель (в Таиланде цены
+ * часто пишут так), раньше это молча превращалось в 1.299 бата.
+ */
 function floatOrNull(formData: FormData, name: string): number | null {
-  const value = text(formData, name);
-  if (value === "") return null;
-  const parsed = Number(value.replace(",", "."));
+  const raw = text(formData, name).replace(/\s/g, "");
+  if (raw === "") return null;
+
+  let normalized = raw;
+  if (raw.includes(",") && raw.includes(".")) {
+    normalized = raw.replace(/,/g, "");
+  } else if (raw.includes(",")) {
+    const parts = raw.split(",");
+    normalized =
+      parts.length === 2 && parts[1].length <= 2
+        ? raw.replace(",", ".")
+        : raw.replace(/,/g, "");
+  }
+
+  const parsed = Number(normalized);
   return Number.isFinite(parsed) ? parsed : null;
 }
 
@@ -83,7 +110,11 @@ function intOrNull(formData: FormData, name: string): number | null {
 function pattayaDateOrNull(formData: FormData, name: string): Date | null {
   const value = text(formData, name);
   if (value === "") return null;
-  const date = new Date(`${value}:00+07:00`);
+  // datetime-local обычно шлёт HH:mm, но может и HH:mm:ss — поддержим оба
+  const withSeconds = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)
+    ? `${value}:00`
+    : value;
+  const date = new Date(`${withSeconds}+07:00`);
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
@@ -135,6 +166,13 @@ function revalidateSite(): void {
   revalidatePath("/", "layout");
 }
 
+/** код ошибки Prisma (P2025 — записи нет, P2002 — конфликт уникальности) */
+function prismaCode(error: unknown): string | null {
+  return typeof error === "object" && error !== null && "code" in error
+    ? String((error as { code?: unknown }).code)
+    : null;
+}
+
 // ── места ───────────────────────────────────────────────────────────────────
 
 const SCHEDULE_DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"] as const;
@@ -156,9 +194,26 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
     redirect(id ? `/admin/places/${id}?error=coords` : "/admin/places/new?error=coords");
   }
 
-  const cover = await coverFromForm(formData, "places");
-  if (cover === "upload-error") {
-    redirect(id ? `/admin/places/${id}?error=upload` : "/admin/places/new?error=upload");
+  // фото не должно топить остальные правки (по находке аудита): при ошибке
+  // сохраняем всё БЕЗ обложки и показываем сообщение уже на странице записи
+  const coverResult = await coverFromForm(formData, "places");
+  const uploadFailed = coverResult === "upload-error";
+  const cover = uploadFailed ? undefined : coverResult;
+
+  // полузаполненная строка часов раньше молча выбрасывалась — честнее сказать
+  const scheduleRows = SCHEDULE_DAYS.map((day) => ({
+    day,
+    openTime: text(formData, `open_${day}`),
+    closeTime: text(formData, `close_${day}`),
+    isClosed: checkbox(formData, `closed_${day}`),
+  }));
+  const halfFilled = scheduleRows.some(
+    (row) => !row.isClosed && (row.openTime === "") !== (row.closeTime === ""),
+  );
+  if (halfFilled) {
+    redirect(
+      id ? `/admin/places/${id}?error=schedule` : "/admin/places/new?error=schedule",
+    );
   }
 
   const data = {
@@ -187,53 +242,61 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
     ...(cover !== undefined ? { imageUrl: cover } : {}),
   } as const;
 
-  let placeId = id;
+  const categoryIds = formData.getAll("categoryIds").map(String);
 
-  if (id) {
-    await prisma.place.update({ where: { id }, data });
-  } else {
-    const cityId = await pattayaCityId();
-    const slug = await uniqueSlug(slugify(name), async (candidate) => {
-      const existing = await prisma.place.findUnique({
-        where: { cityId_slug: { cityId, slug: candidate } },
-        select: { id: true },
-      });
-      return existing !== null;
+  // одна транзакция (по находке аудита): сбой на середине не оставит место
+  // без часов работы или категорий
+  let placeId: string;
+  try {
+    placeId = await prisma.$transaction(async (tx) => {
+      let pid: string;
+      if (id) {
+        await tx.place.update({ where: { id }, data });
+        pid = id;
+      } else {
+        const cityId = await pattayaCityId();
+        const slug = await uniqueSlug(slugify(name), async (candidate) => {
+          const existing = await tx.place.findUnique({
+            where: { cityId_slug: { cityId, slug: candidate } },
+            select: { id: true },
+          });
+          return existing !== null;
+        });
+        const created = await tx.place.create({ data: { ...data, slug, cityId } });
+        pid = created.id;
+      }
+
+      // часы работы: 7 строк формы, полная замена (идемпотентно и просто)
+      const schedules = scheduleRows
+        .filter((row) => row.isClosed || (row.openTime !== "" && row.closeTime !== ""))
+        .map((row) => ({ ...row, placeId: pid }));
+      await tx.placeSchedule.deleteMany({ where: { placeId: pid } });
+      if (schedules.length > 0) {
+        await tx.placeSchedule.createMany({ data: schedules });
+      }
+
+      // категории: полная замена набора
+      await tx.placeCategory.deleteMany({ where: { placeId: pid } });
+      if (categoryIds.length > 0) {
+        await tx.placeCategory.createMany({
+          data: categoryIds.map((categoryId) => ({ placeId: pid, categoryId })),
+        });
+      }
+
+      return pid;
     });
-    const created = await prisma.place.create({ data: { ...data, slug, cityId } });
-    placeId = created.id;
-  }
-
-  // часы работы: 7 строк формы, полная замена (идемпотентно и просто)
-  if (placeId) {
-    const schedules = SCHEDULE_DAYS.map((day) => ({
-      placeId: placeId as string,
-      day,
-      openTime: text(formData, `open_${day}`),
-      closeTime: text(formData, `close_${day}`),
-      isClosed: checkbox(formData, `closed_${day}`),
-    })).filter((row) => row.isClosed || (row.openTime !== "" && row.closeTime !== ""));
-
-    await prisma.placeSchedule.deleteMany({ where: { placeId } });
-    if (schedules.length > 0) {
-      await prisma.placeSchedule.createMany({ data: schedules });
+  } catch (error) {
+    const code = prismaCode(error);
+    // P2025 — запись удалили в другой вкладке; P2002 — двойной клик по
+    // «Сохранить» (первый уже создал) — в обоих случаях честный выход в список
+    if (code === "P2025" || code === "P2002") {
+      redirect("/admin/places");
     }
-
-    // категории: чекбоксы categoryIds — полная замена набора
-    const categoryIds = formData.getAll("categoryIds").map(String);
-    await prisma.placeCategory.deleteMany({ where: { placeId } });
-    if (categoryIds.length > 0) {
-      await prisma.placeCategory.createMany({
-        data: categoryIds.map((categoryId) => ({
-          placeId: placeId as string,
-          categoryId,
-        })),
-      });
-    }
+    throw error;
   }
 
   revalidateSite();
-  redirect("/admin/places");
+  redirect(uploadFailed ? `/admin/places/${placeId}?error=upload` : "/admin/places");
 }
 
 export async function deletePlaceAction(formData: FormData): Promise<void> {
@@ -339,10 +402,9 @@ export async function saveEventAction(formData: FormData): Promise<void> {
     );
   }
 
-  const cover = await coverFromForm(formData, "events");
-  if (cover === "upload-error") {
-    redirect(id ? `/admin/events/${id}?error=upload` : "/admin/events/new?error=upload");
-  }
+  const coverResult = await coverFromForm(formData, "events");
+  const uploadFailed = coverResult === "upload-error";
+  const cover = uploadFailed ? undefined : coverResult;
 
   const data = {
     title,
@@ -359,24 +421,35 @@ export async function saveEventAction(formData: FormData): Promise<void> {
     ...(cover !== undefined ? { imageUrl: cover } : {}),
   } as const;
 
-  if (id) {
-    await prisma.event.update({ where: { id }, data });
-  } else {
-    const cityId = await pattayaCityId();
-    const slug = await uniqueSlug(slugify(title), async (candidate) => {
-      const existing = await prisma.event.findFirst({
-        where: { cityId, slug: candidate },
-        select: { id: true },
+  let eventId: string;
+  try {
+    if (id) {
+      await prisma.event.update({ where: { id }, data });
+      eventId = id;
+    } else {
+      const cityId = await pattayaCityId();
+      const slug = await uniqueSlug(slugify(title), async (candidate) => {
+        const existing = await prisma.event.findFirst({
+          where: { cityId, slug: candidate },
+          select: { id: true },
+        });
+        return existing !== null;
       });
-      return existing !== null;
-    });
-    await prisma.event.create({
-      data: { ...data, slug, cityId, sourceType: "ADMIN", isAnonymous: true },
-    });
+      const created = await prisma.event.create({
+        data: { ...data, slug, cityId, sourceType: "ADMIN", isAnonymous: true },
+      });
+      eventId = created.id;
+    }
+  } catch (error) {
+    const code = prismaCode(error);
+    if (code === "P2025" || code === "P2002") {
+      redirect("/admin/events");
+    }
+    throw error;
   }
 
   revalidateSite();
-  redirect("/admin/events");
+  redirect(uploadFailed ? `/admin/events/${eventId}?error=upload` : "/admin/events");
 }
 
 export async function deleteEventAction(formData: FormData): Promise<void> {
@@ -408,12 +481,9 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
   }
 
   const type = text(formData, "type");
-  const cover = await coverFromForm(formData, "activities");
-  if (cover === "upload-error") {
-    redirect(
-      id ? `/admin/activities/${id}?error=upload` : "/admin/activities/new?error=upload",
-    );
-  }
+  const coverResult = await coverFromForm(formData, "activities");
+  const uploadFailed = coverResult === "upload-error";
+  const cover = uploadFailed ? undefined : coverResult;
 
   const data = {
     name,
@@ -440,26 +510,52 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
     ...(cover !== undefined ? { imageUrl: cover } : {}),
   } as const;
 
-  if (id) {
-    await prisma.placeProgram.update({ where: { id }, data });
-  } else {
-    const cityId = await pattayaCityId();
-    // slug есть только у занятий со своей страницей (COURSE/CAMP)
-    const slug =
-      data.type === "MEMBERSHIP"
-        ? null
-        : await uniqueSlug(slugify(name), async (candidate) => {
-            const existing = await prisma.placeProgram.findUnique({
-              where: { slug: candidate },
-              select: { id: true },
-            });
-            return existing !== null;
-          });
-    await prisma.placeProgram.create({ data: { ...data, slug, cityId } });
+  // slug есть только у занятий со своей страницей (COURSE/CAMP)
+  const slugForName = async (): Promise<string> =>
+    uniqueSlug(slugify(name), async (candidate) => {
+      const existing = await prisma.placeProgram.findUnique({
+        where: { slug: candidate },
+        select: { id: true },
+      });
+      return existing !== null;
+    });
+
+  let activityId: string;
+  try {
+    if (id) {
+      // смена типа держит slug-инвариант (по находке аудита): у MEMBERSHIP
+      // slug снимается (иначе битая ссылка), у COURSE/CAMP — появляется
+      const existing = await prisma.placeProgram.findUnique({
+        where: { id },
+        select: { slug: true },
+      });
+      if (!existing) {
+        redirect("/admin/activities");
+      }
+      const slug =
+        data.type === "MEMBERSHIP" ? null : (existing.slug ?? (await slugForName()));
+      await prisma.placeProgram.update({ where: { id }, data: { ...data, slug } });
+      activityId = id;
+    } else {
+      const cityId = await pattayaCityId();
+      const slug = data.type === "MEMBERSHIP" ? null : await slugForName();
+      const created = await prisma.placeProgram.create({
+        data: { ...data, slug, cityId },
+      });
+      activityId = created.id;
+    }
+  } catch (error) {
+    const code = prismaCode(error);
+    if (code === "P2025" || code === "P2002") {
+      redirect("/admin/activities");
+    }
+    throw error;
   }
 
   revalidateSite();
-  redirect("/admin/activities");
+  redirect(
+    uploadFailed ? `/admin/activities/${activityId}?error=upload` : "/admin/activities",
+  );
 }
 
 export async function deleteActivityAction(formData: FormData): Promise<void> {

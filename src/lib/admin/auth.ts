@@ -6,15 +6,24 @@ import { redirect } from "next/navigation";
 
 /**
  * Доступ в админку: один администратор, пароль в env (ADMIN_PASSWORD),
- * после входа — HttpOnly-кука с HMAC-токеном от пароля. Токен stateless:
- * смена пароля в env мгновенно отзывает все старые куки. Никаких внешних
- * сервисов — «первое время» этого достаточно с запасом.
+ * после входа — HttpOnly-кука «срок.подпись»: подпись = HMAC(срок) на
+ * ключе-пароле. Срок проверяется НА СЕРВЕРЕ (по находке аудита: раньше
+ * токен был статичным и жил вечно, пока не сменится пароль). Смена пароля
+ * по-прежнему мгновенно отзывает все сессии. Без внешних сервисов.
  */
 
 export const ADMIN_COOKIE = "pkg_admin";
 
 /// 30 дней: локальный ноутбук Вероники, не общий компьютер
-const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
+const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30;
+
+/// анти-перебор входа (по находке аудита): после 5 неудач подряд — пауза.
+/// Счётчик в памяти инстанса: на serverless неидеально, но резко поднимает
+/// стоимость перебора; для одного администратора этого достаточно
+const MAX_FAILED_LOGINS = 5;
+const LOCKOUT_MS = 1000 * 60 * 15;
+let failedLogins = 0;
+let lockedUntil = 0;
 
 function getAdminPassword(): string {
   const password = process.env.ADMIN_PASSWORD;
@@ -26,9 +35,8 @@ function getAdminPassword(): string {
   return password;
 }
 
-/** Токен сессии: HMAC от константы на ключе-пароле (hex, 64 символа). */
-export function sessionToken(): string {
-  return createHmac("sha256", getAdminPassword()).update("pkg-admin-v1").digest("hex");
+function sign(message: string): string {
+  return createHmac("sha256", getAdminPassword()).update(message).digest("hex");
 }
 
 function safeEqual(a: string, b: string): boolean {
@@ -38,16 +46,53 @@ function safeEqual(a: string, b: string): boolean {
   return bufA.length === bufB.length && timingSafeEqual(bufA, bufB);
 }
 
+/** Значение куки: «expiresAtMs.hmac» — подпись покрывает срок действия. */
+function sessionCookieValue(expiresAtMs: number): string {
+  return `${expiresAtMs}.${sign(`pkg-admin-v1.${expiresAtMs}`)}`;
+}
+
 /** Проверка пароля с формы входа (постоянное время сравнения). */
 export function verifyPassword(candidate: string): boolean {
   return safeEqual(candidate, getAdminPassword());
 }
 
-/** Кука валидна? Используется в layout и в каждом server action. */
+/** Вход временно заблокирован после серии неудач? */
+export function isLoginLocked(): boolean {
+  return Date.now() < lockedUntil;
+}
+
+export function registerFailedLogin(): void {
+  failedLogins += 1;
+  if (failedLogins >= MAX_FAILED_LOGINS) {
+    lockedUntil = Date.now() + LOCKOUT_MS;
+    failedLogins = 0;
+  }
+}
+
+export function registerSuccessfulLogin(): void {
+  failedLogins = 0;
+  lockedUntil = 0;
+}
+
+/** Кука валидна и не истекла? Используется в layout и в каждом action. */
 export async function isAdmin(): Promise<boolean> {
   const cookieStore = await cookies();
   const value = cookieStore.get(ADMIN_COOKIE)?.value;
-  return value !== undefined && safeEqual(value, sessionToken());
+  if (!value) {
+    return false;
+  }
+
+  const dotAt = value.indexOf(".");
+  if (dotAt <= 0) {
+    return false;
+  }
+
+  const expiresAtMs = Number(value.slice(0, dotAt));
+  if (!Number.isFinite(expiresAtMs) || expiresAtMs <= Date.now()) {
+    return false;
+  }
+
+  return safeEqual(value, sessionCookieValue(expiresAtMs));
 }
 
 /**
@@ -62,13 +107,14 @@ export async function requireAdmin(): Promise<void> {
 
 /** Поставить куку после успешного входа. */
 export async function grantAdminCookie(): Promise<void> {
+  const expiresAtMs = Date.now() + SESSION_TTL_MS;
   const cookieStore = await cookies();
-  cookieStore.set(ADMIN_COOKIE, sessionToken(), {
+  cookieStore.set(ADMIN_COOKIE, sessionCookieValue(expiresAtMs), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: COOKIE_MAX_AGE_SECONDS,
+    maxAge: Math.floor(SESSION_TTL_MS / 1000),
   });
 }
 

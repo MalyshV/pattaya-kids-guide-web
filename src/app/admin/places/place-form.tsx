@@ -81,6 +81,11 @@ export function PlaceForm({
   const scheduleByDay = new Map(
     (place?.schedules ?? []).map((row) => [row.day as string, row]),
   );
+  // форма держит один интервал на день; если в данных есть день с двумя
+  // окнами (например, перерыв на обед) — честно предупреждаем о перезаписи
+  const hasMultiIntervalDay =
+    (place?.schedules ?? []).length >
+    new Set((place?.schedules ?? []).map((r) => r.day)).size;
   const checkedCategories = new Set(
     (place?.categories ?? []).map((link) => link.categoryId),
   );
@@ -93,6 +98,12 @@ export function PlaceForm({
       {error === "name" ? <p className="admin-error">Название обязательно.</p> : null}
       {error === "upload" ? (
         <p className="admin-error">Фото не загрузилось — проверьте формат и размер.</p>
+      ) : null}
+      {error === "schedule" ? (
+        <p className="admin-error">
+          В часах работы есть день, где заполнено только открытие или только закрытие —
+          допишите второе время или отметьте «закрыто».
+        </p>
       ) : null}
       {error === "coords" ? (
         <p className="admin-error">
@@ -228,6 +239,13 @@ export function PlaceForm({
 
         <fieldset className="admin-fieldset">
           <legend>Часы работы (пусто = день не показываем; «закрыто» — выходной)</legend>
+          {hasMultiIntervalDay ? (
+            <p className="admin-error">
+              У этого места есть день с двумя интервалами (например, перерыв) — форма пока
+              держит один интервал на день, сохранение оставит только его. Второе окно
+              можно вернуть через меня.
+            </p>
+          ) : null}
           <div className="admin-schedule">
             {DAYS.map((day) => {
               const row = scheduleByDay.get(day.code);

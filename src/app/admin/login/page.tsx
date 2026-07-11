@@ -24,7 +24,11 @@ export default async function AdminLoginPage({
         <code>.env</code>).
       </p>
 
-      {hasError ? (
+      {params.error === "locked" ? (
+        <p className="admin-error">
+          Слишком много неудачных попыток — вход закрыт на 15 минут.
+        </p>
+      ) : hasError ? (
         <p className="admin-error">Неверный пароль — попробуйте ещё раз.</p>
       ) : null}
 
