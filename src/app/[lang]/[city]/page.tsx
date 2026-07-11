@@ -119,29 +119,32 @@ export default async function CityPlacesPage({
     animalContact,
   };
 
-  // индекс поиска: места + занятия города, ищется по обеим локалям сразу
-  const searchRows = await getSearchRows(city.id);
+  // индекс поиска и места не зависят друг от друга — забираем параллельно,
+  // а не по очереди (каждый круг до базы — это время ответа страницы)
+  const [searchRows, allPlaces] = await Promise.all([
+    getSearchRows(city.id),
+    getAllApprovedPlaces(
+      {
+        indoor: parseBooleanParam(indoor),
+        outdoor: parseBooleanParam(outdoor),
+        hasFood: parseBooleanParam(hasFood),
+        hasWifi: parseBooleanParam(hasWifi),
+        hasAirCon: parseBooleanParam(hasAirCon),
+        hasParking: parseBooleanParam(hasParking),
+        canLeaveChild: parseBooleanParam(canLeaveChild),
+        animalContact: parseBooleanParam(animalContact),
+        workFriendly: parseBooleanParam(workFriendly),
+        shelter: parseBooleanParam(shelter),
+      },
+      city.id,
+    ),
+  ]);
+
   const searchIndex = mapSearchIndex(
     searchRows.places,
     searchRows.activities,
     basePath,
     lang,
-  );
-
-  const allPlaces = await getAllApprovedPlaces(
-    {
-      indoor: parseBooleanParam(indoor),
-      outdoor: parseBooleanParam(outdoor),
-      hasFood: parseBooleanParam(hasFood),
-      hasWifi: parseBooleanParam(hasWifi),
-      hasAirCon: parseBooleanParam(hasAirCon),
-      hasParking: parseBooleanParam(hasParking),
-      canLeaveChild: parseBooleanParam(canLeaveChild),
-      animalContact: parseBooleanParam(animalContact),
-      workFriendly: parseBooleanParam(workFriendly),
-      shelter: parseBooleanParam(shelter),
-    },
-    city.id,
   );
 
   // Живой статус + сортировка: открытые сейчас выше закрытых (стабильно по имени)

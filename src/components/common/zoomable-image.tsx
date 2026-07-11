@@ -15,6 +15,8 @@ type ZoomableImageProps = {
   url: string | null;
   alt: string;
   className?: string;
+  /** прокидывается в PlaceImage: какой ширины вариант качать */
+  sizes?: string;
 };
 
 /** Воздушный шарик — минималистичная замена крестику (одна линия) */
@@ -46,6 +48,7 @@ export function ZoomableImage({
   url,
   alt,
   className,
+  sizes,
 }: ZoomableImageProps): React.ReactElement {
   const dict = useDictionary();
   const [isOpen, setIsOpen] = useState(false);
@@ -100,7 +103,7 @@ export function ZoomableImage({
 
   // без фото — обычный плейсхолдер, увеличивать нечего
   if (!url) {
-    return <PlaceImage url={url} alt={alt} className={className} />;
+    return <PlaceImage url={url} alt={alt} className={className} sizes={sizes} />;
   }
 
   return (
@@ -112,7 +115,7 @@ export function ZoomableImage({
         aria-label={`${dict.common.zoomPhoto}: ${alt}`}
         onClick={() => setIsOpen(true)}
       >
-        <PlaceImage url={url} alt={alt} className={className} />
+        <PlaceImage url={url} alt={alt} className={className} sizes={sizes} />
       </button>
 
       {isOpen

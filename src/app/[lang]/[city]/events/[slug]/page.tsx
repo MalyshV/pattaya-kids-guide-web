@@ -123,7 +123,12 @@ export default async function EventDetailsPage({
         <ShareButton title={dto.title} />
       </div>
 
-      <ZoomableImage url={dto.imageUrl} alt={dto.title} className="place-image-hero" />
+      <ZoomableImage
+        url={dto.imageUrl}
+        alt={dto.title}
+        className="place-image-hero"
+        sizes="(max-width: 940px) 100vw, 900px"
+      />
 
       <section className="hero">
         <p className="eyebrow">{dict.eventDetails.eyebrow}</p>

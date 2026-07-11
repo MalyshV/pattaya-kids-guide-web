@@ -98,7 +98,12 @@ export default async function ActivityDetailsPage({
         <ShareButton title={dto.name} />
       </div>
 
-      <ZoomableImage url={dto.imageUrl} alt={dto.name} className="place-image-hero" />
+      <ZoomableImage
+        url={dto.imageUrl}
+        alt={dto.name}
+        className="place-image-hero"
+        sizes="(max-width: 940px) 100vw, 900px"
+      />
 
       <section className="hero">
         <p className="eyebrow">{typeLabel}</p>

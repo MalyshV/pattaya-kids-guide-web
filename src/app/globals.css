@@ -1099,6 +1099,8 @@ input {
 
 /* обложка места: фото или спокойный плейсхолдер (видно, куда встанет фото) */
 .place-image {
+  /* relative обязателен: next/image с fill позиционируется от контейнера */
+  position: relative;
   aspect-ratio: 16 / 10;
   border-radius: 14px;
   overflow: hidden;

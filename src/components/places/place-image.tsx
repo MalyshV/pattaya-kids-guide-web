@@ -1,15 +1,28 @@
+import Image from "next/image";
+
 type PlaceImageProps = {
   url: string | null;
   alt: string;
   className?: string;
+  /**
+   * Подсказка браузеру, какой ширины вариант качать (next/image нарежет
+   * и отдаст WebP под конкретный экран). Дефолт — карточка в сетке.
+   */
+  sizes?: string;
 };
 
 /**
  * Обложка места: фото (когда есть imageUrl) или спокойный плейсхолдер (когда
- * нет — видно, куда встанет фото). Обычный <img>, чтобы без настройки доменов
- * и forматов принимать любые тестовые файлы из public/images/places.
+ * нет — видно, куда встанет фото). next/image ужимает исходники под экран:
+ * оригиналы по 200–400 КБ превращаются в ~30–60 КБ — страница летает даже
+ * на медленном интернете. SVG-тестовые обложки отдаём как есть.
  */
-export function PlaceImage({ url, alt, className }: PlaceImageProps): React.ReactElement {
+export function PlaceImage({
+  url,
+  alt,
+  className,
+  sizes = "(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 370px",
+}: PlaceImageProps): React.ReactElement {
   const cls = `place-image${className ? ` ${className}` : ""}`;
 
   if (!url) {
@@ -31,10 +44,19 @@ export function PlaceImage({ url, alt, className }: PlaceImageProps): React.Reac
     );
   }
 
+  // svg оптимизатор не переваривает — оставляем обычный тег
+  if (url.endsWith(".svg")) {
+    return (
+      <div className={cls}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={url} alt={alt} className="place-image-img" loading="lazy" />
+      </div>
+    );
+  }
+
   return (
     <div className={cls}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={url} alt={alt} className="place-image-img" loading="lazy" />
+      <Image src={url} alt={alt} fill sizes={sizes} className="place-image-img" />
     </div>
   );
 }
