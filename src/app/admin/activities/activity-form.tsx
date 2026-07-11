@@ -42,6 +42,9 @@ export function ActivityForm({
       {activity?.slug ? <p className="admin-muted">/{activity.slug}</p> : null}
 
       {error === "name" ? <p className="admin-error">Название обязательно.</p> : null}
+      {error === "upload" ? (
+        <p className="admin-error">Фото не загрузилось — проверьте формат и размер.</p>
+      ) : null}
 
       <form action={saveActivityAction} className="admin-form">
         {activity ? <input type="hidden" name="id" value={activity.id} /> : null}

@@ -107,16 +107,27 @@ async function uniqueSlug(
   return candidate;
 }
 
-/** обложка из file-input: не выбрали файл → undefined (не трогаем поле) */
+/**
+ * Обложка из file-input: не выбрали файл → undefined (не трогаем поле),
+ * битый файл → null-маркер ошибки (вызывающий редиректит на error=upload,
+ * а не роняет всё сохранение пятисоткой).
+ */
 async function coverFromForm(
   formData: FormData,
   folder: string,
-): Promise<string | undefined> {
+): Promise<string | undefined | "upload-error"> {
   const file = formData.get("coverFile");
   if (!(file instanceof File) || file.size === 0) {
     return undefined;
   }
-  return uploadImage(file, folder);
+  try {
+    return await uploadImage(file, folder);
+  } catch (error) {
+    if (error instanceof UploadError) {
+      return "upload-error";
+    }
+    throw error;
+  }
 }
 
 function revalidateSite(): void {
@@ -137,15 +148,26 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
     redirect(id ? `/admin/places/${id}?error=name` : "/admin/places/new?error=name");
   }
 
+  // место физически где-то: без координат оно попало бы в (0,0) — точку
+  // в Атлантике, и карта честно показала бы его в океане
+  const latitude = floatOrNull(formData, "latitude");
+  const longitude = floatOrNull(formData, "longitude");
+  if (latitude === null || longitude === null) {
+    redirect(id ? `/admin/places/${id}?error=coords` : "/admin/places/new?error=coords");
+  }
+
   const cover = await coverFromForm(formData, "places");
+  if (cover === "upload-error") {
+    redirect(id ? `/admin/places/${id}?error=upload` : "/admin/places/new?error=upload");
+  }
 
   const data = {
     name,
     description: textOrNull(formData, "description"),
     descriptionEn: textOrNull(formData, "descriptionEn"),
     address: text(formData, "address"),
-    latitude: floatOrNull(formData, "latitude") ?? 0,
-    longitude: floatOrNull(formData, "longitude") ?? 0,
+    latitude: latitude as number,
+    longitude: longitude as number,
     googleMapsUrl: textOrNull(formData, "googleMapsUrl"),
     indoor: checkbox(formData, "indoor"),
     outdoor: checkbox(formData, "outdoor"),
@@ -318,6 +340,9 @@ export async function saveEventAction(formData: FormData): Promise<void> {
   }
 
   const cover = await coverFromForm(formData, "events");
+  if (cover === "upload-error") {
+    redirect(id ? `/admin/events/${id}?error=upload` : "/admin/events/new?error=upload");
+  }
 
   const data = {
     title,
@@ -384,6 +409,11 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
 
   const type = text(formData, "type");
   const cover = await coverFromForm(formData, "activities");
+  if (cover === "upload-error") {
+    redirect(
+      id ? `/admin/activities/${id}?error=upload` : "/admin/activities/new?error=upload",
+    );
+  }
 
   const data = {
     name,

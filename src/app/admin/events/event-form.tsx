@@ -41,6 +41,9 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
       {error === "required" ? (
         <p className="admin-error">Название и дата начала обязательны.</p>
       ) : null}
+      {error === "upload" ? (
+        <p className="admin-error">Фото не загрузилось — проверьте формат и размер.</p>
+      ) : null}
 
       <form action={saveEventAction} className="admin-form">
         {event ? <input type="hidden" name="id" value={event.id} /> : null}

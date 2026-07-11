@@ -34,6 +34,11 @@ function safeBaseName(fileName: string): string {
 
 /** Сжать и сохранить; вернуть URL для imageUrl/PlacePhoto.url. */
 export async function uploadImage(file: File, folder: string): Promise<string> {
+  // контракт: folder — только наши константы ("places"/"events"/"activities"),
+  // никогда пользовательский ввод; проверка — страховка контракта
+  if (!/^[a-z-]+$/.test(folder)) {
+    throw new Error(`uploadImage: недопустимая папка "${folder}"`);
+  }
   if (!file.type.startsWith("image/")) {
     throw new UploadError("Файл не похож на изображение");
   }
@@ -42,21 +47,42 @@ export async function uploadImage(file: File, folder: string): Promise<string> {
   }
 
   const original = Buffer.from(await file.arrayBuffer());
-  const resized = await sharp(original)
-    // без rotate() айфонные фото легли бы на бок (EXIF-ориентация)
-    .rotate()
-    .resize(MAX_DIMENSION, MAX_DIMENSION, { fit: "inside", withoutEnlargement: true })
-    .jpeg({ quality: JPEG_QUALITY })
-    .toBuffer();
+  let resized: Buffer;
+  try {
+    resized = await sharp(original)
+      // без rotate() айфонные фото легли бы на бок (EXIF-ориентация)
+      .rotate()
+      .resize(MAX_DIMENSION, MAX_DIMENSION, { fit: "inside", withoutEnlargement: true })
+      .jpeg({ quality: JPEG_QUALITY })
+      .toBuffer();
+  } catch {
+    // битый файл или не-картинка с поддельным type — спокойная ошибка, не 500
+    throw new UploadError("Не получилось обработать файл как изображение");
+  }
 
   const fileName = `${Date.now()}-${safeBaseName(file.name)}.jpg`;
 
   if (process.env.BLOB_READ_WRITE_TOKEN) {
-    const blob = await put(`${folder}/${fileName}`, resized, {
-      access: "public",
-      contentType: "image/jpeg",
-    });
-    return blob.url;
+    try {
+      const blob = await put(`${folder}/${fileName}`, resized, {
+        access: "public",
+        contentType: "image/jpeg",
+      });
+      return blob.url;
+    } catch {
+      // сеть/протухший токен — спокойная ошибка формы, не 500
+      throw new UploadError(
+        "Хранилище не приняло файл — попробуйте ещё раз или проверьте Blob-токен",
+      );
+    }
+  }
+
+  // На Vercel файловая система read-only: без Blob-токена честно объясняем,
+  // что настроить, вместо невнятного EROFS-краха
+  if (process.env.VERCEL) {
+    throw new UploadError(
+      "На проде не подключено Blob-хранилище (BLOB_READ_WRITE_TOKEN) — см. docs/ADMIN.md",
+    );
   }
 
   const dir = path.join(process.cwd(), "public", "images", "uploads", folder);

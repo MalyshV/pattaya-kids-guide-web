@@ -94,6 +94,13 @@ export function PlaceForm({
       {error === "upload" ? (
         <p className="admin-error">Фото не загрузилось — проверьте формат и размер.</p>
       ) : null}
+      {error === "coords" ? (
+        <p className="admin-error">
+          Нужны координаты (широта и долгота) — без них место окажется «в океане» на
+          карте. Их можно скопировать из Google Maps: правый клик по месту → первая строка
+          меню.
+        </p>
+      ) : null}
 
       <form action={savePlaceAction} className="admin-form">
         {place ? <input type="hidden" name="id" value={place.id} /> : null}
@@ -124,12 +131,22 @@ export function PlaceForm({
 
         <div className="admin-row">
           <label className="admin-field">
-            <span>Широта (latitude)</span>
-            <input type="text" name="latitude" defaultValue={place?.latitude ?? ""} />
+            <span>Широта (latitude) *</span>
+            <input
+              type="text"
+              name="latitude"
+              defaultValue={place?.latitude ?? ""}
+              required
+            />
           </label>
           <label className="admin-field">
-            <span>Долгота (longitude)</span>
-            <input type="text" name="longitude" defaultValue={place?.longitude ?? ""} />
+            <span>Долгота (longitude) *</span>
+            <input
+              type="text"
+              name="longitude"
+              defaultValue={place?.longitude ?? ""}
+              required
+            />
           </label>
         </div>
 
