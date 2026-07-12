@@ -4,6 +4,7 @@ import { EVENT_SORTING } from "@/lib/constants/event-sorting";
 import type { EventType } from "@/lib/constants/event-types";
 import { demoFilter } from "@/lib/demo/show-demo";
 import { buildEventLifecycleWhere } from "@/lib/events/event-lifecycle";
+import { resolvePagination } from "@/lib/pagination";
 import type { Event, Prisma } from "@prisma/client";
 
 export type EventsFilter = {
@@ -50,22 +51,6 @@ function getEventsOrderBy(type?: EventType): Prisma.EventOrderByWithRelationInpu
   return EVENT_SORTING[type];
 }
 
-function getPaginationDefaults(pagination?: PaginationParams): {
-  page: number;
-  limit: number;
-  skip: number;
-} {
-  const page = pagination?.page && pagination.page > 0 ? pagination.page : 1;
-  const limit = pagination?.limit && pagination.limit > 0 ? pagination.limit : 10;
-  const skip = (page - 1) * limit;
-
-  return {
-    page,
-    limit,
-    skip,
-  };
-}
-
 function buildApprovedEventsWhere(
   filter?: EventsFilter,
   placeSlug?: string,
@@ -106,7 +91,7 @@ async function getApprovedEventsList(
   const { filter, pagination, placeSlug, cityId } = options;
 
   const where = buildApprovedEventsWhere(filter, placeSlug, cityId);
-  const { page, limit, skip } = getPaginationDefaults(pagination);
+  const { page, limit, skip } = resolvePagination(pagination);
   const orderBy = getEventsOrderBy(filter?.type);
 
   const [events, total] = await Promise.all([

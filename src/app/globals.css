@@ -463,7 +463,6 @@ input {
   outline-offset: 3px;
 }
 
-.scenario-hint,
 .scenario-active-hint {
   margin: 0;
   font-size: 0.85rem;

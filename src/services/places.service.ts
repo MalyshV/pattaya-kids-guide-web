@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { prisma } from "@/db/prisma";
 import { demoFilter } from "@/lib/demo/show-demo";
+import { resolvePagination } from "@/lib/pagination";
 import type { PlacesFilter } from "@/lib/queries/places-query";
 import type { Prisma } from "@prisma/client";
 
@@ -104,9 +105,7 @@ export async function getApprovedPlaces(
   pagination?: PlacesPaginationParams,
   cityId?: string,
 ): Promise<PaginatedPlacesResult> {
-  const page = pagination?.page && pagination.page > 0 ? pagination.page : 1;
-  const limit = pagination?.limit && pagination.limit > 0 ? pagination.limit : 10;
-  const skip = (page - 1) * limit;
+  const { page, limit, skip } = resolvePagination(pagination);
 
   const where = buildApprovedPlacesWhere(filter, cityId);
 
