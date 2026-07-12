@@ -19,6 +19,7 @@ export const en: Dictionary = {
     activities: "Activities",
     birthdays: "Birthdays",
     aria: "Site sections",
+    langAria: "Language",
   },
 
   notFound: {

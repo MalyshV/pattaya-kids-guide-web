@@ -69,11 +69,12 @@ function LangSwitch(): React.ReactElement {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentLang = useLang();
+  const dict = useDictionary();
 
   const query = searchParams.toString();
 
   return (
-    <div className="lang-switch" aria-label="Language">
+    <div className="lang-switch" aria-label={dict.nav.langAria}>
       {SUPPORTED_LANGS.map((lang) => {
         const segments = pathname.split("/");
         segments[1] = lang;

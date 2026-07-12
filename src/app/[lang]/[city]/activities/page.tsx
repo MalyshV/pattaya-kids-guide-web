@@ -10,7 +10,7 @@ import { activitySortRank } from "@/lib/activities/activity-sort";
 import { matchesAnyAgeBucket, parseAgeBuckets } from "@/lib/age/age-buckets";
 import { matchesCategory } from "@/lib/activities/activity-filter";
 import { getDictionary } from "@/content/dictionary";
-import { localizedCityName } from "@/lib/i18n/localize";
+import { localizedCityName, pickLocalized } from "@/lib/i18n/localize";
 
 const PAGE_SIZE = 6;
 
@@ -62,12 +62,14 @@ export default async function CityActivitiesPage({
 
   // Доступные категории для чипов — из всех занятий города (до фильтрации),
   // чтобы фильтр по типу всегда показывал реально существующие категории.
+  // Имя локализуем так же, как маппер карточек, иначе в EN чип фильтра
+  // остался бы русским над английскими карточками.
   const categoryMap = new Map<string, { slug: string; name: string; order: number }>();
   for (const activity of activities) {
     for (const link of activity.categories) {
       categoryMap.set(link.category.slug, {
         slug: link.category.slug,
-        name: link.category.name,
+        name: pickLocalized(link.category.name, link.category.nameEn, lang),
         order: link.category.order,
       });
     }

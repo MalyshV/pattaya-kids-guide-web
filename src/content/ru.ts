@@ -19,6 +19,7 @@ export const ru = {
     activities: "Занятия",
     birthdays: "Дни рождения",
     aria: "Разделы сайта",
+    langAria: "Выбор языка",
   },
 
   notFound: {
