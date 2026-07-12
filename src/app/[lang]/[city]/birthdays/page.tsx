@@ -13,6 +13,7 @@ import {
 } from "@/lib/contacts/contact-link";
 import { getDictionary } from "@/content/dictionary";
 import { localizedCityName } from "@/lib/i18n/localize";
+import { listPageAlternates } from "@/lib/seo/meta";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string }>;
@@ -31,6 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${dict.birthdays.metaTitle(localizedCityName(city, lang))} — ${dict.brand}`,
     description: dict.birthdays.heroDescription,
+    alternates: listPageAlternates(lang, citySlug, "/birthdays"),
   };
 }
 

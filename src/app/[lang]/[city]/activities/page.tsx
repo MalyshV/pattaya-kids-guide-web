@@ -12,15 +12,27 @@ import { matchesCategory } from "@/lib/activities/activity-filter";
 import { getDictionary } from "@/content/dictionary";
 import { localizedCityName, pickLocalized } from "@/lib/i18n/localize";
 import { LIST_PAGE_SIZE } from "@/lib/constants/pagination";
+import { listPageAlternates } from "@/lib/seo/meta";
 import {
   getSingleSearchParam,
   parsePositiveNumberParam,
 } from "@/lib/params/search-params";
+import type { Metadata } from "next";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string }>;
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: PageProps["params"];
+}): Promise<Metadata> {
+  const { lang, city: citySlug } = await params;
+  // self-canonical: ?page=/фильтры не плодят дубли в индексе
+  return { alternates: listPageAlternates(lang, citySlug, "/activities") };
+}
 
 export default async function CityActivitiesPage({
   params,
