@@ -13,6 +13,8 @@ export type PlacesFilter = {
   shelter?: boolean;
 };
 
+import { parsePaginationParams } from "@/lib/queries/pagination-params";
+
 export type PlacesListQuery = {
   filter: PlacesFilter;
   pagination: {
@@ -34,12 +36,6 @@ function parseBooleanParam(value: string | null): boolean | undefined {
 }
 
 export function parsePlacesListQuery(searchParams: URLSearchParams): PlacesListQuery {
-  const pageParam = searchParams.get("page");
-  const limitParam = searchParams.get("limit");
-
-  const page = pageParam ? Number(pageParam) : undefined;
-  const limit = limitParam ? Number(limitParam) : undefined;
-
   return {
     filter: {
       indoor: parseBooleanParam(searchParams.get("indoor")),
@@ -53,9 +49,6 @@ export function parsePlacesListQuery(searchParams: URLSearchParams): PlacesListQ
       workFriendly: parseBooleanParam(searchParams.get("workFriendly")),
       shelter: parseBooleanParam(searchParams.get("shelter")),
     },
-    pagination: {
-      page,
-      limit,
-    },
+    pagination: parsePaginationParams(searchParams),
   };
 }
