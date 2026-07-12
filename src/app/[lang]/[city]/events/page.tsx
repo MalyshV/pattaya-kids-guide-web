@@ -8,35 +8,16 @@ import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeEventStatus, eventSortRank } from "@/lib/events/event-lifecycle";
 import { getDictionary } from "@/content/dictionary";
 import { localizedCityName } from "@/lib/i18n/localize";
-
-const PAGE_SIZE = 6;
+import { LIST_PAGE_SIZE } from "@/lib/constants/pagination";
+import {
+  getSingleSearchParam,
+  parsePositiveNumberParam,
+} from "@/lib/params/search-params";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string }>;
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
-
-function getSingleSearchParam(value: string | string[] | undefined): string | undefined {
-  if (Array.isArray(value)) {
-    return value[0];
-  }
-
-  return value;
-}
-
-function parsePositiveNumberParam(value: string | undefined): number | undefined {
-  if (!value) {
-    return undefined;
-  }
-
-  const parsed = Number(value);
-
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    return undefined;
-  }
-
-  return parsed;
-}
 
 function parseEventType(
   value: string | undefined,
@@ -98,11 +79,11 @@ export default async function CityEventsPage({
   });
 
   const total = eventsWithStatus.length;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(total / LIST_PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);
   const pageItems = eventsWithStatus.slice(
-    (safePage - 1) * PAGE_SIZE,
-    safePage * PAGE_SIZE,
+    (safePage - 1) * LIST_PAGE_SIZE,
+    safePage * LIST_PAGE_SIZE,
   );
 
   return (

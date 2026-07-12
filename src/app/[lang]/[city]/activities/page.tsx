@@ -11,31 +11,16 @@ import { matchesAnyAgeBucket, parseAgeBuckets } from "@/lib/age/age-buckets";
 import { matchesCategory } from "@/lib/activities/activity-filter";
 import { getDictionary } from "@/content/dictionary";
 import { localizedCityName, pickLocalized } from "@/lib/i18n/localize";
-
-const PAGE_SIZE = 6;
+import { LIST_PAGE_SIZE } from "@/lib/constants/pagination";
+import {
+  getSingleSearchParam,
+  parsePositiveNumberParam,
+} from "@/lib/params/search-params";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string }>;
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
-
-function getSingleSearchParam(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
-function parsePositiveNumberParam(value: string | undefined): number | undefined {
-  if (!value) {
-    return undefined;
-  }
-
-  const parsed = Number(value);
-
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    return undefined;
-  }
-
-  return parsed;
-}
 
 export default async function CityActivitiesPage({
   params,
@@ -83,9 +68,12 @@ export default async function CityActivitiesPage({
     .filter((a) => (activeCategory ? matchesCategory(a, activeCategory) : true))
     .sort((a, b) => activitySortRank(a, now) - activitySortRank(b, now));
 
-  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(items.length / LIST_PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);
-  const pageItems = items.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const pageItems = items.slice(
+    (safePage - 1) * LIST_PAGE_SIZE,
+    safePage * LIST_PAGE_SIZE,
+  );
 
   return (
     <main className="page-shell">

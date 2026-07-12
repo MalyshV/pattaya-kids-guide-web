@@ -18,21 +18,16 @@ import {
 } from "@/lib/schedule/open-status";
 import { getDictionary } from "@/content/dictionary";
 import { localizedCityName } from "@/lib/i18n/localize";
-
-const PAGE_SIZE = 6;
+import { LIST_PAGE_SIZE } from "@/lib/constants/pagination";
+import {
+  getSingleSearchParam,
+  parsePositiveNumberParam,
+} from "@/lib/params/search-params";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string }>;
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
-
-function getSingleSearchParam(value: string | string[] | undefined): string | undefined {
-  if (Array.isArray(value)) {
-    return value[0];
-  }
-
-  return value;
-}
 
 function parseBooleanParam(value: string | undefined): boolean | undefined {
   if (value === "true") {
@@ -44,20 +39,6 @@ function parseBooleanParam(value: string | undefined): boolean | undefined {
   }
 
   return undefined;
-}
-
-function parsePositiveNumberParam(value: string | undefined): number | undefined {
-  if (!value) {
-    return undefined;
-  }
-
-  const parsed = Number(value);
-
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    return undefined;
-  }
-
-  return parsed;
 }
 
 export default async function CityPlacesPage({
@@ -179,7 +160,7 @@ export default async function CityPlacesPage({
   }
 
   const total = visiblePlaces.length;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(total / LIST_PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);
 
   // Пустое состояние честно объясняет причину — приоритет у активного сценария.
@@ -287,7 +268,7 @@ export default async function CityPlacesPage({
           basePath={basePath}
           currentPage={safePage}
           totalPages={totalPages}
-          pageSize={PAGE_SIZE}
+          pageSize={LIST_PAGE_SIZE}
           pagination={{
             age,
             openNow,

@@ -5,3 +5,6 @@ export const DEFAULT_LIMIT = 10;
 export const MAX_PAGE = 1000;
 
 export const MAX_LIMIT = 50;
+
+/** Размер страницы витрины (места/события/занятия) — единый для всех списков. */
+export const LIST_PAGE_SIZE = 6;
