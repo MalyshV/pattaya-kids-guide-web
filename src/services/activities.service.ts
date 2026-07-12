@@ -29,8 +29,13 @@ export const getCityActivities = cache(async function getCityActivities(
     where: {
       type: { in: ["COURSE", "CAMP"] },
       ...demoFilter(),
-      // либо занятие одобренного места города, либо безместное того же города
-      OR: [{ place: { status: "APPROVED", cityId } }, { placeId: null, cityId }],
+      // либо занятие одобренного места города, либо безместное того же города.
+      // demoFilter и на месте: не-демо занятие демо-места — тоже демо (иначе
+      // «[Демо]»-место просочилось бы в публичную витрину; ср. search.service)
+      OR: [
+        { place: { status: "APPROVED", cityId, ...demoFilter() } },
+        { placeId: null, cityId },
+      ],
     },
     include: {
       place: true,
@@ -60,7 +65,11 @@ export const getActivityBySlug = cache(async function getActivityBySlug(
       slug,
       type: { in: ["COURSE", "CAMP"] },
       ...demoFilter(),
-      OR: [{ place: { status: "APPROVED", cityId } }, { placeId: null, cityId }],
+      // demoFilter и на месте: не-демо занятие демо-места — тоже демо
+      OR: [
+        { place: { status: "APPROVED", cityId, ...demoFilter() } },
+        { placeId: null, cityId },
+      ],
     },
     include: {
       place: true,
