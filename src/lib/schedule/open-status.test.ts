@@ -99,6 +99,60 @@ describe("computeOpenStatus", () => {
   });
 });
 
+describe("computeOpenStatus — раздельные интервалы (обеденный перерыв)", () => {
+  // день с двумя окнами: 09:00–12:00 и 14:00–18:00. Раньше все тесты
+  // использовали один интервал — многоинтервальные ветки (sort, вторая
+  // итерация цикла, поиск next среди нескольких) не исполнялись.
+  const split = [day("09:00", "12:00"), day("14:00", "18:00")];
+
+  it("время внутри первого окна → open", () => {
+    // 10:00, до 12:00 = 120 мин → open ~2 ч
+    expect(computeOpenStatus(split, "UTC", at("10:00"))).toEqual({
+      kind: "open",
+      hoursLeft: 2,
+    });
+  });
+
+  it("время в обеденном разрыве → opensLater к началу второго окна", () => {
+    expect(computeOpenStatus(split, "UTC", at("13:00"))).toEqual({
+      kind: "opensLater",
+      opensAt: "14:00",
+      minutesUntilOpen: 60,
+    });
+  });
+
+  it("время внутри второго окна → open (вторая итерация цикла)", () => {
+    // 15:00, до 18:00 = 180 мин → open ~3 ч
+    expect(computeOpenStatus(split, "UTC", at("15:00"))).toEqual({
+      kind: "open",
+      hoursLeft: 3,
+    });
+  });
+
+  it("до первого окна → opensLater к 09:00 (next — самое раннее из нескольких)", () => {
+    expect(computeOpenStatus(split, "UTC", at("08:00"))).toEqual({
+      kind: "opensLater",
+      opensAt: "09:00",
+      minutesUntilOpen: 60,
+    });
+  });
+
+  it("после обоих окон → closedToday", () => {
+    expect(computeOpenStatus(split, "UTC", at("19:00"))).toEqual({
+      kind: "closedToday",
+    });
+  });
+
+  it("интервалы в обратном порядке сортируются по открытию (тот же ответ)", () => {
+    const reversed = [day("14:00", "18:00"), day("09:00", "12:00")];
+    expect(computeOpenStatus(reversed, "UTC", at("13:00"))).toEqual({
+      kind: "opensLater",
+      opensAt: "14:00",
+      minutesUntilOpen: 60,
+    });
+  });
+});
+
 describe("isGoNowStatus («Пойти сейчас»)", () => {
   const open: OpenStatus = { kind: "open", hoursLeft: 3 };
   const soon: OpenStatus = { kind: "closingSoon" };
