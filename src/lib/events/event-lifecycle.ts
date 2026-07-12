@@ -59,8 +59,12 @@ export function buildEventLifecycleWhere(
   }
 
   if (type === "past") {
+    // Разовое событие хранит endDate=null (мастер-класс на один день).
+    // computeEventStatus для startDate<=now и endDate=null возвращает "past",
+    // но `endDate < now` в Prisma не матчит строки с NULL — без второй ветки
+    // такие прошедшие события молча выпадали из вкладки и из /api/events.
     return {
-      endDate: { lt: now },
+      OR: [{ endDate: { lt: now } }, { endDate: null, startDate: { lte: now } }],
     };
   }
 
