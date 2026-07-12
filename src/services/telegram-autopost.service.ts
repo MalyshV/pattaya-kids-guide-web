@@ -8,6 +8,7 @@
 import { prisma } from "@/db/prisma";
 import { mapEventListItemToDto } from "@/mappers/event.mapper";
 import { sendMessage, sendPhoto, TelegramApiError } from "@/lib/telegram/client";
+import { shouldReleaseClaim } from "@/lib/telegram/autopost-policy";
 import {
   buildEventPost,
   buildPlacePost,
@@ -217,8 +218,18 @@ export async function runAutopost(
     try {
       message = await sendChannelPost(channelId, candidate.post);
     } catch (error) {
-      // отправка не удалась — освобождаем бронь, чтобы пост не потерялся
-      await prisma.telegramPost.delete({ where: { id: claimId } }).catch(() => {});
+      if (shouldReleaseClaim(error)) {
+        // Telegram явно отклонил — пост не ушёл, освобождаем бронь под повтор
+        await prisma.telegramPost.delete({ where: { id: claimId } }).catch(() => {});
+      } else {
+        // таймаут/сеть: исход неизвестен — бронь оставляем, чтобы не рискнуть
+        // дублем в канале (максимум потеряем один пост)
+        console.error(
+          `Автопост «${candidate.title}»: отправка оборвалась неоднозначно ` +
+            `(${error instanceof Error ? error.message : String(error)}). Бронь ` +
+            `оставлена во избежание дубля — при необходимости опубликуйте вручную.`,
+        );
+      }
       throw error;
     }
 
