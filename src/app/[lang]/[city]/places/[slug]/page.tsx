@@ -19,7 +19,7 @@ import {
   isExternalContact,
   showsContactValue,
 } from "@/lib/contacts/contact-link";
-import { metaDescription } from "@/lib/seo/meta";
+import { articleOpenGraph, metaDescription } from "@/lib/seo/meta";
 import { dateLocale, getDictionary, type Dictionary } from "@/content/dictionary";
 
 type PageProps = {
@@ -41,10 +41,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const dict = getDictionary(lang);
+  const title = `${place.name} — ${dict.brand}`;
+  const description = metaDescription(place.description, dict.meta.description);
 
   return {
-    title: `${place.name} — ${dict.brand}`,
-    description: metaDescription(place.description, dict.meta.description),
+    title,
+    description,
+    openGraph: articleOpenGraph({
+      title,
+      description,
+      siteName: dict.brand,
+      path: `${cityBasePath(lang, citySlug)}/places/${slug}`,
+      imageUrl: place.imageUrl,
+      lang,
+    }),
   };
 }
 

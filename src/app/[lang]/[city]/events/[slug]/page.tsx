@@ -9,7 +9,7 @@ import { getApprovedEventBySlug } from "@/services/events.service";
 import { ZoomableImage } from "@/components/common/zoomable-image";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
-import { metaDescription } from "@/lib/seo/meta";
+import { articleOpenGraph, metaDescription } from "@/lib/seo/meta";
 import { dateLocale, getDictionary, type Dictionary } from "@/content/dictionary";
 
 type PageProps = {
@@ -31,10 +31,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const dict = getDictionary(lang);
+  const title = `${event.title} — ${dict.brand}`;
+  const description = metaDescription(event.description, dict.meta.description);
 
   return {
-    title: `${event.title} — ${dict.brand}`,
-    description: metaDescription(event.description, dict.meta.description),
+    title,
+    description,
+    openGraph: articleOpenGraph({
+      title,
+      description,
+      siteName: dict.brand,
+      path: `${cityBasePath(lang, citySlug)}/events/${slug}`,
+      imageUrl: event.imageUrl,
+      lang,
+    }),
   };
 }
 
