@@ -138,6 +138,7 @@ export default async function EventDetailsPage({
         alt={dto.title}
         className="place-image-hero"
         sizes="(max-width: 940px) 100vw, 900px"
+        priority
       />
 
       <section className="hero">

@@ -9,6 +9,12 @@ type PlaceImageProps = {
    * и отдаст WebP под конкретный экран). Дефолт — карточка в сетке.
    */
   sizes?: string;
+  /**
+   * true — грузить сразу, без ленивой загрузки. Ставим только hero-обложке
+   * на странице деталей (это LCP-элемент над сгибом); карточкам в сетке —
+   * нет, там ленивость правильна.
+   */
+  priority?: boolean;
 };
 
 /**
@@ -22,6 +28,7 @@ export function PlaceImage({
   alt,
   className,
   sizes = "(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 370px",
+  priority = false,
 }: PlaceImageProps): React.ReactElement {
   const cls = `place-image${className ? ` ${className}` : ""}`;
 
@@ -49,14 +56,26 @@ export function PlaceImage({
     return (
       <div className={cls}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={url} alt={alt} className="place-image-img" loading="lazy" />
+        <img
+          src={url}
+          alt={alt}
+          className="place-image-img"
+          loading={priority ? "eager" : "lazy"}
+        />
       </div>
     );
   }
 
   return (
     <div className={cls}>
-      <Image src={url} alt={alt} fill sizes={sizes} className="place-image-img" />
+      <Image
+        src={url}
+        alt={alt}
+        fill
+        sizes={sizes}
+        className="place-image-img"
+        priority={priority}
+      />
     </div>
   );
 }
