@@ -6,6 +6,7 @@
  */
 
 import { prisma } from "@/db/prisma";
+import { buildEventLifecycleWhere, eventWindowDate } from "@/lib/events/event-lifecycle";
 import { mapEventListItemToDto } from "@/mappers/event.mapper";
 import { sendMessage, sendPhoto, TelegramApiError } from "@/lib/telegram/client";
 import { shouldReleaseClaim } from "@/lib/telegram/autopost-policy";
@@ -53,9 +54,10 @@ type PostCandidate = {
 };
 
 /**
- * Кандидаты на публикацию: сперва будущие одобренные события (старые заявки
- * первыми), затем — новые одобренные места. Журнал читаем целиком в память:
- * каталог маленький (сотни записей), это осознанное упрощение.
+ * Кандидаты на публикацию: сперва одобренные события, которые ещё идут или ещё
+ * не начались (ближайшие по окну показа первыми), затем — новые одобренные
+ * места. Журнал читаем целиком в память: каталог маленький (сотни записей),
+ * это осознанное упрощение.
  */
 async function findCandidates(limit: number): Promise<PostCandidate[]> {
   const now = new Date();
@@ -78,15 +80,33 @@ async function findCandidates(limit: number): Promise<PostCandidate[]> {
       // ссылки постов жёстко /ru/pattaya/... — берём только контент этого
       // города, иначе событие без города дало бы битую ссылку в канале
       city: { slug: POST_CITY_SLUG },
-      startDate: { gt: now },
+      // upcoming + ongoing: постим и ещё не начавшиеся, и уже идущие (напр.
+      // месячная выставка, одобренная после старта — иначе она не попала бы в
+      // канал ни разу). Прошедшие, включая разовые с endDate=null, не берём:
+      // окно показа уже закрыто. Ветки — из того же источника, что и витрина.
+      OR: [
+        buildEventLifecycleWhere("upcoming", now),
+        buildEventLifecycleWhere("ongoing", now),
+      ],
       id: { notIn: postedEventIds },
     },
-    orderBy: { createdAt: "asc" },
-    take: limit,
     include: { place: true },
   });
 
-  const candidates: PostCandidate[] = events.map((event) => ({
+  // Порядок — по близости окна: истекающие ongoing и ближайшие upcoming вперёд,
+  // чтобы близкое к дате событие не застряло в хвосте очереди и не прошло мимо.
+  // При равном окне — старые заявки первыми (честная очередь модерации).
+  // Срез до limit делаем здесь: запрос выбирает всех кандидатов (каталог мал).
+  const orderedEvents = events
+    .sort((a, b) => {
+      const byWindow =
+        eventWindowDate(a.startDate, a.endDate, now).getTime() -
+        eventWindowDate(b.startDate, b.endDate, now).getTime();
+      return byWindow !== 0 ? byWindow : a.createdAt.getTime() - b.createdAt.getTime();
+    })
+    .slice(0, limit);
+
+  const candidates: PostCandidate[] = orderedEvents.map((event) => ({
     entityType: "EVENT",
     entityId: event.id,
     title: event.title,

@@ -3,6 +3,7 @@ import {
   buildEventLifecycleWhere,
   computeEventStatus,
   eventSortRank,
+  eventWindowDate,
 } from "./event-lifecycle";
 import { EVENT_TYPES } from "@/lib/constants/event-types";
 
@@ -46,6 +47,33 @@ describe("eventSortRank (идущие → будущие → прошедшие)
     expect(eventSortRank("upcoming")).toBe(1);
     expect(eventSortRank("past")).toBe(2);
     expect(eventSortRank(undefined)).toBe(2);
+  });
+});
+
+describe("eventWindowDate (сортировка по близости окна)", () => {
+  it("upcoming меряем по началу (когда откроется)", () => {
+    const start = d("2026-07-09T10:00:00Z");
+    expect(eventWindowDate(start, null, NOW)).toBe(start);
+    expect(eventWindowDate(start, d("2026-07-10T10:00:00Z"), NOW)).toBe(start);
+  });
+
+  it("ongoing меряем по концу (когда окно закроется)", () => {
+    const end = d("2026-07-31T10:00:00Z");
+    expect(eventWindowDate(d("2026-07-01T10:00:00Z"), end, NOW)).toBe(end);
+  });
+
+  it("конец ровно сейчас — ещё ongoing, меряем по концу", () => {
+    expect(eventWindowDate(d("2026-07-07T10:00:00Z"), NOW, NOW)).toBe(NOW);
+  });
+
+  it("истекающее ongoing идёт раньше дальнего upcoming", () => {
+    const ongoingEnd = eventWindowDate(
+      d("2026-07-01T10:00:00Z"),
+      d("2026-07-10T10:00:00Z"),
+      NOW,
+    );
+    const upcomingStart = eventWindowDate(d("2026-07-20T10:00:00Z"), null, NOW);
+    expect(ongoingEnd.getTime()).toBeLessThan(upcomingStart.getTime());
   });
 });
 
