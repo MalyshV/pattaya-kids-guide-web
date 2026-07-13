@@ -23,6 +23,20 @@ export function computeEventStatus(
 }
 
 /**
+ * Дата ближайшей границы окна показа — для сортировки «что важнее показать
+ * раньше»: идущее событие меряем по концу (когда окно закроется), остальное —
+ * по началу (когда откроется). Раньше эта дата → раньше очередь (напр. автопост
+ * в канал: истекающие ongoing и ближайшие upcoming идут первыми). Согласовано с
+ * computeEventStatus: для ongoing endDate гарантированно не null.
+ */
+export function eventWindowDate(startDate: Date, endDate: Date | null, now: Date): Date {
+  if (computeEventStatus(startDate, endDate, now) === "ongoing" && endDate) {
+    return endDate;
+  }
+  return startDate;
+}
+
+/**
  * Ранг для сортировки списка событий: сначала идущие сейчас (0), затем будущие
  * (1), затем прошедшие (2). Внутри группы порядок задаётся по дате отдельно
  * (будущие — по возрастанию, прошедшие — свежие выше).
