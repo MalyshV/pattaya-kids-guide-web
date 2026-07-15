@@ -1308,6 +1308,231 @@ async function main() {
   });
 
   // =========================
+  // РЕАЛЬНОЕ МЕСТО: Gaya Wellness Studio (филиал Pattaya Klang)
+  // Источники (2026-07-15): скриншот карточки Google Maps + Instagram-постеры
+  // @gayawellnessstudio (Вероника). Студия пилатеса на реформерах, запустила
+  // детское направление Kids Pilates (10–15 лет). Уточнить (нет на скринах,
+  // gaps поведёт): кондиционер / Wi-Fi / розетки / место посидеть / можно ли
+  // оставить ребёнка / языки персонала / обычная цена занятий. Фото — только
+  // их IG-реклама (чужие права), обложка пока плейсхолдер.
+  // =========================
+  const gayaData = {
+    name: "Gaya Wellness Studio",
+    description:
+      "Студия пилатеса на реформерах в центре Паттайи (район Pattaya Klang). Летом 2026 студия запустила детское направление — Kids Pilates для детей 10–15 лет: занятия на профессиональном оборудовании небольшими группами, с инструктором. Запись через Instagram или Line студии.",
+    descriptionEn:
+      "A reformer Pilates studio in central Pattaya (Pattaya Klang). In summer 2026 the studio launched a kids' program — Kids Pilates for ages 10–15: small-group sessions on professional equipment with an instructor. Book via the studio's Instagram or Line.",
+    address: "512/10 Moo 9, Pattaya City, Bang Lamung District, Chon Buri 20150",
+    latitude: 12.9328173,
+    longitude: 100.8973319,
+    // Проверенная карточка места в Google Maps (ссылка от Вероники, трекинг-хвост обрезан)
+    googleMapsUrl:
+      "https://www.google.com/maps/place/Gaya+Wellness+studio+(+Branch+2+-+Pattaya+Klang)/@12.9328225,100.894757,1057m/data=!3m2!1e3!4b1!4m6!3m5!1s0x31029500019e164b:0xaadbe130a9c424c0!8m2!3d12.9328173!4d100.8973319!16s%2Fg%2F11w8sf4vc5",
+    indoor: true,
+    outdoor: false,
+    status: "APPROVED" as const,
+    cityId: pattaya.id,
+  };
+  const gaya = await prisma.place.upsert({
+    where: { cityId_slug: { cityId: pattaya.id, slug: "gaya-wellness-studio" } },
+    update: gayaData,
+    create: { ...gayaData, slug: "gaya-wellness-studio" },
+  });
+
+  // Возраст Gaya: детское направление 10–15 лет (Kids Pilates)
+  const ageGroup10to15 = await prisma.ageGroup.upsert({
+    where: { minAge_maxAge: { minAge: 10, maxAge: 15 } },
+    update: { name: "10–15 лет", nameEn: "10–15 years" },
+    create: { name: "10–15 лет", nameEn: "10–15 years", minAge: 10, maxAge: 15 },
+  });
+  await prisma.placeAgeGroup.upsert({
+    where: {
+      placeId_ageGroupId: { placeId: gaya.id, ageGroupId: ageGroup10to15.id },
+    },
+    update: {},
+    create: { placeId: gaya.id, ageGroupId: ageGroup10to15.id },
+  });
+
+  // Контакты Gaya (карточка Google + Instagram/Line из постеров)
+  await prisma.placeContact.deleteMany({ where: { placeId: gaya.id } });
+  await prisma.placeContact.createMany({
+    data: [
+      { placeId: gaya.id, type: "phone", value: "087 834 4455", order: 1 },
+      { placeId: gaya.id, type: "line", value: "@gayawellnessstudio", order: 2 },
+      {
+        placeId: gaya.id,
+        type: "instagram",
+        value: "https://www.instagram.com/gayawellnessstudio",
+        order: 3,
+      },
+    ],
+  });
+
+  // Часы работы Gaya (карточка Google): Пн–Пт 08:00–21:00, Сб–Вс 09:30–13:00
+  await prisma.placeSchedule.deleteMany({ where: { placeId: gaya.id } });
+  await prisma.placeSchedule.createMany({
+    data: [
+      ...(["MON", "TUE", "WED", "THU", "FRI"] as const).map((day) => ({
+        placeId: gaya.id,
+        day,
+        openTime: "08:00",
+        closeTime: "21:00",
+        isClosed: false,
+      })),
+      ...(["SAT", "SUN"] as const).map((day) => ({
+        placeId: gaya.id,
+        day,
+        openTime: "09:30",
+        closeTime: "13:00",
+        isClosed: false,
+      })),
+    ],
+  });
+
+  // РЕАЛЬНОЕ СОБЫТИЕ: «Детский пилатес — первый класс» (постер @gayawellnessstudio).
+  // Разовый первый класс субботы 18.07.2026, 15:00–16:00 по Паттайе (UTC+7 → 08:00Z).
+  // Если субботние занятия станут регулярными — перевести в раздел «Занятия» (COURSE).
+  const gayaKidsPilatesData = {
+    title: "Детский пилатес — первый класс",
+    titleEn: "Kids Pilates — First Class",
+    description:
+      "Первое занятие детского пилатеса в студии Gaya (Pattaya Klang) с инструктором Yoyo. Реформер-пилатес для детей 10–15 лет в небольшой группе — всего 7 мест. Нужно согласие родителя. Стоимость — 699 ฿ за ребёнка. Запись через Instagram или Line студии @gayawellnessstudio.",
+    descriptionEn:
+      "The first kids' Pilates class at Gaya studio (Pattaya Klang) with instructor Yoyo. Reformer Pilates for ages 10–15 in a small group — only 7 spots. Parental consent required. 699 ฿ per child. Book via the studio's Instagram or Line @gayawellnessstudio.",
+    startDate: new Date("2026-07-18T08:00:00Z"),
+    endDate: new Date("2026-07-18T09:00:00Z"),
+    placeId: gaya.id,
+    status: "APPROVED" as const,
+    cityId: pattaya.id,
+  };
+  const gayaKidsPilates = await prisma.event.upsert({
+    where: { cityId_slug: { cityId: pattaya.id, slug: "gaya-kids-pilates" } },
+    update: gayaKidsPilatesData,
+    create: { ...gayaKidsPilatesData, slug: "gaya-kids-pilates" },
+  });
+  if (workshopCategory) {
+    await prisma.eventCategoryLink.upsert({
+      where: {
+        eventId_categoryId: {
+          eventId: gayaKidsPilates.id,
+          categoryId: workshopCategory.id,
+        },
+      },
+      update: {},
+      create: { eventId: gayaKidsPilates.id, categoryId: workshopCategory.id },
+    });
+  }
+
+  // =========================
+  // РЕАЛЬНОЕ МЕСТО: Skippy Land (Lotus's North Pattaya)
+  // Источники (2026-07-15): фото Вероники с места (её собственные — права её) +
+  // карточка Google Maps. Skippy Land — сеть игровых в гипермаркетах Lotus; в
+  // ЭТОМ ТЦ две одинаковые зоны Skippy Land рядом (слева и справа от фудкорта) —
+  // заносим ОДНОЙ карточкой (Вероника уточнит на визите, разные ли это места).
+  // Внутри каждой: мягкая игровая Kid's Soft Play (вход 60฿, рост 90–135 см,
+  // носки) + зал аркадных автоматов и качалок. Уточнить (gaps ведёт): можно ли
+  // оставить ребёнка, Wi-Fi/розетки, точный возраст, контакты, точный адрес ТЦ.
+  // =========================
+  const skippyLandData = {
+    name: "Skippy Land (Lotus's North Pattaya)",
+    nameEn: "Skippy Land (Lotus's North Pattaya)",
+    imageUrl: "/images/places/skippy-land.jpg",
+    description:
+      "Крытая детская игровая в торговом центре Lotus's North Pattaya (2 этаж, у фудкорта). Здесь две игровые зоны Skippy Land рядом — слева и справа от фудкорта. В каждой: мягкая игровая Kid's Soft Play с бассейном из шариков, горками и лазалками (вход 60 ฿, рост 90–135 см, обязательны носки — можно купить на месте) и зал аркадных автоматов и качалок. Есть кондиционер, работает персонал. Пока ребёнок играет, рядом можно закупиться в Lotus's и поесть на фудкорте; неподалёку — крупный международный детский сад.",
+    descriptionEn:
+      "An indoor kids' play area in Lotus's North Pattaya mall (2nd floor, by the food court). There are two Skippy Land zones side by side — to the left and right of the food court. Each has a Kid's Soft Play area with a ball pit, slides and climbing frames (entry 60 ฿, height 90–135 cm, socks required — available on site) plus a hall of arcade machines and coin-op rides. Air-conditioned, with staff on site. While your child plays you can shop at Lotus's and grab a bite at the food court nearby; a large international kindergarten is close by.",
+    address:
+      "Lotus's North Pattaya (2 этаж), Muang Pattaya, Bang Lamung District, Chon Buri 20150",
+    latitude: 12.9508423,
+    longitude: 100.8933732,
+    googleMapsUrl:
+      "https://www.google.com/maps/place/Lotus's+North+Pattaya/@12.9508423,100.8918368,528m/data=!3m1!1e3!4m9!1m2!2m1!1ssoft+play!3m5!1s0x3102bfb3a6501d63:0x4dad9ccd9cbf816f!8m2!3d12.9508423!4d100.8933732!16s%2Fg%2F11hd_yk9xg",
+    indoor: true,
+    outdoor: false,
+    hasAirCon: true, // термометр 23°C на фото — помещение кондиционировано
+    hasParking: true, // парковка торгового центра (подтверждено Вероникой)
+    animalContact: false,
+    status: "APPROVED" as const,
+    cityId: pattaya.id,
+  };
+  const skippyLand = await prisma.place.upsert({
+    where: { cityId_slug: { cityId: pattaya.id, slug: "skippy-land-lotus-north" } },
+    update: skippyLandData,
+    create: { ...skippyLandData, slug: "skippy-land-lotus-north" },
+  });
+
+  // Категория: крытая игровая
+  {
+    const indoorCategory = await prisma.category.findUnique({
+      where: { slug: "indoor-playground" },
+    });
+    if (indoorCategory) {
+      await prisma.placeCategory.upsert({
+        where: {
+          placeId_categoryId: { placeId: skippyLand.id, categoryId: indoorCategory.id },
+        },
+        update: {},
+        create: { placeId: skippyLand.id, categoryId: indoorCategory.id },
+      });
+    }
+  }
+
+  // Часы (таблички Skippy Land): будни 14:00–22:00, выходные 10:00–22:00. На
+  // табличках время зависит от возраста ребёнка (тайский закон об игровых) —
+  // берём максимальный интервал работы места, нюанс возрастов — в описании.
+  await prisma.placeSchedule.deleteMany({ where: { placeId: skippyLand.id } });
+  await prisma.placeSchedule.createMany({
+    data: [
+      ...(["MON", "TUE", "WED", "THU", "FRI"] as const).map((day) => ({
+        placeId: skippyLand.id,
+        day,
+        openTime: "14:00",
+        closeTime: "22:00",
+        isClosed: false,
+      })),
+      ...(["SAT", "SUN"] as const).map((day) => ({
+        placeId: skippyLand.id,
+        day,
+        openTime: "10:00",
+        closeTime: "22:00",
+        isClosed: false,
+      })),
+    ],
+  });
+
+  // «Полезно знать»: носки (обязательны в мягкой игровой)
+  await prisma.placeTip.deleteMany({ where: { placeId: skippyLand.id } });
+  await prisma.placeTip.create({
+    data: {
+      placeId: skippyLand.id,
+      topic: "socks",
+      text: "В мягкую игровую Kid's Soft Play пускают только в носках — нужны и детям, и взрослым. Можно купить на месте (антискользящие, разных цветов).",
+      textEn:
+        "The Kid's Soft Play area requires socks — for both kids and adults. They're available on site (non-slip, various colours).",
+      order: 1,
+    },
+  });
+
+  // Мини-галерея (фото Вероники с места)
+  await prisma.placePhoto.deleteMany({ where: { placeId: skippyLand.id } });
+  await prisma.placePhoto.createMany({
+    data: [
+      {
+        placeId: skippyLand.id,
+        url: "/images/places/skippy-land-softplay.jpg",
+        caption: "Мягкая игровая Kid's Soft Play",
+        order: 1,
+      },
+      {
+        placeId: skippyLand.id,
+        url: "/images/places/skippy-land-play.jpg",
+        caption: "Бассейн с шариками и горки",
+        order: 2,
+      },
+    ],
+  });
+
+  // =========================
   // [ДЕМО] РАЗВИВАШКА В САДУ — занятие БЕЗ каталожного места (п.9 финал).
   // Показывает, как выглядит развивашка на базе сада (у сада нет своей страницы):
   // место проведения — текстом (venueName/venueAddress), город задан явно (cityId).
