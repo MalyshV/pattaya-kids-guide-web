@@ -1308,6 +1308,122 @@ async function main() {
   });
 
   // =========================
+  // РЕАЛЬНОЕ МЕСТО: Gaya Wellness Studio (филиал Pattaya Klang)
+  // Источники (2026-07-15): скриншот карточки Google Maps + Instagram-постеры
+  // @gayawellnessstudio (Вероника). Студия пилатеса на реформерах, запустила
+  // детское направление Kids Pilates (10–15 лет). Уточнить (нет на скринах,
+  // gaps поведёт): кондиционер / Wi-Fi / розетки / место посидеть / можно ли
+  // оставить ребёнка / языки персонала / обычная цена занятий. Фото — только
+  // их IG-реклама (чужие права), обложка пока плейсхолдер.
+  // =========================
+  const gayaData = {
+    name: "Gaya Wellness Studio",
+    description:
+      "Студия пилатеса на реформерах в центре Паттайи (район Pattaya Klang). Летом 2026 студия запустила детское направление — Kids Pilates для детей 10–15 лет: занятия на профессиональном оборудовании небольшими группами, с инструктором. Запись через Instagram или Line студии.",
+    descriptionEn:
+      "A reformer Pilates studio in central Pattaya (Pattaya Klang). In summer 2026 the studio launched a kids' program — Kids Pilates for ages 10–15: small-group sessions on professional equipment with an instructor. Book via the studio's Instagram or Line.",
+    address: "512/10 Moo 9, Pattaya City, Bang Lamung District, Chon Buri 20150",
+    latitude: 12.9328173,
+    longitude: 100.8973319,
+    // Проверенная карточка места в Google Maps (ссылка от Вероники, трекинг-хвост обрезан)
+    googleMapsUrl:
+      "https://www.google.com/maps/place/Gaya+Wellness+studio+(+Branch+2+-+Pattaya+Klang)/@12.9328225,100.894757,1057m/data=!3m2!1e3!4b1!4m6!3m5!1s0x31029500019e164b:0xaadbe130a9c424c0!8m2!3d12.9328173!4d100.8973319!16s%2Fg%2F11w8sf4vc5",
+    indoor: true,
+    outdoor: false,
+    status: "APPROVED" as const,
+    cityId: pattaya.id,
+  };
+  const gaya = await prisma.place.upsert({
+    where: { cityId_slug: { cityId: pattaya.id, slug: "gaya-wellness-studio" } },
+    update: gayaData,
+    create: { ...gayaData, slug: "gaya-wellness-studio" },
+  });
+
+  // Возраст Gaya: детское направление 10–15 лет (Kids Pilates)
+  const ageGroup10to15 = await prisma.ageGroup.upsert({
+    where: { minAge_maxAge: { minAge: 10, maxAge: 15 } },
+    update: { name: "10–15 лет", nameEn: "10–15 years" },
+    create: { name: "10–15 лет", nameEn: "10–15 years", minAge: 10, maxAge: 15 },
+  });
+  await prisma.placeAgeGroup.upsert({
+    where: {
+      placeId_ageGroupId: { placeId: gaya.id, ageGroupId: ageGroup10to15.id },
+    },
+    update: {},
+    create: { placeId: gaya.id, ageGroupId: ageGroup10to15.id },
+  });
+
+  // Контакты Gaya (карточка Google + Instagram/Line из постеров)
+  await prisma.placeContact.deleteMany({ where: { placeId: gaya.id } });
+  await prisma.placeContact.createMany({
+    data: [
+      { placeId: gaya.id, type: "phone", value: "087 834 4455", order: 1 },
+      { placeId: gaya.id, type: "line", value: "@gayawellnessstudio", order: 2 },
+      {
+        placeId: gaya.id,
+        type: "instagram",
+        value: "https://www.instagram.com/gayawellnessstudio",
+        order: 3,
+      },
+    ],
+  });
+
+  // Часы работы Gaya (карточка Google): Пн–Пт 08:00–21:00, Сб–Вс 09:30–13:00
+  await prisma.placeSchedule.deleteMany({ where: { placeId: gaya.id } });
+  await prisma.placeSchedule.createMany({
+    data: [
+      ...(["MON", "TUE", "WED", "THU", "FRI"] as const).map((day) => ({
+        placeId: gaya.id,
+        day,
+        openTime: "08:00",
+        closeTime: "21:00",
+        isClosed: false,
+      })),
+      ...(["SAT", "SUN"] as const).map((day) => ({
+        placeId: gaya.id,
+        day,
+        openTime: "09:30",
+        closeTime: "13:00",
+        isClosed: false,
+      })),
+    ],
+  });
+
+  // РЕАЛЬНОЕ СОБЫТИЕ: «Детский пилатес — первый класс» (постер @gayawellnessstudio).
+  // Разовый первый класс субботы 18.07.2026, 15:00–16:00 по Паттайе (UTC+7 → 08:00Z).
+  // Если субботние занятия станут регулярными — перевести в раздел «Занятия» (COURSE).
+  const gayaKidsPilatesData = {
+    title: "Детский пилатес — первый класс",
+    titleEn: "Kids Pilates — First Class",
+    description:
+      "Первое занятие детского пилатеса в студии Gaya (Pattaya Klang) с инструктором Yoyo. Реформер-пилатес для детей 10–15 лет в небольшой группе — всего 7 мест. Нужно согласие родителя. Стоимость — 699 ฿ за ребёнка. Запись через Instagram или Line студии @gayawellnessstudio.",
+    descriptionEn:
+      "The first kids' Pilates class at Gaya studio (Pattaya Klang) with instructor Yoyo. Reformer Pilates for ages 10–15 in a small group — only 7 spots. Parental consent required. 699 ฿ per child. Book via the studio's Instagram or Line @gayawellnessstudio.",
+    startDate: new Date("2026-07-18T08:00:00Z"),
+    endDate: new Date("2026-07-18T09:00:00Z"),
+    placeId: gaya.id,
+    status: "APPROVED" as const,
+    cityId: pattaya.id,
+  };
+  const gayaKidsPilates = await prisma.event.upsert({
+    where: { cityId_slug: { cityId: pattaya.id, slug: "gaya-kids-pilates" } },
+    update: gayaKidsPilatesData,
+    create: { ...gayaKidsPilatesData, slug: "gaya-kids-pilates" },
+  });
+  if (workshopCategory) {
+    await prisma.eventCategoryLink.upsert({
+      where: {
+        eventId_categoryId: {
+          eventId: gayaKidsPilates.id,
+          categoryId: workshopCategory.id,
+        },
+      },
+      update: {},
+      create: { eventId: gayaKidsPilates.id, categoryId: workshopCategory.id },
+    });
+  }
+
+  // =========================
   // [ДЕМО] РАЗВИВАШКА В САДУ — занятие БЕЗ каталожного места (п.9 финал).
   // Показывает, как выглядит развивашка на базе сада (у сада нет своей страницы):
   // место проведения — текстом (venueName/venueAddress), город задан явно (cityId).
