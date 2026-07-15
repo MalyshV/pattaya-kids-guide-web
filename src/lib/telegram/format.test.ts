@@ -22,6 +22,8 @@ function eventDto(overrides: Partial<EventListItemDto> = {}): EventListItemDto {
     description: null,
     startDate: "2026-07-12T03:00:00.000Z", // 10:00 по Паттайе
     endDate: null,
+    minAgeMonths: null,
+    maxAgeMonths: null,
     locationName: null,
     address: null,
     place: null,
@@ -86,6 +88,13 @@ describe("buildEventPost", () => {
   it("картинка из public превращается в абсолютный URL", () => {
     const post = buildEventPost(eventDto({ imageUrl: "/images/events/fair.jpg" }));
     expect(post.photoUrl).toBe("https://example.test/images/events/fair.jpg");
+  });
+
+  it("возраст события попадает в пост; без возраста строки 👶 нет", () => {
+    const withAge = buildEventPost(eventDto({ minAgeMonths: 120, maxAgeMonths: 180 }));
+    // формат — как на карточках занятий (общий formatAgeRange)
+    expect(withAge.text).toContain("👶 10 лет – 15 лет");
+    expect(buildEventPost(eventDto()).text).not.toContain("👶");
   });
 
   it("локация: имя площадки из place важнее locationName", () => {

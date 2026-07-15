@@ -4,8 +4,22 @@ import type { Dictionary } from "@/content/dictionary";
 
 type EventFiltersProps = {
   type?: string;
+  /// выбранный возраст (?age=) — сохраняется при смене типа события
+  age?: string;
   basePath: string;
 };
+
+function buildTypeHref(basePath: string, type?: string, age?: string): string {
+  const searchParams = new URLSearchParams();
+  if (type) {
+    searchParams.set("type", type);
+  }
+  if (age) {
+    searchParams.set("age", age);
+  }
+  const query = searchParams.toString();
+  return `${basePath}/events${query ? `?${query}` : ""}`;
+}
 
 type EventTypeOption = {
   value: string;
@@ -20,7 +34,11 @@ function buildEventTypeOptions(dict: Dictionary): EventTypeOption[] {
   ];
 }
 
-export function EventFilters({ type, basePath }: EventFiltersProps): React.ReactElement {
+export function EventFilters({
+  type,
+  age,
+  basePath,
+}: EventFiltersProps): React.ReactElement {
   const dict = getDictionary(langFromPath(basePath));
 
   return (
@@ -31,7 +49,7 @@ export function EventFilters({ type, basePath }: EventFiltersProps): React.React
           <p className="section-subtitle">{dict.eventFilters.subtitle}</p>
         </div>
 
-        <Link className="reset-link" href={`${basePath}/events`}>
+        <Link className="reset-link" href={buildTypeHref(basePath, undefined, age)}>
           {dict.eventFilters.showAll}
         </Link>
       </div>
@@ -43,7 +61,7 @@ export function EventFilters({ type, basePath }: EventFiltersProps): React.React
           return (
             <Link
               key={option.value}
-              href={`${basePath}/events?type=${option.value}`}
+              href={buildTypeHref(basePath, option.value, age)}
               aria-current={isActive ? "page" : undefined}
               className={`filter-toggle ${isActive ? "filter-toggle-active" : ""}`}
             >

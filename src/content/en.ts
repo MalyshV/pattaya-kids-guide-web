@@ -324,6 +324,7 @@ export const en: Dictionary = {
   eventCard: {
     starts: "Starts",
     ends: "Ends",
+    ageLabel: "Ages",
     dateTbd: "Date to be confirmed",
     locationTbd: "Location to be confirmed",
     placeLabel: "Place",

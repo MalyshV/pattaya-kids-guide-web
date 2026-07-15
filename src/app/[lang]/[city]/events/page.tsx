@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
+import { AgeQuestion } from "@/components/common/age-question";
 import { EventCard } from "@/components/events/event-card";
 import { EventFilters } from "@/components/events/event-filters";
 import { EventsPagination } from "@/components/events/events-pagination";
+import { matchesAnyAgeBucket, parseAgeBuckets } from "@/lib/age/age-buckets";
 import { mapEventListItemToDto } from "@/mappers/event.mapper";
 import { getAllApprovedEvents } from "@/services/events.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
@@ -58,17 +60,21 @@ export default async function CityEventsPage({
 
   const typeParam = getSingleSearchParam(resolvedSearchParams.type);
   const pageParam = getSingleSearchParam(resolvedSearchParams.page);
+  const ageParam = getSingleSearchParam(resolvedSearchParams.age);
 
   const type = parseEventType(typeParam);
   const currentPage = parsePositiveNumberParam(pageParam) ?? 1;
+  const ageBuckets = parseAgeBuckets(ageParam);
 
   const allEvents = await getAllApprovedEvents({ type }, city.id);
   const now = new Date();
 
   // Живой статус + сортировка: идёт сейчас → будущие (ближайшие выше) →
   // прошедшие в конец (свежие выше). Сортировка до пагинации, как у мест.
+  // Возрастной фильтр — как у занятий: событие без возраста не прячем.
   const eventsWithStatus = allEvents
     .map((event) => mapEventListItemToDto(event, lang))
+    .filter((event) => matchesAnyAgeBucket(event, ageBuckets))
     .map((event) => {
       const startMs = event.startDate ? new Date(event.startDate).getTime() : 0;
       const status = event.startDate
@@ -106,7 +112,13 @@ export default async function CityEventsPage({
         <p className="hero-description">{dict.events.heroDescription}</p>
       </section>
 
-      <EventFilters type={type} basePath={basePath} />
+      <AgeQuestion
+        pathname={`${basePath}/events`}
+        activeBuckets={ageBuckets}
+        preservedParams={{ type }}
+      />
+
+      <EventFilters type={type} basePath={basePath} age={ageParam} />
 
       <section className="results-header">
         <div>
@@ -137,6 +149,7 @@ export default async function CityEventsPage({
             currentPage={safePage}
             totalPages={totalPages}
             type={type}
+            age={ageParam}
             basePath={basePath}
           />
         </>

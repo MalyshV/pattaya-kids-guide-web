@@ -5,6 +5,7 @@ import { EventStatusBadge } from "@/components/events/event-status-badge";
 import type { EventLifecycle } from "@/lib/events/event-lifecycle";
 import { dateLocale, getDictionary, langFromPath } from "@/content/dictionary";
 import type { Dictionary } from "@/content/dictionary";
+import { formatAgeRange } from "@/lib/age/format-age";
 
 type EventCardProps = {
   event: EventListItemDto;
@@ -31,6 +32,7 @@ export function EventCard({
   const lang = langFromPath(basePath);
   const dict = getDictionary(lang);
   const isPast = status === "past";
+  const ageRange = formatAgeRange(event.minAgeMonths, event.maxAgeMonths, lang);
 
   return (
     <article
@@ -67,6 +69,11 @@ export function EventCard({
           {dict.eventCard.ends}{" "}
           {event.endDate ? formatDate(event.endDate, dict, lang) : dict.eventCard.dateTbd}
         </span>
+        {ageRange ? (
+          <span className="feature-chip">
+            {dict.eventCard.ageLabel}: {ageRange}
+          </span>
+        ) : null}
       </div>
 
       <p className="event-card-location">

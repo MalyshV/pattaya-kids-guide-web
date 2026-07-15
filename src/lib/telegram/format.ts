@@ -6,6 +6,7 @@
 
 import type { EventListItemDto } from "@/dto/event-list-item.dto";
 import type { InlineKeyboardMarkup } from "@/lib/telegram/types";
+import { formatAgeRange } from "@/lib/age/format-age";
 
 const BANGKOK_TZ = "Asia/Bangkok";
 
@@ -130,6 +131,12 @@ export function buildEventPost(event: EventListItemDto): ChannelPost {
     "",
     `📅 ${escapeHtml(formatEventDates(event.startDate, event.endDate))}`,
   ];
+
+  // возраст — родительский канал, это первый вопрос «нам подойдёт?»
+  const ageRange = formatAgeRange(event.minAgeMonths, event.maxAgeMonths, "ru");
+  if (ageRange) {
+    lines.push(`👶 ${escapeHtml(ageRange)}`);
+  }
 
   if (location) {
     lines.push(`📍 ${escapeHtml(truncateAtWord(location, LOCATION_MAX_LENGTH))}`);

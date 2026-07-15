@@ -18,6 +18,8 @@ export function mapEventToDto(event: Event, lang: string = "ru"): EventDto {
     description: pickLocalized(event.description, event.descriptionEn, lang),
     startDate: event.startDate.toISOString(),
     endDate: event.endDate ? event.endDate.toISOString() : null,
+    minAgeMonths: event.minAgeMonths,
+    maxAgeMonths: event.maxAgeMonths,
     locationName: pickLocalized(event.locationName, event.locationNameEn, lang),
     address: event.address,
   };
@@ -35,6 +37,8 @@ export function mapEventListItemToDto(
     description: pickLocalized(event.description, event.descriptionEn, lang),
     startDate: event.startDate.toISOString(),
     endDate: event.endDate ? event.endDate.toISOString() : null,
+    minAgeMonths: event.minAgeMonths,
+    maxAgeMonths: event.maxAgeMonths,
     locationName: pickLocalized(event.locationName, event.locationNameEn, lang),
     address: event.address,
     place: event.place

@@ -740,6 +740,23 @@ input {
   border-top: 1px solid rgba(60, 50, 35, 0.12);
 }
 
+/* Блок «Разобрать афишу» над формой события: визуально отделён от полей,
+   тонкая терракотовая полоса слева — как флагманские блоки витрины */
+.admin-flyer {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 24px;
+  padding: 14px 16px;
+  background: var(--surface-muted, #f6f3ee);
+  border-left: 3px solid var(--accent, #c96f4a);
+  border-radius: 8px;
+}
+
+.admin-flyer-notes {
+  margin: 0;
+  padding-left: 18px;
+}
+
 .admin-muted {
   color: var(--muted);
   font-size: 0.9rem;

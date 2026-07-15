@@ -413,6 +413,8 @@ export async function saveEventAction(formData: FormData): Promise<void> {
     descriptionEn: textOrNull(formData, "descriptionEn"),
     startDate: startDate as Date,
     endDate: pattayaDateOrNull(formData, "endDate"),
+    minAgeMonths: intOrNull(formData, "minAgeMonths"),
+    maxAgeMonths: intOrNull(formData, "maxAgeMonths"),
     locationName: textOrNull(formData, "locationName"),
     address: textOrNull(formData, "address"),
     placeId: textOrNull(formData, "placeId"),
@@ -435,8 +437,14 @@ export async function saveEventAction(formData: FormData): Promise<void> {
         });
         return existing !== null;
       });
+      // провенанс: форма ставит sourceType=IMPORT, если поля заполнял парсер
+      // афиши (человек проверил перед сохранением — статус отдельно)
+      const sourceType =
+        text(formData, "sourceType") === "IMPORT"
+          ? ("IMPORT" as const)
+          : ("ADMIN" as const);
       const created = await prisma.event.create({
-        data: { ...data, slug, cityId, sourceType: "ADMIN", isAnonymous: true },
+        data: { ...data, slug, cityId, sourceType, isAnonymous: true },
       });
       eventId = created.id;
     }
