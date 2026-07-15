@@ -5,7 +5,7 @@ import {
   parseGoogleMapsUrl,
   slugifyPlaceName,
 } from "./place-skeleton";
-import type { GooglePlace } from "./google-places-types";
+import type { GoogleOpeningPeriod, GooglePlace } from "./google-places-types";
 
 // Реальный ответ Place Details (New) в сокращении — структура с документации.
 const FULL_PLACE: GooglePlace = {
@@ -56,6 +56,15 @@ describe("openingHoursToSchedules", () => {
       expect(s.openTime).toBe("00:00");
       expect(s.closeTime).toBe("23:59");
     }
+  });
+
+  it("одиночный период без close НЕ-сентинельной формы — не выдумываем 24/7, а честно []", () => {
+    // обрезанный период среды — битые данные, не «всегда открыто»
+    expect(openingHoursToSchedules([{ open: { day: 3, hour: 10, minute: 0 } }])).toEqual(
+      [],
+    );
+    // совсем пустой объект периода (ответ API кастится без валидации)
+    expect(openingHoursToSchedules([{} as GoogleOpeningPeriod])).toEqual([]);
   });
 
   it("дубль (день, открытие) схлопывается — защита unique-индекса расписания", () => {
@@ -136,6 +145,13 @@ describe("parseGoogleMapsUrl", () => {
   it("ссылка без сегмента @координат — запрос без координат", () => {
     const parsed = parseGoogleMapsUrl("https://www.google.com/maps/place/Some+Cafe/");
     expect(parsed).toEqual({ query: "Some Cafe", latitude: null, longitude: null });
+  });
+
+  it("литеральный '+' в названии (%2B) сохраняется, а '+'-пробелы декодируются", () => {
+    const parsed = parseGoogleMapsUrl(
+      "https://www.google.com/maps/place/M%2BM+Kids+Club/@12.9,100.8,500m/",
+    );
+    expect(parsed?.query).toBe("M+M Kids Club");
   });
 
   it("не карточка Maps / не Google / мусор → null", () => {

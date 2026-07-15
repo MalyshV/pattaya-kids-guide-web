@@ -15,11 +15,14 @@
  *
  * По умолчанию — dry-run (ничего не пишет). Запись — только явным --write
  * с явным --id: «дубль страшнее потери» распространяется и на импорт.
+ * Дедуп двухслойный: googlePlaceId (повторный импорт) + совпадение имени/
+ * координат с ручным каталогом (у него googlePlaceId пуст); обход второго
+ * слоя — осознанный --force.
  */
 
-import { prisma } from "../../src/db/prisma";
 import {
   getPlaceDetails,
+  GooglePlacesApiError,
   searchPlacesByText,
 } from "../../src/lib/import/google-places-client";
 import {
@@ -28,15 +31,32 @@ import {
   slugifyPlaceName,
   type PlaceSkeleton,
 } from "../../src/lib/import/place-skeleton";
+import { haversineMeters } from "../../src/lib/geo/distance";
 
 const DEFAULT_CITY_SLUG = "pattaya";
 /// сколько кандидатов поиска показываем (полный список загромождает терминал)
 const MAX_CANDIDATES_SHOWN = 5;
+/// ближе этого расстояния до существующего места — вероятный дубль
+const DUPLICATE_RADIUS_M = 150;
+/// дальше этого расстояния от центра города — предупреждение «не тот город?»
+const CITY_RADIUS_M = 25_000;
+
+// prisma подключаем лениво: dry-run и поиск работают без базы (и не требуют
+// DATABASE_URL), а $disconnect в конце нужен только если база реально трогалась
+type PrismaModule = typeof import("../../src/db/prisma");
+let prismaModule: PrismaModule | null = null;
+async function getPrisma(): Promise<PrismaModule["prisma"]> {
+  if (!prismaModule) {
+    prismaModule = await import("../../src/db/prisma");
+  }
+  return prismaModule.prisma;
+}
 
 type CliArgs = {
   query: string | null;
   placeId: string | null;
   write: boolean;
+  force: boolean;
   citySlug: string;
 };
 
@@ -45,11 +65,14 @@ function parseArgs(argv: string[]): CliArgs {
     query: null,
     placeId: null,
     write: false,
+    force: false,
     citySlug: DEFAULT_CITY_SLUG,
   };
   for (const arg of argv) {
     if (arg === "--write") {
       args.write = true;
+    } else if (arg === "--force") {
+      args.force = true;
     } else if (arg.startsWith("--id=")) {
       args.placeId = arg.slice("--id=".length).trim() || null;
     } else if (arg.startsWith("--city=")) {
@@ -95,6 +118,7 @@ function printSkeleton(skeleton: PlaceSkeleton): void {
 
 /** Свободный slug в городе: base, base-2 … base-9. */
 async function ensureUniqueSlug(cityId: string, base: string): Promise<string> {
+  const prisma = await getPrisma();
   for (let attempt = 0; attempt < 9; attempt++) {
     const candidate = attempt === 0 ? base : `${base}-${attempt + 1}`;
     const taken = await prisma.place.findFirst({
@@ -108,8 +132,46 @@ async function ensureUniqueSlug(cityId: string, base: string): Promise<string> {
   throw new Error(`Не нашёл свободный slug от «${base}» — займитесь вручную`);
 }
 
-async function writeSkeleton(skeleton: PlaceSkeleton, citySlug: string): Promise<void> {
-  // дедуп по каноническому Google Place ID — то, ради чего он в схеме
+/**
+ * Страховка от дубля с РУЧНЫМ каталогом: googlePlaceId ловит только повторный
+ * импорт, а у занесённых руками мест он NULL. Совпадение имени (без регистра)
+ * или место ближе DUPLICATE_RADIUS_M — вероятный дубль.
+ */
+async function findLikelyDuplicate(
+  cityId: string,
+  skeleton: PlaceSkeleton,
+): Promise<{ name: string; slug: string } | null> {
+  const prisma = await getPrisma();
+  const places = await prisma.place.findMany({
+    where: { cityId },
+    select: { name: true, slug: true, latitude: true, longitude: true },
+  });
+  const wantedName = skeleton.name.toLowerCase();
+  for (const place of places) {
+    if (place.name.toLowerCase() === wantedName) {
+      return place;
+    }
+    if (
+      skeleton.latitude !== null &&
+      skeleton.longitude !== null &&
+      haversineMeters(
+        { latitude: skeleton.latitude, longitude: skeleton.longitude },
+        { latitude: place.latitude, longitude: place.longitude },
+      ) < DUPLICATE_RADIUS_M
+    ) {
+      return place;
+    }
+  }
+  return null;
+}
+
+async function writeSkeleton(
+  skeleton: PlaceSkeleton,
+  citySlug: string,
+  force: boolean,
+): Promise<void> {
+  const prisma = await getPrisma();
+  // дедуп по каноническому Google Place ID — ловит повторный ИМПОРТ
   const existing = await prisma.place.findFirst({
     where: { googlePlaceId: skeleton.googlePlaceId },
     select: { slug: true, status: true },
@@ -136,6 +198,34 @@ async function writeSkeleton(skeleton: PlaceSkeleton, citySlug: string): Promise
     console.error(`\nГород «${citySlug}» не найден в базе — сначала общий seed.`);
     process.exitCode = 1;
     return;
+  }
+
+  // ручной каталог не имеет googlePlaceId — дополнительная страховка от дубля
+  const duplicate = await findLikelyDuplicate(city.id, skeleton);
+  if (duplicate && !force) {
+    console.error(
+      `\nПохоже, это место уже есть в каталоге: «${duplicate.name}» (${duplicate.slug}) —\n` +
+        `совпадает название или точка ближе ${DUPLICATE_RADIUS_M} м. Дубль страшнее потери,\n` +
+        `поэтому не записываю. Если это ТОЧНО другое место — повторите с --force.`,
+    );
+    process.exitCode = 1;
+    return;
+  }
+
+  // не тот город? (--city указывает каталог, но Google-место может быть где
+  // угодно — например, филиал той же сети в Бангкоке)
+  if (
+    city.latitude !== null &&
+    city.longitude !== null &&
+    haversineMeters(
+      { latitude: skeleton.latitude, longitude: skeleton.longitude },
+      { latitude: city.latitude, longitude: city.longitude },
+    ) > CITY_RADIUS_M
+  ) {
+    console.warn(
+      `\n⚠ Координаты места дальше ${CITY_RADIUS_M / 1000} км от центра города «${citySlug}».\n` +
+        `  Проверьте, что выбран не филиал в другом городе. Запись продолжаю.`,
+    );
   }
 
   const slug = await ensureUniqueSlug(city.id, slugifyPlaceName(skeleton.name));
@@ -171,13 +261,18 @@ async function writeSkeleton(skeleton: PlaceSkeleton, citySlug: string): Promise
   console.log(`\n✓ Черновик создан: ${place.slug} (PENDING, sourceType IMPORT)`);
   console.log(`\nДальше руками (уникальная ценность — не из Google):`);
   console.log(
+    `  • ⚠ В ПЕРВУЮ ОЧЕРЕДЬ: «В помещении / На улице» — в черновике оба стоят\n` +
+      `    «нет», но это заглушка модели, а не проверенный факт`,
+  );
+  console.log(
     `  • описание RU/EN, категории (подсказка: ${skeleton.googleTypes.join(", ") || "—"})`,
   );
-  console.log(`  • indoor/outdoor, tri-state признаки (AC/Wi-Fi/розетки/…)`);
+  console.log(`  • tri-state признаки (AC/Wi-Fi/розетки/…) — сейчас «уточняется»`);
   console.log(`  • возраст, советы «Полезно знать», цены, фото (только свои!)`);
   console.log(`  • проверить часы на месте — Google бывает устаревшим`);
   console.log(
-    `  • одобрить: /admin/places → статус APPROVED (npm run gaps напомнит пробелы)`,
+    `  • одобрить: /admin/places → статус APPROVED (npm run gaps ведёт пробелы,\n` +
+      `    включая непроверенные In/Outdoor у импортированных мест)`,
   );
 }
 
@@ -189,7 +284,8 @@ async function main(): Promise<void> {
       `Использование:\n` +
         `  npm run import:place -- "название или ссылка на карточку Maps"   — поиск кандидатов\n` +
         `  npm run import:place -- --id=ChIJ...                             — превью скелета\n` +
-        `  npm run import:place -- --id=ChIJ... --write [--city=pattaya]    — записать черновик`,
+        `  npm run import:place -- --id=ChIJ... --write [--city=pattaya]    — записать черновик\n` +
+        `  … --write --force   — записать, даже если похожее место уже есть в каталоге`,
     );
     process.exitCode = 1;
     return;
@@ -215,7 +311,7 @@ async function main(): Promise<void> {
     }
     printSkeleton(skeleton);
     if (args.write) {
-      await writeSkeleton(skeleton, args.citySlug);
+      await writeSkeleton(skeleton, args.citySlug, args.force);
     } else {
       console.log(
         `\nDry-run: ничего не записано. Записать черновик:\n` +
@@ -256,9 +352,29 @@ async function main(): Promise<void> {
   );
 }
 
+/** Типовые ошибки Google — по-русски: CLI пользуется не разработчик. */
+function explainError(error: unknown): string {
+  if (error instanceof GooglePlacesApiError) {
+    if (error.status === 403) {
+      return (
+        `Google не принял ключ (403). Проверьте GOOGLE_PLACES_API_KEY в .env и что\n` +
+        `в проекте включён именно Places API (New) — пошагово: docs/DATA_ENGINE.md.`
+      );
+    }
+    if (error.status === 404) {
+      return `Место с таким --id не нашлось (404). Проверьте, что Place ID скопирован целиком.`;
+    }
+    if (error.status === 429) {
+      return `Google ограничил частоту запросов (429). Подождите минуту и повторите.`;
+    }
+    return error.message;
+  }
+  return error instanceof Error ? error.message : String(error);
+}
+
 main()
   .catch((error) => {
-    console.error(error instanceof Error ? error.message : error);
+    console.error(explainError(error));
     process.exitCode = 1;
   })
-  .finally(() => prisma.$disconnect());
+  .finally(() => prismaModule?.prisma.$disconnect());

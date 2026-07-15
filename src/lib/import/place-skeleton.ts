@@ -71,8 +71,19 @@ export function openingHoursToSchedules(
     return [];
   }
 
-  // круглосуточный режим: единственный период без close
-  if (periods.length === 1 && periods[0] && !periods[0].close) {
+  // круглосуточный режим — строго сентинел Google (один период, open =
+  // воскресенье 00:00, close отсутствует). Одиночный период без close ЛЮБОЙ
+  // другой формы — битые данные: часы честно оставляем пустыми («уточняется»),
+  // а не выдумываем 24/7
+  const single = periods.length === 1 ? periods[0] : undefined;
+  if (
+    single &&
+    !single.close &&
+    single.open &&
+    single.open.day === 0 &&
+    single.open.hour === 0 &&
+    single.open.minute === 0
+  ) {
     return GOOGLE_DAY_TO_ENUM.map((day) => ({
       day,
       openTime: "00:00",
@@ -162,7 +173,10 @@ export function parseGoogleMapsUrl(url: string): MapsUrlQuery | null {
   }
   let query: string;
   try {
-    query = decodeURIComponent(match[1]).replace(/\+/g, " ").trim();
+    // порядок важен: сегмент form-encoded ('+' = пробел, литеральный '+' =
+    // %2B) — сначала '+'→пробел на сырой строке, потом decode, иначе %2B
+    // превратился бы в пробел и запрос исказился (M+M Kids → M M Kids)
+    query = decodeURIComponent(match[1].replace(/\+/g, " ")).trim();
   } catch {
     return null;
   }
