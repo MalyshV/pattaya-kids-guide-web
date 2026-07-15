@@ -29,7 +29,7 @@
 
 ## Статус проекта
 
-Пре-MVP в активной разработке. Модель данных заложена «широко» (мультигород, UGC, модерация, монетизация), наполнение — «узко»: Паттайя, реальные места заносятся вручную по личным визитам. Публичного деплоя пока нет. Актуальные планы — в [docs/](docs/): [ROADMAP.md](docs/ROADMAP.md), [MULTIREGION_PLAN.md](docs/MULTIREGION_PLAN.md), [SMART_FILTERS_PLAN.md](docs/SMART_FILTERS_PLAN.md). Источник истины — код и `git log`.
+Пре-MVP в активной разработке: [pattaya-kids-guide-web.vercel.app](https://pattaya-kids-guide-web.vercel.app) (автодеплой из `main`). Модель данных заложена «широко» (мультигород, UGC, модерация, монетизация), наполнение — «узко»: Паттайя, реальные места заносятся по личным визитам; «скелет» места можно импортировать из Google Places ([docs/DATA_ENGINE.md](docs/DATA_ENGINE.md)). Актуальные планы — в [docs/](docs/): [ROADMAP.md](docs/ROADMAP.md), [MULTIREGION_PLAN.md](docs/MULTIREGION_PLAN.md), [SMART_FILTERS_PLAN.md](docs/SMART_FILTERS_PLAN.md). Источник истины — код и `git log`.
 
 ## Стек
 
@@ -80,7 +80,7 @@ npx tsx prisma/seed.ts    # идемпотентный сид
 npm run dev               # http://localhost:3000 → /ru/pattaya
 ```
 
-Полезные скрипты: `npm run check` (lint + typecheck), `npm run gaps` (что осталось собрать по местам), `npm run fix` (prettier + eslint --fix).
+Полезные скрипты: `npm run check` (lint + typecheck + тесты), `npm run gaps` (что осталось собрать по местам), `npm run fix` (prettier + eslint --fix), `npm run import:place` (импорт скелета места из Google Places — черновик PENDING, [docs/DATA_ENGINE.md](docs/DATA_ENGINE.md)).
 
 ⚠️ После правки `schema.prisma` всегда: `db push` → `generate` → перезапуск dev-сервера (запущенный сервер держит старый клиент).
 
