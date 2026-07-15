@@ -65,11 +65,29 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
     if (!flyerText.trim()) {
       return;
     }
+    // ремаунт сбрасывает ВСЕ поля формы к defaultValue — введённое руками
+    // (место, адрес, EN-тексты, файл обложки) пропадёт; честно спросить
+    if (
+      !window.confirm(
+        "Разбор заполнит поля формы заново — всё, что уже введено руками, сбросится. Продолжить?",
+      )
+    ) {
+      return;
+    }
     setDraft(parseEventFlyer(flyerText, new Date()));
     setAutofillVersion((version) => version + 1);
   };
 
-  const autofilled = draft !== null;
+  // провенанс честен, только если парсер реально дал хотя бы один факт:
+  // «разобрала, ничего не нашлось, заполнила руками» — это ADMIN, не IMPORT
+  const autofilled =
+    draft !== null &&
+    (draft.startDate !== null ||
+      draft.titleCandidate !== null ||
+      draft.priceThb !== null ||
+      draft.minAgeMonths !== null ||
+      draft.maxAgeMonths !== null ||
+      draft.needsBooking);
 
   return (
     <section className="admin-card">
@@ -81,6 +99,11 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
       ) : null}
       {error === "upload" ? (
         <p className="admin-error">Фото не загрузилось — проверьте формат и размер.</p>
+      ) : null}
+      {error === "age" ? (
+        <p className="admin-error">
+          Возраст указан странно (проверьте: значения в месяцах, 0–2400).
+        </p>
       ) : null}
 
       {event ? null : (
@@ -109,6 +132,12 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
               <li>
                 проверьте каждое поле ниже: парсер достаёт факты, но не заменяет глаза
               </li>
+              {autofilled ? (
+                <li>
+                  черновик сохранится <strong>скрытым</strong> («Видимость: скрыто») —
+                  включите показ, когда всё проверено
+                </li>
+              ) : null}
             </ul>
           ) : null}
         </div>

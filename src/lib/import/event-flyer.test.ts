@@ -204,4 +204,32 @@ describe("extractNeedsBooking", () => {
     expect(extractNeedsBooking("Запись по телефону")).toBe(true);
     expect(extractNeedsBooking("Вход свободный")).toBe(false);
   });
+
+  it("«Find us on Facebook» — НЕ запись (границы слова вокруг book)", () => {
+    expect(extractNeedsBooking("Find us on Facebook and Instagram")).toBe(false);
+  });
+});
+
+describe("фиксы по находкам ревью (парсер не путает соседние сущности)", () => {
+  it("цена не склеивается с временем через перенос строки", () => {
+    const draft = parseEventFlyer("Сб 25 июля\n15.00-16.00\n500 бат", NOW);
+    expect(draft.priceThb).toBe(500);
+  });
+
+  it("тайский адрес «512/10 Moo 9» — не дата", () => {
+    expect(extractDates("512/10 Moo 9, Pattaya City", NOW).start).toBeNull();
+  });
+
+  it("«18 июльских скидок» — не дата (граница после имени месяца)", () => {
+    expect(extractDates("18 июльских скидок", NOW).start).toBeNull();
+  });
+
+  it("несуществующее «31 сентября» — не дата (не перекатывается в 1 октября)", () => {
+    const draft = parseEventFlyer("Праздник 31 сентября", NOW);
+    expect(draft.startDate).toBeNull();
+  });
+
+  it("am/pm с точкой-разделителем: «3.30 pm»", () => {
+    expect(extractTimes("3.30 pm")).toEqual({ start: 930, end: null });
+  });
 });

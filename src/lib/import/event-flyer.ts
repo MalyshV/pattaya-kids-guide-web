@@ -136,8 +136,16 @@ function resolveYear(dm: DayMonth, now: Date): { year: number; note?: string } {
   };
 }
 
+/// дней в месяце (февраль 29 — год на этом этапе неизвестен, високосность
+/// не проверяем); «31 сентября» — опечатка, а не дата: JS Date молча
+/// перекатил бы её в 1 октября — семья приехала бы не в тот день
+const DAYS_IN_MONTH = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
 function isValidDayMonth(day: number, month: number): boolean {
-  return month >= 1 && month <= 12 && day >= 1 && day <= 31;
+  if (month < 1 || month > 12 || day < 1) {
+    return false;
+  }
+  return day <= (DAYS_IN_MONTH[month - 1] ?? 0);
 }
 
 /**
@@ -157,19 +165,23 @@ export function extractDates(
   notes: string[];
 } {
   const notes: string[] = [];
+  // (?![а-яёa-z]) после имени месяца — граница слова: иначе «18 июльских
+  // скидок» стало бы датой (JS \b не работает с кириллицей)
   const monthRe = new RegExp(
     // «18[–20] July [2026]» / «с 18 по 20 июля»
-    `(?:с\\s+)?(\\d{1,2})(?:\\s*[–—-]\\s*(\\d{1,2})|\\s+по\\s+(\\d{1,2}))?\\s+(${MONTH_NAMES_PATTERN})\\.?\\s*(\\d{4})?(?:\\s*г\\.?)?`,
+    `(?:с\\s+)?(\\d{1,2})(?:\\s*[–—-]\\s*(\\d{1,2})|\\s+по\\s+(\\d{1,2}))?\\s+(${MONTH_NAMES_PATTERN})(?![а-яёa-z])\\.?\\s*(\\d{4})?(?:\\s*г\\.?)?`,
     "i",
   );
   const monthFirstRe = new RegExp(
     // «July 18[-20][, 2026]»
-    `(${MONTH_NAMES_PATTERN})\\.?\\s+(\\d{1,2})(?:\\s*[–—-]\\s*(\\d{1,2}))?(?:,?\\s*(\\d{4}))?`,
+    `(${MONTH_NAMES_PATTERN})(?![а-яёa-z])\\.?\\s+(\\d{1,2})(?:\\s*[–—-]\\s*(\\d{1,2}))?(?:,?\\s*(\\d{4}))?`,
     "i",
   );
-  // «18.07[.2026]» и диапазон «18.07–20.07»; /-разделитель тоже
+  // «18.07[.2026]» и диапазон «18.07–20.07»; /-разделитель тоже.
+  // (?<!\d)/(?!\d) — границы числа: тайский адрес «512/10 Moo 9» иначе
+  // прочитался бы как дата 12.10
   const numericRe =
-    /(\d{1,2})[./](\d{1,2})(?:[./](\d{4}))?(?:\s*[–—-]\s*(\d{1,2})[./](\d{1,2})(?:[./](\d{4}))?)?/;
+    /(?<![\d.])(\d{1,2})[./](\d{1,2})(?:[./](\d{4}))?(?:\s*[–—-]\s*(\d{1,2})[./](\d{1,2})(?:[./](\d{4}))?)?(?!\d)/;
 
   const m1 = text.match(monthRe);
   if (m1) {
@@ -237,7 +249,7 @@ export function extractTimes(text: string): { start: number | null; end: number 
   // am/pm-вариант — сперва, чтобы «3:30 pm» не распознался как 3:30 утра;
   // \b после am/pm — иначе «15 amazing…» прочиталось бы как «15 am»
   const ampmRe =
-    /(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b(?:\s*[–—-]\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b)?/i;
+    /(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)\b(?:\s*[–—-]\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)\b)?/i;
   const ampm = text.match(ampmRe);
   if (ampm) {
     const toMinutes = (h: string, m: string | undefined, part: string): number => {
@@ -264,11 +276,13 @@ export function extractTimes(text: string): { start: number | null; end: number 
 
 /** Цена в батах: «699 baht», «฿699», «699฿», «699 бат», «THB 699». */
 export function extractPriceThb(text: string): number | null {
+  // в числовом классе НЕТ \n и \s — только пробел: перенос строки отделяет
+  // цену от соседнего времени («15.00-16.00\n500 бат» ≠ 16.005 ฿)
   const patterns = [
-    /฿\s*(\d[\d\s,.]*)/,
-    /(\d[\d\s,.]*)\s*฿/,
-    /(\d[\d\s,.]*)\s*(?:baht|бат(?:ов)?|thb)/i,
-    /(?:thb)\s*(\d[\d\s,.]*)/i,
+    /฿\s*(\d[\d ,.]*)/,
+    /(\d[\d ,.]*)\s*฿/,
+    /(\d[\d ,.]*) ?(?:baht|бат(?:ов)?|thb)/i,
+    /(?:thb) ?(\d[\d ,.]*)/i,
   ];
   for (const re of patterns) {
     const m = text.match(re);
@@ -329,9 +343,10 @@ export function extractAgeMonths(text: string): {
   return { min: null, max: null };
 }
 
-/** Нужна ли запись: booking/register/DM/запись/регистрация в тексте. */
+/** Нужна ли запись: booking/register/запись/регистрация в тексте.
+ *  \b вокруг book — иначе «Find us on Facebook» стало бы «нужна запись». */
 export function extractNeedsBooking(text: string): boolean {
-  return /book(?:ing)?\s|book now|register|reservation|запис(?:ь|аться|ывайтесь)|регистраци|бронь|брониров/i.test(
+  return /\bbook(?:ing)?\b|\bregister|reservation|запис(?:ь|аться|ывайтесь)|регистраци|бронь|брониров/i.test(
     text,
   );
 }
@@ -388,7 +403,16 @@ export function parseEventFlyer(text: string, now: Date): FlyerDraft {
     } else if (times.end !== null) {
       endDate = buildDate(startDm, year, times.end);
     }
-    if (endDate && endDate < startDate) {
+    // несуществующий день («31 сентября») даёт Invalid Date — честный null
+    if (startDate && Number.isNaN(startDate.getTime())) {
+      startDate = null;
+      endDate = null;
+      notes.push("дата выглядит несуществующей (например, 31 сентября) — укажите руками");
+    }
+    if (endDate && Number.isNaN(endDate.getTime())) {
+      endDate = null;
+    }
+    if (startDate && endDate && endDate < startDate) {
       notes.push("окончание получилось раньше начала — проверьте дату/время");
     }
   } else if (times.start !== null) {
