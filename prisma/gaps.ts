@@ -53,7 +53,11 @@ async function main(): Promise<void> {
       NOT: { name: { startsWith: "[Демо]" } },
     },
     orderBy: { name: "asc" },
-    include: { programs: { orderBy: { order: "asc" } }, birthdayInfo: true },
+    include: {
+      programs: { orderBy: { order: "asc" } },
+      birthdayInfo: true,
+      photos: true,
+    },
   });
 
   console.log("\n📋 Пробелы в данных — что осталось собрать");
@@ -93,6 +97,23 @@ async function main(): Promise<void> {
       gaps.push("День рождения: пакеты, цены и условия");
     }
 
+    // Импортированное место: indoor/outdoor в модели non-null, поэтому черновик
+    // получает «нет/нет» как заглушку — false здесь НЕ проверенный факт
+    if (place.sourceType === "IMPORT" && !place.indoor && !place.outdoor) {
+      gaps.push("В помещении / На улице — не проверены (заглушка импорта)");
+    }
+
+    // Медиа-права: у фото не зафиксировано происхождение
+    const photosWithoutRights = place.photos.filter((photo) => photo.source === null);
+    if (photosWithoutRights.length > 0) {
+      gaps.push(
+        `Происхождение ${photosWithoutRights.length} фото галереи (source/rightsNote)`,
+      );
+    }
+    if (place.imageUrl !== null && place.imageRightsNote === null) {
+      gaps.push("Права на обложку (imageRightsNote)");
+    }
+
     if (gaps.length === 0) {
       complete.push(place.name);
       continue;
@@ -104,6 +125,21 @@ async function main(): Promise<void> {
     console.log(`▸ ${place.name}`);
     for (const gap of gaps) {
       console.log(`   • ${gap}`);
+    }
+    console.log("");
+  }
+
+  // Черновики движка данных: импортированы, но ещё не проверены человеком.
+  // Они вне цикла выше (тот смотрит APPROVED) — напоминаем отдельно.
+  const pendingImports = await prisma.place.findMany({
+    where: { status: "PENDING", sourceType: "IMPORT" },
+    orderBy: { createdAt: "asc" },
+    select: { name: true, slug: true },
+  });
+  if (pendingImports.length > 0) {
+    console.log(`⏳ Черновики импорта ждут проверки и одобрения (/admin/places):`);
+    for (const draft of pendingImports) {
+      console.log(`   • ${draft.name} (${draft.slug})`);
     }
     console.log("");
   }

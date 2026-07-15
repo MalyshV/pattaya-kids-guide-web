@@ -151,13 +151,24 @@ model PlaceSchedule {
 }
 
 /// доп. фото места для мини-галереи (обложка живёт отдельно в Place.imageUrl)
+/// МЕДИА-ПРАВА: у каждого фото фиксируем источник и основание использования —
+/// авторское право у того, кто снял; чужой контент без согласия не публикуем
+/// (критично для семейного бренда). null-поля = провенанс не зафиксирован
+/// (старые записи); для новых фото заполнять source + rightsNote.
 model PlacePhoto {
-  id      String  @id @default(cuid())
-  placeId String
-  url     String
-  caption String?
-  order   Int     @default(0)
-  place   Place   @relation(fields: [placeId], references: [id])
+  id         String           @id @default(cuid())
+  placeId    String
+  url        String
+  caption    String?
+  order      Int              @default(0)
+  /// кто источник фото: своё / от владельца места / от родителя-контрибьютора
+  source     PhotoSourceType?
+  /// автор снимка (имя или бренд), если известен
+  author     String?
+  /// основание использования: «фото Вероники», «согласие владельца в LINE,
+  /// 2026-07-15» и т.п. — одна строка-провенанс для юридической чистоты
+  rightsNote String?
+  place      Place            @relation(fields: [placeId], references: [id])
 
   @@index([placeId])
 }
@@ -370,6 +381,16 @@ model Place {
   /// проверенная ссылка на КАРТОЧКУ места в Google Maps (с фото/отзывами/часами);
   /// приоритетнее координат — координаты дают лишь голую метку на карте
   googleMapsUrl      String?
+  /// PROVENANCE (движок данных): канонический Google Place ID (формат ChIJ…) —
+  /// ключ дедупа при импорте: одно и то же заведение не занесётся дважды.
+  /// null = место занесено вручную без привязки к Google
+  googlePlaceId      String?             @unique
+  /// откуда взялась запись: ручной занос / импорт движком / UGC / бизнес.
+  /// Симметрично Event.sourceType; текущий каталог занесён вручную → ADMIN
+  sourceType         PlaceSourceType     @default(ADMIN)
+  /// права на обложку (imageUrl): кто снял / на каком основании используем
+  /// (напр. «фото Вероники, июль 2026»). null = провенанс не зафиксирован
+  imageRightsNote    String?
   /// подпись под таблицей входа (PlaceEntryPrice): скидки, НДС и т.п.
   entryPriceNote     String?
   entryPriceNoteEn   String?
@@ -585,6 +606,27 @@ enum EventSourceType {
   ADMIN
   BUSINESS
   IMPORT
+}
+
+/// источник записи места (симметрично EventSourceType):
+/// ADMIN — ручной занос командой; IMPORT — движок данных (Google Places API);
+/// USER/BUSINESS — задел под UGC и claim бизнесом
+enum PlaceSourceType {
+  USER
+  ADMIN
+  BUSINESS
+  IMPORT
+}
+
+/// источник фото (медиа-права): OWN — снято нами (Вероникой/командой),
+/// PLACE_OWNER — прислано самим местом с его согласия,
+/// CONTRIBUTOR — прислано родителем с согласия на публикацию.
+/// Чужие фото из Google/Instagram НЕ сохраняем — только показ с атрибуцией
+/// через официальные API, без копирования в нашу галерею.
+enum PhotoSourceType {
+  OWN
+  PLACE_OWNER
+  CONTRIBUTOR
 }
 
 /// Журнал публикаций в Telegram-канал: что уже отправлено (защита от дублей).
