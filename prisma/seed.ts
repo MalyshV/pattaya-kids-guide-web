@@ -1437,8 +1437,8 @@ async function main() {
   // оставить ребёнка, Wi-Fi/розетки, точный возраст, контакты, точный адрес ТЦ.
   // =========================
   const skippyLandData = {
+    // name у Place не переводится (нет nameEn) — название и так латиницей
     name: "Skippy Land (Lotus's North Pattaya)",
-    nameEn: "Skippy Land (Lotus's North Pattaya)",
     imageUrl: "/images/places/skippy-land.jpg",
     imageRightsNote: "Фото Вероники (визит 2026-07)",
     description:
