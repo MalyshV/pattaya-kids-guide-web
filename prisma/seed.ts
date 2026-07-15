@@ -660,7 +660,8 @@ async function main() {
   // =========================
   const lariDeaData = {
     name: "LariDea Kids' Café",
-    imageUrl: "/images/places/laridea.jpg", // фото входа (тест, визит Вероники 2026-07-07)
+    imageUrl: "/images/places/laridea.jpg", // фото входа (визит Вероники 2026-07-07)
+    imageRightsNote: "Фото Вероники (визит 2026-07-07)",
     description:
       "Детское кафе с крытой игровой в северной Паттайе (Again, рядом с Terminal 21). Игровая зона с кондиционером для детей 1–7 лет, спешелти-кофе, Wi-Fi и кафе со столиками, где родителю удобно посидеть за ноутбуком. Можно оставить ребёнка под присмотром. Персонал говорит по-тайски и по-английски. По выходным — мастер-классы для детей (кулинария, научные опыты), проводят дни рождения, летом работает детский лагерь. Для постоянных гостей — абонементы и клубные скидки.",
     descriptionEn:
@@ -825,6 +826,8 @@ async function main() {
         url: "/images/places/laridea-play.jpg",
         caption: "Игровая зона LariDea",
         order: 1,
+        source: "OWN" as const,
+        rightsNote: "Фото Вероники (визит 2026-07-07)",
       },
     ],
   });
@@ -1437,6 +1440,7 @@ async function main() {
     name: "Skippy Land (Lotus's North Pattaya)",
     nameEn: "Skippy Land (Lotus's North Pattaya)",
     imageUrl: "/images/places/skippy-land.jpg",
+    imageRightsNote: "Фото Вероники (визит 2026-07)",
     description:
       "Крытая детская игровая в торговом центре Lotus's North Pattaya (2 этаж, у фудкорта). Здесь две игровые зоны Skippy Land рядом — слева и справа от фудкорта. В каждой: мягкая игровая Kid's Soft Play с бассейном из шариков, горками и лазалками (вход 60 ฿, рост 90–135 см, обязательны носки — можно купить на месте) и зал аркадных автоматов и качалок. Есть кондиционер, работает персонал. Пока ребёнок играет, рядом можно закупиться в Lotus's и поесть на фудкорте; неподалёку — крупный международный детский сад.",
     descriptionEn:
@@ -1522,12 +1526,16 @@ async function main() {
         url: "/images/places/skippy-land-softplay.jpg",
         caption: "Мягкая игровая Kid's Soft Play",
         order: 1,
+        source: "OWN" as const,
+        rightsNote: "Фото Вероники (визит 2026-07)",
       },
       {
         placeId: skippyLand.id,
         url: "/images/places/skippy-land-play.jpg",
         caption: "Бассейн с шариками и горки",
         order: 2,
+        source: "OWN" as const,
+        rightsNote: "Фото Вероники (визит 2026-07)",
       },
     ],
   });
