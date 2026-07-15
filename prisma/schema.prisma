@@ -477,6 +477,10 @@ model Event {
   /// ДАТЫ (поддержка однодневных, многодневных и recurring)
   startDate          DateTime
   endDate            DateTime?
+  /// ВОЗРАСТ в месяцах (как у PlaceProgram) — под фильтр «Сколько лет ребёнку?».
+  /// null = афиша возраст не указала («для всех»): фильтр такое НЕ прячет
+  minAgeMonths       Int?
+  maxAgeMonths       Int?
   /// ЛОКАЦИЯ (может существовать без Place)
   locationName       String?
   locationNameEn     String?
