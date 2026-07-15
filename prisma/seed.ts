@@ -1424,6 +1424,115 @@ async function main() {
   }
 
   // =========================
+  // РЕАЛЬНОЕ МЕСТО: Skippy Land (Lotus's North Pattaya)
+  // Источники (2026-07-15): фото Вероники с места (её собственные — права её) +
+  // карточка Google Maps. Skippy Land — сеть игровых в гипермаркетах Lotus; в
+  // ЭТОМ ТЦ две одинаковые зоны Skippy Land рядом (слева и справа от фудкорта) —
+  // заносим ОДНОЙ карточкой (Вероника уточнит на визите, разные ли это места).
+  // Внутри каждой: мягкая игровая Kid's Soft Play (вход 60฿, рост 90–135 см,
+  // носки) + зал аркадных автоматов и качалок. Уточнить (gaps ведёт): можно ли
+  // оставить ребёнка, Wi-Fi/розетки, точный возраст, контакты, точный адрес ТЦ.
+  // =========================
+  const skippyLandData = {
+    name: "Skippy Land (Lotus's North Pattaya)",
+    nameEn: "Skippy Land (Lotus's North Pattaya)",
+    imageUrl: "/images/places/skippy-land.jpg",
+    description:
+      "Крытая детская игровая в торговом центре Lotus's North Pattaya (2 этаж, у фудкорта). Здесь две игровые зоны Skippy Land рядом — слева и справа от фудкорта. В каждой: мягкая игровая Kid's Soft Play с бассейном из шариков, горками и лазалками (вход 60 ฿, рост 90–135 см, обязательны носки — можно купить на месте) и зал аркадных автоматов и качалок. Есть кондиционер, работает персонал. Пока ребёнок играет, рядом можно закупиться в Lotus's и поесть на фудкорте; неподалёку — крупный международный детский сад.",
+    descriptionEn:
+      "An indoor kids' play area in Lotus's North Pattaya mall (2nd floor, by the food court). There are two Skippy Land zones side by side — to the left and right of the food court. Each has a Kid's Soft Play area with a ball pit, slides and climbing frames (entry 60 ฿, height 90–135 cm, socks required — available on site) plus a hall of arcade machines and coin-op rides. Air-conditioned, with staff on site. While your child plays you can shop at Lotus's and grab a bite at the food court nearby; a large international kindergarten is close by.",
+    address:
+      "Lotus's North Pattaya (2 этаж), Muang Pattaya, Bang Lamung District, Chon Buri 20150",
+    latitude: 12.9508423,
+    longitude: 100.8933732,
+    googleMapsUrl:
+      "https://www.google.com/maps/place/Lotus's+North+Pattaya/@12.9508423,100.8918368,528m/data=!3m1!1e3!4m9!1m2!2m1!1ssoft+play!3m5!1s0x3102bfb3a6501d63:0x4dad9ccd9cbf816f!8m2!3d12.9508423!4d100.8933732!16s%2Fg%2F11hd_yk9xg",
+    indoor: true,
+    outdoor: false,
+    hasAirCon: true, // термометр 23°C на фото — помещение кондиционировано
+    hasParking: true, // парковка торгового центра (подтверждено Вероникой)
+    animalContact: false,
+    status: "APPROVED" as const,
+    cityId: pattaya.id,
+  };
+  const skippyLand = await prisma.place.upsert({
+    where: { cityId_slug: { cityId: pattaya.id, slug: "skippy-land-lotus-north" } },
+    update: skippyLandData,
+    create: { ...skippyLandData, slug: "skippy-land-lotus-north" },
+  });
+
+  // Категория: крытая игровая
+  {
+    const indoorCategory = await prisma.category.findUnique({
+      where: { slug: "indoor-playground" },
+    });
+    if (indoorCategory) {
+      await prisma.placeCategory.upsert({
+        where: {
+          placeId_categoryId: { placeId: skippyLand.id, categoryId: indoorCategory.id },
+        },
+        update: {},
+        create: { placeId: skippyLand.id, categoryId: indoorCategory.id },
+      });
+    }
+  }
+
+  // Часы (таблички Skippy Land): будни 14:00–22:00, выходные 10:00–22:00. На
+  // табличках время зависит от возраста ребёнка (тайский закон об игровых) —
+  // берём максимальный интервал работы места, нюанс возрастов — в описании.
+  await prisma.placeSchedule.deleteMany({ where: { placeId: skippyLand.id } });
+  await prisma.placeSchedule.createMany({
+    data: [
+      ...(["MON", "TUE", "WED", "THU", "FRI"] as const).map((day) => ({
+        placeId: skippyLand.id,
+        day,
+        openTime: "14:00",
+        closeTime: "22:00",
+        isClosed: false,
+      })),
+      ...(["SAT", "SUN"] as const).map((day) => ({
+        placeId: skippyLand.id,
+        day,
+        openTime: "10:00",
+        closeTime: "22:00",
+        isClosed: false,
+      })),
+    ],
+  });
+
+  // «Полезно знать»: носки (обязательны в мягкой игровой)
+  await prisma.placeTip.deleteMany({ where: { placeId: skippyLand.id } });
+  await prisma.placeTip.create({
+    data: {
+      placeId: skippyLand.id,
+      topic: "socks",
+      text: "В мягкую игровую Kid's Soft Play пускают только в носках — нужны и детям, и взрослым. Можно купить на месте (антискользящие, разных цветов).",
+      textEn:
+        "The Kid's Soft Play area requires socks — for both kids and adults. They're available on site (non-slip, various colours).",
+      order: 1,
+    },
+  });
+
+  // Мини-галерея (фото Вероники с места)
+  await prisma.placePhoto.deleteMany({ where: { placeId: skippyLand.id } });
+  await prisma.placePhoto.createMany({
+    data: [
+      {
+        placeId: skippyLand.id,
+        url: "/images/places/skippy-land-softplay.jpg",
+        caption: "Мягкая игровая Kid's Soft Play",
+        order: 1,
+      },
+      {
+        placeId: skippyLand.id,
+        url: "/images/places/skippy-land-play.jpg",
+        caption: "Бассейн с шариками и горки",
+        order: 2,
+      },
+    ],
+  });
+
+  // =========================
   // [ДЕМО] РАЗВИВАШКА В САДУ — занятие БЕЗ каталожного места (п.9 финал).
   // Показывает, как выглядит развивашка на базе сада (у сада нет своей страницы):
   // место проведения — текстом (venueName/venueAddress), город задан явно (cityId).
