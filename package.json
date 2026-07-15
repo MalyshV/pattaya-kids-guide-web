@@ -20,7 +20,8 @@
     "telegram:test-post": "tsx --env-file=.env scripts/telegram/test-post.ts",
     "telegram:autopost": "tsx --env-file=.env scripts/telegram/autopost.ts",
     "telegram:autopost:dry": "tsx --env-file=.env scripts/telegram/autopost.ts --dry-run",
-    "telegram:baseline": "tsx --env-file=.env scripts/telegram/autopost.ts --baseline"
+    "telegram:baseline": "tsx --env-file=.env scripts/telegram/autopost.ts --baseline",
+    "import:place": "tsx --env-file=.env scripts/import/import-place.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.4.1",
