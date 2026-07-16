@@ -1548,8 +1548,8 @@ async function main() {
   // Источник (2026-07-16): афиша Instagram @tpis_pattaya + фото Вероники с
   // визита (права её). Регулярная плейгруппа на базе международной школы Tara
   // Pattana — у школы нет своей карточки-места, поэтому занятие с текстовым
-  // venueName (кейс п.9). Возраст плейгруппой не указан → null (уточнить у
-  // школы; по фото — малыши примерно до 4 лет, но не выдумываем).
+  // venueName (кейс п.9). Возраст 0–3 года — подтверждён Вероникой лично
+  // (была с дочкой на этих занятиях; в афише возраст не указан).
   // =========================
   const taraTotsOld = await prisma.placeProgram.findMany({
     where: { slug: "tara-tots-playgroup" },
@@ -1574,6 +1574,9 @@ async function main() {
       currency: "THB",
       priceUnit: "за ребёнка и взрослого",
       priceUnitEn: "per child + adult",
+      // 0–3 года — подтверждено Вероникой лично (была с дочкой), не из афиши
+      minAgeMonths: 0,
+      maxAgeMonths: 36,
       venueName: "Tara Pattana International School Thailand",
       cityId: pattaya.id,
       order: 5,
