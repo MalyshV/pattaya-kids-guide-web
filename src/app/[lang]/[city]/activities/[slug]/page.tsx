@@ -6,6 +6,7 @@ import { getActivityBySlug } from "@/services/activities.service";
 import { ShareButton } from "@/components/common/share-button";
 import { ZoomableImage } from "@/components/common/zoomable-image";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
+import { mapsSearchUrl } from "@/lib/geo/maps-search";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { formatAgeRange } from "@/lib/age/format-age";
@@ -239,6 +240,18 @@ export default async function ActivityDetailsPage({
               {dto.venueAddress ? (
                 <div className="activity-venue-address">{dto.venueAddress}</div>
               ) : null}
+              {/* у безместного занятия нет страницы места с картой — даём
+                  маршрут прямо отсюда, по названию площадки и адресу */}
+              <a
+                className="map-link"
+                href={mapsSearchUrl(
+                  [dto.venueName, dto.venueAddress].filter(Boolean).join(", "),
+                )}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {dict.placeDetails.openInMaps} ↗
+              </a>
             </div>
           )}
         </section>

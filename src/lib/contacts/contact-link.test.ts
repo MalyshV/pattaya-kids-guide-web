@@ -26,6 +26,27 @@ describe("contactHref", () => {
   });
 });
 
+describe("contactHref — мессенджеры и сайт без протокола (находки UX-аудита)", () => {
+  it("whatsapp: номер → wa.me с чистыми цифрами; готовый URL — как есть", () => {
+    expect(contactHref("whatsapp", "+66 81 110 1713")).toBe("https://wa.me/66811101713");
+    expect(contactHref("whatsapp", "https://wa.me/66811101713")).toBe(
+      "https://wa.me/66811101713",
+    );
+  });
+
+  it("telegram: @ник → t.me без собаки; готовый URL — как есть", () => {
+    expect(contactHref("telegram", "@pattaya_kids")).toBe("https://t.me/pattaya_kids");
+    expect(contactHref("telegram", "https://t.me/pattaya_kids")).toBe(
+      "https://t.me/pattaya_kids",
+    );
+  });
+
+  it("website без протокола не превращается в относительную ссылку", () => {
+    expect(contactHref("website", "laridea.co.th")).toBe("https://laridea.co.th");
+    expect(contactHref("website", "https://laridea.co.th")).toBe("https://laridea.co.th");
+  });
+});
+
 describe("isExternalContact", () => {
   it("tel/mailto в том же окне, остальное — новая вкладка", () => {
     expect(isExternalContact("phone")).toBe(false);

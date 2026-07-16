@@ -47,7 +47,6 @@ export function PlaceCard({
               {place.name}
             </Link>
           </h3>
-          <p className="place-card-slug">/{place.slug}</p>
         </div>
 
         <div className="place-badges">

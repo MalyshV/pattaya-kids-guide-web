@@ -54,6 +54,14 @@ export default async function CityLayout({
     notFound();
   }
 
+  // неизвестный город падает в КОРНЕВОЙ 404 отсюда: иначе отрендерилась бы
+  // шапка с basePath несуществующего города — пять битых ссылок, каждая ведёт
+  // в новый 404 (getCityBySlug под React cache — страница возьмёт из кэша)
+  const cityEntity = await getCityBySlug(city);
+  if (!cityEntity) {
+    notFound();
+  }
+
   return (
     <>
       <SiteHeader basePath={cityBasePath(lang, city)} />

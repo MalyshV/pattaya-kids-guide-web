@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AgeQuestion } from "@/components/common/age-question";
 import { SearchBox } from "@/components/common/search-box";
@@ -185,6 +186,9 @@ export default async function CityPlacesPage({
         : isWorkFriendly
           ? dict.places.emptyWorkTitle
           : dict.places.emptyTitle;
+  // без активного сценария «виновником» пустоты может быть возраст — он живёт
+  // не в блоке «Фильтры», и совет «уберите один из фильтров» указывал бы не туда
+  const scenarioActive = isOpenNow || isOpenMorning || isShelter || isWorkFriendly;
   const emptyHint = isOpenNow
     ? dict.places.emptyOpenNowHint
     : isOpenMorning
@@ -193,7 +197,9 @@ export default async function CityPlacesPage({
         ? dict.places.emptyShelterHint
         : isWorkFriendly
           ? dict.places.emptyWorkHint
-          : dict.places.emptyHint;
+          : !scenarioActive && ageBuckets.length > 0
+            ? dict.places.emptyAgeHint
+            : dict.places.emptyHint;
 
   return (
     <main className="page-shell">
@@ -266,6 +272,10 @@ export default async function CityPlacesPage({
         <section className="empty-state">
           <h3>{emptyTitle}</h3>
           <p>{emptyHint}</p>
+          {/* выход из тупика одним нажатием, не гадая, какой фильтр убрать */}
+          <Link href={basePath} className="empty-state-cta">
+            {dict.places.emptyCta}
+          </Link>
         </section>
       ) : (
         <PlacesResults

@@ -111,6 +111,7 @@ function buildSummaryChips(
   todayEnum: string,
   lang: string,
   dict: Dictionary,
+  isClosedToday: boolean,
 ): string[] {
   const chips: string[] = [];
   const s = dict.placeDetails.summary;
@@ -146,9 +147,13 @@ function buildSummaryChips(
     );
   }
 
-  const todayHours = dto.schedules.filter(
-    (schedule) => schedule.day === todayEnum && !schedule.isClosed,
-  );
+  // вечером после закрытия чип «сегодня до 19:00» противоречил бы бейджу
+  // «Сегодня закрыто» рядом — в этом случае чип не показываем
+  const todayHours = isClosedToday
+    ? []
+    : dto.schedules.filter(
+        (schedule) => schedule.day === todayEnum && !schedule.isClosed,
+      );
   if (todayHours.length > 0) {
     const lastClose = todayHours
       .map((schedule) => schedule.closeTime)
@@ -186,7 +191,13 @@ export default async function PlaceDetailsPage({
   const dto: PlaceDetailsDto = mapPlaceDetailsToDto(place, lang);
   const openStatus = computeOpenStatus(dto.schedules, city.timezone);
   const todayEnum = nowInCity(city.timezone).day;
-  const summaryChips = buildSummaryChips(dto, todayEnum, lang, dict);
+  const summaryChips = buildSummaryChips(
+    dto,
+    todayEnum,
+    lang,
+    dict,
+    openStatus.kind === "closedToday",
+  );
 
   // Занятия (курсы/лагеря — ведут на свою страницу) отдельно от абонементов
   // (тарифы места), чтобы занятия не терялись под абонементами
@@ -254,6 +265,14 @@ export default async function PlaceDetailsPage({
         </section>
       )}
 
+      {/* без данных секция не исчезает молча: заголовок + «уточняется» —
+          родитель видит, что информация бывает, просто её ещё не собрали */}
+      {dto.schedules.length === 0 && (
+        <section className="details-section">
+          <h2 className="section-title">{dict.placeDetails.scheduleTitle}</h2>
+          <p className="value-unknown">{dict.common.unknown}</p>
+        </section>
+      )}
       {dto.schedules.length > 0 && (
         <section className="details-section">
           <h2 className="section-title">{dict.placeDetails.scheduleTitle}</h2>
@@ -299,6 +318,12 @@ export default async function PlaceDetailsPage({
         </section>
       )}
 
+      {dto.pricing.length === 0 && dto.entryPrices.length === 0 && (
+        <section className="details-section">
+          <h2 className="section-title">{dict.placeDetails.pricingTitle}</h2>
+          <p className="value-unknown">{dict.common.unknown}</p>
+        </section>
+      )}
       {(dto.pricing.length > 0 || dto.entryPrices.length > 0) && (
         <section className="details-section">
           <h2 className="section-title">{dict.placeDetails.pricingTitle}</h2>
@@ -398,7 +423,9 @@ export default async function PlaceDetailsPage({
       )}
 
       {dto.birthdayInfo?.hasPackages && (
-        <section className="details-section">
+        // id — якорь для CTA с ДР-лендинга: родитель прыгает сразу к пакетам,
+        // а не в начало длинной страницы (scroll-margin в globals.css)
+        <section className="details-section" id="birthday">
           <h2 className="section-title">{dict.placeDetails.birthdayTitle}</h2>
           <p className="detail-text">{dict.placeDetails.birthdayHas}</p>
           {dto.birthdayInfo.notes ? (
@@ -434,7 +461,11 @@ export default async function PlaceDetailsPage({
               dto.outdoor && dict.places.badgeOutdoor,
             ]
               .filter(Boolean)
-              .join(", ") || dict.common.no}
+              .join(", ") || (
+              // оба флага false у импортированных черновиков означают «не
+              // проверяли», а не «место нигде» — уверенное «Нет» тут враньё
+              <span className="value-unknown">{dict.common.unknown}</span>
+            )}
           </div>
 
           <div>

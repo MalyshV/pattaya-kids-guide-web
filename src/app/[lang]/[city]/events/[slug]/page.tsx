@@ -8,6 +8,7 @@ import { mapEventDetailsToDto } from "@/mappers/event-details.mapper";
 import { getApprovedEventBySlug } from "@/services/events.service";
 import { ZoomableImage } from "@/components/common/zoomable-image";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
+import { mapsSearchUrl } from "@/lib/geo/maps-search";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { formatAgeRange } from "@/lib/age/format-age";
 import { articleOpenGraph, metaDescription } from "@/lib/seo/meta";
@@ -179,6 +180,20 @@ export default async function EventDetailsPage({
           <div>
             <strong>{dict.eventDetails.address}:</strong>{" "}
             {dto.address ?? dict.eventDetails.notSpecified}
+            {dto.address ? (
+              <>
+                {" "}
+                {/* адрес — не мёртвый текст: с него можно построить маршрут */}
+                <a
+                  className="map-link"
+                  href={mapsSearchUrl(dto.address)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {dict.placeDetails.openInMaps} ↗
+                </a>
+              </>
+            ) : null}
           </div>
         </div>
       </section>

@@ -17,6 +17,7 @@ import { listPageAlternates } from "@/lib/seo/meta";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -44,6 +45,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
  */
 export default async function BirthdaysPage({
   params,
+  searchParams,
 }: PageProps): Promise<React.ReactElement> {
   const { lang, city: citySlug } = await params;
   const city = await getCityBySlug(citySlug);
@@ -54,6 +56,10 @@ export default async function BirthdaysPage({
 
   const dict = getDictionary(lang);
   const basePath = cityBasePath(lang, citySlug);
+  // шапка приносит сюда ?age= (сквозной контекст), но соседние разделы им
+  // ФИЛЬТРУЮТ, а этот — нет: честно говорим об этом, а не молчим
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const hasAgeParam = Boolean(resolvedSearchParams.age);
   const places = await getBirthdayPlaces(city.id);
   const items = places.map((place) => mapBirthdayPlaceToDto(place, lang));
 
@@ -63,6 +69,7 @@ export default async function BirthdaysPage({
         <p className="eyebrow">{localizedCityName(city, lang)}</p>
         <h1 className="hero-title">{dict.birthdays.heroTitle}</h1>
         <p className="hero-description">{dict.birthdays.heroDescription}</p>
+        {hasAgeParam ? <p className="hero-note">{dict.birthdays.ageNote}</p> : null}
       </section>
 
       {items.length === 0 ? (
@@ -110,6 +117,13 @@ export default async function BirthdaysPage({
                       yes={dict.birthdays.depositYes}
                       no={dict.birthdays.depositNo}
                     />
+                    {/* «уточняется» без следующего шага — тупик: подсказываем */}
+                    {place.depositRequired === null ? (
+                      <span className="value-unknown">
+                        {" "}
+                        {dict.birthdays.askOnBooking}
+                      </span>
+                    ) : null}
                   </span>
                   {place.preBookingDays != null ? (
                     <span className="birthday-fact">
@@ -154,7 +168,9 @@ export default async function BirthdaysPage({
 
                 <div className="place-card-actions">
                   <Link
-                    href={`${basePath}/places/${place.slug}`}
+                    // #birthday — сразу к ДР-блоку места, а не в начало
+                    // длинной страницы с повтором уже прочитанного
+                    href={`${basePath}/places/${place.slug}#birthday`}
                     className="place-card-cta"
                   >
                     <span className="place-card-cta-text">

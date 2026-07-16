@@ -185,6 +185,26 @@ export function PlacesResults({
     };
   }, [nearActive]);
 
+  // Ответ системы на «Рядом со мной» без успеха (отказ/ошибка/недоступно/
+  // приглашение) рендерится ниже панели фильтров — на 375px он за экраном,
+  // и чип выглядит сломанным. Подводим к сообщению так же, как к результатам.
+  const nearStatusRef = useRef<HTMLDivElement | null>(null);
+  const nearFeedbackKind =
+    near && ["invite", "denied", "failed", "unavailable"].includes(geo.kind)
+      ? geo.kind
+      : null;
+  useEffect(() => {
+    if (!nearFeedbackKind) {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      nearStatusRef.current?.scrollIntoView({ behavior: "auto", block: "center" });
+    }, 150);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [nearFeedbackKind]);
+
   const showMap = view === "map";
 
   // ссылка переключателя Список|Карта: те же фильтры, без page (карта
@@ -229,7 +249,7 @@ export function PlacesResults({
 
   // Статусы геолокации — общие для списка и карты
   const nearStatus = (
-    <>
+    <div ref={nearStatusRef}>
       {near && geo.kind === "invite" ? (
         <p className="near-status">
           {dict.places.nearInvite}{" "}
@@ -265,7 +285,7 @@ export function PlacesResults({
           {dict.places.nearUnavailable}
         </p>
       ) : null}
-    </>
+    </div>
   );
 
   if (showMap) {

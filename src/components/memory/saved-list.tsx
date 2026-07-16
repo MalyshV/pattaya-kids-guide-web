@@ -26,11 +26,13 @@ const ENTITY_PATH: Record<MemoryEntity, string> = {
  * страницу, где данные свежие. До гидрации показываем только заголовок и
  * вступление (списки пусты, «пусто» не мигает).
  */
-export function SavedList(): React.ReactElement {
+export function SavedList({ age }: { age?: string | null }): React.ReactElement {
   const params = useParams<{ lang?: string; city?: string }>();
   const lang = params.lang ?? DEFAULT_LANG;
   const city = params.city ?? DEFAULT_CITY_SLUG;
   const basePath = cityBasePath(lang, city);
+  // назад в каталог — с возрастом, который родитель уже выбирал
+  const backHref = age ? `${basePath}?age=${encodeURIComponent(age)}` : basePath;
   const dict = useDictionary();
   const { items, hydrated, toggle } = useParentMemory();
 
@@ -57,7 +59,18 @@ export function SavedList(): React.ReactElement {
     kind: MemoryKind,
   ): React.ReactElement | null => {
     if (list.length === 0) {
-      return null;
+      // секция не исчезает молча: пришедший по «✓ Были здесь» из шапки
+      // должен увидеть, куда попал и как сюда попадают записи
+      return (
+        <section className="saved-section" id={kind}>
+          <h2 className="saved-section-title">{title}</h2>
+          <p className="saved-section-empty">
+            {kind === "saved"
+              ? dict.memory.savedSectionEmpty
+              : dict.memory.visitedSectionEmpty}
+          </p>
+        </section>
+      );
     }
     return (
       // id — якорь для ссылок шапки (♡ → #saved, ✓ → #visited)
@@ -110,7 +123,7 @@ export function SavedList(): React.ReactElement {
       {/* явный путь назад: страница-хаб не должна быть тупиком, из которого
           «не разжать кнопку» — родитель не обязан догадываться про логотип */}
       <div className="back-link-wrapper">
-        <Link href={basePath} className="back-link">
+        <Link href={backHref} className="back-link">
           {dict.memory.backToCatalog}
         </Link>
       </div>
@@ -122,7 +135,7 @@ export function SavedList(): React.ReactElement {
         <div className="saved-empty">
           <p className="saved-empty-title">{dict.memory.emptyTitle}</p>
           <p className="saved-empty-hint">{dict.memory.emptyHint}</p>
-          <Link href={basePath} className="saved-empty-cta">
+          <Link href={backHref} className="saved-empty-cta">
             {dict.memory.emptyCta}
           </Link>
         </div>

@@ -318,6 +318,9 @@ input {
   margin: 0;
   font-size: 14.5px;
   line-height: 1.55;
+  /* пакеты в notes разделяются переносами строк — на 375px абзац-простыня
+     из трёх пакетов с ценами нечитаем */
+  white-space: pre-line;
 }
 
 .birthday-facts {
@@ -2590,6 +2593,44 @@ input {
   margin-inline: auto;
 }
 /* явный выход из пустого состояния — тупиков не оставляем */
+/* пустая секция памяти: подсказка вместо молчаливого исчезновения */
+.saved-section-empty {
+  color: var(--muted);
+  margin: 8px 0 0;
+}
+
+/* тихая строка под hero (напр. «возраст здесь не фильтрует») */
+.hero-note {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 10px 0 0;
+}
+
+/* CTA пустых состояний каталогов — тот же вид, что у страницы памяти */
+.empty-state-cta {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 18px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-foreground);
+  text-decoration: none;
+  font-weight: 600;
+}
+.empty-state-cta:hover {
+  filter: brightness(1.05);
+}
+.empty-state-cta:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* якорь ДР-блока на странице места: заголовок не прячется под краем */
+#birthday {
+  scroll-margin-top: 90px;
+}
+
 .saved-empty-cta {
   display: inline-flex;
   align-items: center;

@@ -746,10 +746,12 @@ async function main() {
   }
 
   // День рождения LariDea (официальные пакеты из Instagram, март 2026)
+  // переносы строк осмысленные: каждый пакет с новой строки (вёрстка
+  // birthday-card-notes рендерит pre-line — простыня из трёх пакетов нечитаема)
   const lariDeaBirthdayNotes =
-    "Три пакета: «Little Joy» — от 946 ฿ за ребёнка (от 5 детей, 2 часа), «Happy Moments» — 1 166 ฿ (от 10 детей), «Magic Day» — 1 496 ฿ (от 10 детей, 4 часа, приватная игровая). Депозит 50%, цены включают VAT. Допы: декор, фотограф, шоу.";
+    "«Little Joy» — от 946 ฿ за ребёнка (от 5 детей, 2 часа)\n«Happy Moments» — 1 166 ฿ (от 10 детей)\n«Magic Day» — 1 496 ฿ (от 10 детей, 4 часа, приватная игровая)\nДепозит 50%, цены включают VAT. Допы: декор, фотограф, шоу.";
   const lariDeaBirthdayNotesEn =
-    "Three packages: “Little Joy” — from 946 ฿ per child (from 5 kids, 2 hours), “Happy Moments” — 1,166 ฿ (from 10 kids), “Magic Day” — 1,496 ฿ (from 10 kids, 4 hours, private playground). 50% deposit, prices include VAT. Add-ons: decor, photographer, show.";
+    "“Little Joy” — from 946 ฿ per child (from 5 kids, 2 hours)\n“Happy Moments” — 1,166 ฿ (from 10 kids)\n“Magic Day” — 1,496 ฿ (from 10 kids, 4 hours, private playground)\n50% deposit, prices include VAT. Add-ons: decor, photographer, show.";
   await prisma.placeBirthdayInfo.upsert({
     where: { placeId: lariDea.id },
     update: {
