@@ -39,7 +39,9 @@ export function MemoryButtons({
         type="button"
         className={`memory-btn memory-btn-saved${saved ? " memory-btn-active" : ""}`}
         aria-pressed={saved}
-        aria-label={saved ? dict.memory.savedAria : dict.memory.saveAria}
+        // имя сущности в метке: в сетке карточек icon-only кнопки иначе звучат
+        // для скринридера одинаково («Сохранить») и неотличимы по месту
+        aria-label={`${saved ? dict.memory.savedAria : dict.memory.saveAria}: ${name}`}
         title={saved ? dict.memory.savedLabel : dict.memory.saveLabel}
         onClick={() => toggle(snapshot, "saved")}
       >
@@ -57,12 +59,13 @@ export function MemoryButtons({
         type="button"
         className={`memory-btn memory-btn-visited${visited ? " memory-btn-active" : ""}`}
         aria-pressed={visited}
-        aria-label={visited ? dict.memory.visitedAria : dict.memory.visitAria}
+        aria-label={`${visited ? dict.memory.visitedAria : dict.memory.visitAria}: ${name}`}
         title={visited ? dict.memory.visitedLabel : dict.memory.visitLabel}
         onClick={() => toggle(snapshot, "visited")}
       >
+        {/* глиф один; активность передаётся классом memory-btn-active + aria-pressed */}
         <span className="memory-btn-icon" aria-hidden="true">
-          {visited ? "✓" : "✓"}
+          ✓
         </span>
         {compact ? null : (
           <span className="memory-btn-text">

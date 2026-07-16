@@ -67,7 +67,6 @@ export const en: Dictionary = {
     emptyTitle: "Nothing here yet",
     emptyHint:
       "Tap ♡ on cards to save, and ✓ to mark where you've been. Everything shows up here.",
-    openCta: "Open",
     remove: "Remove",
     entityPlace: "Place",
     entityActivity: "Activity",

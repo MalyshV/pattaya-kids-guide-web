@@ -67,7 +67,6 @@ function NavLinks({
       <Link
         href={`${basePath}/saved`}
         className={`site-nav-link site-nav-saved${isSaved ? " site-nav-link-active" : ""}`}
-        aria-label={dict.memory.navTitle}
       >
         <span className="site-nav-saved-icon" aria-hidden="true">
           ♡

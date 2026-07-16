@@ -38,12 +38,18 @@ export function SavedList(): React.ReactElement {
   const visited = listByKind(items, "visited");
   const isEmpty = hydrated && saved.length === 0 && visited.length === 0;
 
-  const entityLabel = (entity: MemoryEntity): string =>
-    entity === "place"
-      ? dict.memory.entityPlace
-      : entity === "activity"
-        ? dict.memory.entityActivity
-        : dict.memory.entityEvent;
+  // switch без default: добавят сущность в MemoryEntity — TS потребует новую
+  // ветку (как исчерпывающий ENTITY_PATH), молчаливого «Событие» не случится
+  const entityLabel = (entity: MemoryEntity): string => {
+    switch (entity) {
+      case "place":
+        return dict.memory.entityPlace;
+      case "activity":
+        return dict.memory.entityActivity;
+      case "event":
+        return dict.memory.entityEvent;
+    }
+  };
 
   const renderSection = (
     title: string,

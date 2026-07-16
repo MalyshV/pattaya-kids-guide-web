@@ -72,7 +72,6 @@ export const ru = {
     emptyTitle: "Пока пусто",
     emptyHint:
       "Нажимайте ♡ на карточках, чтобы сохранить, и ✓ — чтобы отметить, где уже были. Всё появится здесь.",
-    openCta: "Открыть",
     remove: "Убрать",
     entityPlace: "Место",
     entityActivity: "Занятие",

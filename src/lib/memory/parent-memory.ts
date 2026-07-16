@@ -14,9 +14,6 @@
 export type MemoryKind = "saved" | "visited";
 export type MemoryEntity = "place" | "activity" | "event";
 
-export const MEMORY_KINDS: readonly MemoryKind[] = ["saved", "visited"];
-export const MEMORY_ENTITIES: readonly MemoryEntity[] = ["place", "activity", "event"];
-
 export type MemoryItem = {
   entity: MemoryEntity;
   slug: string;
