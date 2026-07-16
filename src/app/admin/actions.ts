@@ -402,6 +402,21 @@ export async function saveEventAction(formData: FormData): Promise<void> {
     );
   }
 
+  // возраст: мусор (отрицательные, за пределами разумного, min>max) не должен
+  // ни падать пятисоткой на Int-переполнении, ни тихо прятать событие из всех
+  // возрастных корзин (перевёрнутый интервал пуст для любого фильтра)
+  let minAgeMonths = intOrNull(formData, "minAgeMonths");
+  let maxAgeMonths = intOrNull(formData, "maxAgeMonths");
+  const MAX_AGE_MONTHS = 2400; // 200 лет — заведомо за пределами детского гида
+  const ageBroken = (value: number | null): boolean =>
+    value !== null && (value < 0 || value > MAX_AGE_MONTHS);
+  if (ageBroken(minAgeMonths) || ageBroken(maxAgeMonths)) {
+    redirect(id ? `/admin/events/${id}?error=age` : "/admin/events/new?error=age");
+  }
+  if (minAgeMonths !== null && maxAgeMonths !== null && minAgeMonths > maxAgeMonths) {
+    [minAgeMonths, maxAgeMonths] = [maxAgeMonths, minAgeMonths];
+  }
+
   const coverResult = await coverFromForm(formData, "events");
   const uploadFailed = coverResult === "upload-error";
   const cover = uploadFailed ? undefined : coverResult;
@@ -413,6 +428,8 @@ export async function saveEventAction(formData: FormData): Promise<void> {
     descriptionEn: textOrNull(formData, "descriptionEn"),
     startDate: startDate as Date,
     endDate: pattayaDateOrNull(formData, "endDate"),
+    minAgeMonths,
+    maxAgeMonths,
     locationName: textOrNull(formData, "locationName"),
     address: textOrNull(formData, "address"),
     placeId: textOrNull(formData, "placeId"),
@@ -435,8 +452,14 @@ export async function saveEventAction(formData: FormData): Promise<void> {
         });
         return existing !== null;
       });
+      // провенанс: форма ставит sourceType=IMPORT, если поля заполнял парсер
+      // афиши (человек проверил перед сохранением — статус отдельно)
+      const sourceType =
+        text(formData, "sourceType") === "IMPORT"
+          ? ("IMPORT" as const)
+          : ("ADMIN" as const);
       const created = await prisma.event.create({
-        data: { ...data, slug, cityId, sourceType: "ADMIN", isAnonymous: true },
+        data: { ...data, slug, cityId, sourceType, isAnonymous: true },
       });
       eventId = created.id;
     }

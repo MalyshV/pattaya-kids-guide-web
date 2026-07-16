@@ -9,6 +9,7 @@ import { getApprovedEventBySlug } from "@/services/events.service";
 import { ZoomableImage } from "@/components/common/zoomable-image";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
+import { formatAgeRange } from "@/lib/age/format-age";
 import { articleOpenGraph, metaDescription } from "@/lib/seo/meta";
 import { dateLocale, getDictionary, type Dictionary } from "@/content/dictionary";
 
@@ -162,6 +163,13 @@ export default async function EventDetailsPage({
             <strong>{dict.eventDetails.when}:</strong>{" "}
             {formatEventWhen(dto.startDate, dto.endDate, city.timezone, lang, dict)}
           </div>
+
+          {formatAgeRange(dto.minAgeMonths, dto.maxAgeMonths, lang) ? (
+            <div>
+              <strong>{dict.eventCard.ageLabel}:</strong>{" "}
+              {formatAgeRange(dto.minAgeMonths, dto.maxAgeMonths, lang)}
+            </div>
+          ) : null}
 
           <div>
             <strong>{dict.eventDetails.location}:</strong>{" "}

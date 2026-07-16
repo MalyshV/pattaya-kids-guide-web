@@ -129,6 +129,29 @@ async function main(): Promise<void> {
     console.log("");
   }
 
+  // События без возраста: не попадают под фильтр «Сколько лет ребёнку?»
+  // осмысленно (показываются всем — честно, но неточно). Только актуальные:
+  // прошедшим возраст уже ни к чему.
+  const eventsWithoutAge = await prisma.event.findMany({
+    where: {
+      status: "APPROVED",
+      isDemo: false,
+      minAgeMonths: null,
+      maxAgeMonths: null,
+      OR: [{ startDate: { gt: new Date() } }, { endDate: { gte: new Date() } }],
+    },
+    orderBy: { startDate: "asc" },
+    select: { title: true, slug: true },
+  });
+  if (eventsWithoutAge.length > 0) {
+    console.log(`▸ События без возраста (фильтр показывает их всем):`);
+    for (const event of eventsWithoutAge) {
+      console.log(`   • ${event.title} (${event.slug})`);
+    }
+    console.log("");
+    totalGaps += eventsWithoutAge.length;
+  }
+
   // Черновики движка данных: импортированы, но ещё не проверены человеком.
   // Они вне цикла выше (тот смотрит APPROVED) — напоминаем отдельно.
   const pendingImports = await prisma.place.findMany({

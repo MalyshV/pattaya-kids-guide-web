@@ -338,6 +338,7 @@ export const ru = {
   eventCard: {
     starts: "Начало",
     ends: "Конец",
+    ageLabel: "Возраст",
     dateTbd: "Дата уточняется",
     locationTbd: "Место уточняется",
     placeLabel: "Место",
