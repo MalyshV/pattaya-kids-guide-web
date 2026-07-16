@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { EventListItemDto } from "@/dto/event-list-item.dto";
 import { PlaceImage } from "@/components/places/place-image";
+import { MemoryButtons } from "@/components/memory/memory-buttons";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import type { EventLifecycle } from "@/lib/events/event-lifecycle";
 import { dateLocale, getDictionary, langFromPath } from "@/content/dictionary";
@@ -39,6 +40,13 @@ export function EventCard({
       className={`event-card interactive-surface${isPast ? " event-card-past" : ""}`}
     >
       <PlaceImage url={event.imageUrl} alt={event.title} />
+      <MemoryButtons
+        compact
+        entity="event"
+        slug={event.slug}
+        name={event.title}
+        imageUrl={event.imageUrl}
+      />
 
       <div className="event-card-header">
         <div>

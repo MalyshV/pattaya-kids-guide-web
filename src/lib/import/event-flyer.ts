@@ -153,10 +153,7 @@ function isValidDayMonth(day: number, month: number): boolean {
  * «18 July [2026]», «July 18», «18 июля [2026 [г.]]», «18.07[.2026]»,
  * диапазоны «18–20 July», «18.07–20.07», «с 18 по 20 июля».
  */
-export function extractDates(
-  text: string,
-  now: Date,
-): {
+export function extractDates(text: string): {
   start: DayMonth | null;
   end: DayMonth | null;
   /// точное вхождение даты в тексте — вызывающий код вырезает его перед
@@ -380,7 +377,7 @@ export function parseEventFlyer(text: string, now: Date): FlyerDraft {
     end: endDm,
     matchedText,
     notes: dateNotes,
-  } = extractDates(normalized, now);
+  } = extractDates(normalized);
   notes.push(...dateNotes);
   // дату вырезаем перед поиском времени: «18.07» — дата, а не время 18:07
   const textForTimes = matchedText ? normalized.replace(matchedText, " ") : normalized;

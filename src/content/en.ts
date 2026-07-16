@@ -49,6 +49,31 @@ export const en: Dictionary = {
     copied: "Link copied",
   },
 
+  memory: {
+    navTitle: "Saved",
+    pageTitle: "Saved",
+    pageIntro:
+      "Places, activities and events you've saved or already visited. The list is kept in this browser only — no sign-up.",
+    saveLabel: "Save",
+    savedLabel: "Saved",
+    saveAria: "Save to your list",
+    savedAria: "Remove from saved",
+    visitLabel: "Been here",
+    visitedLabel: "Been here",
+    visitAria: "Mark as been here",
+    visitedAria: "Remove been-here mark",
+    savedSection: "Saved",
+    visitedSection: "Been here",
+    emptyTitle: "Nothing here yet",
+    emptyHint:
+      "Tap ♡ on cards to save, and ✓ to mark where you've been. Everything shows up here.",
+    openCta: "Open",
+    remove: "Remove",
+    entityPlace: "Place",
+    entityActivity: "Activity",
+    entityEvent: "Event",
+  },
+
   age: {
     question: "How old is your child?",
     hint: "Pick two ages if you have two kids",
