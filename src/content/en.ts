@@ -50,10 +50,13 @@ export const en: Dictionary = {
   },
 
   memory: {
-    navTitle: "Saved",
+    navSaved: "Saved",
+    navVisited: "Been here",
     pageTitle: "Saved",
     pageIntro:
       "Places, activities and events you've saved or already visited. The list is kept in this browser only — no sign-up.",
+    backToCatalog: "← To places",
+    emptyCta: "Browse places",
     saveLabel: "Save",
     savedLabel: "Saved",
     saveAria: "Save to your list",
