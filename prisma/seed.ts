@@ -1429,6 +1429,46 @@ async function main() {
     });
   }
 
+  // РЕАЛЬНОЕ СОБЫТИЕ (идущее): Kicks & Fun — World Football Playground.
+  // Источник (2026-07-16): афиша Instagram @terminal21pattaya (полная, 4
+  // активности + механика купонов) + инсайд Вероники с визита (роспись фигурок/
+  // холстов, +50฿ за 3D, участие без чека от 50฿ — этого в афише нет). Дата
+  // начала 14.07 подтверждена (пост «2 дня назад»), конец 20.07 — ongoing.
+  // Возраст не указан → null («для всех»). Обложки нет: постер ТЦ — чужие права.
+  const kicksFunData = {
+    title: "Футбольная игровая «Kicks & Fun»",
+    titleEn: "Kicks & Fun — World Football Playground",
+    description:
+      "Футбольная игровая ко времени чемпионата мира на первом этаже Terminal 21 Pattaya (зона Paris, под Эйфелевой башней). Активности для всей семьи: «Kicks & Hit» — игра на меткость с мячом (за лучший счёт — приз), «Jump for Joy» — прыжки и ловкость, и творческие DIY — распиши свою футбольную футболку и свой мяч, а также фигурки и холсты (краски, кисть и вода включены; за 3D-гипсовую фигурку — доплата 50 ฿). Идёт с 14 по 20 июля, ежедневно 11:00–20:00. Как участвовать: покупка от 1000 ฿ в любом магазине ТЦ даёт 1 бесплатную активность на выбор; можно объединить до двух чеков за день — максимум 2 активности на человека в день. Без чека — участие платное, от 50 ฿.",
+    descriptionEn:
+      "A World Cup–themed football playground on the ground floor of Terminal 21 Pattaya (the Paris zone, under the Eiffel Tower). Activities for the whole family: “Kicks & Hit” — a football accuracy game (top score wins a prize), “Jump for Joy” — jumping and agility, and creative DIY — paint your own football T-shirt and ball, plus figurines and canvases (paints, brush and water included; a 3D plaster figurine costs an extra 50 ฿). Runs 14–20 July, daily 11:00–20:00. How to join: a purchase of 1,000 ฿+ at any mall shop earns 1 free activity of your choice; you can combine up to two receipts per day — max 2 activities per person per day. Without a receipt, paid entry from 50 ฿.",
+    startDate: new Date("2026-07-14T04:00:00Z"),
+    endDate: new Date("2026-07-20T13:00:00Z"),
+    locationName: "Terminal 21 Pattaya",
+    locationNameEn: "Terminal 21 Pattaya",
+    address: "G Floor (зона Paris), Terminal 21 Pattaya, Pattaya, Chon Buri",
+    sourceType: "ADMIN" as const,
+    status: "APPROVED" as const,
+    cityId: pattaya.id,
+  };
+  const kicksFun = await prisma.event.upsert({
+    where: { cityId_slug: { cityId: pattaya.id, slug: "terminal21-kicks-and-fun-2026" } },
+    update: kicksFunData,
+    create: { ...kicksFunData, slug: "terminal21-kicks-and-fun-2026" },
+  });
+  if (kidsActivityCategory) {
+    await prisma.eventCategoryLink.upsert({
+      where: {
+        eventId_categoryId: {
+          eventId: kicksFun.id,
+          categoryId: kidsActivityCategory.id,
+        },
+      },
+      update: {},
+      create: { eventId: kicksFun.id, categoryId: kidsActivityCategory.id },
+    });
+  }
+
   // =========================
   // РЕАЛЬНОЕ МЕСТО: Skippy Land (Lotus's North Pattaya)
   // Источники (2026-07-15): фото Вероники с места (её собственные — права её) +
