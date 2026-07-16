@@ -60,7 +60,8 @@ export function SavedList(): React.ReactElement {
       return null;
     }
     return (
-      <section className="saved-section">
+      // id — якорь для ссылок шапки (♡ → #saved, ✓ → #visited)
+      <section className="saved-section" id={kind}>
         <h2 className="saved-section-title">
           {title} <span className="saved-count">{list.length}</span>
         </h2>
@@ -106,6 +107,14 @@ export function SavedList(): React.ReactElement {
 
   return (
     <div className="saved-page">
+      {/* явный путь назад: страница-хаб не должна быть тупиком, из которого
+          «не разжать кнопку» — родитель не обязан догадываться про логотип */}
+      <div className="back-link-wrapper">
+        <Link href={basePath} className="back-link">
+          {dict.memory.backToCatalog}
+        </Link>
+      </div>
+
       <h1 className="saved-page-title">{dict.memory.pageTitle}</h1>
       <p className="saved-page-intro">{dict.memory.pageIntro}</p>
 
@@ -113,6 +122,9 @@ export function SavedList(): React.ReactElement {
         <div className="saved-empty">
           <p className="saved-empty-title">{dict.memory.emptyTitle}</p>
           <p className="saved-empty-hint">{dict.memory.emptyHint}</p>
+          <Link href={basePath} className="saved-empty-cta">
+            {dict.memory.emptyCta}
+          </Link>
         </div>
       ) : (
         <>

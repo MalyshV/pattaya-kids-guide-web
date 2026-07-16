@@ -2589,8 +2589,29 @@ input {
   max-width: 46ch;
   margin-inline: auto;
 }
+/* явный выход из пустого состояния — тупиков не оставляем */
+.saved-empty-cta {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 18px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-foreground);
+  text-decoration: none;
+  font-weight: 600;
+}
+.saved-empty-cta:hover {
+  filter: brightness(1.05);
+}
+.saved-empty-cta:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
 .saved-section {
   margin-top: 28px;
+  /* при переходе по якорю из шапки (#visited) заголовок не прячется под краем */
+  scroll-margin-top: 90px;
 }
 .saved-section-title {
   font-size: 1.15rem;

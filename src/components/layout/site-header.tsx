@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { SUPPORTED_LANGS } from "@/content/dictionary";
 import { useDictionary, useLang } from "@/lib/i18n/use-dictionary";
 import { useParentMemory } from "@/lib/memory/use-parent-memory";
+import { listByKind } from "@/lib/memory/parent-memory";
 
 type SiteHeaderProps = {
   basePath: string;
@@ -36,7 +37,10 @@ function NavLinks({
   const isBirthdays = pathname.startsWith(`${basePath}/birthdays`);
   const isSaved = pathname.startsWith(`${basePath}/saved`);
   const isPlaces = !isEvents && !isActivities && !isBirthdays && !isSaved;
-  const savedCount = hydrated ? items.length : 0;
+  // два счётчика: ♡ сохранённое и ✓ посещённое — обе функции видны из шапки,
+  // родителю не нужно догадываться, что внутри «одной кнопки» живут две
+  const savedCount = hydrated ? listByKind(items, "saved").length : 0;
+  const visitedCount = hydrated ? listByKind(items, "visited").length : 0;
 
   return (
     <nav className="site-nav" aria-label={dict.nav.aria}>
@@ -71,9 +75,21 @@ function NavLinks({
         <span className="site-nav-saved-icon" aria-hidden="true">
           ♡
         </span>
-        {dict.memory.navTitle}
+        {dict.memory.navSaved}
         {savedCount > 0 ? (
           <span className="site-nav-saved-count">{savedCount}</span>
+        ) : null}
+      </Link>
+      <Link
+        href={`${basePath}/saved#visited`}
+        className={`site-nav-link site-nav-saved${isSaved ? " site-nav-link-active" : ""}`}
+      >
+        <span className="site-nav-saved-icon" aria-hidden="true">
+          ✓
+        </span>
+        {dict.memory.navVisited}
+        {visitedCount > 0 ? (
+          <span className="site-nav-saved-count">{visitedCount}</span>
         ) : null}
       </Link>
     </nav>
