@@ -31,10 +31,10 @@ async function main() {
     title: "Футбольная игровая «Kicks & Fun»",
     titleEn: "Kicks & Fun — World Football Playground",
     description:
-      "Футбольная игровая ко времени чемпионата мира на первом этаже Terminal 21 Pattaya (зона Paris, под Эйфелевой башней). Игры с футбольными мячами — в одной можно выиграть приз за меткость — и столики для творчества: роспись фигурок и холстов, краски с кистью и водой уже включены (за 3D-гипсовую фигурку — доплата 50 ฿). Идёт до 20 июля, ежедневно 11:00–20:00. Как участвовать: при чеке из любого магазина ТЦ от 1000 ฿ выдают 2 купона на активности; без чека — участие платное, от 50 ฿.",
+      "Футбольная игровая ко времени чемпионата мира на первом этаже Terminal 21 Pattaya (зона Paris, под Эйфелевой башней). Активности для всей семьи: «Kicks & Hit» — игра на меткость с мячом (за лучший счёт — приз), «Jump for Joy» — прыжки и ловкость, и творческие DIY — распиши свою футбольную футболку и свой мяч, а также фигурки и холсты (краски, кисть и вода включены; за 3D-гипсовую фигурку — доплата 50 ฿). Идёт с 14 по 20 июля, ежедневно 11:00–20:00. Как участвовать: покупка от 1000 ฿ в любом магазине ТЦ даёт 1 бесплатную активность на выбор; можно объединить до двух чеков за день — максимум 2 активности на человека в день. Без чека — участие платное, от 50 ฿.",
     descriptionEn:
-      "A World Cup–themed football playground on the ground floor of Terminal 21 Pattaya (the Paris zone, under the Eiffel Tower). Football skill games — one with a prize for accuracy — and craft tables: paint figurines and canvases, with paints, brush and water included (a 3D plaster figurine costs an extra 50 ฿). Runs until 20 July, daily 11:00–20:00. How to join: a receipt of 1,000 ฿+ from any mall shop gets you 2 activity coupons; without a receipt, paid entry from 50 ฿.",
-    startDate: new Date("2026-07-01T04:00:00Z"),
+      "A World Cup–themed football playground on the ground floor of Terminal 21 Pattaya (the Paris zone, under the Eiffel Tower). Activities for the whole family: “Kicks & Hit” — a football accuracy game (top score wins a prize), “Jump for Joy” — jumping and agility, and creative DIY — paint your own football T-shirt and ball, plus figurines and canvases (paints, brush and water included; a 3D plaster figurine costs an extra 50 ฿). Runs 14–20 July, daily 11:00–20:00. How to join: a purchase of 1,000 ฿+ at any mall shop earns 1 free activity of your choice; you can combine up to two receipts per day — max 2 activities per person per day. Without a receipt, paid entry from 50 ฿.",
+    startDate: new Date("2026-07-14T04:00:00Z"),
     endDate: new Date("2026-07-20T13:00:00Z"),
     locationName: "Terminal 21 Pattaya",
     locationNameEn: "Terminal 21 Pattaya",
