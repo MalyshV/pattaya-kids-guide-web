@@ -1544,10 +1544,58 @@ async function main() {
   });
 
   // =========================
+  // РЕАЛЬНАЯ РАЗВИВАШКА (первая безместная): Tara Tots Playgroup
+  // Источник (2026-07-16): афиша Instagram @tpis_pattaya + фото Вероники с
+  // визита (права её). Регулярная плейгруппа на базе международной школы Tara
+  // Pattana — у школы нет своей карточки-места, поэтому занятие с текстовым
+  // venueName (кейс п.9). Возраст 0–3 года — подтверждён Вероникой лично
+  // (была с дочкой на этих занятиях; в афише возраст не указан).
+  // =========================
+  const taraTotsOld = await prisma.placeProgram.findMany({
+    where: { slug: "tara-tots-playgroup" },
+    select: { id: true },
+  });
+  await prisma.programActivityCategory.deleteMany({
+    where: { programId: { in: taraTotsOld.map((p) => p.id) } },
+  });
+  await prisma.placeProgram.deleteMany({ where: { slug: "tara-tots-playgroup" } });
+  const taraTots = await prisma.placeProgram.create({
+    data: {
+      slug: "tara-tots-playgroup",
+      imageUrl: "/images/activities/tara-tots.jpg",
+      type: "COURSE",
+      name: "Плейгруппа Tara Tots",
+      nameEn: "Tara Tots Playgroup",
+      description:
+        "Утренняя развивающая плейгруппа для малышей на базе международной школы Tara Pattana. Свободная игра, сенсорные активности, музыка и раннее развитие в спокойной безопасной среде — а родители тем временем общаются друг с другом. Занятия по понедельникам, средам и пятницам, 9:30–11:30. Запись: Admissions@tpis.ac.th, 062 620 6888.",
+      descriptionEn:
+        "A morning playgroup for little ones at Tara Pattana International School. Free play, sensory activities, music and early learning in a calm, safe environment — while parents connect with one another. Every Monday, Wednesday and Friday, 9:30–11:30. To join: Admissions@tpis.ac.th, 062 620 6888.",
+      price: 250,
+      currency: "THB",
+      priceUnit: "за ребёнка и взрослого",
+      priceUnitEn: "per child + adult",
+      // 0–3 года — подтверждено Вероникой лично (была с дочкой), не из афиши
+      minAgeMonths: 0,
+      maxAgeMonths: 36,
+      venueName: "Tara Pattana International School Thailand",
+      cityId: pattaya.id,
+      order: 5,
+    },
+  });
+  const earlyDevForTaraTots = await prisma.activityCategory.findUnique({
+    where: { slug: "early-development" },
+  });
+  if (earlyDevForTaraTots) {
+    await prisma.programActivityCategory.create({
+      data: { programId: taraTots.id, categoryId: earlyDevForTaraTots.id },
+    });
+  }
+
+  // =========================
   // [ДЕМО] РАЗВИВАШКА В САДУ — занятие БЕЗ каталожного места (п.9 финал).
   // Показывает, как выглядит развивашка на базе сада (у сада нет своей страницы):
   // место проведения — текстом (venueName/venueAddress), город задан явно (cityId).
-  // Заменить на первую реальную садовую развивашку.
+  // Реальный образец теперь выше (Tara Tots) — демо оставлено для наглядности.
   // =========================
   const demoKgOld = await prisma.placeProgram.findMany({
     where: { slug: "demo-kindergarten-class" },
