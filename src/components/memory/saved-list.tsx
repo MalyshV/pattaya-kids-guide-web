@@ -1,0 +1,125 @@
+"use client";
+
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { PlaceImage } from "@/components/places/place-image";
+import { useDictionary } from "@/lib/i18n/use-dictionary";
+import { useParentMemory } from "@/lib/memory/use-parent-memory";
+import {
+  itemKey,
+  listByKind,
+  type MemoryEntity,
+  type MemoryItem,
+  type MemoryKind,
+} from "@/lib/memory/parent-memory";
+import { cityBasePath, DEFAULT_CITY_SLUG, DEFAULT_LANG } from "@/lib/geo/base-path";
+
+const ENTITY_PATH: Record<MemoryEntity, string> = {
+  place: "places",
+  activity: "activities",
+  event: "events",
+};
+
+/**
+ * Страница «Избранное» — рисуется целиком из localStorage (снимки name/imageUrl
+ * сохранены при клике), поэтому не ходит в БД. Ссылка ведёт на актуальную
+ * страницу, где данные свежие. До гидрации показываем только заголовок и
+ * вступление (списки пусты, «пусто» не мигает).
+ */
+export function SavedList(): React.ReactElement {
+  const params = useParams<{ lang?: string; city?: string }>();
+  const lang = params.lang ?? DEFAULT_LANG;
+  const city = params.city ?? DEFAULT_CITY_SLUG;
+  const basePath = cityBasePath(lang, city);
+  const dict = useDictionary();
+  const { items, hydrated, toggle } = useParentMemory();
+
+  const saved = listByKind(items, "saved");
+  const visited = listByKind(items, "visited");
+  const isEmpty = hydrated && saved.length === 0 && visited.length === 0;
+
+  // switch без default: добавят сущность в MemoryEntity — TS потребует новую
+  // ветку (как исчерпывающий ENTITY_PATH), молчаливого «Событие» не случится
+  const entityLabel = (entity: MemoryEntity): string => {
+    switch (entity) {
+      case "place":
+        return dict.memory.entityPlace;
+      case "activity":
+        return dict.memory.entityActivity;
+      case "event":
+        return dict.memory.entityEvent;
+    }
+  };
+
+  const renderSection = (
+    title: string,
+    list: MemoryItem[],
+    kind: MemoryKind,
+  ): React.ReactElement | null => {
+    if (list.length === 0) {
+      return null;
+    }
+    return (
+      <section className="saved-section">
+        <h2 className="saved-section-title">
+          {title} <span className="saved-count">{list.length}</span>
+        </h2>
+        <ul className="saved-grid">
+          {list.map((item) => (
+            <li
+              key={itemKey(item.entity, item.slug, item.kind)}
+              className="saved-item interactive-surface"
+            >
+              <Link
+                href={`${basePath}/${ENTITY_PATH[item.entity]}/${item.slug}`}
+                className="saved-item-link"
+              >
+                <PlaceImage url={item.imageUrl} alt={item.name} />
+                <span className="saved-item-type">{entityLabel(item.entity)}</span>
+                <span className="saved-item-name">{item.name}</span>
+              </Link>
+              <button
+                type="button"
+                className="saved-item-remove"
+                aria-label={dict.memory.remove}
+                title={dict.memory.remove}
+                onClick={() =>
+                  toggle(
+                    {
+                      entity: item.entity,
+                      slug: item.slug,
+                      name: item.name,
+                      imageUrl: item.imageUrl,
+                    },
+                    kind,
+                  )
+                }
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  };
+
+  return (
+    <div className="saved-page">
+      <h1 className="saved-page-title">{dict.memory.pageTitle}</h1>
+      <p className="saved-page-intro">{dict.memory.pageIntro}</p>
+
+      {isEmpty ? (
+        <div className="saved-empty">
+          <p className="saved-empty-title">{dict.memory.emptyTitle}</p>
+          <p className="saved-empty-hint">{dict.memory.emptyHint}</p>
+        </div>
+      ) : (
+        <>
+          {renderSection(dict.memory.savedSection, saved, "saved")}
+          {renderSection(dict.memory.visitedSection, visited, "visited")}
+        </>
+      )}
+    </div>
+  );
+}

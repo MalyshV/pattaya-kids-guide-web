@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { SUPPORTED_LANGS } from "@/content/dictionary";
 import { useDictionary, useLang } from "@/lib/i18n/use-dictionary";
+import { useParentMemory } from "@/lib/memory/use-parent-memory";
 
 type SiteHeaderProps = {
   basePath: string;
@@ -29,10 +30,13 @@ function NavLinks({
 }): React.ReactElement {
   const pathname = usePathname();
   const dict = useDictionary();
+  const { items, hydrated } = useParentMemory();
   const isEvents = pathname.startsWith(`${basePath}/events`);
   const isActivities = pathname.startsWith(`${basePath}/activities`);
   const isBirthdays = pathname.startsWith(`${basePath}/birthdays`);
-  const isPlaces = !isEvents && !isActivities && !isBirthdays;
+  const isSaved = pathname.startsWith(`${basePath}/saved`);
+  const isPlaces = !isEvents && !isActivities && !isBirthdays && !isSaved;
+  const savedCount = hydrated ? items.length : 0;
 
   return (
     <nav className="site-nav" aria-label={dict.nav.aria}>
@@ -59,6 +63,18 @@ function NavLinks({
         className={`site-nav-link${isBirthdays ? " site-nav-link-active" : ""}`}
       >
         {dict.nav.birthdays}
+      </Link>
+      <Link
+        href={`${basePath}/saved`}
+        className={`site-nav-link site-nav-saved${isSaved ? " site-nav-link-active" : ""}`}
+      >
+        <span className="site-nav-saved-icon" aria-hidden="true">
+          ♡
+        </span>
+        {dict.memory.navTitle}
+        {savedCount > 0 ? (
+          <span className="site-nav-saved-count">{savedCount}</span>
+        ) : null}
       </Link>
     </nav>
   );

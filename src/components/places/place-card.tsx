@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { PlaceListItemDto } from "@/dto/place-list-item.dto";
 import { OpenStatusBadge } from "@/components/places/open-status-badge";
 import { PlaceImage } from "@/components/places/place-image";
+import { MemoryButtons } from "@/components/memory/memory-buttons";
 import type { OpenStatus } from "@/lib/schedule/open-status";
 import { getDictionary, langFromPath } from "@/content/dictionary";
 import { pickLocalized } from "@/lib/i18n/localize";
@@ -31,6 +32,13 @@ export function PlaceCard({
       }`}
     >
       <PlaceImage url={place.imageUrl} alt={place.name} />
+      <MemoryButtons
+        compact
+        entity="place"
+        slug={place.slug}
+        name={place.name}
+        imageUrl={place.imageUrl}
+      />
 
       <div className="place-card-header">
         <div>

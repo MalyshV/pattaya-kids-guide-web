@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ActivityListItemDto } from "@/dto/activity-list-item.dto";
 import { PlaceImage } from "@/components/places/place-image";
+import { MemoryButtons } from "@/components/memory/memory-buttons";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { formatAgeRange } from "@/lib/age/format-age";
@@ -38,72 +39,85 @@ export function ActivityCard({
   const ageRange = formatAgeRange(activity.minAgeMonths, activity.maxAgeMonths, lang);
 
   return (
-    <Link
-      href={
-        activity.slug
-          ? `${basePath}/activities/${activity.slug}`
-          : `${basePath}/activities`
-      }
-      className="activity-card interactive-surface"
-    >
-      <PlaceImage url={activity.imageUrl} alt={activity.name} />
-
-      <div className="activity-card-head">
-        <span className="program-type">{typeLabel}</span>
-        {status ? <EventStatusBadge status={status} lang={lang} /> : null}
-      </div>
-
-      <h3 className="activity-name">{activity.name}</h3>
-
-      <p className="activity-place">
-        <span className="activity-place-label">{dict.activities.placeLabel}</span>
-        <span className="activity-place-name">
-          {activity.place?.name ?? activity.venueName}
-        </span>
-      </p>
-
-      {ageRange ? (
-        <p className="activity-age">
-          <span className="activity-age-label">{dict.activities.ageLabel}</span>{" "}
-          {ageRange}
-        </p>
+    <div className="activity-card-outer">
+      {/* кнопки памяти — снаружи Link (вся карточка кликабельна), только у
+          занятий со своей страницей (у абонементов slug=null) */}
+      {activity.slug ? (
+        <MemoryButtons
+          compact
+          entity="activity"
+          slug={activity.slug}
+          name={activity.name}
+          imageUrl={activity.imageUrl}
+        />
       ) : null}
+      <Link
+        href={
+          activity.slug
+            ? `${basePath}/activities/${activity.slug}`
+            : `${basePath}/activities`
+        }
+        className="activity-card interactive-surface"
+      >
+        <PlaceImage url={activity.imageUrl} alt={activity.name} />
 
-      {activity.categories.length > 0 ? (
-        <div className="category-list">
-          {activity.categories.map((category) => (
-            <span key={category.id} className="category-chip">
-              {category.name}
-            </span>
-          ))}
+        <div className="activity-card-head">
+          <span className="program-type">{typeLabel}</span>
+          {status ? <EventStatusBadge status={status} lang={lang} /> : null}
         </div>
-      ) : null}
 
-      {activity.price != null ? (
-        <p className="program-price">
-          {activity.oldPrice != null ? (
-            <span className="program-old-price">
-              {dict.placeDetails.programOldPrice(
-                formatMoney(activity.oldPrice, activity.currency, lang),
-              )}
-            </span>
-          ) : null}
-          <span className="program-current-price">
-            {formatMoney(activity.price, activity.currency, lang)}
+        <h3 className="activity-name">{activity.name}</h3>
+
+        <p className="activity-place">
+          <span className="activity-place-label">{dict.activities.placeLabel}</span>
+          <span className="activity-place-name">
+            {activity.place?.name ?? activity.venueName}
           </span>
-          {activity.priceUnit ? (
-            <span className="program-price-unit">{activity.priceUnit}</span>
-          ) : null}
         </p>
-      ) : null}
 
-      {activity.description ? (
-        <p className="activity-description">{activity.description}</p>
-      ) : null}
+        {ageRange ? (
+          <p className="activity-age">
+            <span className="activity-age-label">{dict.activities.ageLabel}</span>{" "}
+            {ageRange}
+          </p>
+        ) : null}
 
-      <span className="activity-cta">
-        {dict.activityCard.detailsCta} <span aria-hidden="true">→</span>
-      </span>
-    </Link>
+        {activity.categories.length > 0 ? (
+          <div className="category-list">
+            {activity.categories.map((category) => (
+              <span key={category.id} className="category-chip">
+                {category.name}
+              </span>
+            ))}
+          </div>
+        ) : null}
+
+        {activity.price != null ? (
+          <p className="program-price">
+            {activity.oldPrice != null ? (
+              <span className="program-old-price">
+                {dict.placeDetails.programOldPrice(
+                  formatMoney(activity.oldPrice, activity.currency, lang),
+                )}
+              </span>
+            ) : null}
+            <span className="program-current-price">
+              {formatMoney(activity.price, activity.currency, lang)}
+            </span>
+            {activity.priceUnit ? (
+              <span className="program-price-unit">{activity.priceUnit}</span>
+            ) : null}
+          </p>
+        ) : null}
+
+        {activity.description ? (
+          <p className="activity-description">{activity.description}</p>
+        ) : null}
+
+        <span className="activity-cta">
+          {dict.activityCard.detailsCta} <span aria-hidden="true">→</span>
+        </span>
+      </Link>
+    </div>
   );
 }
