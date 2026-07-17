@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { SUPPORTED_LANGS } from "@/content/dictionary";
 import { useDictionary, useLang } from "@/lib/i18n/use-dictionary";
 import { useParentMemory } from "@/lib/memory/use-parent-memory";
 import { listByKind } from "@/lib/memory/parent-memory";
+import { markClientNavigation } from "@/components/common/smart-back-link";
 
 type SiteHeaderProps = {
   basePath: string;
@@ -32,6 +33,16 @@ function NavLinks({
   const pathname = usePathname();
   const dict = useDictionary();
   const { items, hydrated } = useParentMemory();
+
+  // считаем клиентские переходы для SmartBackLink: только смену pathname,
+  // первый рендер страницы переходом не является
+  const prevPathnameRef = useRef(pathname);
+  useEffect(() => {
+    if (prevPathnameRef.current !== pathname) {
+      prevPathnameRef.current = pathname;
+      markClientNavigation();
+    }
+  }, [pathname]);
   const isEvents = pathname.startsWith(`${basePath}/events`);
   const isActivities = pathname.startsWith(`${basePath}/activities`);
   const isBirthdays = pathname.startsWith(`${basePath}/birthdays`);

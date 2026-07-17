@@ -161,8 +161,6 @@ export const en: Dictionary = {
     title: "Filters",
     subtitle: "Pick what matters",
     reset: "Reset",
-    apply: "Apply",
-    applying: "Applying…",
     labels: {
       indoor: "Indoor",
       outdoor: "Outdoor",

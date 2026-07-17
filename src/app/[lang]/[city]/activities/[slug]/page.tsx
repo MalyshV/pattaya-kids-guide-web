@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { mapActivityToListItem } from "@/mappers/activity.mapper";
 import { getActivityBySlug } from "@/services/activities.service";
 import { ShareButton } from "@/components/common/share-button";
+import { SmartBackLink } from "@/components/common/smart-back-link";
 import { ZoomableImage } from "@/components/common/zoomable-image";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { mapsSearchUrl } from "@/lib/geo/maps-search";
@@ -103,9 +104,10 @@ export default async function ActivityDetailsPage({
   return (
     <main className="page-shell">
       <div className="back-link-wrapper">
-        <Link href={`${basePath}/activities`} className="back-link">
-          {dict.activityDetails.back}
-        </Link>
+        <SmartBackLink
+          fallbackHref={`${basePath}/activities`}
+          label={dict.activityDetails.back}
+        />
         <ShareButton title={dto.name} />
       </div>
 

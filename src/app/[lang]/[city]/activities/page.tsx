@@ -114,7 +114,7 @@ export default async function CityActivitiesPage({
         categories={availableCategories}
       />
 
-      <section className="results-header">
+      <section className="results-header" id="results">
         <div>
           <h2>{dict.activities.sectionTitle}</h2>
           <p>{dict.activities.count(items.length)}</p>

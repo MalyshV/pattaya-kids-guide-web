@@ -172,8 +172,6 @@ export const ru = {
     title: "Фильтры",
     subtitle: "Выберите, что важно",
     reset: "Сбросить",
-    apply: "Применить",
-    applying: "Применяю…",
     labels: {
       indoor: "В помещении",
       outdoor: "На улице",

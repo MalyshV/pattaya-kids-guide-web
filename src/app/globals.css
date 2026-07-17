@@ -2631,6 +2631,20 @@ input {
   scroll-margin-top: 90px;
 }
 
+/* якорь результатов для пагинации: «Далее» начинает страницу с карточек */
+#results {
+  scroll-margin-top: 16px;
+}
+
+/* SmartBackLink в режиме history.back — кнопка, выглядящая как back-link */
+.back-link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
 .saved-empty-cta {
   display: inline-flex;
   align-items: center;
