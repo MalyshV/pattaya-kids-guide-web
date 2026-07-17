@@ -62,7 +62,7 @@ export const en: Dictionary = {
     saveAria: "Save to your list",
     savedAria: "Remove from saved",
     visitLabel: "Been here",
-    visitedLabel: "Been here",
+    visitedLabel: "Marked: been here",
     visitAria: "Mark as been here",
     visitedAria: "Remove been-here mark",
     savedSection: "Saved",
@@ -73,6 +73,8 @@ export const en: Dictionary = {
     emptyHint:
       "Tap ♡ on cards to save, and ✓ to mark where you've been. Everything shows up here.",
     remove: "Remove",
+    removed: "Removed from the list",
+    restore: "Undo",
     entityPlace: "Place",
     entityActivity: "Activity",
     entityEvent: "Event",

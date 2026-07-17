@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { mapBirthdayPlaceToDto } from "@/mappers/birthday-place.mapper";
 import { getBirthdayPlaces } from "@/services/places.service";
 import { PlaceImage } from "@/components/places/place-image";
+import { MemoryButtons } from "@/components/memory/memory-buttons";
 import { FactValue } from "@/components/places/fact-value";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import {
@@ -82,6 +83,15 @@ export default async function BirthdaysPage({
           {items.map((place) => (
             <article key={place.id} className="birthday-card interactive-surface">
               <PlaceImage url={place.imageUrl} alt={place.name} />
+              {/* площадку ДР можно сохранить прямо с лендинга — раньше ♡ был
+                  только в общем каталоге, обходной путь */}
+              <MemoryButtons
+                compact
+                entity="place"
+                slug={place.slug}
+                name={place.name}
+                imageUrl={place.imageUrl}
+              />
 
               <div className="birthday-card-body">
                 <h2 className="birthday-card-title">

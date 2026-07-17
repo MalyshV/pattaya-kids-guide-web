@@ -10,6 +10,7 @@ import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeOpenStatus, nowInCity } from "@/lib/schedule/open-status";
 import { ShareButton } from "@/components/common/share-button";
 import { SmartBackLink } from "@/components/common/smart-back-link";
+import { MemoryButtons } from "@/components/memory/memory-buttons";
 import { OpenStatusBadge } from "@/components/places/open-status-badge";
 import { PlaceProgramCard } from "@/components/places/place-program-card";
 import { ZoomableImage } from "@/components/common/zoomable-image";
@@ -216,7 +217,17 @@ export default async function PlaceDetailsPage({
     <main className="page-shell">
       <div className="back-link-wrapper">
         <SmartBackLink fallbackHref={basePath} label={dict.placeDetails.back} />
-        <ShareButton title={dto.name} />
+        {/* сохранить/отметить можно и со страницы — не только с карточки списка */}
+        <div className="detail-actions">
+          <MemoryButtons
+            compact
+            entity="place"
+            slug={dto.slug}
+            name={dto.name}
+            imageUrl={dto.imageUrl}
+          />
+          <ShareButton title={dto.name} />
+        </div>
       </div>
 
       <ZoomableImage

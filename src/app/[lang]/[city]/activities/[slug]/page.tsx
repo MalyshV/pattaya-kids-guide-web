@@ -5,6 +5,7 @@ import { mapActivityToListItem } from "@/mappers/activity.mapper";
 import { getActivityBySlug } from "@/services/activities.service";
 import { ShareButton } from "@/components/common/share-button";
 import { SmartBackLink } from "@/components/common/smart-back-link";
+import { MemoryButtons } from "@/components/memory/memory-buttons";
 import { ZoomableImage } from "@/components/common/zoomable-image";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { mapsSearchUrl } from "@/lib/geo/maps-search";
@@ -108,7 +109,18 @@ export default async function ActivityDetailsPage({
           fallbackHref={`${basePath}/activities`}
           label={dict.activityDetails.back}
         />
-        <ShareButton title={dto.name} />
+        <div className="detail-actions">
+          {dto.slug ? (
+            <MemoryButtons
+              compact
+              entity="activity"
+              slug={dto.slug}
+              name={dto.name}
+              imageUrl={dto.imageUrl}
+            />
+          ) : null}
+          <ShareButton title={dto.name} />
+        </div>
       </div>
 
       <ZoomableImage

@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import type { EventDetailsDto } from "@/dto/event-details.dto";
 import { ShareButton } from "@/components/common/share-button";
 import { SmartBackLink } from "@/components/common/smart-back-link";
+import { MemoryButtons } from "@/components/memory/memory-buttons";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { mapEventDetailsToDto } from "@/mappers/event-details.mapper";
 import { getApprovedEventBySlug } from "@/services/events.service";
@@ -134,7 +135,16 @@ export default async function EventDetailsPage({
           fallbackHref={`${basePath}/events`}
           label={dict.eventDetails.back}
         />
-        <ShareButton title={dto.title} />
+        <div className="detail-actions">
+          <MemoryButtons
+            compact
+            entity="event"
+            slug={dto.slug}
+            name={dto.title}
+            imageUrl={dto.imageUrl}
+          />
+          <ShareButton title={dto.title} />
+        </div>
       </div>
 
       <ZoomableImage
