@@ -20,6 +20,17 @@ const nextConfig: NextConfig = {
         destination: "/ru/pattaya",
         permanent: false,
       },
+      // /ru и /en без города — не тупиковый 404, а каталог города по умолчанию
+      {
+        source: "/ru",
+        destination: "/ru/pattaya",
+        permanent: false,
+      },
+      {
+        source: "/en",
+        destination: "/en/pattaya",
+        permanent: false,
+      },
     ];
   },
 

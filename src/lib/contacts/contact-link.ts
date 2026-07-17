@@ -26,6 +26,20 @@ export function contactHref(type: string, value: string): string {
     return `https://line.me/R/ti/p/${encodeURIComponent(trimmed)}`;
   }
 
+  // мессенджеры: в данных обычно номер/ник, а не URL — строим deep link сами
+  if (type === "whatsapp" && !/^https?:\/\//.test(trimmed)) {
+    return `https://wa.me/${trimmed.replace(/[^\d]/g, "")}`;
+  }
+  if (type === "telegram" && !/^https?:\/\//.test(trimmed)) {
+    return `https://t.me/${trimmed.replace(/^@/, "")}`;
+  }
+
+  // значение без протокола («laridea.co.th») стало бы относительной ссылкой
+  // и увело бы на /ru/pattaya/laridea.co.th — дописываем https://
+  if (!/^https?:\/\//.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+
   return trimmed;
 }
 

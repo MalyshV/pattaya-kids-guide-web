@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AgeQuestion } from "@/components/common/age-question";
 import { EventCard } from "@/components/events/event-card";
@@ -29,8 +30,13 @@ export async function generateMetadata({
   params: PageProps["params"];
 }): Promise<Metadata> {
   const { lang, city: citySlug } = await params;
-  // self-canonical: ?page=/фильтры не плодят дубли в индексе
-  return { alternates: listPageAlternates(lang, citySlug, "/events") };
+  const dict = getDictionary(lang);
+  return {
+    // свой title: иначе все вкладки браузера называются одинаково по городу
+    title: `${dict.events.heroTitle} — ${dict.brand}`,
+    // self-canonical: ?page=/фильтры не плодят дубли в индексе
+    alternates: listPageAlternates(lang, citySlug, "/events"),
+  };
 }
 
 function parseEventType(
@@ -131,6 +137,9 @@ export default async function CityEventsPage({
         <section className="empty-state">
           <h3>{dict.events.emptyTitle}</h3>
           <p>{dict.events.emptyHint}</p>
+          <Link href={`${basePath}/events`} className="empty-state-cta">
+            {dict.events.emptyCta}
+          </Link>
         </section>
       ) : (
         <>

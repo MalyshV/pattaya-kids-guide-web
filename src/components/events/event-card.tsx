@@ -55,7 +55,6 @@ export function EventCard({
               {event.title}
             </Link>
           </h3>
-          <p className="event-card-slug">/{event.slug}</p>
         </div>
       </div>
 
@@ -73,10 +72,13 @@ export function EventCard({
         <span className="feature-chip">
           {dict.eventCard.starts} {formatDate(event.startDate, dict, lang)}
         </span>
-        <span className="feature-chip">
-          {dict.eventCard.ends}{" "}
-          {event.endDate ? formatDate(event.endDate, dict, lang) : dict.eventCard.dateTbd}
-        </span>
+        {/* endDate=null — это разовое событие (конвенция данных), а не
+            «организаторы не определились»: чип «Конец» просто не показываем */}
+        {event.endDate ? (
+          <span className="feature-chip">
+            {dict.eventCard.ends} {formatDate(event.endDate, dict, lang)}
+          </span>
+        ) : null}
         {ageRange ? (
           <span className="feature-chip">
             {dict.eventCard.ageLabel}: {ageRange}

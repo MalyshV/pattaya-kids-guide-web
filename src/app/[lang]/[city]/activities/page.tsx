@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActivityCard } from "@/components/activities/activity-card";
 import { ActivityFilters } from "@/components/activities/activity-filters";
@@ -30,8 +31,13 @@ export async function generateMetadata({
   params: PageProps["params"];
 }): Promise<Metadata> {
   const { lang, city: citySlug } = await params;
-  // self-canonical: ?page=/фильтры не плодят дубли в индексе
-  return { alternates: listPageAlternates(lang, citySlug, "/activities") };
+  const dict = getDictionary(lang);
+  return {
+    // свой title: иначе все вкладки браузера называются одинаково по городу
+    title: `${dict.activities.heroTitle} — ${dict.brand}`,
+    // self-canonical: ?page=/фильтры не плодят дубли в индексе
+    alternates: listPageAlternates(lang, citySlug, "/activities"),
+  };
 }
 
 export default async function CityActivitiesPage({
@@ -121,6 +127,11 @@ export default async function CityActivitiesPage({
           <p>
             {isFiltered ? dict.activities.emptyFilteredHint : dict.activities.emptyHint}
           </p>
+          {isFiltered ? (
+            <Link href={`${basePath}/activities`} className="empty-state-cta">
+              {dict.activities.emptyCta}
+            </Link>
+          ) : null}
         </section>
       ) : (
         <>

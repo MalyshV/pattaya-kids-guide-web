@@ -67,6 +67,8 @@ export const en: Dictionary = {
     visitedAria: "Remove been-here mark",
     savedSection: "Saved",
     visitedSection: "Been here",
+    savedSectionEmpty: "Nothing yet — tap ♡ on cards to save for later.",
+    visitedSectionEmpty: "Nothing yet — tap ✓ on cards of places you've visited.",
     emptyTitle: "Nothing here yet",
     emptyHint:
       "Tap ♡ on cards to save, and ✓ to mark where you've been. Everything shows up here.",
@@ -109,6 +111,9 @@ export const en: Dictionary = {
     count: (total: number): string => `${total} ${total === 1 ? "place" : "places"}`,
     emptyTitle: "Nothing found",
     emptyHint: "Try removing one of the filters.",
+    emptyAgeHint:
+      "Nothing found for this age yet — try another age or clear the selection.",
+    emptyCta: "Show all places",
     emptyWorkTitle: "Not many such places yet",
     emptyWorkHint:
       "We're filling the catalog with places where a parent can work nearby. Try removing this filter for now.",
@@ -204,7 +209,9 @@ export const en: Dictionary = {
       `Kids' birthday in ${cityName}: venues, packages and prices`,
     heroTitle: "A kid's birthday party in Pattaya",
     heroDescription:
-      "Venues that host kids' birthday parties: packages, prices, deposits and contacts — verified and gathered in one place.",
+      "Venues that host kids’ birthdays: packages, prices, deposits and contacts — collected and checked in person.",
+    askOnBooking: "— ask when booking",
+    ageNote: "Age doesn't filter here — showing all birthday venues.",
     guestsLabel: "Guests:",
     guestsFrom: (min: number): string => `from ${min}`,
     guestsRange: (min: number, max: number): string => `${min}–${max}`,
@@ -303,6 +310,7 @@ export const en: Dictionary = {
     count: (total: number): string => `${total} ${total === 1 ? "event" : "events"}`,
     emptyTitle: "Nothing found",
     emptyHint: "Try another filter, or view all events.",
+    emptyCta: "Show all events",
   },
 
   activities: {
@@ -315,6 +323,7 @@ export const en: Dictionary = {
     emptyTitle: "Not many activities yet",
     emptyHint: "We're filling the catalog — studios and clubs are coming.",
     emptyFilteredHint: "Nothing matches these filters — try a different age or type.",
+    emptyCta: "Show all activities",
     placeLabel: "Place",
     ageLabel: "Ages:",
     filterAgeTitle: "Child's age",
@@ -366,7 +375,7 @@ export const en: Dictionary = {
     showAll: "Show all",
     labels: {
       upcoming: "Upcoming",
-      ongoing: "Now",
+      ongoing: "Happening now",
       past: "Past",
     },
   },

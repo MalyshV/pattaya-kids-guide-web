@@ -69,7 +69,7 @@ function NavLinks({
         {dict.nav.birthdays}
       </Link>
       <Link
-        href={`${basePath}/saved`}
+        href={withAge(`${basePath}/saved`, age)}
         className={`site-nav-link site-nav-saved${isSaved ? " site-nav-link-active" : ""}`}
       >
         <span className="site-nav-saved-icon" aria-hidden="true">
@@ -81,7 +81,8 @@ function NavLinks({
         ) : null}
       </Link>
       <Link
-        href={`${basePath}/saved#visited`}
+        // query — строго до #visited: withAge после хэша дал бы битый URL
+        href={`${withAge(`${basePath}/saved`, age)}#visited`}
         className={`site-nav-link site-nav-saved${isSaved ? " site-nav-link-active" : ""}`}
       >
         <span className="site-nav-saved-icon" aria-hidden="true">
