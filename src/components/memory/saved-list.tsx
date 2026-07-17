@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { PlaceImage } from "@/components/places/place-image";
@@ -35,6 +36,46 @@ export function SavedList({ age }: { age?: string | null }): React.ReactElement 
   const backHref = age ? `${basePath}?age=${encodeURIComponent(age)}` : basePath;
   const dict = useDictionary();
   const { items, hydrated, toggle } = useParentMemory();
+
+  // × убирал запись мгновенно и безвозвратно — промах пальцем терял закладку.
+  // Держим снимок последнего удалённого и даём «Вернуть» несколько секунд.
+  const [removed, setRemoved] = useState<MemoryItem | null>(null);
+  const undoTimerRef = useRef<number | null>(null);
+  useEffect(() => {
+    return () => {
+      if (undoTimerRef.current !== null) {
+        window.clearTimeout(undoTimerRef.current);
+      }
+    };
+  }, []);
+
+  const removeWithUndo = (item: MemoryItem, kind: MemoryKind): void => {
+    toggle(
+      { entity: item.entity, slug: item.slug, name: item.name, imageUrl: item.imageUrl },
+      kind,
+    );
+    setRemoved(item);
+    if (undoTimerRef.current !== null) {
+      window.clearTimeout(undoTimerRef.current);
+    }
+    undoTimerRef.current = window.setTimeout(() => setRemoved(null), 6000);
+  };
+
+  const restoreRemoved = (): void => {
+    if (!removed) {
+      return;
+    }
+    toggle(
+      {
+        entity: removed.entity,
+        slug: removed.slug,
+        name: removed.name,
+        imageUrl: removed.imageUrl,
+      },
+      removed.kind,
+    );
+    setRemoved(null);
+  };
 
   const saved = listByKind(items, "saved");
   const visited = listByKind(items, "visited");
@@ -97,17 +138,7 @@ export function SavedList({ age }: { age?: string | null }): React.ReactElement 
                 className="saved-item-remove"
                 aria-label={dict.memory.remove}
                 title={dict.memory.remove}
-                onClick={() =>
-                  toggle(
-                    {
-                      entity: item.entity,
-                      slug: item.slug,
-                      name: item.name,
-                      imageUrl: item.imageUrl,
-                    },
-                    kind,
-                  )
-                }
+                onClick={() => removeWithUndo(item, kind)}
               >
                 <span aria-hidden="true">×</span>
               </button>
@@ -145,6 +176,15 @@ export function SavedList({ age }: { age?: string | null }): React.ReactElement 
           {renderSection(dict.memory.visitedSection, visited, "visited")}
         </>
       )}
+
+      {removed ? (
+        <p className="saved-undo" role="status">
+          {dict.memory.removed}: {removed.name}
+          <button type="button" className="saved-undo-restore" onClick={restoreRemoved}>
+            {dict.memory.restore}
+          </button>
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -68,6 +68,10 @@ function buildInitialState(props: PlaceFiltersProps): FiltersState {
   };
 }
 
+function sameState(a: FiltersState, b: FiltersState): boolean {
+  return (Object.keys(a) as FilterKey[]).every((key) => a[key] === b[key]);
+}
+
 export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
   const router = useRouter();
   const pathname = usePathname();
@@ -76,15 +80,40 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
   const FILTERS = useMemo(() => buildFilters(dict), [dict]);
   const initialState = useMemo(() => buildInitialState(props), [props]);
   const [filters, setFilters] = useState<FiltersState>(initialState);
-  // Отклик на «Применить»: на проде ответ идёт ~0.3с — без индикации кажется,
-  // что кнопка не сработала.
+  // Чекбокс применяется мгновенно (визуал — сразу, сервер догоняет),
+  // как соседние чипы: два разных механизма рядом путали, «Применить»
+  // между тапом и результатом больше не стоит.
   const [isPending, startTransition] = useTransition();
 
+  // Ресинк с URL (паттерн «adjusting state when props change»): после
+  // системного «назад» или перехода по чистой ссылке галочки обязаны
+  // соответствовать URL, иначе видишь отмеченный фильтр и полный список.
+  const [prevInitial, setPrevInitial] = useState(initialState);
+  if (!sameState(prevInitial, initialState)) {
+    setPrevInitial(initialState);
+    setFilters(initialState);
+  }
+
+  function pushFilters(next: FiltersState): void {
+    const searchParams = scenarioParams();
+    (Object.entries(next) as Array<[FilterKey, boolean]>).forEach(([key, value]) => {
+      if (value) {
+        searchParams.set(key, "true");
+      }
+    });
+    const queryString = searchParams.toString();
+    startTransition(() => {
+      // scroll: false — родитель остаётся у панели, страница не прыгает к шапке
+      router.push(queryString ? `${pathname}?${queryString}` : pathname, {
+        scroll: false,
+      });
+    });
+  }
+
   function handleToggle(name: FilterKey): void {
-    setFilters((current) => ({
-      ...current,
-      [name]: !current[name],
-    }));
+    const next = { ...filters, [name]: !filters[name] };
+    setFilters(next);
+    pushFilters(next);
   }
 
   // Активные сценарии-чипы и возраст — пронести через «Показать»/«Сбросить».
@@ -114,24 +143,6 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
     return params;
   }
 
-  function handleApply(event: React.FormEvent<HTMLFormElement>): void {
-    event.preventDefault();
-
-    const searchParams = scenarioParams();
-
-    (Object.entries(filters) as Array<[FilterKey, boolean]>).forEach(([key, value]) => {
-      if (value) {
-        searchParams.set(key, "true");
-      }
-    });
-
-    const queryString = searchParams.toString();
-
-    startTransition(() => {
-      router.push(queryString ? `${pathname}?${queryString}` : pathname);
-    });
-  }
-
   function handleReset(): void {
     const emptyState: FiltersState = {
       indoor: false,
@@ -146,10 +157,7 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
 
     setFilters(emptyState);
     // Сброс фасетов не трогает сценарий-чипы — у них свой переключатель.
-    const queryString = scenarioParams().toString();
-    startTransition(() => {
-      router.push(queryString ? `${pathname}?${queryString}` : pathname);
-    });
+    pushFilters(emptyState);
   }
 
   return (
@@ -165,30 +173,23 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
         </button>
       </div>
 
-      <form className="filters-form" onSubmit={handleApply}>
-        <div className="filters-grid">
-          {FILTERS.map((filter) => (
-            <label key={filter.name} className="filter-toggle">
-              <input
-                type="checkbox"
-                checked={filters[filter.name]}
-                onChange={() => handleToggle(filter.name)}
-              />
-              <span>{filter.label}</span>
-            </label>
-          ))}
-        </div>
-
-        <div className="filters-actions">
-          <button
-            className={`primary-button${isPending ? " primary-button-pending" : ""}`}
-            type="submit"
-            aria-busy={isPending}
-          >
-            {isPending ? dict.placeFilters.applying : dict.placeFilters.apply}
-          </button>
-        </div>
-      </form>
+      {/* aria-busy + лёгкое приглушение на время догоняющего сервера —
+          тот же язык отклика, что у сценарных чипов */}
+      <div
+        className={`filters-grid${isPending ? " chips-pending" : ""}`}
+        aria-busy={isPending}
+      >
+        {FILTERS.map((filter) => (
+          <label key={filter.name} className="filter-toggle">
+            <input
+              type="checkbox"
+              checked={filters[filter.name]}
+              onChange={() => handleToggle(filter.name)}
+            />
+            <span>{filter.label}</span>
+          </label>
+        ))}
+      </div>
     </section>
   );
 }

@@ -79,6 +79,9 @@ export function PlaceProgramCard({
       className="program-card interactive-surface"
     >
       {content}
+      {/* постоянный маркер кликабельности: на телефоне hover нет, и занятие
+          не отличалось от некликабельного абонемента рядом */}
+      <span className="program-card-more">{dict.common.detailsCta} →</span>
     </Link>
   ) : (
     <article className="program-card">{content}</article>

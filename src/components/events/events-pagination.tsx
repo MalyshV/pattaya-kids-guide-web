@@ -27,7 +27,9 @@ function buildPageHref(
 
   searchParams.set("page", String(page));
 
-  return `${basePath}/events?${searchParams.toString()}`;
+  // #results: новая страница начинается с карточек, а не с шапки и стека
+  // фильтров (Next сам подводит к якорю после навигации)
+  return `${basePath}/events?${searchParams.toString()}#results`;
 }
 
 export function EventsPagination({

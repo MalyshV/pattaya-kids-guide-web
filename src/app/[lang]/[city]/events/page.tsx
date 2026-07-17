@@ -126,7 +126,7 @@ export default async function CityEventsPage({
 
       <EventFilters type={type} basePath={basePath} age={ageParam} />
 
-      <section className="results-header">
+      <section className="results-header" id="results">
         <div>
           <h2>{dict.events.sectionTitle}</h2>
           <p>{dict.events.count(total)}</p>

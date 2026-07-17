@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { EventDetailsDto } from "@/dto/event-details.dto";
 import { ShareButton } from "@/components/common/share-button";
+import { SmartBackLink } from "@/components/common/smart-back-link";
+import { MemoryButtons } from "@/components/memory/memory-buttons";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { mapEventDetailsToDto } from "@/mappers/event-details.mapper";
 import { getApprovedEventBySlug } from "@/services/events.service";
@@ -129,10 +131,20 @@ export default async function EventDetailsPage({
   return (
     <main className="page-shell">
       <div className="back-link-wrapper">
-        <Link href={`${basePath}/events`} className="back-link">
-          {dict.eventDetails.back}
-        </Link>
-        <ShareButton title={dto.title} />
+        <SmartBackLink
+          fallbackHref={`${basePath}/events`}
+          label={dict.eventDetails.back}
+        />
+        <div className="detail-actions">
+          <MemoryButtons
+            compact
+            entity="event"
+            slug={dto.slug}
+            name={dto.title}
+            imageUrl={dto.imageUrl}
+          />
+          <ShareButton title={dto.title} />
+        </div>
       </div>
 
       <ZoomableImage

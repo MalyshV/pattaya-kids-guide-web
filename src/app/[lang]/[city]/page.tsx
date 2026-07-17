@@ -261,7 +261,7 @@ export default async function CityPlacesPage({
         animalContact={animalContact}
       />
 
-      <section className="results-header">
+      <section className="results-header" id="results">
         <div>
           <h2>{dict.places.sectionTitle}</h2>
           <p>{dict.places.count(total)}</p>
