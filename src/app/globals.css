@@ -760,6 +760,52 @@ input {
   padding-left: 18px;
 }
 
+/* OCR-зона скрина афиши: пунктирная рамка читается как «сюда можно бросить»;
+   при перетаскивании и наведении подсвечивается терракотой */
+.admin-ocr {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-ocr-zone {
+  padding: 18px 16px;
+  border: 1.5px dashed rgba(60, 50, 35, 0.28);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--muted);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.admin-ocr-zone:not(:disabled):hover,
+.admin-ocr-zone-active {
+  border-color: var(--accent, #c96f4a);
+  background: rgba(201, 111, 74, 0.05);
+}
+
+.admin-ocr-zone:disabled {
+  cursor: progress;
+  border-style: solid;
+  color: inherit;
+}
+
+.admin-ocr-hint {
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.admin-ocr-done {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(79, 107, 87, 0.1);
+  color: #4f6b57;
+}
+
 .admin-muted {
   color: var(--muted);
   font-size: 0.9rem;

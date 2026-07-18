@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import type { Event } from "@prisma/client";
 import { deleteEventAction, saveEventAction } from "@/app/admin/actions";
+import { FlyerOcrZone } from "@/app/admin/events/flyer-ocr-zone";
 import { parseEventFlyer, type FlyerDraft } from "@/lib/import/event-flyer";
 
 /**
@@ -61,6 +62,12 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
   /// ремаунт формы после разбора: defaultValue подхватываются заново
   const [autofillVersion, setAutofillVersion] = useState(0);
 
+  // OCR не разбирает сам: распознанный текст дописывается в поле, человек
+  // сначала правит ошибки распознавания, потом жмёт «Разобрать афишу»
+  const handleOcrText = useCallback((text: string): void => {
+    setFlyerText((prev) => (prev.trim() === "" ? text : `${prev.trimEnd()}\n\n${text}`));
+  }, []);
+
   const applyFlyer = (): void => {
     if (!flyerText.trim()) {
       return;
@@ -108,8 +115,11 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
 
       {event ? null : (
         <div className="admin-flyer">
+          <FlyerOcrZone onText={handleOcrText} />
           <label className="admin-field">
-            <span>Текст афиши (вставьте пост из Instagram или текст флаера)</span>
+            <span>
+              Текст афиши (вставьте пост из Instagram — или распознайте скрин выше)
+            </span>
             <textarea
               rows={5}
               value={flyerText}
