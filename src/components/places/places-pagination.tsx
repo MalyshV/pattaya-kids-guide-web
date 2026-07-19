@@ -6,6 +6,7 @@ type PlacesPaginationProps = {
   totalPages: number;
   basePath: string;
   age?: string;
+  visited?: string;
   openNow?: string;
   openMorning?: string;
   shelter?: string;
@@ -46,6 +47,7 @@ export function PlacesPagination({
   totalPages,
   basePath,
   age,
+  visited,
   openNow,
   openMorning,
   shelter,
@@ -68,6 +70,7 @@ export function PlacesPagination({
 
   const baseParams = {
     age,
+    visited,
     openNow,
     openMorning,
     shelter,

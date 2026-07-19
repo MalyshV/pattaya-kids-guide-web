@@ -78,6 +78,19 @@ export const en: Dictionary = {
     entityPlace: "Place",
     entityActivity: "Activity",
     entityEvent: "Event",
+    filterTitle: "“Been here” marks:",
+    filterAll: "Show all",
+    filterHide: "Hide visited",
+    filterOnly: "Only visited",
+    filterHiddenNote: (count: number) => `Visited places hidden: ${count}`,
+    filterOnlyNote: (count: number) => `Showing only visited: ${count}`,
+    filterEmptyOnlyTitle: "No visited places among these results",
+    filterEmptyOnlyHint:
+      "✓ “been here” marks live on place cards — none of these places are marked yet.",
+    filterEmptyHiddenTitle: "Every place found here is already visited",
+    filterEmptyHiddenHint:
+      "All of these results carry the ✓ “been here” mark — show all to see them.",
+    filterEmptyCta: "Show all",
   },
 
   age: {
