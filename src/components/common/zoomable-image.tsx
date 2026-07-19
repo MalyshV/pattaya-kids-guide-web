@@ -59,12 +59,40 @@ export function ZoomableImage({
   const [isLeaving, setIsLeaving] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
+  // «Назад» закрывает фото, а не уводит со страницы — помним свою запись
+  // в истории, чтобы откатить её при обычном закрытии (см. useEffect ниже)
+  const pushedHistoryRef = useRef(false);
 
   const close = useCallback(() => {
     setIsOpen(false);
     setIsLeaving(false);
     triggerRef.current?.focus();
   }, []);
+
+  // Открытие кладёт запись в историю: «Назад» (popstate) закрывает лайтбокс.
+  // Обычное закрытие (Esc/шарик/фон) откатывает запись сами, чтобы не копить.
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+    window.history.pushState({ lightbox: true }, "");
+    pushedHistoryRef.current = true;
+
+    const onPopState = (): void => {
+      pushedHistoryRef.current = false;
+      setIsOpen(false);
+      setIsLeaving(false);
+      triggerRef.current?.focus();
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      if (pushedHistoryRef.current) {
+        pushedHistoryRef.current = false;
+        window.history.back();
+      }
+    };
+  }, [isOpen]);
 
   // клик по шарику: даём анимации улететь, потом закрываем
   function closeWithBalloon(): void {

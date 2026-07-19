@@ -36,6 +36,9 @@ export const en: Dictionary = {
     // lightbox: click a photo to zoom, the balloon button closes it
     zoomPhoto: "Zoom photo",
     closePhoto: "Close photo",
+    prevPhoto: "Previous photo",
+    nextPhoto: "Next photo",
+    photoCounter: (current: number, total: number) => `${current} of ${total}`,
     yes: "Yes",
     no: "No",
     affirmative: "Yes",

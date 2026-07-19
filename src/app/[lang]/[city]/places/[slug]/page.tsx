@@ -14,6 +14,7 @@ import { MemoryButtons } from "@/components/memory/memory-buttons";
 import { OpenStatusBadge } from "@/components/places/open-status-badge";
 import { PlaceProgramCard } from "@/components/places/place-program-card";
 import { ZoomableImage } from "@/components/common/zoomable-image";
+import { PhotoGallery } from "@/components/common/photo-gallery";
 import { FactValue } from "@/components/places/fact-value";
 import { fromAgeLabel } from "@/lib/age/format-age";
 import {
@@ -263,15 +264,14 @@ export default async function PlaceDetailsPage({
       {dto.photos.length > 0 && (
         <section className="details-section">
           <h2 className="section-title">{dict.placeDetails.photosTitle}</h2>
-          <div className="cover-gallery">
-            {dto.photos.map((photo) => (
-              <ZoomableImage
-                key={photo.id}
-                url={photo.url}
-                alt={photo.caption ?? dto.name}
-              />
-            ))}
-          </div>
+          <PhotoGallery
+            photos={dto.photos.map((photo) => ({
+              id: photo.id,
+              url: photo.url,
+              caption: photo.caption,
+            }))}
+            placeName={dto.name}
+          />
         </section>
       )}
 
