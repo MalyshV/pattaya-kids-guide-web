@@ -5,6 +5,8 @@ import { SearchBox } from "@/components/common/search-box";
 import { PlaceFilters } from "@/components/places/place-filters";
 import { ScenarioBar } from "@/components/places/scenario-bar";
 import { PlacesResults } from "@/components/places/places-results";
+import { VisitedFilterChips } from "@/components/places/visited-filter-chips";
+import { parseVisitedParam } from "@/lib/memory/visited-filter";
 import { getAllApprovedPlaces } from "@/services/places.service";
 import { getSearchRows } from "@/services/search.service";
 import { mapPlaceToListItemDto } from "@/mappers/place.mapper";
@@ -89,6 +91,12 @@ export default async function CityPlacesPage({
   const view: "list" | "map" = viewParam === "map" ? "map" : "list";
   const age = getSingleSearchParam(resolvedSearchParams.age);
   const pageParam = getSingleSearchParam(resolvedSearchParams.page);
+  // ?visited= — фильтр по ✓-отметкам; сервер список НЕ фильтрует (отметки в
+  // localStorage), только проносит параметр — фильтрует клиент PlacesResults
+  const visitedFilter = parseVisitedParam(
+    getSingleSearchParam(resolvedSearchParams.visited),
+  );
+  const visited = visitedFilter ?? undefined;
 
   const currentPage = parsePositiveNumberParam(pageParam) ?? 1;
   const isWorkFriendly = parseBooleanParam(workFriendly) === true;
@@ -102,6 +110,7 @@ export default async function CityPlacesPage({
   // age здесь же: возраст должен пережить переключение сценария/фасета.
   const facets = {
     age,
+    visited,
     view: viewParam,
     indoor,
     outdoor,
@@ -215,6 +224,29 @@ export default async function CityPlacesPage({
         pathname={basePath}
         activeBuckets={ageBuckets}
         preservedParams={{
+          visited,
+          openNow,
+          openMorning,
+          workFriendly,
+          shelter,
+          near,
+          view: viewParam,
+          indoor,
+          outdoor,
+          hasFood,
+          hasWifi,
+          hasAirCon,
+          hasParking,
+          canLeaveChild,
+          animalContact,
+        }}
+      />
+
+      <VisitedFilterChips
+        pathname={basePath}
+        active={visitedFilter}
+        preservedParams={{
+          age,
           openNow,
           openMorning,
           workFriendly,
@@ -245,6 +277,7 @@ export default async function CityPlacesPage({
 
       <PlaceFilters
         age={age}
+        visited={visited}
         openNow={openNow}
         openMorning={openMorning}
         shelter={shelter}
@@ -285,6 +318,7 @@ export default async function CityPlacesPage({
             place: mapPlaceToListItemDto(place),
             status,
           }))}
+          visitedFilter={visitedFilter}
           near={isNear}
           view={view}
           basePath={basePath}
@@ -293,6 +327,7 @@ export default async function CityPlacesPage({
           pageSize={LIST_PAGE_SIZE}
           pagination={{
             age,
+            visited,
             openNow,
             openMorning,
             shelter,

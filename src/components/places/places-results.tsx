@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PlaceCard } from "@/components/places/place-card";
@@ -8,6 +8,12 @@ import { PlacesMap, type PlaceMapMarker } from "@/components/places/places-map";
 import { PlacesPagination } from "@/components/places/places-pagination";
 import { formatDistance, sortByDistance, type GeoPoint } from "@/lib/geo/distance";
 import { useDictionary, useLang } from "@/lib/i18n/use-dictionary";
+import { useParentMemory } from "@/lib/memory/use-parent-memory";
+import {
+  filterByVisited,
+  visitedPlaceSlugs,
+  type VisitedFilterMode,
+} from "@/lib/memory/visited-filter";
 import type { PlaceListItemDto } from "@/dto/place-list-item.dto";
 import type { OpenStatus } from "@/lib/schedule/open-status";
 
@@ -29,6 +35,9 @@ type PlaceWithStatus = {
 type PlacesResultsProps = {
   /** ВСЕ отфильтрованные места в серверном порядке (открытые выше) */
   items: PlaceWithStatus[];
+  /** ?visited= — фильтр по ✓-отметкам; применяется только на клиенте
+      (отметки в localStorage, сервер их не видит) */
+  visitedFilter: VisitedFilterMode | null;
   near: boolean;
   /** ?view=map — карта вместо списка (уважает те же фильтры) */
   view: "list" | "map";
@@ -51,18 +60,35 @@ type GeoState =
   | { kind: "unavailable" };
 
 export function PlacesResults({
-  items,
+  items: serverItems,
+  visitedFilter,
   near,
   view,
   basePath,
   currentPage,
-  totalPages,
+  totalPages: serverTotalPages,
   pageSize,
   pagination,
 }: PlacesResultsProps): React.ReactElement {
   const dict = useDictionary();
   const lang = useLang();
   const router = useRouter();
+
+  // ✓-фильтр: до гидрации памяти показываем серверный список как есть
+  // (SSR совпадает, ничего не мигает), после — честно фильтруем и
+  // пересчитываем пагинацию по видимому списку
+  const memory = useParentMemory();
+  const visitedSlugs = useMemo(() => visitedPlaceSlugs(memory.items), [memory.items]);
+  const filterActive = visitedFilter !== null && memory.hydrated;
+  const items = filterActive
+    ? filterByVisited(serverItems, visitedFilter, ({ place }) => place.slug, visitedSlugs)
+    : serverItems;
+  const hiddenByFilter = serverItems.length - items.length;
+  const totalPages = filterActive
+    ? Math.max(1, Math.ceil(items.length / pageSize))
+    : serverTotalPages;
+  // ?page мог указывать за конец укоротившегося списка — тихо клампим
+  const safePage = Math.min(currentPage, totalPages);
   const [geo, setGeo] = useState<GeoState>({ kind: "idle" });
   // Подстройка состояния при смене пропа near — во время рендера (паттерн
   // React «adjusting state when props change», эффект для этого не нужен).
@@ -288,6 +314,59 @@ export function PlacesResults({
     </div>
   );
 
+  // Честность ✓-фильтра: серверный счётчик «Найдено» не знает про отметки —
+  // расхождение объясняем на месте (в обоих режимах), а не оставляем загадкой
+  const filterNote = filterActive ? (
+    visitedFilter === "hidden" && hiddenByFilter > 0 ? (
+      <p className="visited-filter-note">
+        {dict.memory.filterHiddenNote(hiddenByFilter)}
+      </p>
+    ) : visitedFilter === "only" && items.length > 0 ? (
+      <p className="visited-filter-note">{dict.memory.filterOnlyNote(items.length)}</p>
+    ) : null
+  ) : null;
+
+  if (filterActive && items.length === 0) {
+    // фильтр съел все результаты — тупик без объяснения бесит; выход одной
+    // кнопкой (все остальные фильтры и возраст сохраняются)
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(pagination)) {
+      if (value) {
+        params.set(key, value);
+      }
+    }
+    params.delete("visited");
+    params.delete("page");
+    // «Показывать все» снимает ТОЛЬКО ✓-фильтр: карта остаётся картой
+    // (view в объекте pagination нет — он живёт отдельным пропом)
+    if (showMap) {
+      params.set("view", "map");
+    }
+    const query = params.toString();
+    const showAllHref = query ? `${basePath}?${query}` : basePath;
+
+    return (
+      <>
+        {viewToggle}
+        <section className="empty-state">
+          <h3>
+            {visitedFilter === "only"
+              ? dict.memory.filterEmptyOnlyTitle
+              : dict.memory.filterEmptyHiddenTitle}
+          </h3>
+          <p>
+            {visitedFilter === "only"
+              ? dict.memory.filterEmptyOnlyHint
+              : dict.memory.filterEmptyHiddenHint}
+          </p>
+          <Link href={showAllHref} scroll={false} className="empty-state-cta">
+            {dict.memory.filterEmptyCta}
+          </Link>
+        </section>
+      </>
+    );
+  }
+
   if (showMap) {
     // Карта показывает ВСЕ отфильтрованные места; при активном «Рядом со мной»
     // добавляются расстояния в попапах и точка «вы здесь».
@@ -320,6 +399,7 @@ export function PlacesResults({
       <>
         {viewToggle}
         {nearStatus}
+        {filterNote}
         {nearActive ? <p className="near-status">{dict.scenarios.nearMeActive}</p> : null}
 
         <PlacesMap
@@ -354,6 +434,7 @@ export function PlacesResults({
         <p className="near-status near-sorted-anchor" ref={sortedTopRef}>
           {dict.scenarios.nearMeActive}
         </p>
+        {filterNote}
 
         <section className="places-grid">
           {sorted.map(({ item, distanceM }) => (
@@ -372,12 +453,13 @@ export function PlacesResults({
     );
   }
 
-  const pageItems = items.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const pageItems = items.slice((safePage - 1) * pageSize, safePage * pageSize);
 
   return (
     <>
       {viewToggle}
       {nearStatus}
+      {filterNote}
 
       <section className="places-grid">
         {pageItems.map(({ place, status }) => (
@@ -386,7 +468,7 @@ export function PlacesResults({
       </section>
 
       <PlacesPagination
-        currentPage={currentPage}
+        currentPage={safePage}
         totalPages={totalPages}
         basePath={basePath}
         {...pagination}

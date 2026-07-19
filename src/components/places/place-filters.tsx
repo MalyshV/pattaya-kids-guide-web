@@ -6,9 +6,10 @@ import { useDictionary } from "@/lib/i18n/use-dictionary";
 import type { Dictionary } from "@/content/dictionary";
 
 type PlaceFiltersProps = {
-  // Сценарии-чипы и возраст живут выше — здесь их только сохраняем, чтобы
-  // «Показать»/«Сбросить» их не сбрасывали.
+  // Сценарии-чипы, возраст и ✓-фильтр живут выше — здесь их только
+  // сохраняем, чтобы «Показать»/«Сбросить» их не сбрасывали.
   age?: string;
+  visited?: string;
   openNow?: string;
   openMorning?: string;
   workFriendly?: string;
@@ -121,6 +122,9 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
     const params = new URLSearchParams();
     if (props.age) {
       params.set("age", props.age);
+    }
+    if (props.visited) {
+      params.set("visited", props.visited);
     }
     if (props.openNow === "true") {
       params.set("openNow", "true");
