@@ -1608,11 +1608,18 @@ async function main() {
     indoor: true,
     outdoor: false,
     hasFood: true, // еда внутри (подтверждено Вероникой)
+    hasCafeSeating: true, // зоны кафе со столиками (подтверждено Вероникой)
     hasAirCon: true, // −10 °C: климат-помещение → попадает в «Спрятаться от жары»
     hasParking: true, // на фото фасада — своя площадка-парковка у входа
     canLeaveChild: false, // ребёнка одного не оставляют, нужен взрослый (Вероника)
     // hasWifi / hasPowerOutlets не проверяли — остаются «уточняется» (null)
     animalContact: false,
+    // билеты — в структурной секции «Цены» (placeEntryPrice ниже); здесь
+    // примечание с ростовыми порогами, льготами и что входит в стоимость
+    entryPriceNote:
+      "Детский билет — рост от 90 см, взрослый — от 130 см. Дети ростом до 90 см проходят бесплатно, гостям старше 60 лет — скидка 50 %. В стоимость входят тёплая куртка с капюшоном и сапоги; перчатки берут свои или покупают на кассе. Билет действует весь день — по времени не ограничен.",
+    entryPriceNoteEn:
+      "Child ticket — from 90 cm tall, adult — from 130 cm. Children under 90 cm enter free, visitors over 60 get 50% off. A warm hooded jacket and boots are included; bring your own gloves or buy them at the desk. The ticket is valid all day — no time limit.",
     status: "APPROVED" as const,
     cityId: pattaya.id,
   };
@@ -1653,25 +1660,32 @@ async function main() {
     })),
   });
 
-  // «Полезно знать»: билеты, крайнее время входа, что взять с собой (инсайды)
+  // Цены входа: билет по росту (детский/взрослый). Льготы и что входит —
+  // в entryPriceNote (поле места выше), чтобы секция «Цены» была полной.
+  await prisma.placeEntryPrice.deleteMany({ where: { placeId: winterWonderland.id } });
+  await prisma.placeEntryPrice.create({
+    data: {
+      placeId: winterWonderland.id,
+      label: "Входной билет",
+      labelEn: "Admission",
+      childPrice: 699,
+      adultPrice: 899,
+      order: 1,
+    },
+  });
+
+  // «Полезно знать»: крайнее время входа и что взять с собой (инсайды).
+  // Цены не дублируем — они в структурной секции «Цены» выше.
   await prisma.placeTip.deleteMany({ where: { placeId: winterWonderland.id } });
   await prisma.placeTip.createMany({
     data: [
-      {
-        placeId: winterWonderland.id,
-        topic: "tickets",
-        text: "Билеты: взрослый (рост от 130 см) — 899 ฿, детский (рост от 90 см) — 699 ฿, дети ниже 90 см — бесплатно; гостям старше 60 лет — скидка 50 %. В стоимость входят тёплая куртка с капюшоном и сапоги, перчатки берут свои или покупают на кассе. Билет действует весь день — по времени не ограничен.",
-        textEn:
-          "Tickets: adult (from 130 cm tall) — 899 ฿, child (from 90 cm) — 699 ฿, children under 90 cm — free; visitors over 60 get 50% off. A warm hooded jacket and boots are included; bring your own gloves or buy them at the desk. The ticket is valid all day — no time limit.",
-        order: 1,
-      },
       {
         placeId: winterWonderland.id,
         topic: "hours",
         text: "Центр работает до 18:00, но касса закрывается в 17:00. На картах и в контактах иногда указано «до 18:00» — ориентируйтесь на 17:00 как крайнее время входа.",
         textEn:
           "The park stays open until 18:00, but the ticket desk closes at 17:00. Maps and listings sometimes show '18:00' — treat 17:00 as the latest entry time.",
-        order: 2,
+        order: 1,
       },
       {
         placeId: winterWonderland.id,
@@ -1679,7 +1693,7 @@ async function main() {
         text: "Что взять с собой: сменные штаны ребёнку (от игр в снегу быстро промокают) и лёгкий шарф или тонкую шапку — капюшоны у выданных курток тёплые, но объёмные. Вязаные перчатки от долгой игры в снегу тоже промокают, пригодится запасная пара.",
         textEn:
           "What to bring: a change of trousers for your child (snow play soaks them fast) and a light scarf or thin hat — the jacket hoods are warm but bulky. Knitted gloves get wet during long snow play, so a spare pair helps.",
-        order: 3,
+        order: 2,
       },
     ],
   });
