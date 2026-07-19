@@ -59,39 +59,36 @@ export function ZoomableImage({
   const [isLeaving, setIsLeaving] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
-  // «Назад» закрывает фото, а не уводит со страницы — помним свою запись
-  // в истории, чтобы откатить её при обычном закрытии (см. useEffect ниже)
-  const pushedHistoryRef = useRef(false);
 
-  const close = useCallback(() => {
-    setIsOpen(false);
-    setIsLeaving(false);
-    triggerRef.current?.focus();
+  // Запрос закрытия: откатываем свою запись истории — popstate закроет и
+  // вернёт фокус. Если записи нет (edge) — закрываем напрямую.
+  const requestClose = useCallback(() => {
+    if (window.history.state?.lightbox) {
+      window.history.back();
+    } else {
+      setIsOpen(false);
+      setIsLeaving(false);
+      triggerRef.current?.focus();
+    }
   }, []);
 
-  // Открытие кладёт запись в историю: «Назад» (popstate) закрывает лайтбокс.
-  // Обычное закрытие (Esc/шарик/фон) откатывает запись сами, чтобы не копить.
+  // Открытие кладёт запись в историю. popstate — единственное место закрытия
+  // (гасит лайтбокс и возвращает фокус, каким бы способом ни закрыли).
+  // Закрытие всегда идёт через history.back(): cleanup back() не дёргаем,
+  // иначе навигация ВПЕРЁД при открытом фото уводила бы на шаг назад.
   useEffect(() => {
     if (!isOpen) {
       return;
     }
     window.history.pushState({ lightbox: true }, "");
-    pushedHistoryRef.current = true;
 
     const onPopState = (): void => {
-      pushedHistoryRef.current = false;
       setIsOpen(false);
       setIsLeaving(false);
       triggerRef.current?.focus();
     };
     window.addEventListener("popstate", onPopState);
-    return () => {
-      window.removeEventListener("popstate", onPopState);
-      if (pushedHistoryRef.current) {
-        pushedHistoryRef.current = false;
-        window.history.back();
-      }
-    };
+    return () => window.removeEventListener("popstate", onPopState);
   }, [isOpen]);
 
   // клик по шарику: даём анимации улететь, потом закрываем
@@ -100,7 +97,7 @@ export function ZoomableImage({
       return;
     }
     setIsLeaving(true);
-    window.setTimeout(close, 280);
+    window.setTimeout(requestClose, 280);
   }
 
   useEffect(() => {
@@ -116,7 +113,7 @@ export function ZoomableImage({
 
     function onKeyDown(event: KeyboardEvent): void {
       if (event.key === "Escape") {
-        close();
+        requestClose();
       }
       // единственный фокусируемый элемент — кнопка-шарик: Tab не уводит фокус
       if (event.key === "Tab") {
@@ -130,7 +127,7 @@ export function ZoomableImage({
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = previousOverflow;
     };
-  }, [isOpen, close]);
+  }, [isOpen, requestClose]);
 
   // без фото — обычный плейсхолдер, увеличивать нечего
   if (!url) {
@@ -170,7 +167,7 @@ export function ZoomableImage({
               role="dialog"
               aria-modal="true"
               aria-label={alt}
-              onClick={close}
+              onClick={requestClose}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

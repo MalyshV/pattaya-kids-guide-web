@@ -12,6 +12,11 @@ import { useDictionary } from "@/lib/i18n/use-dictionary";
  * историю: интуитивный жест закрывает фото, а не уводит со страницы), Esc,
  * кнопка-шарик или клик по фону.
  *
+ * История: закрытие ВСЕГДА идёт через history.back() → popstate — единая
+ * точка, где лайтбокс гаснет и фокус возвращается на миниатюру. Это чинит
+ * потерю фокуса при Esc/фоне/«Назад» и не даёт cleanup дёргать back() при
+ * навигации ВПЕРЁД (иначе уводило бы на шаг назад).
+ *
  * Одиночное фото (обложки) остаётся на ZoomableImage — там листать нечего.
  */
 
@@ -56,18 +61,27 @@ export function PhotoGallery({
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const isOpen = openIndex !== null;
   const triggersRef = useRef<Array<HTMLButtonElement | null>>([]);
-  const closeRef = useRef<HTMLButtonElement | null>(null);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
   const touchStartX = useRef<number | null>(null);
-  // «Назад» закрывает лайтбокс: помним, что мы сами добавили запись в историю,
-  // чтобы при обычном закрытии откатить её и не оставить «фантомный» шаг
-  const pushedHistoryRef = useRef(false);
+  // индекс открытого фото для возврата фокуса на «свою» миниатюру после
+  // закрытия любым способом (popstate — единая точка закрытия)
+  const openIndexRef = useRef<number | null>(null);
+  useEffect(() => {
+    openIndexRef.current = openIndex;
+  }, [openIndex]);
 
   const showAt = useCallback((index: number) => {
     setOpenIndex(index);
   }, []);
 
-  const close = useCallback(() => {
-    setOpenIndex(null);
+  // Запрос закрытия: откатываем свою запись истории — popstate закроет и
+  // вернёт фокус. Если записи вдруг нет (edge) — закрываем напрямую.
+  const requestClose = useCallback(() => {
+    if (window.history.state?.lightbox) {
+      window.history.back();
+    } else {
+      setOpenIndex(null);
+    }
   }, []);
 
   const step = useCallback(
@@ -83,52 +97,46 @@ export function PhotoGallery({
     [photos.length],
   );
 
-  // История: открытие кладёт запись, «Назад» (popstate) закрывает лайтбокс,
-  // а не страницу. Обычное закрытие (Esc/шарик/фон) откатывает эту запись
-  // сами через history.back(), чтобы не копить лишние шаги.
+  // История открытия: одна запись на сессию просмотра (листание индекс не
+  // трогает историю — эффект висит на isOpen). popstate — единственное место
+  // закрытия: гасит лайтбокс и возвращает фокус на миниатюру.
   useEffect(() => {
     if (!isOpen) {
       return;
     }
     window.history.pushState({ lightbox: true }, "");
-    pushedHistoryRef.current = true;
 
     const onPopState = (): void => {
-      // сюда попадаем и по «Назад», и после нашего history.back() — в обоих
-      // случаях запись уже снята, закрываем без повторного отката
-      pushedHistoryRef.current = false;
+      const index = openIndexRef.current;
       setOpenIndex(null);
-    };
-    window.addEventListener("popstate", onPopState);
-    return () => {
-      window.removeEventListener("popstate", onPopState);
-      // размонтирование не по «Назад» (Esc/шарик/фон) — откатываем свою запись
-      if (pushedHistoryRef.current) {
-        pushedHistoryRef.current = false;
-        window.history.back();
+      if (index !== null) {
+        window.setTimeout(() => triggersRef.current[index]?.focus(), 0);
       }
     };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
   }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) {
       return;
     }
-    closeRef.current?.focus();
+    closeButtonFocus(overlayRef.current);
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
     function onKeyDown(event: KeyboardEvent): void {
       if (event.key === "Escape") {
-        close();
+        requestClose();
       } else if (event.key === "ArrowRight") {
         step(1);
       } else if (event.key === "ArrowLeft") {
         step(-1);
       } else if (event.key === "Tab") {
-        // фокус держим на кнопке закрытия — единственном стабильном контроле
-        event.preventDefault();
-        closeRef.current?.focus();
+        // фокус-ловушка по ВСЕМ контролам оверлея (стрелки + закрытие),
+        // чтобы стрелки были достижимы с клавиатуры, а фокус не убегал
+        // на страницу под лайтбоксом
+        trapTab(event, overlayRef.current);
       }
     }
 
@@ -137,16 +145,7 @@ export function PhotoGallery({
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = previousOverflow;
     };
-  }, [isOpen, close, step]);
-
-  // фокус возвращаем на миниатюру, с которой открыли — после закрытия
-  const closeAndRestoreFocus = useCallback(
-    (index: number) => {
-      close();
-      window.setTimeout(() => triggersRef.current[index]?.focus(), 0);
-    },
-    [close],
-  );
+  }, [isOpen, requestClose, step]);
 
   const many = photos.length > 1;
 
@@ -172,11 +171,17 @@ export function PhotoGallery({
       {isOpen
         ? createPortal(
             <div
+              ref={overlayRef}
               className="lightbox-overlay"
               role="dialog"
               aria-modal="true"
-              aria-label={photos[openIndex].caption ?? placeName}
-              onClick={close}
+              // позиция в подписи — чтобы скринридер сразу озвучил «N из M»
+              aria-label={
+                many
+                  ? `${photos[openIndex].caption ?? placeName} — ${dict.common.photoCounter(openIndex + 1, photos.length)}`
+                  : (photos[openIndex].caption ?? placeName)
+              }
+              onClick={requestClose}
               onTouchStart={(event) => {
                 touchStartX.current = event.touches[0]?.clientX ?? null;
               }}
@@ -228,19 +233,18 @@ export function PhotoGallery({
               ) : null}
 
               {many ? (
-                <p className="lightbox-counter" aria-live="polite">
+                <p className="lightbox-counter">
                   {dict.common.photoCounter(openIndex + 1, photos.length)}
                 </p>
               ) : null}
 
               <button
                 type="button"
-                ref={closeRef}
                 className="lightbox-close"
                 aria-label={dict.common.closePhoto}
                 onClick={(event) => {
                   event.stopPropagation();
-                  closeAndRestoreFocus(openIndex);
+                  requestClose();
                 }}
               >
                 <BalloonIcon />
@@ -251,4 +255,31 @@ export function PhotoGallery({
         : null}
     </>
   );
+}
+
+/** фокусируемые контролы оверлея в порядке обхода */
+function focusables(overlay: HTMLElement | null): HTMLButtonElement[] {
+  if (!overlay) {
+    return [];
+  }
+  return Array.from(overlay.querySelectorAll<HTMLButtonElement>("button"));
+}
+
+/** при открытии ставим фокус на кнопку закрытия (стабильный якорь) */
+function closeButtonFocus(overlay: HTMLElement | null): void {
+  overlay?.querySelector<HTMLButtonElement>(".lightbox-close")?.focus();
+}
+
+/** зациклить Tab по контролам оверлея — стрелки достижимы, фокус не убегает */
+function trapTab(event: KeyboardEvent, overlay: HTMLElement | null): void {
+  const items = focusables(overlay);
+  if (items.length === 0) {
+    return;
+  }
+  event.preventDefault();
+  const active = document.activeElement as HTMLButtonElement | null;
+  const currentIndex = active ? items.indexOf(active) : -1;
+  const delta = event.shiftKey ? -1 : 1;
+  const nextIndex = (currentIndex + delta + items.length) % items.length;
+  items[nextIndex]?.focus();
 }
