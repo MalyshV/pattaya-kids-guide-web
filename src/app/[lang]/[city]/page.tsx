@@ -17,8 +17,8 @@ import {
   computeOpenStatus,
   isGoNowStatus,
   opensEarlyToday,
-  statusSortRank,
 } from "@/lib/schedule/open-status";
+import { compareCatalogOrder } from "@/lib/places/catalog-order";
 import { getDictionary } from "@/content/dictionary";
 import { localizedCityName } from "@/lib/i18n/localize";
 import { LIST_PAGE_SIZE } from "@/lib/constants/pagination";
@@ -150,13 +150,19 @@ export default async function CityPlacesPage({
     lang,
   );
 
-  // Живой статус + сортировка: открытые сейчас выше закрытых (стабильно по имени)
+  // Живой статус + сортировка: открытые сейчас выше закрытых, а среди мест с
+  // одинаковым статусом — новые (по дате добавления) первыми (решение Вероники).
   const placesWithStatus = allPlaces
     .map((place) => ({
       place,
       status: computeOpenStatus(place.schedules, city.timezone),
     }))
-    .sort((a, b) => statusSortRank(a.status) - statusSortRank(b.status));
+    .sort((a, b) =>
+      compareCatalogOrder(
+        { status: a.status, createdAt: a.place.createdAt },
+        { status: b.status, createdAt: b.place.createdAt },
+      ),
+    );
 
   // Сценарии по расписанию — постфильтры (статус/часы вычисляются, в БД их нет).
   let visiblePlaces = placesWithStatus;
