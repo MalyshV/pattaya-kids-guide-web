@@ -806,6 +806,35 @@ input {
   color: #4f6b57;
 }
 
+/* черновик из скрина у форм без парсера (место, занятие) */
+.admin-ocr-scratchpad {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.admin-ocr-scratchpad-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-ocr-clear {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.admin-ocr-clear:hover {
+  color: var(--foreground);
+}
+
 .admin-muted {
   color: var(--muted);
   font-size: 0.9rem;
