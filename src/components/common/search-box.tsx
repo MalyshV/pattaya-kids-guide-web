@@ -125,7 +125,9 @@ export function SearchBox({ items }: SearchBoxProps): React.ReactElement {
                 <span className="search-result-type">
                   {item.type === "place"
                     ? dict.search.typePlace
-                    : dict.search.typeActivity}
+                    : item.type === "activity"
+                      ? dict.search.typeActivity
+                      : dict.search.typeEvent}
                 </span>
               </div>
               {item.hint ? <div className="search-result-hint">{item.hint}</div> : null}

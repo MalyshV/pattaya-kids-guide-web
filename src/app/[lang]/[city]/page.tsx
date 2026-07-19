@@ -146,6 +146,7 @@ export default async function CityPlacesPage({
   const searchIndex = mapSearchIndex(
     searchRows.places,
     searchRows.activities,
+    searchRows.events,
     basePath,
     lang,
   );

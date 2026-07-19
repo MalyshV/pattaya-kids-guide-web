@@ -4,7 +4,7 @@
  */
 export type SearchItemDto = {
   id: string;
-  type: "place" | "activity";
+  type: "place" | "activity" | "event";
   /** видимое название (локализовано по языку страницы) */
   name: string;
   /** тихая подсказка под названием: адрес места или где проходит занятие */

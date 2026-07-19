@@ -1,5 +1,9 @@
 import type { SearchItemDto } from "@/dto/search-item.dto";
-import type { SearchActivityRow, SearchPlaceRow } from "@/services/search.service";
+import type {
+  SearchActivityRow,
+  SearchEventRow,
+  SearchPlaceRow,
+} from "@/services/search.service";
 import { pickLocalized } from "@/lib/i18n/localize";
 
 /**
@@ -19,6 +23,7 @@ function categoriesText(
 export function mapSearchIndex(
   places: SearchPlaceRow[],
   activities: SearchActivityRow[],
+  events: SearchEventRow[],
   basePath: string,
   lang: string,
 ): SearchItemDto[] {
@@ -55,5 +60,25 @@ export function mapSearchIndex(
       ].join(" "),
     }));
 
-  return [...placeItems, ...activityItems];
+  const eventItems: SearchItemDto[] = events.map((event) => ({
+    id: event.id,
+    type: "event",
+    name: pickLocalized(event.title, event.titleEn, lang),
+    // где проходит: место из каталога или текстовая площадка события
+    hint:
+      event.place?.name ??
+      (event.locationName
+        ? pickLocalized(event.locationName, event.locationNameEn, lang)
+        : null),
+    url: `${basePath}/events/${event.slug}`,
+    searchText: [
+      event.title,
+      event.titleEn ?? "",
+      event.place?.name ?? "",
+      event.locationName ?? "",
+      event.locationNameEn ?? "",
+    ].join(" "),
+  }));
+
+  return [...placeItems, ...activityItems, ...eventItems];
 }
