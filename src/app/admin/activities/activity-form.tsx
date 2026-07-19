@@ -1,5 +1,6 @@
 import type { PlaceProgram } from "@prisma/client";
 import { deleteActivityAction, saveActivityAction } from "@/app/admin/actions";
+import { OcrScratchpad } from "@/app/admin/ocr-scratchpad";
 
 /**
  * Форма занятия (activity=null → создание). Возраст — в месяцах, как в БД
@@ -45,6 +46,9 @@ export function ActivityForm({
       {error === "upload" ? (
         <p className="admin-error">Фото не загрузилось — проверьте формат и размер.</p>
       ) : null}
+
+      {/* как у мест: распознанный текст — в черновик для копирования */}
+      <OcrScratchpad subject="Скрин расписания или прайса" />
 
       <form action={saveActivityAction} className="admin-form">
         {activity ? <input type="hidden" name="id" value={activity.id} /> : null}

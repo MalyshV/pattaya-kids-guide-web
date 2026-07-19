@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import type { Event } from "@prisma/client";
 import { deleteEventAction, saveEventAction } from "@/app/admin/actions";
-import { FlyerOcrZone } from "@/app/admin/events/flyer-ocr-zone";
+import { OcrZone } from "@/app/admin/ocr-zone";
 import { parseEventFlyer, type FlyerDraft } from "@/lib/import/event-flyer";
 
 /**
@@ -115,7 +115,11 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
 
       {event ? null : (
         <div className="admin-flyer">
-          <FlyerOcrZone onText={handleOcrText} />
+          <OcrZone
+            subject="Скрин афиши"
+            doneMessage="Проверьте текст в поле ниже, поправьте ошибки и нажмите «Разобрать афишу»."
+            onText={handleOcrText}
+          />
           <label className="admin-field">
             <span>
               Текст афиши (вставьте пост из Instagram — или распознайте скрин выше)

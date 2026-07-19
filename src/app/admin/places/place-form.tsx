@@ -5,6 +5,7 @@ import {
   deletePlacePhotoAction,
   savePlaceAction,
 } from "@/app/admin/actions";
+import { OcrScratchpad } from "@/app/admin/ocr-scratchpad";
 
 /**
  * Форма места: создание и редактирование (place=null → создание).
@@ -112,6 +113,10 @@ export function PlaceForm({
           меню.
         </p>
       ) : null}
+
+      {/* парсера «раскидать по полям» у мест нет — распознанное попадает в
+          черновик, из него копируется по полям; печатать с картинки не надо */}
+      <OcrScratchpad subject="Скрин с инфой места (часы, цены, адрес)" />
 
       <form action={savePlaceAction} className="admin-form">
         {place ? <input type="hidden" name="id" value={place.id} /> : null}
