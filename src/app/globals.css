@@ -925,6 +925,12 @@ input {
   cursor: zoom-out;
 }
 
+/* обёртка по размеру фото: к её углу цепляется кнопка закрытия */
+.lightbox-figure {
+  position: relative;
+  display: inline-flex;
+}
+
 .lightbox-img {
   max-width: 94vw;
   max-height: 86vh;
@@ -1038,11 +1044,14 @@ input {
   line-height: 1.55;
 }
 
-/* кнопка-шарик: тихонько покачивается; нажали — улетает вверх */
+/* кнопка-шарик: тихонько покачивается; нажали — улетает вверх.
+   Прижата к верхнему-правому углу самого фото (absolute внутри .lightbox-figure),
+   а не к углу экрана — иначе на фото уже экрана она висела бы далеко в стороне. */
 .lightbox-close {
-  position: fixed;
-  top: 20px;
-  right: 20px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
   width: 52px;
   height: 52px;
   display: flex;

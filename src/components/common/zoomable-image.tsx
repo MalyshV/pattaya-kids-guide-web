@@ -169,25 +169,27 @@ export function ZoomableImage({
               aria-label={alt}
               onClick={requestClose}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={url}
-                alt={alt}
-                className="lightbox-img"
-                onClick={(event) => event.stopPropagation()}
-              />
-              <button
-                type="button"
-                ref={closeRef}
-                className={`lightbox-close${isLeaving ? " lightbox-close-leaving" : ""}`}
-                aria-label={dict.common.closePhoto}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  closeWithBalloon();
-                }}
-              >
-                <BalloonIcon />
-              </button>
+              <div className="lightbox-figure">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={url}
+                  alt={alt}
+                  className="lightbox-img"
+                  onClick={(event) => event.stopPropagation()}
+                />
+                <button
+                  type="button"
+                  ref={closeRef}
+                  className={`lightbox-close${isLeaving ? " lightbox-close-leaving" : ""}`}
+                  aria-label={dict.common.closePhoto}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    closeWithBalloon();
+                  }}
+                >
+                  <BalloonIcon />
+                </button>
+              </div>
             </div>,
             document.body,
           )
