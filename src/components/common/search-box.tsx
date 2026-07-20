@@ -54,9 +54,14 @@ export function SearchBox({ items }: SearchBoxProps): React.ReactElement {
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
       setActiveIndex((index) => (index <= 0 ? results.length - 1 : index - 1));
-    } else if (event.key === "Enter" && activeIndex >= 0) {
-      event.preventDefault();
-      go(results[activeIndex]);
+    } else if (event.key === "Enter") {
+      // Enter без стрелки — самый частый жест: переходим на выделенный
+      // результат, а если ничего не выделено — на первый (обычно он и нужен)
+      const target = activeIndex >= 0 ? results[activeIndex] : results[0];
+      if (target) {
+        event.preventDefault();
+        go(target);
+      }
     }
   }
 
