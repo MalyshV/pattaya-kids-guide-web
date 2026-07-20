@@ -929,6 +929,97 @@ input {
   }
 }
 
+/* Универсальный баннер результата действия (модалка): оверлей + карточка.
+   Закрытие по оверлею/×/Esc. Адаптив: на телефоне сужается по краям. */
+.action-banner-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  /* тёплая темнота, мягче лайтбокса — тут не фото */
+  background: rgba(43, 36, 27, 0.55);
+  animation: lightbox-fade 0.2s ease-out;
+}
+
+.action-banner {
+  position: relative;
+  width: min(400px, 100%);
+  padding: 32px 28px 28px;
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-align: center;
+  animation: lightbox-zoom 0.2s ease-out;
+}
+
+.action-banner-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.action-banner-close:hover {
+  background: var(--surface-muted);
+}
+
+.action-banner-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.action-banner-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  font-size: 28px;
+}
+
+.action-banner-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+/* success — спокойный sage, error — тёплый терракот (не тревожный красный) */
+.action-banner-success .action-banner-icon {
+  background: rgba(79, 107, 87, 0.14);
+  color: #4f6b57;
+}
+
+.action-banner-error .action-banner-icon {
+  background: rgba(201, 111, 74, 0.14);
+  color: var(--accent);
+}
+
+.action-banner-title {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.action-banner-message {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
 /* кнопка-шарик: тихонько покачивается; нажали — улетает вверх */
 .lightbox-close {
   position: fixed;

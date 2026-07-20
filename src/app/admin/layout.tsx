@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { isAdmin } from "@/lib/admin/auth";
 import { logoutAction } from "@/app/admin/actions";
+import { ActionResultBanner } from "@/app/admin/action-result-banner";
 
 /**
  * Оболочка админки. Auth-стража здесь НЕТ намеренно: /admin/login живёт
@@ -45,6 +47,11 @@ export default async function AdminLayout({
         ) : null}
       </header>
       <main className="admin-main">{children}</main>
+      {/* баннер результата действия (успех/ошибка CRUD) — читает флаг из URL.
+          Suspense обязателен: useSearchParams требует границы. */}
+      <Suspense fallback={null}>
+        <ActionResultBanner />
+      </Suspense>
     </div>
   );
 }

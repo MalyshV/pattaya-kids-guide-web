@@ -296,7 +296,11 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
   }
 
   revalidateSite();
-  redirect(uploadFailed ? `/admin/places/${placeId}?error=upload` : "/admin/places");
+  redirect(
+    uploadFailed
+      ? `/admin/places/${placeId}?error=upload`
+      : `/admin/places?done=${id ? "updated" : "created"}`,
+  );
 }
 
 export async function deletePlaceAction(formData: FormData): Promise<void> {
@@ -341,7 +345,7 @@ export async function deletePlaceAction(formData: FormData): Promise<void> {
   });
 
   revalidateSite();
-  redirect("/admin/places");
+  redirect("/admin/places?done=deleted");
 }
 
 export async function addPlacePhotoAction(formData: FormData): Promise<void> {
@@ -472,7 +476,11 @@ export async function saveEventAction(formData: FormData): Promise<void> {
   }
 
   revalidateSite();
-  redirect(uploadFailed ? `/admin/events/${eventId}?error=upload` : "/admin/events");
+  redirect(
+    uploadFailed
+      ? `/admin/events/${eventId}?error=upload`
+      : `/admin/events?done=${id ? "updated" : "created"}`,
+  );
 }
 
 export async function deleteEventAction(formData: FormData): Promise<void> {
@@ -486,6 +494,7 @@ export async function deleteEventAction(formData: FormData): Promise<void> {
       await tx.event.delete({ where: { id } });
     });
     revalidateSite();
+    redirect("/admin/events?done=deleted");
   }
   redirect("/admin/events");
 }
@@ -577,7 +586,9 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
 
   revalidateSite();
   redirect(
-    uploadFailed ? `/admin/activities/${activityId}?error=upload` : "/admin/activities",
+    uploadFailed
+      ? `/admin/activities/${activityId}?error=upload`
+      : `/admin/activities?done=${id ? "updated" : "created"}`,
   );
 }
 
@@ -591,6 +602,7 @@ export async function deleteActivityAction(formData: FormData): Promise<void> {
       await tx.placeProgram.delete({ where: { id } });
     });
     revalidateSite();
+    redirect("/admin/activities?done=deleted");
   }
   redirect("/admin/activities");
 }
