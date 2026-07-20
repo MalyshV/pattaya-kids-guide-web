@@ -17,6 +17,23 @@ describe("fromAgeLabel — английский", () => {
   });
 });
 
+describe("fromAgeLabel — тайский", () => {
+  it("месяцы (เดือน) и детские годы (ขวบ)", () => {
+    expect(fromAgeLabel(6, "th")).toBe("ตั้งแต่ 6 เดือน");
+    expect(fromAgeLabel(12, "th")).toBe("ตั้งแต่ 1 ขวบ");
+    expect(fromAgeLabel(36, "th")).toBe("ตั้งแต่ 3 ขวบ");
+  });
+});
+
+describe("formatAgeRange — тайский", () => {
+  it("ไม่เกิน / ตั้งแต่ / полный диапазон", () => {
+    expect(formatAgeRange(null, 36, "th")).toBe("ไม่เกิน 3 ขวบ");
+    expect(formatAgeRange(36, null, "th")).toBe("ตั้งแต่ 3 ขวบ");
+    expect(formatAgeRange(4, 144, "th")).toBe("4 เดือน – 12 ขวบ");
+    expect(formatAgeRange(null, null, "th")).toBeNull();
+  });
+});
+
 describe("formatAgeRange — английский", () => {
   it("up to / from / полный диапазон", () => {
     expect(formatAgeRange(null, 36, "en")).toBe("up to 3 years");

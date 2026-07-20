@@ -2,6 +2,7 @@ import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
+import { applyThaiTranslations } from "./apply-thai";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is not defined");
@@ -1040,8 +1041,7 @@ async function main() {
       "Детская спортивно-развивающая школа (сеть The Little Gym) в центре Паттайи. Классы гимнастики и активного развития для детей от 4 месяцев до 12 лет — по возрастным группам, через игру. «Красные» занятия (45 мин) проходят вместе с родителем, «синие» (1 час) — ребёнок занимается самостоятельно, пока вы наблюдаете из лобби. Летом работает лагерь. Первое пробное занятие — бесплатно.",
     descriptionEn:
       "A kids' sports and development school (The Little Gym network) in central Pattaya. Gymnastics and active development classes for ages 4 months to 12 years — by age group, through play. “Red” classes (45 min) are taken together with a parent; in “blue” classes (1 hour) the child trains independently while you watch from the lobby. A camp runs in summer. The first trial class is free.",
-    address:
-      "353/53-55, Nong Prue, Bang Lamung District, Chon Buri 20150 (Numchai Fair, центр Паттайи)",
+    address: "353/53-55, Nong Prue, Bang Lamung District, Chon Buri 20150 (Numchai Fair)",
     latitude: 12.9337251,
     longitude: 100.9042526,
     googleMapsUrl:
@@ -1448,7 +1448,7 @@ async function main() {
     endDate: new Date("2026-07-20T13:00:00Z"),
     locationName: "Terminal 21 Pattaya",
     locationNameEn: "Terminal 21 Pattaya",
-    address: "G Floor (зона Paris), Terminal 21 Pattaya, Pattaya, Chon Buri",
+    address: "G Floor (Paris zone), Terminal 21 Pattaya, Pattaya, Chon Buri",
     sourceType: "ADMIN" as const,
     status: "APPROVED" as const,
     cityId: pattaya.id,
@@ -1491,7 +1491,7 @@ async function main() {
     descriptionEn:
       "An indoor kids' play area in Lotus's North Pattaya mall (2nd floor, by the food court). There are two Skippy Land zones side by side — to the left and right of the food court, with slightly different terms (session length and height — in the prices below). Each has a Kid's Soft Play area with a ball pit, slides and climbing frames (socks required — available on site) plus a hall of arcade machines and coin-op rides. Air-conditioned, with staff on site. While your child plays you can shop at Lotus's and grab a bite at the food court nearby; a large international kindergarten is close by.",
     address:
-      "Lotus's North Pattaya (2 этаж), Muang Pattaya, Bang Lamung District, Chon Buri 20150",
+      "Lotus's North Pattaya (2nd floor), Muang Pattaya, Bang Lamung District, Chon Buri 20150",
     latitude: 12.9508423,
     longitude: 100.8933732,
     googleMapsUrl:
@@ -1632,7 +1632,7 @@ async function main() {
       "Крытый парк снега и льда в районе Na Jomtien — способ спрятаться от тропической жары по-крупному: внутри держат −10 °C, пока на улице +32 °C. Под одной крышей две зоны. Снежная — с настоящим рыхлым снегом: большие снеговики, ледяные горки со спуском на надувном круге, детский снежный городок с деревянными горками и голографическое северное сияние на 360°. Ледяная — с фигурами и мебелью изо льда, декорациями-городами и крытым искусственным склоном. Тёплую куртку с капюшоном и сапоги выдают по билету; перчатки берут свои или покупают на кассе. Билет не ограничен по времени — можно прийти к открытию и остаться на весь день. Внутри есть еда. Ребёнка одного не оставляют — с каждым нужен сопровождающий взрослый.",
     descriptionEn:
       "An indoor snow-and-ice park in the Na Jomtien area — a big-scale way to escape the tropical heat: it's kept at −10 °C inside while it's +32 °C outdoors. Two zones under one roof. The snow zone has real powdery snow: giant snowmen, ice slides you ride down on a rubber ring, a kids' snow village with wooden slides and a 360° holographic aurora. The ice zone has ice sculptures and furniture, city-skyline sets and a covered artificial ski slope. A warm hooded jacket and boots come with the ticket; bring your own gloves or buy them at the desk. The ticket has no time limit — you can arrive at opening and stay all day. There's food inside. Children aren't left on their own — each child needs an accompanying adult.",
-    address: "Na Jomtien, рядом с Pattaya Floating Market, Chon Buri 20150",
+    address: "Na Jomtien, near Pattaya Floating Market, Chon Buri 20150",
     latitude: 12.8671072,
     longitude: 100.9043178,
     googleMapsUrl:
@@ -2075,6 +2075,9 @@ async function main() {
   // Backfill (Сессия 2): все демо-места и события — в Паттайю (пока один город)
   await prisma.place.updateMany({ data: { cityId: pattaya.id } });
   await prisma.event.updateMany({ data: { cityId: pattaya.id } });
+
+  // Фаза 3: тайские переводы контента поверх наполненных записей
+  await applyThaiTranslations(prisma);
 
   console.log("✅ Seed completed (idempotent)");
 }

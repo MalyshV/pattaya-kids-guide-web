@@ -24,6 +24,7 @@ import {
 } from "@/lib/contacts/contact-link";
 import { articleOpenGraph, metaDescription } from "@/lib/seo/meta";
 import { dateLocale, getDictionary, type Dictionary } from "@/content/dictionary";
+import { pickLocalized } from "@/lib/i18n/localize";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string; slug: string }>;
@@ -44,8 +45,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const dict = getDictionary(lang);
+  // название места — единое латинское (бренд), не локализуем; описание — да
   const title = `${place.name} — ${dict.brand}`;
-  const description = metaDescription(place.description, dict.meta.description);
+  const description = metaDescription(
+    pickLocalized(place.description, place.descriptionEn, place.descriptionTh, lang),
+    dict.meta.description,
+  );
 
   return {
     title,

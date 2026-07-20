@@ -63,6 +63,12 @@ describe("formatDistance", () => {
   it("английские единицы", () => {
     expect(formatDistance(812, "en")).toBe("≈ 800 m");
   });
+
+  it("тайские единицы: ม./กม., десятичная точка", () => {
+    expect(formatDistance(812, "th")).toBe("≈ 800 ม.");
+    expect(formatDistance(1230, "th")).toBe("≈ 1.2 กม.");
+    expect(formatDistance(12_340, "th")).toBe("≈ 12 กม.");
+  });
 });
 
 describe("sortByDistance", () => {

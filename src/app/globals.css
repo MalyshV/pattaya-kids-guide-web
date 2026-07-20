@@ -24,7 +24,9 @@ body {
   margin: 0;
   background: linear-gradient(180deg, #f8f5ef 0%, #f3eee6 100%);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* тайские глифы отсутствуют в Arial и берутся из Sarabun (--font-thai,
+     next/font в layout) — пофрагментный fallback работает и на первом SSR */
+  font-family: Arial, Helvetica, var(--font-thai), sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -74,6 +76,10 @@ input {
 
 .site-nav {
   display: flex;
+  /* когда пунктам тесно, целые «пилюли» переносятся на новую строку.
+     Без этого в узком диапазоне (761–950px) flex сжимал их в один ряд и
+     тайские подписи (слова без пробелов) рвались посреди слога */
+  flex-wrap: wrap;
   gap: 6px;
 }
 
@@ -84,6 +90,8 @@ input {
   font-weight: 500;
   padding: 8px 14px;
   border-radius: 999px;
+  /* подпись остаётся цельной: тайский переносится только между пунктами */
+  white-space: nowrap;
   transition:
     background 0.15s ease,
     color 0.15s ease;

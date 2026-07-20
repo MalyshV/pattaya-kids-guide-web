@@ -15,6 +15,7 @@ import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { formatAgeRange } from "@/lib/age/format-age";
 import { articleOpenGraph, metaDescription } from "@/lib/seo/meta";
 import { dateLocale, getDictionary, type Dictionary } from "@/content/dictionary";
+import { pickLocalized } from "@/lib/i18n/localize";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string; slug: string }>;
@@ -35,8 +36,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const dict = getDictionary(lang);
-  const title = `${event.title} — ${dict.brand}`;
-  const description = metaDescription(event.description, dict.meta.description);
+  const title = `${pickLocalized(event.title, event.titleEn, event.titleTh, lang)} — ${dict.brand}`;
+  const description = metaDescription(
+    pickLocalized(event.description, event.descriptionEn, event.descriptionTh, lang),
+    dict.meta.description,
+  );
 
   return {
     title,

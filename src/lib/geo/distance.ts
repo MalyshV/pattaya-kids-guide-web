@@ -29,14 +29,15 @@ export function haversineMeters(a: GeoPoint, b: GeoPoint): number {
 }
 
 /**
- * «≈ 800 м» / «≈ 1,2 км» (en: “≈ 800 m” / “≈ 1.2 km”).
+ * «≈ 800 м» / «≈ 1,2 км» (en: “≈ 800 m” / “≈ 1.2 km”, th: «≈ 800 ม.» /
+ * «≈ 1.2 กม.» — тайский пишет десятичные через точку).
  * До километра округляем до 50 м — точнее по прямой всё равно нечестно;
  * дальше 10 км десятые не показываем.
  */
 export function formatDistance(meters: number, lang: string): string {
-  const unitM = lang === "en" ? "m" : "м";
-  const unitKm = lang === "en" ? "km" : "км";
-  const decimalSeparator = lang === "en" ? "." : ",";
+  const unitM = lang === "en" ? "m" : lang === "th" ? "ม." : "м";
+  const unitKm = lang === "en" ? "km" : lang === "th" ? "กม." : "км";
+  const decimalSeparator = lang === "en" || lang === "th" ? "." : ",";
 
   if (meters < 975) {
     const rounded = Math.max(50, Math.round(meters / 50) * 50);

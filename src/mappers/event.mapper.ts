@@ -12,15 +12,25 @@ type EventWithPlace = Prisma.EventGetPayload<{
 export function mapEventToDto(event: Event, lang: string = "ru"): EventDto {
   return {
     id: event.id,
-    title: pickLocalized(event.title, event.titleEn, lang),
+    title: pickLocalized(event.title, event.titleEn, event.titleTh, lang),
     slug: event.slug,
     imageUrl: event.imageUrl,
-    description: pickLocalized(event.description, event.descriptionEn, lang),
+    description: pickLocalized(
+      event.description,
+      event.descriptionEn,
+      event.descriptionTh,
+      lang,
+    ),
     startDate: event.startDate.toISOString(),
     endDate: event.endDate ? event.endDate.toISOString() : null,
     minAgeMonths: event.minAgeMonths,
     maxAgeMonths: event.maxAgeMonths,
-    locationName: pickLocalized(event.locationName, event.locationNameEn, lang),
+    locationName: pickLocalized(
+      event.locationName,
+      event.locationNameEn,
+      event.locationNameTh,
+      lang,
+    ),
     address: event.address,
   };
 }
@@ -31,15 +41,25 @@ export function mapEventListItemToDto(
 ): EventListItemDto {
   return {
     id: event.id,
-    title: pickLocalized(event.title, event.titleEn, lang),
+    title: pickLocalized(event.title, event.titleEn, event.titleTh, lang),
     slug: event.slug,
     imageUrl: event.imageUrl,
-    description: pickLocalized(event.description, event.descriptionEn, lang),
+    description: pickLocalized(
+      event.description,
+      event.descriptionEn,
+      event.descriptionTh,
+      lang,
+    ),
     startDate: event.startDate.toISOString(),
     endDate: event.endDate ? event.endDate.toISOString() : null,
     minAgeMonths: event.minAgeMonths,
     maxAgeMonths: event.maxAgeMonths,
-    locationName: pickLocalized(event.locationName, event.locationNameEn, lang),
+    locationName: pickLocalized(
+      event.locationName,
+      event.locationNameEn,
+      event.locationNameTh,
+      lang,
+    ),
     address: event.address,
     place: event.place
       ? {

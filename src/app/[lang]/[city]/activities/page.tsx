@@ -72,7 +72,12 @@ export default async function CityActivitiesPage({
     for (const link of activity.categories) {
       categoryMap.set(link.category.slug, {
         slug: link.category.slug,
-        name: pickLocalized(link.category.name, link.category.nameEn, lang),
+        name: pickLocalized(
+          link.category.name,
+          link.category.nameEn,
+          link.category.nameTh,
+          lang,
+        ),
         order: link.category.order,
       });
     }
