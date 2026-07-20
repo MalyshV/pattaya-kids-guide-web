@@ -76,6 +76,8 @@ model Category {
   name   String
   /// англ. название (RU/EN фаза 2); null → показываем русское
   nameEn String?
+  /// тайское название (фаза 3); null → fallback на англ., затем русское
+  nameTh String?
   slug   String          @unique
   order  Int             @default(0)
   places PlaceCategory[]
@@ -101,6 +103,7 @@ model Amenity {
   id         String         @id @default(cuid())
   name       String
   nameEn     String?
+  nameTh     String?
   slug       String         @unique
   groupId    String
   group      AmenityGroup   @relation(fields: [groupId], references: [id])
@@ -120,6 +123,7 @@ model AgeGroup {
   id     String          @id @default(cuid())
   name   String
   nameEn String?
+  nameTh String?
   minAge Int
   maxAge Int
   places PlaceAgeGroup[]
@@ -188,16 +192,17 @@ model PlacePricing {
 /// вроде LariDea: 1/3/5 часов, отдельная цена ребёнку и взрослому). Отдельно от
 /// PlacePricing (та — единый/диапазонный вход + Thai-price по аудитории).
 model PlaceEntryPrice {
-  id         String @id @default(cuid())
+  id         String  @id @default(cuid())
   placeId    String
   /// подпись строки: «1 час», «3 часа», «Разовый вход»
   label      String
   labelEn    String?
+  labelTh    String?
   childPrice Float?
   adultPrice Float?
-  currency   String @default("THB")
-  order      Int    @default(0)
-  place      Place  @relation(fields: [placeId], references: [id])
+  currency   String  @default("THB")
+  order      Int     @default(0)
+  place      Place   @relation(fields: [placeId], references: [id])
 
   @@index([placeId])
 }
@@ -210,6 +215,7 @@ model ActivityCategory {
   slug     String                    @unique
   name     String
   nameEn   String?
+  nameTh   String?
   order    Int                       @default(0)
   programs ProgramActivityCategory[]
 }
@@ -228,47 +234,51 @@ model ProgramActivityCategory {
 /// type — enum: категории программ универсальны и конечны, не зависят от страны
 /// (в отличие от языков/каналов). Даты — для сезонных программ (лагерь).
 model PlaceProgram {
-  id          String      @id @default(cuid())
+  id            String                    @id @default(cuid())
   /// место занятия: ЛИБО каталожное (placeId/place), ЛИБО текстовое
   /// (venueName/venueAddress) — для развивашек в садах без своей страницы места
-  placeId     String?
+  placeId       String?
   /// slug для собственной страницы занятия (`/activities/[slug]`). Есть только
   /// у COURSE/CAMP (у абонементов страницы нет → null). Пока глобально уникален
   /// (slug'и префиксуем местом); при мультирегион-масштабе → city-scoped.
-  slug        String?     @unique
-  type        ProgramType
-  name        String
-  nameEn      String?
-  description String?
+  slug          String?                   @unique
+  type          ProgramType
+  name          String
+  nameEn        String?
+  nameTh        String?
+  description   String?
   descriptionEn String?
+  descriptionTh String?
   /// обложка занятия (путь в public); null = нет фото
-  imageUrl    String?
-  price       Float?
+  imageUrl      String?
+  price         Float?
   /// зачёркнутая «старая» цена для акций (напр. абонемент со скидкой)
-  oldPrice    Float?
-  currency    String      @default("THB")
+  oldPrice      Float?
+  currency      String                    @default("THB")
   /// подпись к цене: «/неделя», «/30 дней», «за ребёнка»
-  priceUnit   String?
-  priceUnitEn String?
+  priceUnit     String?
+  priceUnitEn   String?
+  priceUnitTh   String?
   /// возраст занятия В МЕСЯЦАХ (чтобы малыши 4 мес не терялись в «годах»);
   /// нужен для фильтра «что подходит моему ребёнку N лет»
-  minAgeMonths Int?
-  maxAgeMonths Int?
-  startDate   DateTime?
-  endDate     DateTime?
-  order       Int         @default(0)
-  place       Place?      @relation(fields: [placeId], references: [id])
-  categories  ProgramActivityCategory[]
-  classes     PlaceClass[]
+  minAgeMonths  Int?
+  maxAgeMonths  Int?
+  startDate     DateTime?
+  endDate       DateTime?
+  order         Int                       @default(0)
+  place         Place?                    @relation(fields: [placeId], references: [id])
+  categories    ProgramActivityCategory[]
+  classes       PlaceClass[]
   /// текстовое место проведения (когда нет каталожного place — напр. сад)
-  venueName    String?
-  venueNameEn  String?
-  venueAddress String?
+  venueName     String?
+  venueNameEn   String?
+  venueNameTh   String?
+  venueAddress  String?
   /// Демо-запись (см. Place.isDemo)
-  isDemo      Boolean     @default(false)
+  isDemo        Boolean                   @default(false)
   /// город занятия для scoping БЕЗместных занятий (у place-занятий — из place)
-  cityId      String?
-  city        City?       @relation(fields: [cityId], references: [id])
+  cityId        String?
+  city          City?                     @relation(fields: [cityId], references: [id])
 
   @@index([placeId])
   @@index([cityId])
@@ -285,12 +295,14 @@ model PlaceClass {
   /// человекочитаемый возраст с постера («4–10 мес», «5–6 лет»)
   ageLabel       String
   ageLabelEn     String?
+  ageLabelTh     String?
   minAgeMonths   Int
   maxAgeMonths   Int
   parentRequired Boolean?
   /// недельное расписание строкой: «Вт 11:00 · Ср 11:00 · Чт 15:00…»
   schedule       String
   scheduleEn     String?
+  scheduleTh     String?
   order          Int          @default(0)
   program        PlaceProgram @relation(fields: [programId], references: [id])
 
@@ -319,6 +331,7 @@ model PlaceTip {
   placeId    String
   text       String
   textEn     String?
+  textTh     String?
   topic      String?
   order      Int       @default(0)
   /// когда факт последний раз подтверждён (доверие: показываем свежесть;
@@ -340,6 +353,7 @@ model PlaceBirthdayInfo {
   preBookingDays  Int?
   notes           String?
   notesEn         String?
+  notesTh         String?
   lastUpdatedAt   DateTime @updatedAt
   place           Place    @relation(fields: [placeId], references: [id])
 }
@@ -351,6 +365,7 @@ model Language {
   code       String               @unique
   name       String
   nameEn     String?
+  nameTh     String?
   placeLinks PlaceStaffLanguage[]
 }
 
@@ -368,92 +383,95 @@ model PlaceStaffLanguage {
 ///  • значение из набора (языки персонала, категории) → отдельный справочник + M:N;
 ///  • группа связанных полей (детское кафе, день рождения) → отдельная 1:1-модель.
 model Place {
-  id                 String              @id @default(cuid())
-  name               String
-  slug               String
-  description        String?
-  descriptionEn      String?
+  id                   String               @id @default(cuid())
+  name                 String
+  slug                 String
+  description          String?
+  descriptionEn        String?
+  descriptionTh        String?
   /// обложка места (путь в public, напр. /images/places/laridea.jpg); null = нет фото
-  imageUrl           String?
-  address            String
-  latitude           Float
-  longitude          Float
+  imageUrl             String?
+  address              String
+  latitude             Float
+  longitude            Float
   /// проверенная ссылка на КАРТОЧКУ места в Google Maps (с фото/отзывами/часами);
   /// приоритетнее координат — координаты дают лишь голую метку на карте
-  googleMapsUrl      String?
+  googleMapsUrl        String?
   /// PROVENANCE (движок данных): канонический Google Place ID (формат ChIJ…) —
   /// ключ дедупа при импорте: одно и то же заведение не занесётся дважды.
   /// null = место занесено вручную без привязки к Google
-  googlePlaceId      String?             @unique
+  googlePlaceId        String?              @unique
   /// откуда взялась запись: ручной занос / импорт движком / UGC / бизнес.
   /// Симметрично Event.sourceType; текущий каталог занесён вручную → ADMIN
-  sourceType         PlaceSourceType     @default(ADMIN)
+  sourceType           PlaceSourceType      @default(ADMIN)
   /// права на обложку (imageUrl): кто снял / на каком основании используем
   /// (напр. «фото Вероники, июль 2026»). null = провенанс не зафиксирован
-  imageRightsNote    String?
+  imageRightsNote      String?
   /// подпись под таблицей входа (PlaceEntryPrice): скидки, НДС и т.п.
-  entryPriceNote     String?
-  entryPriceNoteEn   String?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  entryPriceNote       String?
+  entryPriceNoteEn     String?
+  entryPriceNoteTh     String?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
   /// Признаки-факты о месте — nullable (три состояния): true = есть,
   /// false = точно нет, null = ещё не проверяли («уточняется»). Не подменяем
   /// пробел в данных уверенным «нет» — это подрывает доверие к гиду.
-  animalContact      Boolean?
-  canLeaveChild      Boolean?
+  animalContact        Boolean?
+  canLeaveChild        Boolean?
   /// возраст (в месяцах), с которого можно оставить ребёнка под присмотром;
   /// осмыслен при canLeaveChild=true (иначе не показываем). null = порог не уточнён
   leaveChildFromMonths Int?
-  hasFood            Boolean?
-  hasWifi            Boolean?
-  indoor             Boolean             @default(false)
-  outdoor            Boolean             @default(false)
+  hasFood              Boolean?
+  hasWifi              Boolean?
+  indoor               Boolean              @default(false)
+  outdoor              Boolean              @default(false)
   /// Умные фильтры (Эпик 4): признаки удобства для родителя-удалёнщика (тоже tri-state)
-  hasAirCon          Boolean?
-  hasParking         Boolean?
-  hasCafeSeating     Boolean?
-  hasPowerOutlets    Boolean?
+  hasAirCon            Boolean?
+  hasParking           Boolean?
+  hasCafeSeating       Boolean?
+  hasPowerOutlets      Boolean?
   /// Сценарий «Спрятаться от жары/дождя»: укрыться можно не только в коробке с
   /// кондиционером. Открытая площадка с навесами (тень + не мочит дождь) и
   /// вентиляторами укрывает не хуже (напр. Pa Boon Cafe). tri-state.
-  hasCoveredArea     Boolean?
-  hasFans            Boolean?
-  createdByUserId    String?
-  isAnonymous        Boolean             @default(false)
+  hasCoveredArea       Boolean?
+  hasFans              Boolean?
+  createdByUserId      String?
+  isAnonymous          Boolean              @default(false)
   /// Демо-запись для локальной разработки: публичные выборки скрывают её,
   /// если не включён SHOW_DEMO (см. src/lib/demo/show-demo.ts)
-  isDemo             Boolean             @default(false)
+  isDemo               Boolean              @default(false)
   /// МОДЕРАЦИЯ + UGC
-  status             PlaceStatus         @default(PENDING)
-  events             Event[]
-  ageGroups          PlaceAgeGroup[]
-  amenities          PlaceAmenity[]
-  birthdayInfo       PlaceBirthdayInfo?
-  categories         PlaceCategory[]
-  contacts           PlaceContact[]
-  pricing            PlacePricing[]
-  entryPrices        PlaceEntryPrice[]
-  photos             PlacePhoto[]
-  programs           PlaceProgram[]
-  schedules          PlaceSchedule[]
-  staffLanguages     PlaceStaffLanguage[]
-  tips               PlaceTip[]
-  userFavoritePlaces UserFavoritePlace[]
-  userVisits         UserVisit[]
+  status               PlaceStatus          @default(PENDING)
+  events               Event[]
+  ageGroups            PlaceAgeGroup[]
+  amenities            PlaceAmenity[]
+  birthdayInfo         PlaceBirthdayInfo?
+  categories           PlaceCategory[]
+  contacts             PlaceContact[]
+  pricing              PlacePricing[]
+  entryPrices          PlaceEntryPrice[]
+  photos               PlacePhoto[]
+  programs             PlaceProgram[]
+  schedules            PlaceSchedule[]
+  staffLanguages       PlaceStaffLanguage[]
+  tips                 PlaceTip[]
+  userFavoritePlaces   UserFavoritePlace[]
+  userVisits           UserVisit[]
   /// ГЕО (Сессия 2): город места обязателен — место всегда физически где-то
-  cityId             String
-  city               City                @relation(fields: [cityId], references: [id])
+  cityId               String
+  city                 City                 @relation(fields: [cityId], references: [id])
 
   @@unique([cityId, slug])
   @@index([cityId, status])
 }
 
 model EventCategory {
-  id    String              @id @default(cuid())
-  name  String
+  id     String              @id @default(cuid())
+  name   String
   nameEn String?
-  slug  String              @unique
-  links EventCategoryLink[]
+  nameTh String?
+  slug   String              @unique
+  links  EventCategoryLink[]
 }
 
 model EventCategoryLink {
@@ -469,9 +487,11 @@ model Event {
   id                 String              @id @default(cuid())
   title              String
   titleEn            String?
+  titleTh            String?
   slug               String
   description        String?
   descriptionEn      String?
+  descriptionTh      String?
   /// обложка события (путь в public); null = нет фото
   imageUrl           String?
   /// ДАТЫ (поддержка однодневных, многодневных и recurring)
@@ -484,6 +504,7 @@ model Event {
   /// ЛОКАЦИЯ (может существовать без Place)
   locationName       String?
   locationNameEn     String?
+  locationNameTh     String?
   address            String?
   latitude           Float?
   longitude          Float?
@@ -541,23 +562,25 @@ model Country {
 }
 
 model City {
-  id             String   @id @default(cuid())
-  slug           String
-  name           String
-  nameEn         String?
-  seoDescription String?
+  id               String         @id @default(cuid())
+  slug             String
+  name             String
+  nameEn           String?
+  nameTh           String?
+  seoDescription   String?
   seoDescriptionEn String?
-  latitude       Float?
-  longitude      Float?
-  timezone       String
+  seoDescriptionTh String?
+  latitude         Float?
+  longitude        Float?
+  timezone         String
   /// город виден в поиске/выдаче только когда наполнен (SEO-гейт)
-  isPublished    Boolean  @default(false)
-  countryId      String
-  country        Country  @relation(fields: [countryId], references: [id])
-  places         Place[]
-  events         Event[]
-  programs       PlaceProgram[]
-  createdAt      DateTime @default(now())
+  isPublished      Boolean        @default(false)
+  countryId        String
+  country          Country        @relation(fields: [countryId], references: [id])
+  places           Place[]
+  events           Event[]
+  programs         PlaceProgram[]
+  createdAt        DateTime       @default(now())
 
   @@unique([countryId, slug])
 }

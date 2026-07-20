@@ -8,7 +8,12 @@ export function mapPlaceToDto(place: Place, lang: string = "ru"): PlaceDto {
     id: place.id,
     name: place.name,
     slug: place.slug,
-    description: pickLocalized(place.description, place.descriptionEn, lang),
+    description: pickLocalized(
+      place.description,
+      place.descriptionEn,
+      place.descriptionTh,
+      lang,
+    ),
     imageUrl: place.imageUrl,
     address: place.address,
     latitude: place.latitude,
@@ -30,7 +35,7 @@ export function mapPlaceToDto(place: Place, lang: string = "ru"): PlaceDto {
 
 /**
  * Слим-DTO для списка: карточка локализует описание сама (по basePath),
- * поэтому en-поле передаём сырым. ВАЖНО: список уходит в клиентский
+ * поэтому en/th-поля передаём сырыми. ВАЖНО: список уходит в клиентский
  * компонент — сырую Prisma-модель со служебными полями (модерация, заметки)
  * сериализовать в браузер нельзя, только этот отобранный набор.
  */
@@ -39,5 +44,6 @@ export function mapPlaceToListItemDto(place: Place): PlaceListItemDto {
     ...mapPlaceToDto(place),
     description: place.description,
     descriptionEn: place.descriptionEn,
+    descriptionTh: place.descriptionTh,
   };
 }

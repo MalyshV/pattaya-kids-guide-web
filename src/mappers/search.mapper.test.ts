@@ -14,7 +14,15 @@ function placeRow(overrides: Partial<SearchPlaceRow> = {}): SearchPlaceRow {
     name: "Skippy Land",
     slug: "skippy-land",
     address: "Lotus's North Pattaya",
-    categories: [{ category: { name: "Крытая игровая", nameEn: "Indoor playground" } }],
+    categories: [
+      {
+        category: {
+          name: "Крытая игровая",
+          nameEn: "Indoor playground",
+          nameTh: null,
+        },
+      },
+    ],
     ...overrides,
   };
 }
@@ -24,9 +32,11 @@ function activityRow(overrides: Partial<SearchActivityRow> = {}): SearchActivity
     id: "a1",
     name: "Плейгруппа Tara Tots",
     nameEn: "Tara Tots Playgroup",
+    nameTh: null,
     slug: "tara-tots",
     venueName: "Tara Pattana",
     venueNameEn: "Tara Pattana",
+    venueNameTh: null,
     place: null,
     categories: [],
     ...overrides,
@@ -38,9 +48,11 @@ function eventRow(overrides: Partial<SearchEventRow> = {}): SearchEventRow {
     id: "e1",
     title: "Футбольная игровая «Kicks & Fun»",
     titleEn: "Kicks & Fun",
+    titleTh: null,
     slug: "kicks-and-fun",
     locationName: "Terminal 21",
     locationNameEn: "Terminal 21",
+    locationNameTh: null,
     place: null,
     ...overrides,
   };

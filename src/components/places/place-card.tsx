@@ -66,8 +66,12 @@ export function PlaceCard({
       ) : null}
 
       <p className="place-card-description">
-        {pickLocalized(place.description, place.descriptionEn, lang) ??
-          dict.common.descriptionFallback}
+        {pickLocalized(
+          place.description,
+          place.descriptionEn,
+          place.descriptionTh,
+          lang,
+        ) ?? dict.common.descriptionFallback}
       </p>
 
       <p className="place-card-address">

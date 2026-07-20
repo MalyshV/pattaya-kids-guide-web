@@ -9,33 +9,41 @@ import { demoFilter } from "@/lib/demo/show-demo";
  * целиком. Сборку DTO делает mapSearchIndex (mapper).
  */
 
-// у Place нет nameEn: название места — имя собственное, оно не переводится
+type SearchCategory = {
+  category: { name: string; nameEn: string | null; nameTh: string | null };
+};
+
+// у Place нет nameEn/nameTh: название места — имя собственное, оно не переводится
 export type SearchPlaceRow = {
   id: string;
   name: string;
   slug: string;
   address: string;
-  categories: Array<{ category: { name: string; nameEn: string | null } }>;
+  categories: SearchCategory[];
 };
 
 export type SearchActivityRow = {
   id: string;
   name: string;
   nameEn: string | null;
+  nameTh: string | null;
   slug: string | null;
   venueName: string | null;
   venueNameEn: string | null;
+  venueNameTh: string | null;
   place: { name: string } | null;
-  categories: Array<{ category: { name: string; nameEn: string | null } }>;
+  categories: SearchCategory[];
 };
 
 export type SearchEventRow = {
   id: string;
   title: string;
   titleEn: string | null;
+  titleTh: string | null;
   slug: string;
   locationName: string | null;
   locationNameEn: string | null;
+  locationNameTh: string | null;
   place: { name: string } | null;
 };
 
@@ -56,7 +64,9 @@ export const getSearchRows = cache(async function getSearchRows(cityId: string):
         slug: true,
         address: true,
         categories: {
-          select: { category: { select: { name: true, nameEn: true } } },
+          select: {
+            category: { select: { name: true, nameEn: true, nameTh: true } },
+          },
         },
       },
       orderBy: { name: "asc" },
@@ -76,12 +86,16 @@ export const getSearchRows = cache(async function getSearchRows(cityId: string):
         id: true,
         name: true,
         nameEn: true,
+        nameTh: true,
         slug: true,
         venueName: true,
         venueNameEn: true,
+        venueNameTh: true,
         place: { select: { name: true } },
         categories: {
-          select: { category: { select: { name: true, nameEn: true } } },
+          select: {
+            category: { select: { name: true, nameEn: true, nameTh: true } },
+          },
         },
       },
       orderBy: { name: "asc" },
@@ -102,9 +116,11 @@ export const getSearchRows = cache(async function getSearchRows(cityId: string):
         id: true,
         title: true,
         titleEn: true,
+        titleTh: true,
         slug: true,
         locationName: true,
         locationNameEn: true,
+        locationNameTh: true,
         place: { select: { name: true } },
       },
       orderBy: { startDate: "asc" },

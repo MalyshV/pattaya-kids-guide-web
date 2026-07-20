@@ -19,6 +19,7 @@ export function mapBirthdayPlaceToDto(
     notes: pickLocalized(
       place.birthdayInfo?.notes ?? null,
       place.birthdayInfo?.notesEn,
+      place.birthdayInfo?.notesTh,
       lang,
     ),
     contacts: place.contacts.map((contact) => ({

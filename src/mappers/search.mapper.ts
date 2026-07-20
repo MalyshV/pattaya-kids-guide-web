@@ -13,10 +13,16 @@ import { pickLocalized } from "@/lib/i18n/localize";
  */
 
 function categoriesText(
-  categories: Array<{ category: { name: string; nameEn: string | null } }>,
+  categories: Array<{
+    category: { name: string; nameEn: string | null; nameTh: string | null };
+  }>,
 ): string {
   return categories
-    .flatMap(({ category }) => [category.name, category.nameEn ?? ""])
+    .flatMap(({ category }) => [
+      category.name,
+      category.nameEn ?? "",
+      category.nameTh ?? "",
+    ])
     .join(" ");
 }
 
@@ -43,19 +49,26 @@ export function mapSearchIndex(
     .map((activity) => ({
       id: activity.id,
       type: "activity",
-      name: pickLocalized(activity.name, activity.nameEn, lang),
+      name: pickLocalized(activity.name, activity.nameEn, activity.nameTh, lang),
       hint:
         activity.place?.name ??
         (activity.venueName
-          ? pickLocalized(activity.venueName, activity.venueNameEn, lang)
+          ? pickLocalized(
+              activity.venueName,
+              activity.venueNameEn,
+              activity.venueNameTh,
+              lang,
+            )
           : null),
       url: `${basePath}/activities/${activity.slug}`,
       searchText: [
         activity.name,
         activity.nameEn ?? "",
+        activity.nameTh ?? "",
         activity.place?.name ?? "",
         activity.venueName ?? "",
         activity.venueNameEn ?? "",
+        activity.venueNameTh ?? "",
         categoriesText(activity.categories),
       ].join(" "),
     }));
@@ -63,20 +76,27 @@ export function mapSearchIndex(
   const eventItems: SearchItemDto[] = events.map((event) => ({
     id: event.id,
     type: "event",
-    name: pickLocalized(event.title, event.titleEn, lang),
+    name: pickLocalized(event.title, event.titleEn, event.titleTh, lang),
     // где проходит: место из каталога или текстовая площадка события
     hint:
       event.place?.name ??
       (event.locationName
-        ? pickLocalized(event.locationName, event.locationNameEn, lang)
+        ? pickLocalized(
+            event.locationName,
+            event.locationNameEn,
+            event.locationNameTh,
+            lang,
+          )
         : null),
     url: `${basePath}/events/${event.slug}`,
     searchText: [
       event.title,
       event.titleEn ?? "",
+      event.titleTh ?? "",
       event.place?.name ?? "",
       event.locationName ?? "",
       event.locationNameEn ?? "",
+      event.locationNameTh ?? "",
     ].join(" "),
   }));
 
