@@ -133,6 +133,16 @@ input {
   line-height: 1.6;
 }
 
+/* страница ошибки: «Попробовать снова» + ссылка в каталог, в ряд, на телефоне
+   переносятся сами */
+.error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin-top: 24px;
+}
+
 .filters-panel,
 .place-card,
 .event-card,

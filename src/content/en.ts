@@ -22,6 +22,13 @@ export const en: Dictionary = {
     langAria: "Language",
   },
 
+  errorPage: {
+    eyebrow: "Error",
+    title: "Something went wrong",
+    description: "We've noticed the glitch. Try reloading the page — that usually helps.",
+    retry: "Try again",
+    cta: "← To places",
+  },
   notFound: {
     eyebrow: "404",
     title: "Page not found",
