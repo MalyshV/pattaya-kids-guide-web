@@ -37,8 +37,8 @@ yarn-error.log*
 # vercel
 .vercel
 
-# claude code — локальные конфиги инструментов (не общие для команды)
-.claude/launch.json
+# claude code — локальные конфиги и служебные файлы (сессии, worktree агентов)
+.claude/
 
 # typescript
 *.tsbuildinfo

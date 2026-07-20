@@ -11,7 +11,9 @@ export default defineConfig([
     rules: {},
   },
 
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  // .claude — служебное Claude Code (сессии, git-worktree агентов): их
+  // .next/types иначе засыпают линт тысячами чужих ошибок
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", ".claude/**"]),
 
   eslintConfigPrettier,
 ]);
