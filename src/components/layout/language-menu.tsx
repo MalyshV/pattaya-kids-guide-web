@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { SUPPORTED_LANGS, type Lang } from "@/content/dictionary";
 import { useDictionary, useLang } from "@/lib/i18n/use-dictionary";
+import { LOCALE_COOKIE } from "@/lib/i18n/detect-lang";
 
 // Самоназвания языков (endonyms): каждый язык подписан на самом себе — так
 // пользователь узнаёт свой язык независимо от текущего интерфейса. НЕ переводим.
@@ -13,6 +14,12 @@ const ENDONYMS: Record<Lang, string> = {
   en: "English",
   th: "ไทย",
 };
+
+/** Запомнить выбор языка на год (вне компонента — присваивание document.cookie
+ *  не должно жить в теле рендера). Middleware уважит его прежде языка браузера. */
+function setLocaleCookie(lang: string): void {
+  document.cookie = `${LOCALE_COOKIE}=${lang};path=/;max-age=31536000;samesite=lax`;
+}
 
 /** Тонкий глобус — очевидный и спокойный знак выбора языка (в тон calm-first). */
 function GlobeIcon(): React.ReactElement {
@@ -69,6 +76,11 @@ export function LanguageMenu(): React.ReactElement {
     if (returnFocus) {
       buttonRef.current?.focus();
     }
+  };
+
+  const rememberChoice = (lang: Lang): void => {
+    setLocaleCookie(lang);
+    close(false);
   };
 
   // клик вне и Esc закрывают меню
@@ -159,7 +171,7 @@ export function LanguageMenu(): React.ReactElement {
                 href={hrefFor(lang)}
                 aria-current={isActive ? "true" : undefined}
                 className={`lang-menu-item${isActive ? " lang-menu-item-active" : ""}`}
-                onClick={() => close(false)}
+                onClick={() => rememberChoice(lang)}
               >
                 <span className="lang-menu-item-name" lang={lang}>
                   {ENDONYMS[lang]}
