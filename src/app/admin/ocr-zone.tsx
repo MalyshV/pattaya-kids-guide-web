@@ -242,6 +242,13 @@ export function OcrZone({
       if (!dragHasFiles(event)) {
         return;
       }
+      // не перехватывать дроп на СОБСТВЕННЫЕ файловые поля формы (обложка,
+      // фото места): там preventDefault отменил бы прикрепление файла, и он
+      // молча ушёл бы в распознавание вместо input.files
+      const target = event.target as HTMLElement | null;
+      if (target?.closest?.('input[type="file"]')) {
+        return;
+      }
       event.preventDefault();
       setDragOver(false);
       void recognizeFiles(Array.from(event.dataTransfer?.files ?? []));
@@ -293,7 +300,12 @@ export function OcrZone({
       <p className="admin-muted admin-ocr-hint">
         Распознавание происходит в браузере — фото никуда не отправляется.
       </p>
-      {phase.kind === "error" ? <p className="admin-error">{phase.message}</p> : null}
+      {phase.kind === "error" ? (
+        // role=alert: скринридер сразу озвучит сбой (успех уже озвучен ниже)
+        <p className="admin-error" role="alert">
+          {phase.message}
+        </p>
+      ) : null}
       {phase.kind === "done" ? (
         <p className="admin-ocr-done" role="status">
           {phase.message}

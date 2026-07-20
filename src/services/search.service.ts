@@ -91,10 +91,12 @@ export const getSearchRows = cache(async function getSearchRows(cityId: string):
         status: "APPROVED",
         cityId,
         ...demoFilter(),
-        // только не прошедшие: идущие (endDate в будущем) и предстоящие
-        // (разовое без endDate — по startDate). Согласовано с
-        // computeEventStatus: past в поиск не попадает.
-        OR: [{ endDate: { gte: now } }, { endDate: null, startDate: { gt: now } }],
+        // только НЕ прошедшие. Ключуемся так же, как computeEventStatus:
+        // upcoming — по НАЧАЛУ (startDate в будущем), ongoing — по КОНЦУ
+        // (endDate ещё не прошёл). Иначе событие с ошибочным endDate<startDate
+        // считалось бы past по концу, хотя оно предстоящее по началу —
+        // видно в ленте, но пропадало из поиска.
+        OR: [{ startDate: { gt: now } }, { endDate: { gte: now } }],
       },
       select: {
         id: true,

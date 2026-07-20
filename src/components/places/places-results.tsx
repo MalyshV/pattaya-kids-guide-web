@@ -315,14 +315,18 @@ export function PlacesResults({
   );
 
   // Честность ✓-фильтра: серверный счётчик «Найдено» не знает про отметки —
-  // расхождение объясняем на месте (в обоих режимах), а не оставляем загадкой
+  // расхождение объясняем на месте (в обоих режимах), а не оставляем загадкой.
+  // role=status: при переключении чипа скринридер озвучивает, что изменилось
+  // (переход soft-навигацией сам по себе не объявляется).
   const filterNote = filterActive ? (
     visitedFilter === "hidden" && hiddenByFilter > 0 ? (
-      <p className="visited-filter-note">
+      <p className="visited-filter-note" role="status">
         {dict.memory.filterHiddenNote(hiddenByFilter)}
       </p>
     ) : visitedFilter === "only" && items.length > 0 ? (
-      <p className="visited-filter-note">{dict.memory.filterOnlyNote(items.length)}</p>
+      <p className="visited-filter-note" role="status">
+        {dict.memory.filterOnlyNote(items.length)}
+      </p>
     ) : null
   ) : null;
 
@@ -348,7 +352,8 @@ export function PlacesResults({
     return (
       <>
         {viewToggle}
-        <section className="empty-state">
+        {/* role=status: смену списка на пустое состояние скринридер озвучит */}
+        <section className="empty-state" role="status">
           <h3>
             {visitedFilter === "only"
               ? dict.memory.filterEmptyOnlyTitle

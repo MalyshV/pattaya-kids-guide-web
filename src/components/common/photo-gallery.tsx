@@ -233,7 +233,10 @@ export function PhotoGallery({
               ) : null}
 
               {many ? (
-                <p className="lightbox-counter">
+                // live-регион: при листании (стрелки/свайп) скринридер
+                // озвучивает новую позицию «N из M». При открытии её читает
+                // aria-label диалога (live-регион первый рендер не объявляет).
+                <p className="lightbox-counter" role="status" aria-live="polite">
                   {dict.common.photoCounter(openIndex + 1, photos.length)}
                 </p>
               ) : null}
