@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { Suspense, useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { SUPPORTED_LANGS } from "@/content/dictionary";
-import { useDictionary, useLang } from "@/lib/i18n/use-dictionary";
+import { useDictionary } from "@/lib/i18n/use-dictionary";
 import { useParentMemory } from "@/lib/memory/use-parent-memory";
 import { listByKind } from "@/lib/memory/parent-memory";
 import { markClientNavigation } from "@/components/common/smart-back-link";
+import { LanguageMenu } from "@/components/layout/language-menu";
 
 type SiteHeaderProps = {
   basePath: string;
@@ -108,44 +108,12 @@ function NavLinks({
   );
 }
 
-/** RU | EN: тот же путь с заменённым языковым сегментом, query сохраняется. */
-function LangSwitch(): React.ReactElement {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const currentLang = useLang();
-  const dict = useDictionary();
-
-  const query = searchParams.toString();
-
-  return (
-    <div className="lang-switch" aria-label={dict.nav.langAria}>
-      {SUPPORTED_LANGS.map((lang) => {
-        const segments = pathname.split("/");
-        segments[1] = lang;
-        const href = `${segments.join("/")}${query ? `?${query}` : ""}`;
-        const isActive = lang === currentLang;
-
-        return (
-          <Link
-            key={lang}
-            href={href}
-            className={`lang-switch-link${isActive ? " lang-switch-active" : ""}`}
-            aria-current={isActive ? "true" : undefined}
-          >
-            {lang.toUpperCase()}
-          </Link>
-        );
-      })}
-    </div>
-  );
-}
-
 function HeaderRight({ basePath }: { basePath: string }): React.ReactElement {
   const searchParams = useSearchParams();
   return (
     <div className="site-header-right">
       <NavLinks basePath={basePath} age={searchParams.get("age")} />
-      <LangSwitch />
+      <LanguageMenu />
     </div>
   );
 }
