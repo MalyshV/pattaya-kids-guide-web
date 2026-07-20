@@ -210,13 +210,26 @@ export function PhotoGallery({
                 </button>
               ) : null}
 
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={photos[openIndex].url ?? ""}
-                alt={photos[openIndex].caption ?? placeName}
-                className="lightbox-img"
-                onClick={(event) => event.stopPropagation()}
-              />
+              <div className="lightbox-figure">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={photos[openIndex].url ?? ""}
+                  alt={photos[openIndex].caption ?? placeName}
+                  className="lightbox-img"
+                  onClick={(event) => event.stopPropagation()}
+                />
+                <button
+                  type="button"
+                  className="lightbox-close"
+                  aria-label={dict.common.closePhoto}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    requestClose();
+                  }}
+                >
+                  <BalloonIcon />
+                </button>
+              </div>
 
               {many ? (
                 <button
@@ -240,18 +253,6 @@ export function PhotoGallery({
                   {dict.common.photoCounter(openIndex + 1, photos.length)}
                 </p>
               ) : null}
-
-              <button
-                type="button"
-                className="lightbox-close"
-                aria-label={dict.common.closePhoto}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  requestClose();
-                }}
-              >
-                <BalloonIcon />
-              </button>
             </div>,
             document.body,
           )
