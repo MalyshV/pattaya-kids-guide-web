@@ -2,6 +2,7 @@ import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
+import { applyThaiTranslations } from "./apply-thai";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is not defined");
@@ -2074,6 +2075,9 @@ async function main() {
   // Backfill (Сессия 2): все демо-места и события — в Паттайю (пока один город)
   await prisma.place.updateMany({ data: { cityId: pattaya.id } });
   await prisma.event.updateMany({ data: { cityId: pattaya.id } });
+
+  // Фаза 3: тайские переводы контента поверх наполненных записей
+  await applyThaiTranslations(prisma);
 
   console.log("✅ Seed completed (idempotent)");
 }

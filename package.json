@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "gaps": "tsx prisma/gaps.ts",
+    "apply-thai": "tsx --env-file=.env prisma/apply-thai.ts",
     "check": "npm run lint && npm run typecheck && npm run test",
     "fix": "npm run format && npm run lint:fix",
     "prepare": "husky",
