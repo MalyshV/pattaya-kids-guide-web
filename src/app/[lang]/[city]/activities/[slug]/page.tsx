@@ -14,6 +14,7 @@ import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { formatAgeRange } from "@/lib/age/format-age";
 import { articleOpenGraph, metaDescription } from "@/lib/seo/meta";
 import { dateLocale, getDictionary, type Dictionary } from "@/content/dictionary";
+import { pickLocalized } from "@/lib/i18n/localize";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string; slug: string }>;
@@ -34,8 +35,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const dict = getDictionary(lang);
-  const title = `${activity.name} — ${dict.brand}`;
-  const description = metaDescription(activity.description, dict.meta.description);
+  const title = `${pickLocalized(activity.name, activity.nameEn, activity.nameTh, lang)} — ${dict.brand}`;
+  const description = metaDescription(
+    pickLocalized(
+      activity.description,
+      activity.descriptionEn,
+      activity.descriptionTh,
+      lang,
+    ),
+    dict.meta.description,
+  );
 
   return {
     title,
