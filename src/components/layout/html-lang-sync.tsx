@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import { langFromPath } from "@/content/dictionary";
 
 /**
- * Держит <html lang> в соответствии с языком страницы. Корневой layout не
- * знает params.lang (html можно рендерить только там), поэтому атрибут
- * синхронизируется на клиенте по сегменту URL.
+ * Страховка для <html lang>: серверно атрибут ставит layout сегмента [lang],
+ * а здесь он дублируется при клиентских переходах между локалями — React
+ * не гарантирует обновление атрибутов <html> при soft-навигации.
  */
 export function HtmlLangSync(): null {
   const pathname = usePathname();
