@@ -43,7 +43,7 @@ export const th: Dictionary = {
 
   common: {
     detailsCta: "ดูรายละเอียด",
-    descriptionFallback: "คำอธิบายจะเพิ่มเร็ว ๆ นี้",
+    descriptionFallback: "จะเพิ่มคำอธิบายเร็ว ๆ นี้",
     zoomPhoto: "ขยายรูป",
     closePhoto: "ปิดรูป",
     prevPhoto: "รูปก่อนหน้า",
@@ -77,8 +77,8 @@ export const th: Dictionary = {
     saveAria: "บันทึกเก็บไว้ดูภายหลัง",
     savedAria: "นำออกจากที่บันทึกไว้",
     visitLabel: "เคยไปแล้ว",
-    visitedLabel: "บันทึกแล้ว: เคยไป",
-    visitAria: "บันทึกว่าเคยไปแล้ว",
+    visitedLabel: "ทำเครื่องหมายแล้ว: เคยไป",
+    visitAria: "ทำเครื่องหมายว่าเคยไปแล้ว",
     visitedAria: "ลบเครื่องหมายว่าเคยไปแล้ว",
     savedSection: "ที่บันทึกไว้",
     visitedSection: "เคยไปแล้ว",
@@ -86,7 +86,7 @@ export const th: Dictionary = {
     visitedSectionEmpty: "ยังว่างอยู่ — กด ✓ บนการ์ดสถานที่ที่เคยไปมาแล้ว",
     emptyTitle: "ยังว่างอยู่",
     emptyHint:
-      "กด ♡ บนการ์ดเพื่อบันทึกไว้ และกด ✓ เพื่อบันทึกว่าเคยไปแล้ว ทุกอย่างจะมารวมอยู่ที่นี่",
+      "กด ♡ บนการ์ดเพื่อบันทึกไว้ และกด ✓ เพื่อทำเครื่องหมายว่าเคยไปแล้ว ทุกอย่างจะมารวมอยู่ที่นี่",
     remove: "นำออก",
     removed: "นำออกจากรายการแล้ว",
     restore: "กู้คืน",
@@ -156,7 +156,7 @@ export const th: Dictionary = {
     badgeIndoor: "ในร่ม",
     badgeOutdoor: "กลางแจ้ง",
     addressFallback: "ที่อยู่รอยืนยัน",
-    nearLocating: "กำลังหาสิ่งที่อยู่ใกล้คุณ…",
+    nearLocating: "กำลังหาสถานที่ใกล้คุณ…",
     nearDenied:
       "ไม่สามารถระบุตำแหน่งได้ หากอยากเห็นสถานที่ใกล้คุณ ลองอนุญาตการเข้าถึงตำแหน่งในการตั้งค่าเบราว์เซอร์",
     nearFailed: "ไม่สามารถระบุตำแหน่งได้",
@@ -215,7 +215,7 @@ export const th: Dictionary = {
     openMorningActive: "กำลังแสดงสถานที่ที่เปิดตั้งแต่เช้า",
     workFriendly: "นั่งทำงานได้",
     workFriendlyHint: "มี Wi-Fi แอร์ และที่นั่งสบาย ๆ",
-    workFriendlyActive: "กำลังแสดงที่ที่นั่งทำงานใกล้ลูกได้สะดวก",
+    workFriendlyActive: "กำลังแสดงสถานที่ที่นั่งทำงานใกล้ลูกได้สะดวก",
     shelter: "หลบร้อน",
     shelterHint: "ในร่มมีแอร์ หรือใต้หลังคามีพัดลม — หลบฝนได้ด้วย",
     shelterActive: "กำลังแสดงที่หลบร้อนหลบฝน",
@@ -364,7 +364,7 @@ export const th: Dictionary = {
 
   activityDetails: {
     back: "← กลับไปหน้าคลาสเรียน",
-    heroWhere: "ที่ไหน:",
+    heroWhere: "สถานที่:",
     whereTitle: "จัดที่ไหน",
     classesTitle: "คลาสและตารางเวลา",
     classCol: "คลาส",
@@ -380,7 +380,7 @@ export const th: Dictionary = {
   eventCard: {
     starts: "เริ่ม",
     ends: "สิ้นสุด",
-    ageLabel: "วัย",
+    ageLabel: "อายุ",
     dateTbd: "วันที่รอยืนยัน",
     locationTbd: "สถานที่รอยืนยัน",
     placeLabel: "สถานที่",
