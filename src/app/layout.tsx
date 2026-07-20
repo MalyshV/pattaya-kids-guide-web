@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Sarabun } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { HtmlLangSync } from "@/components/layout/html-lang-sync";
@@ -14,6 +14,17 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+// Тайская гарнитура (у Arial тайских глифов нет). Sarabun — спокойная,
+// читаемая, с традиционными «петельками». Подключена в font-family после
+// Arial: благодаря unicode-range браузер скачивает её ТОЛЬКО на страницах
+// с тайским текстом — RU/EN-страницы не платят ничего.
+const sarabun = Sarabun({
+  variable: "--font-thai",
+  weight: ["400", "500", "600", "700"],
+  subsets: ["thai"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -48,7 +59,7 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body
-        className={`${geistSans.variable} ${geistMono.variable}`}
+        className={`${geistSans.variable} ${geistMono.variable} ${sarabun.variable}`}
         suppressHydrationWarning
       >
         {children}
