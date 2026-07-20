@@ -27,18 +27,30 @@ function ageLabelEn(months: number): string {
   return `${years} ${years === 1 ? "year" : "years"}`;
 }
 
+/** Тайский возраст: «4 เดือน» (месяцы), «3 ขวบ» (годы; ขวบ — счёт лет
+ *  именно детского возраста, для гида это все наши диапазоны). */
+function ageLabelTh(months: number): string {
+  if (months < 12) {
+    return `${months} เดือน`;
+  }
+  return `${Math.round(months / 12)} ขวบ`;
+}
+
 /** «с N лет / с N мес» — возраст, с которого что-то доступно (напр. можно
- *  оставить ребёнка). EN: "from 3 years". */
+ *  оставить ребёнка). EN: "from 3 years". TH: «ตั้งแต่ 3 ขวบ». */
 export function fromAgeLabel(months: number, lang: string = "ru"): string {
   if (lang === "en") {
     return `from ${ageLabelEn(months)}`;
+  }
+  if (lang === "th") {
+    return `ตั้งแต่ ${ageLabelTh(months)}`;
   }
   return `с ${ageLabelGenitiveRu(months)}`;
 }
 
 /**
  * Возрастной диапазон занятия в читаемом виде: «до 3 лет», «4 мес – 12 лет»,
- * «от 6 лет» / "up to 3 years", "4 months – 12 years", "from 6 years".
+ * «от 6 лет» / "up to 3 years" / «ไม่เกิน 3 ขวบ», «ตั้งแต่ 6 ขวบ».
  * null, если возраст не задан (карточка секцию не покажет).
  */
 export function formatAgeRange(
@@ -50,15 +62,18 @@ export function formatAgeRange(
     return null;
   }
 
-  const isEn = lang === "en";
-  const label = isEn ? ageLabelEn : ageLabelRu;
-  const genitive = isEn ? ageLabelEn : ageLabelGenitiveRu;
+  const label = lang === "en" ? ageLabelEn : lang === "th" ? ageLabelTh : ageLabelRu;
+  // «до/от» требуют родительного падежа только в русском
+  const genitive =
+    lang === "en" ? ageLabelEn : lang === "th" ? ageLabelTh : ageLabelGenitiveRu;
+  const upTo = lang === "en" ? "up to" : lang === "th" ? "ไม่เกิน" : "до";
+  const from = lang === "en" ? "from" : lang === "th" ? "ตั้งแต่" : "от";
 
   if ((minMonths == null || minMonths <= 0) && maxMonths != null) {
-    return isEn ? `up to ${genitive(maxMonths)}` : `до ${genitive(maxMonths)}`;
+    return `${upTo} ${genitive(maxMonths)}`;
   }
   if (minMonths != null && maxMonths == null) {
-    return isEn ? `from ${genitive(minMonths)}` : `от ${genitive(minMonths)}`;
+    return `${from} ${genitive(minMonths)}`;
   }
   return `${label(minMonths as number)} – ${label(maxMonths as number)}`;
 }
