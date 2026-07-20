@@ -30,7 +30,13 @@ export function listPageAlternates(
 
 /** OG-локаль соцсетей из языка страницы (в одном стиле с dateLocale). */
 export function ogLocale(lang: string): string {
-  return lang === "en" ? "en_GB" : "ru_RU";
+  if (lang === "en") {
+    return "en_GB";
+  }
+  if (lang === "th") {
+    return "th_TH";
+  }
+  return "ru_RU";
 }
 
 /**
