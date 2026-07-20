@@ -35,10 +35,12 @@ function GlobeIcon(): React.ReactElement {
 }
 
 /**
- * Выбор языка: кнопка-глобус с текущим кодом → выпадающий список языков.
- * Заменяет только языковой сегмент пути, query сохраняется. Доступно с
- * клавиатуры (стрелки листают список, Esc закрывает и возвращает фокус),
- * закрывается кликом вне и после выбора.
+ * Выбор языка: кнопка-глобус с текущим кодом → раскрывающийся список языков.
+ * Это disclosure (кнопка + список навигационных ссылок), а НЕ ARIA-menu:
+ * пункты меняют URL, поэтому остаются нативными ссылками с aria-current у
+ * текущего языка. Заменяет только языковой сегмент пути, query и #-хэш
+ * сохраняются. Доступно с клавиатуры (стрелки листают, Esc закрывает и
+ * возвращает фокус), закрывается кликом вне, уходом фокуса и после выбора.
  */
 export function LanguageMenu(): React.ReactElement {
   const pathname = usePathname();
@@ -56,7 +58,10 @@ export function LanguageMenu(): React.ReactElement {
   const hrefFor = (lang: string): string => {
     const segments = pathname.split("/");
     segments[1] = lang;
-    return `${segments.join("/")}${query ? `?${query}` : ""}`;
+    // хэш живёт только в браузере (usePathname/useSearchParams его не содержат);
+    // список раскрыт только на клиенте, поэтому window тут всегда доступен
+    const hash = typeof window !== "undefined" ? window.location.hash : "";
+    return `${segments.join("/")}${query ? `?${query}` : ""}${hash}`;
   };
 
   const close = (returnFocus: boolean): void => {
@@ -89,7 +94,7 @@ export function LanguageMenu(): React.ReactElement {
     };
   }, [open]);
 
-  // при открытии фокус уходит на активный язык — сразу листается стрелками
+  // при открытии фокус уходит на текущий язык — сразу листается стрелками
   useEffect(() => {
     if (open) {
       const activeIndex = SUPPORTED_LANGS.indexOf(currentLang);
@@ -112,18 +117,25 @@ export function LanguageMenu(): React.ReactElement {
     }
   };
 
+  // уход фокуса за пределы меню (напр. по Tab) — закрываем, чтобы не оставлять
+  // раскрытый список без фокуса
+  const onRootBlur = (event: React.FocusEvent): void => {
+    if (!rootRef.current?.contains(event.relatedTarget as Node)) {
+      setOpen(false);
+    }
+  };
+
   return (
-    <div className="lang-menu" ref={rootRef}>
+    <div className="lang-menu" ref={rootRef} onBlur={onRootBlur}>
       <button
         ref={buttonRef}
         type="button"
         className="lang-menu-trigger"
-        aria-haspopup="menu"
         aria-expanded={open}
         aria-label={`${dict.nav.langAria}: ${ENDONYMS[currentLang]}`}
         onClick={() => setOpen((v) => !v)}
         onKeyDown={(event) => {
-          if (event.key === "ArrowDown" && !open) {
+          if ((event.key === "ArrowDown" || event.key === "ArrowUp") && !open) {
             event.preventDefault();
             setOpen(true);
           }
@@ -135,7 +147,7 @@ export function LanguageMenu(): React.ReactElement {
       </button>
 
       {open ? (
-        <div className="lang-menu-dropdown" role="menu" onKeyDown={onListKeyDown}>
+        <div className="lang-menu-dropdown" onKeyDown={onListKeyDown}>
           {SUPPORTED_LANGS.map((lang, index) => {
             const isActive = lang === currentLang;
             return (
@@ -145,12 +157,13 @@ export function LanguageMenu(): React.ReactElement {
                   itemRefs.current[index] = el;
                 }}
                 href={hrefFor(lang)}
-                role="menuitem"
                 aria-current={isActive ? "true" : undefined}
                 className={`lang-menu-item${isActive ? " lang-menu-item-active" : ""}`}
                 onClick={() => close(false)}
               >
-                <span className="lang-menu-item-name">{ENDONYMS[lang]}</span>
+                <span className="lang-menu-item-name" lang={lang}>
+                  {ENDONYMS[lang]}
+                </span>
                 <span className="lang-menu-item-code">{lang.toUpperCase()}</span>
                 {isActive ? (
                   <span className="lang-menu-item-check" aria-hidden="true">
