@@ -217,5 +217,15 @@
       "descriptionTh": "ลานเล่นฟุตบอลธีมฟุตบอลโลก ที่ชั้น G ของ Terminal 21 Pattaya (โซน Paris ใต้หอไอเฟล) กิจกรรมสำหรับทั้งครอบครัว: “Kicks & Hit” เกมเตะบอลวัดความแม่นยำ (ทำคะแนนสูงสุดรับรางวัล), “Jump for Joy” กระโดดและฝึกความคล่องตัว และงาน DIY สร้างสรรค์ — เพนต์เสื้อฟุตบอลและลูกบอลของตัวเอง รวมถึงตุ๊กตาและผ้าใบ (มีสี พู่กัน และน้ำให้พร้อม; ตุ๊กตาปูนปลาสเตอร์แบบ 3 มิติ จ่ายเพิ่ม 50 ฿) จัดวันที่ 14–20 กรกฎาคม ทุกวัน เวลา 11:00–20:00 น. วิธีเข้าร่วม: ซื้อสินค้าครบ 1,000 ฿ ขึ้นไปที่ร้านใดก็ได้ในห้าง รับสิทธิ์เล่นกิจกรรมฟรี 1 อย่างตามที่เลือก สามารถรวมใบเสร็จได้สูงสุด 2 ใบต่อวัน — สูงสุด 2 กิจกรรมต่อคนต่อวัน หากไม่มีใบเสร็จ เข้าร่วมแบบเสียค่าใช้จ่าย เริ่มต้น 50 ฿",
       "locationNameTh": null
     }
-  ]
+  ],
+  "addressFixes": {
+    "places": [
+      { "slug": "the-little-gym", "address": "353/53-55, Nong Prue, Bang Lamung District, Chon Buri 20150 (Numchai Fair)" },
+      { "slug": "skippy-land-lotus-north", "address": "Lotus's North Pattaya (2nd floor), Muang Pattaya, Bang Lamung District, Chon Buri 20150" },
+      { "slug": "winter-wonderland", "address": "Na Jomtien, near Pattaya Floating Market, Chon Buri 20150" }
+    ],
+    "events": [
+      { "slug": "terminal21-kicks-and-fun-2026", "address": "G Floor (Paris zone), Terminal 21 Pattaya, Pattaya, Chon Buri" }
+    ]
+  }
 }

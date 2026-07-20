@@ -19,7 +19,7 @@ import { dirname, join } from "node:path";
 import type { PrismaClient } from "@prisma/client";
 
 type Ref = { slug?: string; code?: string; minAge?: number; maxAge?: number; th: string };
-type KeyedTh = { label?: string; text?: string; th: string };
+type AddressFix = { slug: string; address: string };
 type PlaceTr = {
   slug: string;
   descriptionTh: string | null;
@@ -59,6 +59,9 @@ type ThaiContent = {
   places: PlaceTr[];
   programs: ProgramTr[];
   events: EventTr[];
+  // разовая чистка адресов от русских вставок (единый латиничный адрес на все
+  // локали) — прод-записи уже созданы, seed их не перезальёт, поэтому чиним здесь
+  addressFixes: { places: AddressFix[]; events: AddressFix[] };
 };
 
 function loadContent(): ThaiContent {
@@ -171,6 +174,20 @@ export async function applyThaiTranslations(prisma: PrismaClient): Promise<void>
       console.warn(`⚠️  событие не найдено: ${e.slug}`);
       missing += 1;
     }
+  }
+
+  // --- чистка адресов (латиница на все локали) ---
+  for (const fix of data.addressFixes.places) {
+    await prisma.place.updateMany({
+      where: { slug: fix.slug },
+      data: { address: fix.address },
+    });
+  }
+  for (const fix of data.addressFixes.events) {
+    await prisma.event.updateMany({
+      where: { slug: fix.slug },
+      data: { address: fix.address },
+    });
   }
 
   const counts = data.places.length + data.programs.length + data.events.length;
