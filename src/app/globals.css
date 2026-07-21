@@ -1385,12 +1385,16 @@ input {
   z-index: 0;
 }
 
-/* маркер места — терракотовая точка с белой обводкой */
+/* маркер места — пин-шарик (SVG внутри divIcon); гасим дефолтный белый
+   квадрат leaflet-div-icon, оставляем только мягкую тень под шариком */
 .map-pin {
-  background: var(--accent);
-  border: 3px solid #fff;
-  border-radius: 50%;
-  box-shadow: 0 1px 4px rgba(60, 50, 35, 0.35);
+  background: none;
+  border: none;
+  filter: drop-shadow(0 2px 3px rgba(60, 50, 35, 0.35));
+}
+
+.map-pin svg {
+  display: block;
 }
 
 /* точка «вы здесь» — шалфейная */
@@ -1399,6 +1403,20 @@ input {
   border: 3px solid #fff;
   border-radius: 50%;
   box-shadow: 0 1px 4px rgba(60, 50, 35, 0.35);
+}
+
+.map-popup {
+  width: 172px;
+}
+
+/* фото места в попапе — обложка сверху, под ней название и расстояние */
+.map-popup-photo {
+  display: block;
+  width: 100%;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 6px;
 }
 
 .map-popup a {

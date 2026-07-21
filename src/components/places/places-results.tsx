@@ -395,6 +395,7 @@ export function PlacesResults({
         latitude: item.place.latitude,
         longitude: item.place.longitude,
         distanceLabel: distanceM !== null ? formatDistance(distanceM, lang) : undefined,
+        imageUrl: item.place.imageUrl,
       }));
 
     // честность: место без координат на карте не покажешь — говорим об этом
