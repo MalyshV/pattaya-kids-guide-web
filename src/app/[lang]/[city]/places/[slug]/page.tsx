@@ -6,8 +6,10 @@ import { mapEventToDto } from "@/mappers/event.mapper";
 import { mapPlaceDetailsToDto } from "@/mappers/place-details.mapper";
 import { getUpcomingApprovedEventsByPlaceId } from "@/services/events.service";
 import { getApprovedPlaceBySlug } from "@/services/places.service";
-import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
+import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
 import { computeOpenStatus, nowInCity } from "@/lib/schedule/open-status";
+import { JsonLd } from "@/components/seo/json-ld";
+import { absoluteUrl, breadcrumbJsonLd, placeJsonLd } from "@/lib/seo/json-ld";
 import { ShareButton } from "@/components/common/share-button";
 import { SmartBackLink } from "@/components/common/smart-back-link";
 import { MemoryButtons } from "@/components/memory/memory-buttons";
@@ -24,7 +26,7 @@ import {
 } from "@/lib/contacts/contact-link";
 import { articleOpenGraph, metaDescription } from "@/lib/seo/meta";
 import { dateLocale, getDictionary, type Dictionary } from "@/content/dictionary";
-import { pickLocalized } from "@/lib/i18n/localize";
+import { localizedCityName, pickLocalized } from "@/lib/i18n/localize";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string; slug: string }>;
@@ -216,11 +218,41 @@ export default async function PlaceDetailsPage({
     (program) => program.type === "MEMBERSHIP",
   );
 
+  // Structured data (schema.org): карточка LocalBusiness (адрес/гео/часы/цены)
+  // + хлебные крошки. Город в адресе — латиницей (en), как адреса в БД.
+  const siteUrl = getSiteUrl();
+  const pageUrl = `${siteUrl}${basePath}/places/${slug}`;
+  const knownPrices = [
+    ...dto.entryPrices.flatMap((tier) => [tier.childPrice, tier.adultPrice]),
+    ...dto.pricing.flatMap((price) => [price.minPrice, price.maxPrice]),
+  ].filter((value): value is number => value != null);
+  const placeLd = placeJsonLd({
+    name: dto.name,
+    description: dto.description,
+    url: pageUrl,
+    image: absoluteUrl(siteUrl, dto.imageUrl),
+    streetAddress: dto.address,
+    cityName: localizedCityName(city, "en"),
+    latitude: dto.latitude,
+    longitude: dto.longitude,
+    telephone: dto.contacts.find((contact) => contact.type === "phone")?.value ?? null,
+    schedules: dto.schedules,
+    prices: knownPrices,
+    currency: dto.entryPrices[0]?.currency ?? dto.pricing[0]?.currency ?? "THB",
+    inLanguage: lang,
+  });
+  const breadcrumbsLd = breadcrumbJsonLd([
+    { name: dict.nav.places, url: `${siteUrl}${basePath}` },
+    { name: dto.name, url: pageUrl },
+  ]);
+
   // Порядок секций — «как родитель думает»: решаю (сводка/часы/цены/советы) →
   // планирую (занятия/абонементы/ДР) → углубляюсь (возраст/факты/язык) →
   // еду (адрес/контакты) → справка (категории/события).
   return (
     <main className="page-shell">
+      <JsonLd data={placeLd} />
+      <JsonLd data={breadcrumbsLd} />
       <div className="back-link-wrapper">
         <SmartBackLink fallbackHref={basePath} label={dict.placeDetails.back} />
         {/* сохранить/отметить можно и со страницы — не только с карточки списка */}

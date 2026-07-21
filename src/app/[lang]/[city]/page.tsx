@@ -12,7 +12,9 @@ import { getSearchRows } from "@/services/search.service";
 import { mapPlaceToListItemDto } from "@/mappers/place.mapper";
 import { mapSearchIndex } from "@/mappers/search.mapper";
 import { parseAgeBuckets, placeAgeGroupsMatch } from "@/lib/age/age-buckets";
-import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
+import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
+import { JsonLd } from "@/components/seo/json-ld";
+import { websiteJsonLd } from "@/lib/seo/json-ld";
 import {
   computeOpenStatus,
   isGoNowStatus,
@@ -219,6 +221,11 @@ export default async function CityPlacesPage({
 
   return (
     <main className="page-shell">
+      {/* WebSite (имя сайта для выдачи). Без SearchAction: поиск клиентский,
+          URL страницы результатов не существует — обещать его Google нельзя */}
+      <JsonLd
+        data={websiteJsonLd({ name: dict.brand, url: getSiteUrl(), inLanguage: lang })}
+      />
       <section className="hero">
         <p className="eyebrow">{localizedCityName(city, lang)}</p>
         <h1 className="hero-title">{dict.places.heroTitle}</h1>
