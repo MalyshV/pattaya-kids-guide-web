@@ -1435,13 +1435,18 @@ input {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--muted);
+  /* тёплый ореол за шариком — обложка «ждёт фото», а не серый провал */
+  background: radial-gradient(circle at 50% 44%, #f7f0e6 0%, var(--surface-muted) 72%);
+  color: var(--accent);
 }
 
 .place-image-empty svg {
-  width: 40px;
-  height: 40px;
-  opacity: 0.35;
+  /* доля от ширины обложки — шарик соразмерен и в карточке, и в hero */
+  width: 32%;
+  max-width: 72px;
+  min-width: 44px;
+  height: auto;
+  opacity: 0.5;
 }
 
 /* баннер-обложка на странице места — шире и ниже карточной */

@@ -33,19 +33,26 @@ export function PlaceImage({
   const cls = `place-image${className ? ` ${className}` : ""}`;
 
   if (!url) {
+    // Нет фото — не пустой серый провал, а наш фирменный шарик на тёплом
+    // ореоле: тот же мотив, что у кнопки-закрывашки лайтбокса и пинов карты.
+    // «Обложка ждёт фото», спокойно и узнаваемо, а не «сломано».
     return (
       <div className={`${cls} place-image-empty`} aria-hidden="true">
         <svg
-          viewBox="0 0 24 24"
+          viewBox="0 0 64 64"
           fill="none"
           stroke="currentColor"
-          strokeWidth="1.5"
+          strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <rect x="3" y="4" width="18" height="16" rx="3" />
-          <circle cx="8.5" cy="9.5" r="1.5" />
-          <path d="M4 17l4.5-4.5 3 3L16 10l4 4" />
+          <ellipse cx="32" cy="25" rx="14" ry="16" />
+          {/* блик на куполе */}
+          <path d="M25 18a8 8 0 0 1 4.6-3.6" />
+          {/* узелок */}
+          <path d="M29.4 41.2 32 39l2.6 2.2z" />
+          {/* ниточка волной */}
+          <path d="M32 41.6c-3.2 3-3.2 5.6 0 8.6s3.2 5 0 6.4" />
         </svg>
       </div>
     );
