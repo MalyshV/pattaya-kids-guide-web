@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import "@/app/globals.css";
 import { fontVariables } from "@/app/fonts";
+import { themeInitScript } from "@/lib/theme/theme-script";
 import { isAdmin } from "@/lib/admin/auth";
 import { logoutAction, refreshCacheAction } from "@/app/admin/actions";
 import { ActionResultBanner } from "@/app/admin/action-result-banner";
@@ -31,8 +32,11 @@ export default async function AdminLayout({
   const authed = await isAdmin();
 
   return (
-    <html lang="ru">
+    // suppressHydrationWarning: data-theme ставит инлайн-скрипт до гидрации
+    <html lang="ru" suppressHydrationWarning>
       <body className={fontVariables} suppressHydrationWarning>
+        {/* админка уважает ту же тему, что и сайт (выбор из localStorage) */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <div className="admin-shell">
           <header className="admin-header">
             <Link href="/admin/places" className="admin-brand">

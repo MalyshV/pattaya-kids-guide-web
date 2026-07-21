@@ -52,43 +52,44 @@
 
 /* Тёмная палитра: тот же тёплый характер — кофейный беж вместо чёрного,
    терракота и шалфей чуть светлее (контраст на тёмном), белых пятен нет.
-   Пока следуем системной настройке; ручной переключатель — отдельно. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #211b14;
-    --surface: #2a231b;
-    --surface-muted: #342c21;
-    --surface-deep: #3e3528;
-    --surface-veil: rgba(42, 35, 27, 0.92);
-    --surface-veil-soft: rgba(42, 35, 27, 0.82);
-    --foreground: #ede5d8;
-    --muted: #a99e8d;
-    --border: #493f31;
-    --border-soft: rgba(237, 229, 216, 0.22);
-    --accent: #d8865e;
-    --accent-foreground: #ffffff;
-    --accent-strong: #a9563a;
-    --accent-text: #e89a70;
-    --accent-deep: #f0b28e;
-    --accent-hover: #b95f3d;
-    --sage: #a9c3ad;
-    --sage-strong: #c4d7c6;
-    --sage-bg: #2c352c;
-    --sage-border: #4e6151;
-    --sage-graphic: #71856f;
-    --tint-hover: #322a20;
-    --tint-active: #3d2e25;
-    --chip-bg: #3a3126;
-    --amber-text: #d9a968;
-    --amber-bg: #3b3120;
-    --danger-text: #e2836e;
-    --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-  }
+   Темой управляет data-theme на <html>: его до первой отрисовки выставляет
+   инлайн-скрипт (см. src/lib/theme/theme-script.ts) — сохранённый выбор
+   пользователя или системная настройка; кнопка в шапке переключает. */
+html[data-theme="dark"] {
+  /* тёмная схема: браузер сам красит скроллбары и нативные контролы */
+  color-scheme: dark;
+  --background: #211b14;
+  --surface: #2a231b;
+  --surface-muted: #342c21;
+  --surface-deep: #3e3528;
+  --surface-veil: rgba(42, 35, 27, 0.92);
+  --surface-veil-soft: rgba(42, 35, 27, 0.82);
+  --foreground: #ede5d8;
+  --muted: #a99e8d;
+  --border: #493f31;
+  --border-soft: rgba(237, 229, 216, 0.22);
+  --accent: #d8865e;
+  --accent-foreground: #ffffff;
+  --accent-strong: #a9563a;
+  --accent-text: #e89a70;
+  --accent-deep: #f0b28e;
+  --accent-hover: #b95f3d;
+  --sage: #a9c3ad;
+  --sage-strong: #c4d7c6;
+  --sage-bg: #2c352c;
+  --sage-border: #4e6151;
+  --sage-graphic: #71856f;
+  --tint-hover: #322a20;
+  --tint-active: #3d2e25;
+  --chip-bg: #3a3126;
+  --amber-text: #d9a968;
+  --amber-bg: #3b3120;
+  --danger-text: #e2836e;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
 html {
-  /* обе схемы: браузер сам красит скроллбары и нативные контролы */
-  color-scheme: light dark;
+  color-scheme: light;
 }
 
 html,
@@ -1567,10 +1568,8 @@ input {
 
 /* в тёмной теме фото чуть приглушаем — иначе яркие обложки «кричат»
    на тёмном фоне (контент остаётся главным, но не слепит) */
-@media (prefers-color-scheme: dark) {
-  .place-image-img {
-    filter: brightness(0.92);
-  }
+html[data-theme="dark"] .place-image-img {
+  filter: brightness(0.92);
 }
 
 .place-image-empty {
@@ -1933,6 +1932,52 @@ input {
      переносится на свою строку; так список (right:0) раскрывается влево,
      где места гарантированно хватает на любой ширине */
   margin-left: auto;
+}
+
+/* переключатель темы — кнопка-иконка в паре с выбором языка; какая иконка
+   видна, решает тема: в светлой — луна («включить тёмную»), в тёмной — солнце */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.theme-toggle:hover {
+  background: var(--tint-active);
+  color: var(--accent-deep);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+.theme-toggle-sun {
+  display: none;
+}
+
+html[data-theme="dark"] .theme-toggle-sun {
+  display: block;
+}
+
+html[data-theme="dark"] .theme-toggle-moon {
+  display: none;
 }
 
 .lang-menu-trigger {

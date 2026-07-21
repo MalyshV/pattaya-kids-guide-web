@@ -8,6 +8,7 @@ import { useParentMemory } from "@/lib/memory/use-parent-memory";
 import { listByKind } from "@/lib/memory/parent-memory";
 import { markClientNavigation } from "@/components/common/smart-back-link";
 import { LanguageMenu } from "@/components/layout/language-menu";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 type SiteHeaderProps = {
   basePath: string;
@@ -113,6 +114,7 @@ function HeaderRight({ basePath }: { basePath: string }): React.ReactElement {
   return (
     <div className="site-header-right">
       <NavLinks basePath={basePath} age={searchParams.get("age")} />
+      <ThemeToggle />
       <LanguageMenu />
     </div>
   );
@@ -131,6 +133,7 @@ export function SiteHeader({ basePath }: SiteHeaderProps): React.ReactElement {
           fallback={
             <div className="site-header-right">
               <NavLinks basePath={basePath} age={null} />
+              <ThemeToggle />
             </div>
           }
         >

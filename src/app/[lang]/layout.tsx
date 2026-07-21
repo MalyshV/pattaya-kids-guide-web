@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import "@/app/globals.css";
 import { fontVariables } from "@/app/fonts";
+import { themeInitScript } from "@/lib/theme/theme-script";
 import { HtmlLangSync } from "@/components/layout/html-lang-sync";
 import { getSiteUrl, DEFAULT_LANG } from "@/lib/geo/city";
 import { getDictionary, isSupportedLang, type Lang } from "@/content/dictionary";
@@ -75,8 +76,13 @@ export default async function LangLayout({
   const { lang: raw } = await params;
 
   return (
-    <html lang={safeLang(raw)}>
+    // suppressHydrationWarning на <html>: data-theme ставит инлайн-скрипт до
+    // гидрации, сервер атрибут не рендерит — это ожидаемое расхождение
+    <html lang={safeLang(raw)} suppressHydrationWarning>
       <body className={fontVariables} suppressHydrationWarning>
+        {/* тема — первым в body: атрибут выставляется до первой отрисовки,
+            без мигания светлым у тёмных пользователей */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         {children}
         {/* страховка атрибута при клиентских переходах между локалями */}
         <HtmlLangSync />

@@ -24,6 +24,7 @@ export const th: Dictionary = {
     birthdays: "วันเกิด",
     aria: "หมวดของเว็บไซต์",
     langAria: "เลือกภาษา",
+    themeToggle: "สลับธีมสีเว็บไซต์",
     skipToContent: "ไปยังเนื้อหาหลัก",
   },
 
