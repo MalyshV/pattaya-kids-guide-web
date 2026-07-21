@@ -7,8 +7,10 @@ import { ShareButton } from "@/components/common/share-button";
 import { SmartBackLink } from "@/components/common/smart-back-link";
 import { MemoryButtons } from "@/components/memory/memory-buttons";
 import { ZoomableImage } from "@/components/common/zoomable-image";
-import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
+import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
 import { mapsSearchUrl } from "@/lib/geo/maps-search";
+import { JsonLd } from "@/components/seo/json-ld";
+import { breadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { formatAgeRange } from "@/lib/age/format-age";
@@ -111,8 +113,19 @@ export default async function ActivityDetailsPage({
 
   const ageRange = formatAgeRange(dto.minAgeMonths, dto.maxAgeMonths, lang);
 
+  // Structured data: только хлебные крошки. Типизация занятий (Course/Event
+  // для лагерей) отложена: карточки Google Course требуют provider и жёсткую
+  // модель — сначала решить продуктово, потом размечать.
+  const siteUrl = getSiteUrl();
+  const activityUrl = `${siteUrl}${basePath}/activities/${slug}`;
+  const breadcrumbsLd = breadcrumbJsonLd([
+    { name: dict.nav.activities, url: `${siteUrl}${basePath}/activities` },
+    { name: dto.name, url: activityUrl },
+  ]);
+
   return (
     <main className="page-shell">
+      <JsonLd data={breadcrumbsLd} />
       <div className="back-link-wrapper">
         <SmartBackLink
           fallbackHref={`${basePath}/activities`}

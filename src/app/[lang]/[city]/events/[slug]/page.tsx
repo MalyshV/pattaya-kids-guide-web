@@ -9,13 +9,15 @@ import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { mapEventDetailsToDto } from "@/mappers/event-details.mapper";
 import { getApprovedEventBySlug } from "@/services/events.service";
 import { ZoomableImage } from "@/components/common/zoomable-image";
-import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
+import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
 import { mapsSearchUrl } from "@/lib/geo/maps-search";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { formatAgeRange } from "@/lib/age/format-age";
 import { articleOpenGraph, metaDescription } from "@/lib/seo/meta";
+import { JsonLd } from "@/components/seo/json-ld";
+import { absoluteUrl, breadcrumbJsonLd, eventJsonLd } from "@/lib/seo/json-ld";
 import { dateLocale, getDictionary, type Dictionary } from "@/content/dictionary";
-import { pickLocalized } from "@/lib/i18n/localize";
+import { localizedCityName, pickLocalized } from "@/lib/i18n/localize";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string; slug: string }>;
@@ -132,8 +134,31 @@ export default async function EventDetailsPage({
       )
     : undefined;
 
+  // Structured data (schema.org): Event с датами и площадкой (право на event
+  // rich results) + хлебные крошки. Площадка: своё название → место → адрес.
+  const siteUrl = getSiteUrl();
+  const pageUrl = `${siteUrl}${basePath}/events/${slug}`;
+  const eventLd = eventJsonLd({
+    name: dto.title,
+    description: dto.description,
+    url: pageUrl,
+    image: absoluteUrl(siteUrl, dto.imageUrl),
+    startDate: dto.startDate,
+    endDate: dto.endDate,
+    locationName: dto.locationName ?? dto.place?.name ?? null,
+    address: dto.address,
+    cityName: localizedCityName(city, "en"),
+    inLanguage: lang,
+  });
+  const breadcrumbsLd = breadcrumbJsonLd([
+    { name: dict.nav.events, url: `${siteUrl}${basePath}/events` },
+    { name: dto.title, url: pageUrl },
+  ]);
+
   return (
     <main className="page-shell">
+      <JsonLd data={eventLd} />
+      <JsonLd data={breadcrumbsLd} />
       <div className="back-link-wrapper">
         <SmartBackLink
           fallbackHref={`${basePath}/events`}
