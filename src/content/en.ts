@@ -20,6 +20,7 @@ export const en: Dictionary = {
     birthdays: "Birthdays",
     aria: "Site sections",
     langAria: "Language",
+    skipToContent: "Skip to main content",
   },
 
   errorPage: {

@@ -122,7 +122,8 @@ export default async function CityActivitiesPage({
       <section className="results-header" id="results">
         <div>
           <h2>{dict.activities.sectionTitle}</h2>
-          <p>{dict.activities.count(items.length)}</p>
+          {/* role=status: после фильтрации скринридер озвучит счётчик */}
+          <p role="status">{dict.activities.count(items.length)}</p>
         </div>
       </section>
 

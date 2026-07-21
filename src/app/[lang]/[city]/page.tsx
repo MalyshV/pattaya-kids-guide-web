@@ -318,7 +318,8 @@ export default async function CityPlacesPage({
       <section className="results-header" id="results">
         <div>
           <h2>{dict.places.sectionTitle}</h2>
-          <p>{dict.places.count(total)}</p>
+          {/* role=status: после фильтрации скринридер озвучит «Найдено N» */}
+          <p role="status">{dict.places.count(total)}</p>
         </div>
       </section>
 

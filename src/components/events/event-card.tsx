@@ -97,7 +97,14 @@ export function EventCard({
       ) : null}
 
       <div className="event-card-actions">
-        <Link href={`${basePath}/events/${event.slug}`} className="event-card-cta">
+        {/* дубль ссылки-заголовка (вся карточка кликабельна) — прячем от
+            скринридера и клавиатуры; ссылка на место ниже остаётся живой */}
+        <Link
+          href={`${basePath}/events/${event.slug}`}
+          className="event-card-cta"
+          aria-hidden="true"
+          tabIndex={-1}
+        >
           <span className="event-card-cta-text">{dict.common.detailsCta}</span>
           <span className="event-card-cta-arrow" aria-hidden="true">
             →

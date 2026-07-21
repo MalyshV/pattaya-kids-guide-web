@@ -63,10 +63,20 @@ export default async function CityLayout({
     notFound();
   }
 
+  const dict = getDictionary(lang);
+
   return (
     <>
+      {/* skip-ссылка: первый фокус на странице уводит мимо 8+ ссылок шапки
+          прямо к контенту (WCAG 2.4.1). Видна только при фокусе (globals.css) */}
+      <a href="#main-content" className="skip-link">
+        {dict.nav.skipToContent}
+      </a>
       <SiteHeader basePath={cityBasePath(lang, city)} />
-      {children}
+      {/* цель skip-ссылки: tabIndex=-1 — чтобы фокус реально сюда переехал */}
+      <div id="main-content" tabIndex={-1}>
+        {children}
+      </div>
       <BackToTop />
     </>
   );

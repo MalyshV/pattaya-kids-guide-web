@@ -20,6 +20,7 @@ export const ru = {
     birthdays: "Дни рождения",
     aria: "Разделы сайта",
     langAria: "Выбор языка",
+    skipToContent: "К основному содержимому",
   },
 
   notFound: {

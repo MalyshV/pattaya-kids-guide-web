@@ -64,12 +64,19 @@ export function ShareButton({ title }: ShareButtonProps): React.ReactElement {
   }
 
   return (
-    <button
-      type="button"
-      className={`share-button${copied ? " share-button-copied" : ""}`}
-      onClick={handleShare}
-    >
-      {copied ? dict.share.copied : dict.share.cta}
-    </button>
+    <>
+      <button
+        type="button"
+        className={`share-button${copied ? " share-button-copied" : ""}`}
+        onClick={handleShare}
+      >
+        {copied ? dict.share.copied : dict.share.cta}
+      </button>
+      {/* смену подписи сфокусированной кнопки часть скринридеров не озвучивает —
+          дублируем факт копирования в отдельный live-регион */}
+      <span className="sr-only" role="status">
+        {copied ? dict.share.copied : ""}
+      </span>
+    </>
   );
 }

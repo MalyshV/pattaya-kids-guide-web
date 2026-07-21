@@ -136,8 +136,10 @@ export function SavedList({ age }: { age?: string | null }): React.ReactElement 
               <button
                 type="button"
                 className="saved-item-remove"
-                aria-label={dict.memory.remove}
-                title={dict.memory.remove}
+                // имя места в подписи: иначе в списке десять неразличимых
+                // «Убрать» — скринридер не поймёт, что именно удаляет
+                aria-label={`${dict.memory.remove}: ${item.name}`}
+                title={`${dict.memory.remove}: ${item.name}`}
                 onClick={() => removeWithUndo(item, kind)}
               >
                 <span aria-hidden="true">×</span>

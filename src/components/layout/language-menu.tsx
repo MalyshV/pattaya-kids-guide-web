@@ -144,7 +144,9 @@ export function LanguageMenu(): React.ReactElement {
         type="button"
         className="lang-menu-trigger"
         aria-expanded={open}
-        aria-label={`${dict.nav.langAria}: ${ENDONYMS[currentLang]}`}
+        // видимый текст кнопки — код «RU»; включаем его в имя (WCAG 2.5.3
+        // Label-in-Name), иначе голосовая команда «нажми RU» не срабатывает
+        aria-label={`${dict.nav.langAria}: ${currentLang.toUpperCase()}`}
         onClick={() => setOpen((v) => !v)}
         onKeyDown={(event) => {
           if ((event.key === "ArrowDown" || event.key === "ArrowUp") && !open) {
