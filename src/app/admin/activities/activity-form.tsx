@@ -1,6 +1,7 @@
 import type { PlaceProgram } from "@prisma/client";
 import { deleteActivityAction, saveActivityAction } from "@/app/admin/actions";
 import { OcrScratchpad } from "@/app/admin/ocr-scratchpad";
+import { SubmitButton } from "@/app/admin/submit-button";
 
 /**
  * Форма занятия (activity=null → создание). Возраст — в месяцах, как в БД
@@ -214,9 +215,7 @@ export function ActivityForm({
           <span>демо-запись</span>
         </label>
 
-        <button type="submit" className="admin-button">
-          Сохранить
-        </button>
+        <SubmitButton>Сохранить</SubmitButton>
       </form>
 
       {activity ? (
@@ -224,12 +223,12 @@ export function ActivityForm({
           <hr className="admin-divider" />
           <form action={deleteActivityAction}>
             <input type="hidden" name="id" value={activity.id} />
-            <button type="submit" className="admin-danger-button">
+            <SubmitButton className="admin-danger-button" pendingLabel="Удаляю…">
               Удалить занятие навсегда
               {activity._count && activity._count.classes > 0
                 ? ` (вместе с ${activity._count.classes} классами)`
                 : ""}
-            </button>
+            </SubmitButton>
           </form>
         </>
       ) : null}

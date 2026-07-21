@@ -6,6 +6,7 @@ import {
   savePlaceAction,
 } from "@/app/admin/actions";
 import { OcrScratchpad } from "@/app/admin/ocr-scratchpad";
+import { SubmitButton } from "@/app/admin/submit-button";
 
 /**
  * Форма места: создание и редактирование (place=null → создание).
@@ -300,9 +301,7 @@ export function PlaceForm({
           </label>
         </div>
 
-        <button type="submit" className="admin-button">
-          Сохранить
-        </button>
+        <SubmitButton>Сохранить</SubmitButton>
       </form>
 
       {place ? (
@@ -318,9 +317,9 @@ export function PlaceForm({
                 <form action={deletePlacePhotoAction}>
                   <input type="hidden" name="photoId" value={photo.id} />
                   <input type="hidden" name="placeId" value={place.id} />
-                  <button type="submit" className="admin-danger-link">
+                  <SubmitButton className="admin-danger-link" pendingLabel="Удаляю…">
                     Удалить фото
-                  </button>
+                  </SubmitButton>
                 </form>
               </li>
             ))}
@@ -336,18 +335,16 @@ export function PlaceForm({
               <span>Подпись (необязательно)</span>
               <input type="text" name="caption" />
             </label>
-            <button type="submit" className="admin-button">
-              Загрузить
-            </button>
+            <SubmitButton pendingLabel="Загружаю…">Загрузить</SubmitButton>
           </form>
 
           <hr className="admin-divider" />
 
           <form action={deletePlaceAction}>
             <input type="hidden" name="id" value={place.id} />
-            <button type="submit" className="admin-danger-button">
+            <SubmitButton className="admin-danger-button" pendingLabel="Удаляю…">
               Удалить место навсегда (вместе с занятиями, фото и часами)
-            </button>
+            </SubmitButton>
           </form>
         </>
       ) : null}

@@ -5,6 +5,7 @@ import type { Event } from "@prisma/client";
 import { deleteEventAction, saveEventAction } from "@/app/admin/actions";
 import { OcrZone } from "@/app/admin/ocr-zone";
 import { parseEventFlyer, type FlyerDraft } from "@/lib/import/event-flyer";
+import { SubmitButton } from "@/app/admin/submit-button";
 
 /**
  * Форма события (event=null → создание). Даты вводятся по времени Паттайи —
@@ -295,9 +296,7 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
           </label>
         </div>
 
-        <button type="submit" className="admin-button">
-          Сохранить
-        </button>
+        <SubmitButton>Сохранить</SubmitButton>
       </form>
 
       {event ? (
@@ -305,9 +304,9 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
           <hr className="admin-divider" />
           <form action={deleteEventAction}>
             <input type="hidden" name="id" value={event.id} />
-            <button type="submit" className="admin-danger-button">
+            <SubmitButton className="admin-danger-button" pendingLabel="Удаляю…">
               Удалить событие навсегда
-            </button>
+            </SubmitButton>
           </form>
         </>
       ) : null}

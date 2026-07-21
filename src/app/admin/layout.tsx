@@ -6,6 +6,7 @@ import { fontVariables } from "@/app/fonts";
 import { isAdmin } from "@/lib/admin/auth";
 import { logoutAction, refreshCacheAction } from "@/app/admin/actions";
 import { ActionResultBanner } from "@/app/admin/action-result-banner";
+import { SubmitButton } from "@/app/admin/submit-button";
 
 /**
  * Оболочка админки — свой КОРНЕВОЙ layout (<html>/<body> здесь): публичный
@@ -48,14 +49,14 @@ export default async function AdminLayout({
                 {/* сброс кэша для контента, занесённого скриптами мимо
                     админки (add-*.ts, apply-thai) — иначе ждать TTL до часа */}
                 <form action={refreshCacheAction}>
-                  <button type="submit" className="admin-link-button">
+                  <SubmitButton className="admin-link-button" pendingLabel="Обновляю…">
                     Обновить кэш
-                  </button>
+                  </SubmitButton>
                 </form>
                 <form action={logoutAction}>
-                  <button type="submit" className="admin-link-button">
+                  <SubmitButton className="admin-link-button" pendingLabel="Выхожу…">
                     Выйти
-                  </button>
+                  </SubmitButton>
                 </form>
               </nav>
             ) : null}
