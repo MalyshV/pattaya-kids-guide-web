@@ -7,6 +7,16 @@
   --border: #ddd3c7;
   --accent: #c96f4a;
   --accent-foreground: #ffffff;
+  /* Три роли терракоты (одна яркая заливка не проходила WCAG как текст и под
+     белым текстом). Тон тот же тёплый, лишь на пару тонов глубже:
+       --accent        — ДЕКОР (рамки, обводки фокуса, точки, маркер карты);
+                         как графика проходит 3:1, палитру держит яркой;
+       --accent-strong — ЗАЛИВКА под белым текстом (кнопки, активные чипы,
+                         счётчик): белый на ней 5.15:1;
+       --accent-text   — ТЕКСТ и ссылки на светлом фоне: ≥4.6:1 на карточке,
+                         беже и чипах. */
+  --accent-strong: #a9563a;
+  --accent-text: #a65136;
   --shadow: 0 10px 30px rgba(31, 28, 24, 0.08);
 }
 
@@ -120,7 +130,7 @@ input {
 
 .eyebrow {
   margin: 0 0 8px;
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -270,9 +280,9 @@ input {
 }
 
 .filter-toggle-active {
-  background: var(--accent);
+  background: var(--accent-strong);
   color: white;
-  border-color: var(--accent);
+  border-color: var(--accent-text);
 }
 
 .filters-actions {
@@ -283,7 +293,7 @@ input {
   border: none;
   border-radius: 14px;
   padding: 12px 18px;
-  background: var(--accent);
+  background: var(--accent-strong);
   color: var(--accent-foreground);
   cursor: pointer;
   transition:
@@ -413,7 +423,7 @@ input {
 }
 
 .age-chip-active {
-  border-color: var(--accent);
+  border-color: var(--accent-text);
   background: #fbf1ec;
   color: #8a4a2e;
   font-weight: 600;
@@ -730,7 +740,7 @@ input {
   padding: 10px 22px;
   border: none;
   border-radius: 999px;
-  background: var(--accent);
+  background: var(--accent-strong);
   color: #fff;
   font: inherit;
   font-weight: 600;
@@ -1031,7 +1041,7 @@ input {
 
 .action-banner-error .action-banner-icon {
   background: rgba(201, 111, 74, 0.14);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .action-banner-title {
@@ -1063,7 +1073,7 @@ input {
   border: none;
   border-radius: 50%;
   background: var(--surface, #faf6ef);
-  color: var(--accent);
+  color: var(--accent-text);
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   animation: balloon-bob 3.4s ease-in-out infinite;
@@ -1092,7 +1102,7 @@ input {
   border: none;
   border-radius: 50%;
   background: var(--surface, #faf6ef);
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 30px;
   line-height: 1;
   cursor: pointer;
@@ -1342,7 +1352,7 @@ input {
 
 .map-popup a {
   font-weight: 600;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .map-popup-distance {
@@ -1368,7 +1378,7 @@ input {
 }
 
 .near-cta:hover {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .results-header {
@@ -1496,7 +1506,8 @@ input {
 }
 
 .class-parent-with {
-  color: #97612f;
+  /* та же пара, что у «скоро закрытие»: глубже до 5.54:1 */
+  color: #855426;
   background: #f6eee1;
 }
 
@@ -1539,12 +1550,11 @@ input {
   box-shadow: none;
 }
 
+/* приглушаем только заголовок и описание — у них (--foreground) большой запас
+   контраста. Адрес, слаг, чипы и бейджи НЕ трогаем: их --muted под opacity
+   падал ниже нормы WCAG (находка аудита). «Тише» держит фон surface-muted */
 .place-card-closed .place-card-title,
-.place-card-closed .place-card-slug,
-.place-card-closed .place-card-description,
-.place-card-closed .place-card-address,
-.place-card-closed .place-badges,
-.place-card-closed .feature-list {
+.place-card-closed .place-card-description {
   opacity: 0.8;
 }
 
@@ -1594,7 +1604,7 @@ input {
   gap: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--accent-text);
   text-decoration: none;
   cursor: pointer;
 }
@@ -1660,7 +1670,8 @@ input {
 }
 
 .open-status-soon {
-  color: #97612f;
+  /* было #97612f = 4.48:1 (чуть ниже нормы) → глубже до 5.54:1 */
+  color: #855426;
   background: #f6eee1;
 }
 
@@ -1685,7 +1696,7 @@ input {
 }
 
 .hero-venue a {
-  color: var(--accent);
+  color: var(--accent-text);
   text-decoration: none;
   font-weight: 500;
 }
@@ -1701,7 +1712,7 @@ input {
 }
 
 .card-title-link:hover {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 /* пара «день время» в расписании класса не разрывается переносом */
@@ -1719,7 +1730,7 @@ input {
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--surface);
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 18px;
   cursor: pointer;
   box-shadow: 0 2px 10px rgba(31, 28, 24, 0.08);
@@ -2015,7 +2026,7 @@ input {
   gap: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--accent-text);
   text-decoration: none;
   cursor: pointer;
 }
@@ -2100,7 +2111,7 @@ input {
 
 .back-link {
   text-decoration: none;
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 14px;
 }
 
@@ -2142,7 +2153,7 @@ input {
   display: inline-block;
   margin-top: 8px;
   text-decoration: none;
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 14px;
   font-weight: 500;
 }
@@ -2185,7 +2196,7 @@ input {
 }
 
 .contact-arrow {
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 12px;
 }
 
@@ -2217,7 +2228,7 @@ input {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .program-name {
@@ -2344,7 +2355,7 @@ input {
 .activity-cta {
   margin-top: auto;
   padding-top: 4px;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
   font-size: 14px;
 }
@@ -2389,7 +2400,7 @@ input {
 }
 
 .filter-chip-active {
-  background: var(--accent);
+  background: var(--accent-strong);
   color: #fff;
   font-weight: 600;
 }
@@ -2420,7 +2431,7 @@ input {
 }
 
 .activity-place-name {
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
 }
 
@@ -2493,7 +2504,8 @@ input {
 
 .tip-verified {
   font-size: 0.85em;
-  opacity: 0.75;
+  /* было opacity 0.75 → 3.37:1; чистый --muted читается «тише» и проходит */
+  color: var(--muted);
   white-space: nowrap;
 }
 
@@ -2527,7 +2539,9 @@ input {
 }
 
 .schedule-hours-closed {
-  opacity: 0.65;
+  /* было opacity 0.65 → фактический контраст 2.78:1; чистый --muted даёт
+     5.0–5.8:1 и всё так же читается как «тише» */
+  color: var(--muted);
 }
 
 .schedule-row-today .schedule-day,
@@ -2868,7 +2882,7 @@ input {
     background 0.15s ease;
 }
 .memory-btn:hover {
-  border-color: var(--accent);
+  border-color: var(--accent-text);
   color: var(--foreground);
 }
 .memory-btn-icon {
@@ -2898,8 +2912,8 @@ input {
 
 /* активные состояния: сохранено — терракот, были здесь — sage */
 .memory-btn-saved.memory-btn-active {
-  color: var(--accent);
-  border-color: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent-text);
   background: #fbf1ec;
 }
 .memory-buttons-compact .memory-btn-saved.memory-btn-active {
@@ -2954,7 +2968,7 @@ input {
 .program-card-more {
   display: block;
   margin-top: 10px;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
   font-size: 0.92rem;
 }
@@ -2976,7 +2990,7 @@ input {
   padding: 0;
   font: inherit;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--accent-text);
   cursor: pointer;
 }
 .saved-undo-restore:focus-visible {
@@ -2999,7 +3013,7 @@ input {
   height: 18px;
   padding: 0 5px;
   border-radius: 999px;
-  background: var(--accent);
+  background: var(--accent-strong);
   color: var(--accent-foreground);
   font-size: 0.72rem;
   font-weight: 600;
@@ -3061,7 +3075,7 @@ input {
   margin-top: 18px;
   padding: 10px 20px;
   border-radius: 999px;
-  background: var(--accent);
+  background: var(--accent-strong);
   color: var(--accent-foreground);
   text-decoration: none;
   font-weight: 600;
@@ -3099,7 +3113,7 @@ input {
   margin-top: 18px;
   padding: 10px 20px;
   border-radius: 999px;
-  background: var(--accent);
+  background: var(--accent-strong);
   color: var(--accent-foreground);
   text-decoration: none;
   font-weight: 600;
@@ -3190,7 +3204,7 @@ input {
   z-index: 2;
 }
 .saved-item-remove:hover {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 /* мобильная шапка: 5 разделов + «Избранное» + RU|EN не влезают в строку на
