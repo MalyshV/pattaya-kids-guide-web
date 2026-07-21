@@ -97,7 +97,15 @@ export function PlaceCard({
       </div>
 
       <div className="place-card-actions">
-        <Link href={`${basePath}/places/${place.slug}`} className="place-card-cta">
+        {/* вся карточка уже кликабельна ссылкой-заголовком (растянута ::after);
+            этот CTA — визуальный дубль той же ссылки, поэтому прячем его от
+            скринридера и с клавиатуры, чтобы не было двух одинаковых «Подробнее» */}
+        <Link
+          href={`${basePath}/places/${place.slug}`}
+          className="place-card-cta"
+          aria-hidden="true"
+          tabIndex={-1}
+        >
           <span className="place-card-cta-text">{dict.common.detailsCta}</span>
           <span className="place-card-cta-arrow" aria-hidden="true">
             →

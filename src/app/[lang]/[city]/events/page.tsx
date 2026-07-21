@@ -134,7 +134,8 @@ export default async function CityEventsPage({
       <section className="results-header" id="results">
         <div>
           <h2>{dict.events.sectionTitle}</h2>
-          <p>{dict.events.count(total)}</p>
+          {/* role=status: после фильтрации скринридер озвучит счётчик */}
+          <p role="status">{dict.events.count(total)}</p>
         </div>
       </section>
 
