@@ -290,7 +290,8 @@ export default async function ActivityDetailsPage({
                 target="_blank"
                 rel="noreferrer"
               >
-                {dict.placeDetails.openInMaps} ↗
+                {dict.placeDetails.openInMaps} <span aria-hidden="true">↗</span>
+                <span className="sr-only"> {dict.common.opensInNewTab}</span>
               </a>
             </div>
           )}

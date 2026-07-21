@@ -235,7 +235,8 @@ export default async function EventDetailsPage({
                   target="_blank"
                   rel="noreferrer"
                 >
-                  {dict.placeDetails.openInMaps} ↗
+                  {dict.placeDetails.openInMaps} <span aria-hidden="true">↗</span>
+                  <span className="sr-only"> {dict.common.opensInNewTab}</span>
                 </a>
               </>
             ) : null}

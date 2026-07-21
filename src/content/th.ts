@@ -45,6 +45,7 @@ export const th: Dictionary = {
   common: {
     detailsCta: "ดูรายละเอียด",
     descriptionFallback: "จะเพิ่มคำอธิบายเร็ว ๆ นี้",
+    opensInNewTab: "(เปิดในแท็บใหม่)",
     zoomPhoto: "ขยายรูป",
     closePhoto: "ปิดรูป",
     prevPhoto: "รูปก่อนหน้า",
@@ -168,6 +169,7 @@ export const th: Dictionary = {
     nearInviteCta: "ระบุตำแหน่งของฉัน",
     viewList: "รายการ",
     viewMap: "แผนที่",
+    mapRegionLabel: "แผนที่สถานที่",
     viewToggleAria: "สลับมุมมอง: รายการหรือแผนที่",
     mapYouAreHere: "คุณอยู่ที่นี่",
     mapMissingNote: (count: number): string =>
