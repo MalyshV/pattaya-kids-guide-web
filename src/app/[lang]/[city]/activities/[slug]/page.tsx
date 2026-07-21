@@ -10,13 +10,13 @@ import { ZoomableImage } from "@/components/common/zoomable-image";
 import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
 import { mapsSearchUrl } from "@/lib/geo/maps-search";
 import { JsonLd } from "@/components/seo/json-ld";
-import { breadcrumbJsonLd } from "@/lib/seo/json-ld";
+import { breadcrumbJsonLd, courseJsonLd } from "@/lib/seo/json-ld";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { formatAgeRange } from "@/lib/age/format-age";
 import { articleOpenGraph, metaDescription, pageAlternates } from "@/lib/seo/meta";
 import { dateLocale, getDictionary, type Dictionary } from "@/content/dictionary";
-import { pickLocalized } from "@/lib/i18n/localize";
+import { localizedCityName, pickLocalized } from "@/lib/i18n/localize";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string; slug: string }>;
@@ -117,11 +117,25 @@ export default async function ActivityDetailsPage({
 
   const ageRange = formatAgeRange(dto.minAgeMonths, dto.maxAgeMonths, lang);
 
-  // Structured data: только хлебные крошки. Типизация занятий (Course/Event
-  // для лагерей) отложена: карточки Google Course требуют provider и жёсткую
-  // модель — сначала решить продуктово, потом размечать.
+  // Structured data: Course (регулярное занятие — базовый Course; лагерь с
+  // датами — плюс CourseInstance) + хлебные крошки. provider и площадка —
+  // место или venue; город в адресе латиницей, как адреса в БД.
   const siteUrl = getSiteUrl();
   const activityUrl = `${siteUrl}${basePath}/activities/${slug}`;
+  const courseLd = courseJsonLd({
+    name: dto.name,
+    description: dto.description,
+    url: activityUrl,
+    providerName: dto.place?.name ?? dto.venueName ?? dict.brand,
+    price: dto.price,
+    currency: dto.currency,
+    locationName: dto.place?.name ?? dto.venueName,
+    locationAddress: dto.place?.address ?? dto.venueAddress,
+    cityName: localizedCityName(city, "en"),
+    startDate: dto.startDate,
+    endDate: dto.endDate,
+    inLanguage: lang,
+  });
   const breadcrumbsLd = breadcrumbJsonLd([
     { name: dict.nav.activities, url: `${siteUrl}${basePath}/activities` },
     { name: dto.name, url: activityUrl },
@@ -129,6 +143,7 @@ export default async function ActivityDetailsPage({
 
   return (
     <main className="page-shell">
+      <JsonLd data={courseLd} />
       <JsonLd data={breadcrumbsLd} />
       <div className="back-link-wrapper">
         <SmartBackLink
