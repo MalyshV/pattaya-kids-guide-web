@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { CONTENT_TAGS } from "@/lib/cache/data-cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/db/prisma";
 import {
@@ -161,9 +162,27 @@ async function coverFromForm(
   }
 }
 
+/**
+ * Ручной сброс кэша сайта. Нужен для контента, занесённого МИМО админки
+ * (seed/add-*.ts, apply-thai.ts пишут в БД напрямую и теги не трогают) —
+ * без кнопки новое место ждало бы TTL до часа и выглядело как «скрипт
+ * не сработал».
+ */
+export async function refreshCacheAction(): Promise<void> {
+  await requireAdmin();
+  revalidateSite();
+  redirect("/admin/places?done=cache");
+}
+
 function revalidateSite(): void {
-  // правки затрагивают списки, детальные страницы и оба языка — сбрасываем всё
+  // правки затрагивают списки, детальные страницы и оба языка — сбрасываем всё:
+  // страницы (route cache) и кэш чтений БД (data-cache). Теги грубые, по типам
+  // контента — для личной админки точечная инвалидация не окупается.
   revalidatePath("/", "layout");
+  for (const tag of CONTENT_TAGS) {
+    // "max" — считать всё под тегом полностью устаревшим немедленно
+    revalidateTag(tag, "max");
+  }
 }
 
 /** код ошибки Prisma (P2025 — записи нет, P2002 — конфликт уникальности) */

@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { prisma } from "@/db/prisma";
+import { cachedQuery } from "@/lib/cache/data-cache";
 import { demoFilter } from "@/lib/demo/show-demo";
 import type { Prisma } from "@prisma/client";
 
@@ -22,33 +23,37 @@ export type ActivityWithPlace = Prisma.PlaceProgramGetPayload<{
  * тариф места, а не занятие. Сортировку по актуальности (прошедшие лагеря вниз)
  * применяет страница — статус зависит от «сейчас».
  */
-export const getCityActivities = cache(async function getCityActivities(
-  cityId: string,
-): Promise<ActivityWithPlace[]> {
-  return prisma.placeProgram.findMany({
-    where: {
-      type: { in: ["COURSE", "CAMP"] },
-      ...demoFilter(),
-      // либо занятие одобренного места города, либо безместное того же города.
-      // demoFilter и на месте: не-демо занятие демо-места — тоже демо (иначе
-      // «[Демо]»-место просочилось бы в публичную витрину; ср. search.service)
-      OR: [
-        { place: { status: "APPROVED", cityId, ...demoFilter() } },
-        { placeId: null, cityId },
-      ],
-    },
-    include: {
-      place: true,
-      categories: {
-        include: {
-          category: true,
+export const getCityActivities = cache(
+  cachedQuery(
+    "activities-all",
+    ["activities", "places"],
+    async function getCityActivities(cityId: string): Promise<ActivityWithPlace[]> {
+      return prisma.placeProgram.findMany({
+        where: {
+          type: { in: ["COURSE", "CAMP"] },
+          ...demoFilter(),
+          // либо занятие одобренного места города, либо безместное того же города.
+          // demoFilter и на месте: не-демо занятие демо-места — тоже демо (иначе
+          // «[Демо]»-место просочилось бы в публичную витрину; ср. search.service)
+          OR: [
+            { place: { status: "APPROVED", cityId, ...demoFilter() } },
+            { placeId: null, cityId },
+          ],
         },
-      },
-      classes: { orderBy: { order: "asc" } },
+        include: {
+          place: true,
+          categories: {
+            include: {
+              category: true,
+            },
+          },
+          classes: { orderBy: { order: "asc" } },
+        },
+        orderBy: [{ order: "asc" }, { name: "asc" }],
+      });
     },
-    orderBy: [{ order: "asc" }, { name: "asc" }],
-  });
-});
+  ),
+);
 
 /**
  * Одно занятие по slug для собственной страницы `/activities/[slug]`. Только
@@ -56,29 +61,35 @@ export const getCityActivities = cache(async function getCityActivities(
  * у них slug=null). React cache: generateMetadata и страница зовут дважды с
  * теми же аргументами → один запрос в БД.
  */
-export const getActivityBySlug = cache(async function getActivityBySlug(
-  slug: string,
-  cityId: string,
-): Promise<ActivityWithPlace | null> {
-  return prisma.placeProgram.findFirst({
-    where: {
-      slug,
-      type: { in: ["COURSE", "CAMP"] },
-      ...demoFilter(),
-      // demoFilter и на месте: не-демо занятие демо-места — тоже демо
-      OR: [
-        { place: { status: "APPROVED", cityId, ...demoFilter() } },
-        { placeId: null, cityId },
-      ],
-    },
-    include: {
-      place: true,
-      categories: {
-        include: {
-          category: true,
+export const getActivityBySlug = cache(
+  cachedQuery(
+    "activity-by-slug",
+    ["activities", "places"],
+    async function getActivityBySlug(
+      slug: string,
+      cityId: string,
+    ): Promise<ActivityWithPlace | null> {
+      return prisma.placeProgram.findFirst({
+        where: {
+          slug,
+          type: { in: ["COURSE", "CAMP"] },
+          ...demoFilter(),
+          // demoFilter и на месте: не-демо занятие демо-места — тоже демо
+          OR: [
+            { place: { status: "APPROVED", cityId, ...demoFilter() } },
+            { placeId: null, cityId },
+          ],
         },
-      },
-      classes: { orderBy: { order: "asc" } },
+        include: {
+          place: true,
+          categories: {
+            include: {
+              category: true,
+            },
+          },
+          classes: { orderBy: { order: "asc" } },
+        },
+      });
     },
-  });
-});
+  ),
+);

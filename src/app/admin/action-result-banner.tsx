@@ -21,6 +21,10 @@ const SUCCESS: Record<string, { title: string; message?: string }> = {
   created: { title: "Карточка добавлена", message: "Запись сохранена и уже на сайте." },
   updated: { title: "Изменения сохранены" },
   deleted: { title: "Карточка удалена", message: "Запись удалена навсегда." },
+  cache: {
+    title: "Кэш сайта обновлён",
+    message: "Сайт показывает свежие данные из базы — скриптовые правки видны.",
+  },
 };
 
 const ERROR: Record<string, { title: string; message?: string }> = {

@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import "@/app/globals.css";
 import { fontVariables } from "@/app/fonts";
 import { isAdmin } from "@/lib/admin/auth";
-import { logoutAction } from "@/app/admin/actions";
+import { logoutAction, refreshCacheAction } from "@/app/admin/actions";
 import { ActionResultBanner } from "@/app/admin/action-result-banner";
 
 /**
@@ -45,6 +45,13 @@ export default async function AdminLayout({
                 <Link href="/" target="_blank" rel="noopener">
                   Открыть сайт ↗
                 </Link>
+                {/* сброс кэша для контента, занесённого скриптами мимо
+                    админки (add-*.ts, apply-thai) — иначе ждать TTL до часа */}
+                <form action={refreshCacheAction}>
+                  <button type="submit" className="admin-link-button">
+                    Обновить кэш
+                  </button>
+                </form>
                 <form action={logoutAction}>
                   <button type="submit" className="admin-link-button">
                     Выйти

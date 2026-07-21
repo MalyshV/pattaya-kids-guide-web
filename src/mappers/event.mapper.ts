@@ -9,6 +9,14 @@ type EventWithPlace = Prisma.EventGetPayload<{
   };
 }>;
 
+/**
+ * Дата → ISO-строка, терпимо к обоим представлениям: из живого Prisma-запроса
+ * приходит Date, с кэш-хита (data-cache сериализует в JSON) — уже строка.
+ */
+function toIso(value: Date | string): string {
+  return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+}
+
 export function mapEventToDto(event: Event, lang: string = "ru"): EventDto {
   return {
     id: event.id,
@@ -21,8 +29,8 @@ export function mapEventToDto(event: Event, lang: string = "ru"): EventDto {
       event.descriptionTh,
       lang,
     ),
-    startDate: event.startDate.toISOString(),
-    endDate: event.endDate ? event.endDate.toISOString() : null,
+    startDate: toIso(event.startDate),
+    endDate: event.endDate ? toIso(event.endDate) : null,
     minAgeMonths: event.minAgeMonths,
     maxAgeMonths: event.maxAgeMonths,
     locationName: pickLocalized(
@@ -50,8 +58,8 @@ export function mapEventListItemToDto(
       event.descriptionTh,
       lang,
     ),
-    startDate: event.startDate.toISOString(),
-    endDate: event.endDate ? event.endDate.toISOString() : null,
+    startDate: toIso(event.startDate),
+    endDate: event.endDate ? toIso(event.endDate) : null,
     minAgeMonths: event.minAgeMonths,
     maxAgeMonths: event.maxAgeMonths,
     locationName: pickLocalized(
