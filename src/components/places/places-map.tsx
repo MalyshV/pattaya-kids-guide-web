@@ -44,8 +44,10 @@ type PlacesMapProps = {
   basePath: string;
 };
 
-/// спокойные светлые тайлы CARTO поверх данных OpenStreetMap
-const TILE_URL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+/// спокойные тайлы CARTO поверх данных OpenStreetMap: светлые и тёмные —
+/// подбираются под тему при создании карты (см. эффект ниже)
+const TILE_URL_LIGHT = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+const TILE_URL_DARK = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
 const TILE_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
@@ -80,7 +82,15 @@ export function PlacesMap({
         scrollWheelZoom: false,
       });
 
-      L.tileLayer(TILE_URL, { attribution: TILE_ATTRIBUTION, maxZoom: 19 }).addTo(map);
+      // тема читается один раз при создании карты: живое переключение системной
+      // темы посреди сессии — редкость, а карта и так пересоздаётся при фильтрах
+      const darkTiles =
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches;
+      L.tileLayer(darkTiles ? TILE_URL_DARK : TILE_URL_LIGHT, {
+        attribution: TILE_ATTRIBUTION,
+        maxZoom: 19,
+      }).addTo(map);
 
       const placeIcon = L.divIcon({
         className: "map-pin",

@@ -1,12 +1,20 @@
+/* Все цвета сайта живут здесь. Ниже — тёмный набор тех же токенов
+   (@media prefers-color-scheme), поэтому в правилах хардкодов быть
+   не должно: новый цвет = новый токен в ОБЕИХ палитрах. */
 :root {
+  /* фоны: страница → карточка → приглушённая зона → глубокая (скелетоны) */
   --background: #f6f3ee;
   --surface: #fffdf9;
   --surface-muted: #f1ece4;
+  --surface-deep: #ebe4da;
+  /* полупрозрачные подложки (кнопки поверх фото, hero) */
+  --surface-veil: rgba(255, 253, 249, 0.92);
+  --surface-veil-soft: rgba(255, 253, 249, 0.82);
   --foreground: #1f1c18;
   --muted: #6b6358;
   --border: #ddd3c7;
-  --accent: #c96f4a;
-  --accent-foreground: #ffffff;
+  /* мягкая рамка инпутов и выпадашек (заметна в обеих темах) */
+  --border-soft: rgba(60, 50, 35, 0.15);
   /* Три роли терракоты (одна яркая заливка не проходила WCAG как текст и под
      белым текстом). Тон тот же тёплый, лишь на пару тонов глубже:
        --accent        — ДЕКОР (рамки, обводки фокуса, точки, маркер карты);
@@ -15,13 +23,72 @@
                          счётчик): белый на ней 5.15:1;
        --accent-text   — ТЕКСТ и ссылки на светлом фоне: ≥4.6:1 на карточке,
                          беже и чипах. */
+  --accent: #c96f4a;
+  --accent-foreground: #ffffff;
   --accent-strong: #a9563a;
   --accent-text: #a65136;
+  /* тёмная терракота: текст активного чипа на терракотовом тинте */
+  --accent-deep: #8a4a2e;
+  /* hover заливки-кнопки */
+  --accent-hover: #b95f3d;
+  /* шалфей — вторая краска палитры: живой статус, «рядом», чек-отметки */
+  --sage: #4f6b57;
+  --sage-strong: #3f5745;
+  --sage-bg: #e9f0e8;
+  --sage-border: #b7cdb6;
+  --sage-graphic: #a7b7a4;
+  /* тёплые тинты: hover-подсветка и фон активного чипа */
+  --tint-hover: #fbf7f2;
+  --tint-active: #fbf1ec;
+  /* нейтральные чипы-теги («В помещении») */
+  --chip-bg: #eee7de;
+  /* янтарь — предупреждения («скоро закрытие») */
+  --amber-text: #855426;
+  --amber-bg: #f6eee1;
+  /* ошибки — спокойный кирпичный, не сигнальный красный */
+  --danger-text: #a03c28;
   --shadow: 0 10px 30px rgba(31, 28, 24, 0.08);
 }
 
+/* Тёмная палитра: тот же тёплый характер — кофейный беж вместо чёрного,
+   терракота и шалфей чуть светлее (контраст на тёмном), белых пятен нет.
+   Пока следуем системной настройке; ручной переключатель — отдельно. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #211b14;
+    --surface: #2a231b;
+    --surface-muted: #342c21;
+    --surface-deep: #3e3528;
+    --surface-veil: rgba(42, 35, 27, 0.92);
+    --surface-veil-soft: rgba(42, 35, 27, 0.82);
+    --foreground: #ede5d8;
+    --muted: #a99e8d;
+    --border: #493f31;
+    --border-soft: rgba(237, 229, 216, 0.22);
+    --accent: #d8865e;
+    --accent-foreground: #ffffff;
+    --accent-strong: #a9563a;
+    --accent-text: #e89a70;
+    --accent-deep: #f0b28e;
+    --accent-hover: #b95f3d;
+    --sage: #a9c3ad;
+    --sage-strong: #c4d7c6;
+    --sage-bg: #2c352c;
+    --sage-border: #4e6151;
+    --sage-graphic: #71856f;
+    --tint-hover: #322a20;
+    --tint-active: #3d2e25;
+    --chip-bg: #3a3126;
+    --amber-text: #d9a968;
+    --amber-bg: #3b3120;
+    --danger-text: #e2836e;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  }
+}
+
 html {
-  color-scheme: light;
+  /* обе схемы: браузер сам красит скроллбары и нативные контролы */
+  color-scheme: light dark;
 }
 
 html,
@@ -138,7 +205,7 @@ input {
   padding: 32px;
   border: 1px solid var(--border);
   border-radius: 24px;
-  background: rgba(255, 253, 249, 0.82);
+  background: var(--surface-veil-soft);
   box-shadow: var(--shadow);
   backdrop-filter: blur(10px);
 }
@@ -283,7 +350,7 @@ input {
 }
 
 .filter-toggle:hover {
-  background: #ebe4da;
+  background: var(--surface-deep);
 }
 
 .filter-toggle input {
@@ -317,7 +384,7 @@ input {
 }
 
 .primary-button:hover {
-  background: #b95f3d;
+  background: var(--accent-hover);
   transform: translateY(-1px);
 }
 
@@ -470,13 +537,13 @@ input {
 }
 
 .age-chip:hover {
-  background: #fbf7f2;
+  background: var(--tint-hover);
 }
 
 .age-chip-active {
   border-color: var(--accent-text);
-  background: #fbf1ec;
-  color: #8a4a2e;
+  background: var(--tint-active);
+  color: var(--accent-deep);
   font-weight: 600;
 }
 
@@ -490,7 +557,7 @@ input {
   flex-basis: 100%;
   font-size: 0.85rem;
   line-height: 1.4;
-  color: #8a4a2e;
+  color: var(--accent-deep);
 }
 
 /* Сценарии — быстрые кнопки-ситуации над фильтрами. */
@@ -531,26 +598,26 @@ input {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #a7b7a4;
+  background: var(--sage-graphic);
 }
 
 .scenario-chip:hover {
-  background: #fbf7f2;
+  background: var(--tint-hover);
   transform: translateY(-1px);
 }
 
 .scenario-chip-active {
-  border-color: #b7cdb6;
-  background: #e9f0e8;
-  color: #3f5745;
+  border-color: var(--sage-border);
+  background: var(--sage-bg);
+  color: var(--sage-strong);
 }
 
 .scenario-chip-active::before {
-  background: #4f6b57;
+  background: var(--sage);
 }
 
 .scenario-chip:focus-visible {
-  outline: 2px solid #4f6b57;
+  outline: 2px solid var(--sage);
   outline-offset: 3px;
 }
 
@@ -562,7 +629,7 @@ input {
 }
 
 .scenario-active-hint {
-  color: #4f6b57;
+  color: var(--sage);
 }
 
 /* «Рядом со мной»: спокойная строка статуса геолокации (определяем/не вышло) */
@@ -609,7 +676,7 @@ input {
 }
 
 .admin-nav a {
-  color: #4f6b57;
+  color: var(--sage);
   text-decoration: none;
 }
 
@@ -629,7 +696,7 @@ input {
 }
 
 .admin-card {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid rgba(60, 50, 35, 0.1);
   border-radius: 18px;
   padding: 24px;
@@ -657,7 +724,7 @@ input {
 }
 
 .admin-list-item {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid rgba(60, 50, 35, 0.1);
   border-radius: 14px;
 }
@@ -710,9 +777,9 @@ input {
 .admin-field select {
   font: inherit;
   padding: 9px 12px;
-  border: 1px solid rgba(60, 50, 35, 0.16);
+  border: 1px solid var(--border-soft);
   border-radius: 10px;
-  background: #fff;
+  background: var(--surface);
   max-width: 100%;
 }
 
@@ -792,7 +859,7 @@ input {
   border: none;
   border-radius: 999px;
   background: var(--accent-strong);
-  color: #fff;
+  color: var(--accent-foreground);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -808,7 +875,7 @@ input {
   border: 1px solid rgba(160, 60, 40, 0.4);
   border-radius: 999px;
   background: none;
-  color: #a03c28;
+  color: var(--danger-text);
   font: inherit;
   cursor: pointer;
 }
@@ -819,7 +886,7 @@ input {
   padding: 0;
   font: inherit;
   font-size: 0.85rem;
-  color: #a03c28;
+  color: var(--danger-text);
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -838,8 +905,8 @@ input {
   gap: 10px;
   margin: 18px 0 24px;
   padding: 14px 16px;
-  background: var(--surface-muted, #f6f3ee);
-  border-left: 3px solid var(--accent, #c96f4a);
+  background: var(--surface-muted, var(--background));
+  border-left: 3px solid var(--accent, var(--accent));
   border-radius: 8px;
 }
 
@@ -857,9 +924,9 @@ input {
 
 .admin-ocr-zone {
   padding: 18px 16px;
-  border: 1.5px dashed rgba(60, 50, 35, 0.28);
+  border: 1.5px dashed var(--border);
   border-radius: 12px;
-  background: #fff;
+  background: var(--surface);
   color: var(--muted);
   font: inherit;
   text-align: center;
@@ -871,7 +938,7 @@ input {
 
 .admin-ocr-zone:not(:disabled):hover,
 .admin-ocr-zone-active {
-  border-color: var(--accent, #c96f4a);
+  border-color: var(--accent, var(--accent));
   background: rgba(201, 111, 74, 0.05);
 }
 
@@ -891,7 +958,7 @@ input {
   padding: 10px 14px;
   border-radius: 10px;
   background: rgba(79, 107, 87, 0.1);
-  color: #4f6b57;
+  color: var(--sage);
 }
 
 /* черновик из скрина у форм без парсера (место, занятие) */
@@ -929,7 +996,7 @@ input {
 }
 
 .admin-error {
-  color: #a03c28;
+  color: var(--danger-text);
   background: rgba(160, 60, 40, 0.08);
   border-radius: 10px;
   padding: 10px 14px;
@@ -970,7 +1037,7 @@ input {
 }
 
 .zoomable-trigger:focus-visible {
-  outline: 2px solid #4f6b57;
+  outline: 2px solid var(--sage);
   outline-offset: 3px;
   border-radius: 18px;
 }
@@ -1087,7 +1154,7 @@ input {
 /* success — спокойный sage, error — тёплый терракот (не тревожный красный) */
 .action-banner-success .action-banner-icon {
   background: rgba(79, 107, 87, 0.14);
-  color: #4f6b57;
+  color: var(--sage);
 }
 
 .action-banner-error .action-banner-icon {
@@ -1123,7 +1190,7 @@ input {
   justify-content: center;
   border: none;
   border-radius: 50%;
-  background: var(--surface, #faf6ef);
+  background: var(--surface);
   color: var(--accent-text);
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
@@ -1152,7 +1219,7 @@ input {
   justify-content: center;
   border: none;
   border-radius: 50%;
-  background: var(--surface, #faf6ef);
+  background: var(--surface);
   color: var(--accent-text);
   font-size: 30px;
   line-height: 1;
@@ -1162,7 +1229,7 @@ input {
 }
 
 .lightbox-nav:hover {
-  background: #fff;
+  background: var(--surface);
 }
 
 .lightbox-nav:focus-visible {
@@ -1188,7 +1255,7 @@ input {
   padding: 6px 14px;
   border-radius: 999px;
   background: rgba(43, 36, 27, 0.7);
-  color: #fffdf9;
+  color: var(--surface);
   font-size: 14px;
 }
 
@@ -1264,9 +1331,9 @@ input {
 .search-input {
   width: 100%;
   padding: 12px 18px 12px 44px;
-  border: 1px solid rgba(60, 50, 35, 0.14);
+  border: 1px solid var(--border-soft);
   border-radius: 999px;
-  background: #fff;
+  background: var(--surface);
   font: inherit;
   color: inherit;
 }
@@ -1276,7 +1343,7 @@ input {
 }
 
 .search-input:focus-visible {
-  outline: 2px solid #4f6b57;
+  outline: 2px solid var(--sage);
   outline-offset: 1px;
 }
 
@@ -1294,10 +1361,10 @@ input {
   margin: 0;
   padding: 6px;
   list-style: none;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid rgba(60, 50, 35, 0.1);
   border-radius: 18px;
-  box-shadow: 0 10px 30px rgba(60, 50, 35, 0.14);
+  box-shadow: 0 10px 30px var(--border-soft);
 }
 
 .search-result {
@@ -1324,8 +1391,8 @@ input {
 .search-result-type {
   flex: none;
   font-size: 0.78rem;
-  color: #4f6b57;
-  background: #e9f0e8;
+  color: var(--sage);
+  background: var(--sage-bg);
   padding: 2px 10px;
   border-radius: 999px;
 }
@@ -1364,12 +1431,12 @@ input {
 }
 
 .view-toggle-option:hover {
-  color: #4f6b57;
+  color: var(--sage);
 }
 
 .view-toggle-active {
-  background: #fff;
-  color: #4f6b57;
+  background: var(--surface);
+  color: var(--sage);
   box-shadow: 0 1px 3px rgba(60, 50, 35, 0.12);
 }
 
@@ -1399,7 +1466,7 @@ input {
 
 /* точка «вы здесь» — шалфейная */
 .map-user-dot {
-  background: #4f6b57;
+  background: var(--sage);
   border: 3px solid #fff;
   border-radius: 50%;
   box-shadow: 0 1px 4px rgba(60, 50, 35, 0.35);
@@ -1407,6 +1474,19 @@ input {
 
 .map-popup {
   width: 172px;
+}
+
+/* родная обёртка попапа Leaflet белая — ведём за токенами, чтобы в тёмной
+   теме попап не светился белым пятном */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+.leaflet-container .leaflet-control-attribution {
+  background: var(--surface-veil);
+  color: var(--muted);
 }
 
 /* фото места в попапе — обложка сверху, под ней название и расстояние */
@@ -1426,7 +1506,7 @@ input {
 
 .map-popup-distance {
   margin-top: 2px;
-  color: #4f6b57;
+  color: var(--sage);
   font-size: 0.85rem;
 }
 
@@ -1440,7 +1520,7 @@ input {
   background: none;
   padding: 0;
   font: inherit;
-  color: #4f6b57;
+  color: var(--sage);
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
@@ -1485,12 +1565,20 @@ input {
   display: block;
 }
 
+/* в тёмной теме фото чуть приглушаем — иначе яркие обложки «кричат»
+   на тёмном фоне (контент остаётся главным, но не слепит) */
+@media (prefers-color-scheme: dark) {
+  .place-image-img {
+    filter: brightness(0.92);
+  }
+}
+
 .place-image-empty {
   display: flex;
   align-items: center;
   justify-content: center;
   /* тёплый ореол за шариком — обложка «ждёт фото», а не серый провал */
-  background: radial-gradient(circle at 50% 44%, #f7f0e6 0%, var(--surface-muted) 72%);
+  background: radial-gradient(circle at 50% 44%, var(--tint-hover) 0%, var(--surface-muted) 72%);
   color: var(--accent);
 }
 
@@ -1581,13 +1669,13 @@ input {
 
 .class-parent-with {
   /* та же пара, что у «скоро закрытие»: глубже до 5.54:1 */
-  color: #855426;
-  background: #f6eee1;
+  color: var(--amber-text);
+  background: var(--amber-bg);
 }
 
 .class-parent-without {
-  color: #4f6b57;
-  background: #e9f0e8;
+  color: var(--sage);
+  background: var(--sage-bg);
 }
 
 .class-parent-both {
@@ -1664,7 +1752,7 @@ input {
 
 /* расстояние в режиме «Рядом со мной» — тихо, в строке адреса, не разрывается */
 .place-card-distance {
-  color: #4f6b57;
+  color: var(--sage);
   white-space: nowrap;
 }
 
@@ -1718,7 +1806,7 @@ input {
   font-size: 12px;
   font-weight: 600;
   line-height: 1;
-  background: #eee7de;
+  background: var(--chip-bg);
   color: var(--foreground);
   white-space: nowrap;
   cursor: default;
@@ -1748,14 +1836,14 @@ input {
 }
 
 .open-status-open {
-  color: #4f6b57;
-  background: #e9f0e8;
+  color: var(--sage);
+  background: var(--sage-bg);
 }
 
 .open-status-soon {
   /* было #97612f = 4.48:1 (чуть ниже нормы) → глубже до 5.54:1 */
-  color: #855426;
-  background: #f6eee1;
+  color: var(--amber-text);
+  background: var(--amber-bg);
 }
 
 .open-status-closed {
@@ -1822,7 +1910,7 @@ input {
 }
 
 .back-to-top:hover {
-  background: #fbf7f2;
+  background: var(--tint-hover);
 }
 
 .back-to-top:focus-visible {
@@ -1952,7 +2040,7 @@ input {
 .lang-menu-item-active,
 .lang-menu-item-active:hover {
   background: rgba(79, 107, 87, 0.1);
-  color: #4f6b57;
+  color: var(--sage);
 }
 
 .lang-menu-item-active:hover {
@@ -1960,12 +2048,12 @@ input {
 }
 
 .lang-menu-item-active .lang-menu-item-code {
-  color: #4f6b57;
+  color: var(--sage);
 }
 
 .lang-menu-item-check {
   font-size: 13px;
-  color: #4f6b57;
+  color: var(--sage);
 }
 
 /* сводка-чипы в шапке места: решающие факты без прокрутки */
@@ -2154,7 +2242,7 @@ input {
   font-size: 12px;
   font-weight: 500;
   line-height: 1.2;
-  background: #f3eee7;
+  background: var(--surface-muted);
   color: var(--muted);
   white-space: nowrap;
   cursor: default;
@@ -2216,7 +2304,7 @@ input {
 }
 
 .share-button:hover {
-  background: #fbf7f2;
+  background: var(--tint-hover);
 }
 
 .share-button:focus-visible {
@@ -2226,9 +2314,9 @@ input {
 
 /* тихое подтверждение «ссылка скопирована» — sage, как «открыто» */
 .share-button-copied {
-  border-color: #b7cdb6;
-  background: #e9f0e8;
-  color: #3f5745;
+  border-color: var(--sage-border);
+  background: var(--sage-bg);
+  color: var(--sage-strong);
 }
 
 /* ссылка «открыть в картах» под адресом — спокойный терракот */
@@ -2267,7 +2355,7 @@ input {
 }
 
 .contact-link:hover {
-  background: #eae2d6;
+  background: var(--surface-deep);
 }
 
 .contact-channel {
@@ -2479,12 +2567,12 @@ input {
 }
 
 .filter-chip:hover {
-  background: #eae2d6;
+  background: var(--surface-deep);
 }
 
 .filter-chip-active {
   background: var(--accent-strong);
-  color: #fff;
+  color: var(--accent-foreground);
   font-weight: 600;
 }
 
@@ -2639,8 +2727,8 @@ input {
   border-radius: 999px;
   font-size: 11px;
   font-weight: 600;
-  color: #4f6b57;
-  background: #e9f0e8;
+  color: var(--sage);
+  background: var(--sage-bg);
 }
 
 /* categories */
@@ -2660,7 +2748,7 @@ input {
   font-size: 12px;
   font-weight: 500;
   line-height: 1.2;
-  background: #f7f3ed;
+  background: var(--surface-muted);
   color: var(--muted);
   white-space: nowrap;
 }
@@ -2685,7 +2773,7 @@ input {
 }
 
 .linked-place:hover {
-  background: #ebe4da;
+  background: var(--surface-deep);
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(31, 28, 24, 0.08);
 }
@@ -2736,7 +2824,7 @@ input {
 }
 
 .event-inline:hover {
-  background: #ebe4da;
+  background: var(--surface-deep);
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(31, 28, 24, 0.08);
 }
@@ -2775,7 +2863,7 @@ input {
 }
 
 .activity-venue:hover {
-  background: #ebe4da;
+  background: var(--surface-deep);
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(31, 28, 24, 0.08);
 }
@@ -2847,7 +2935,7 @@ input {
 }
 
 .pagination-link:hover {
-  background: #ebe4da;
+  background: var(--surface-deep);
 }
 
 .pagination-link-disabled {
@@ -2980,7 +3068,7 @@ input {
   height: 40px;
   justify-content: center;
   padding: 0;
-  background: rgba(255, 253, 249, 0.92);
+  background: var(--surface-veil);
   box-shadow: 0 2px 8px rgba(31, 28, 24, 0.12);
 }
 
@@ -2997,22 +3085,22 @@ input {
 .memory-btn-saved.memory-btn-active {
   color: var(--accent-text);
   border-color: var(--accent-text);
-  background: #fbf1ec;
+  background: var(--tint-active);
 }
 .memory-buttons-compact .memory-btn-saved.memory-btn-active {
-  background: #fbf1ec;
+  background: var(--tint-active);
 }
 /* ✓ активная — инверсия (белая галка на sage): глиф не меняется, поэтому
    лёгкого оттенка мало — родитель не видел, что нажатие сработало, тапал
    второй раз и снимал отметку */
 .memory-btn-visited.memory-btn-active {
-  color: #fffdf9;
-  border-color: #4f6b57;
-  background: #4f6b57;
+  color: var(--surface);
+  border-color: var(--sage);
+  background: var(--sage);
 }
 .memory-buttons-compact .memory-btn-visited.memory-btn-active {
-  color: #fffdf9;
-  background: #4f6b57;
+  color: var(--surface);
+  background: var(--sage);
 }
 
 /* кнопки памяти в строке действий детальной страницы: не absolute-кружки
@@ -3278,7 +3366,7 @@ input {
   height: 36px;
   border-radius: 999px;
   border: none;
-  background: rgba(255, 253, 249, 0.92);
+  background: var(--surface-veil);
   box-shadow: 0 2px 8px rgba(31, 28, 24, 0.12);
   color: var(--muted);
   font-size: 1.2rem;
