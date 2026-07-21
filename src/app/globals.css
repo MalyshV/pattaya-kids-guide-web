@@ -1701,6 +1701,15 @@ input {
   transform: translateX(3px);
 }
 
+/* теги формата справа от заголовка: в строку, а при переносе на узком
+   экране — с вертикальным зазором, чтобы чипы не слипались */
+.place-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px 8px;
+}
+
 .place-badge {
   display: inline-flex;
   align-items: center;
