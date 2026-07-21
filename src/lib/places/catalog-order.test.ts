@@ -40,4 +40,11 @@ describe("compareCatalogOrder", () => {
     const unknown = { id: "unknown", status: UNKNOWN, createdAt: newer };
     expect(sortOrder([unknown, closed]).map((x) => x.id)).toEqual(["closed", "unknown"]);
   });
+
+  it("терпим к строковым датам с кэш-хита data-cache (JSON-сериализация)", () => {
+    const a = { id: "old", status: OPEN, createdAt: older.toISOString() };
+    const b = { id: "new", status: OPEN, createdAt: newer.toISOString() };
+    const sorted = [...[a, b]].sort(compareCatalogOrder);
+    expect(sorted.map((x) => x.id)).toEqual(["new", "old"]);
+  });
 });

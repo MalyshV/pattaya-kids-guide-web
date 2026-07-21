@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { prisma } from "@/db/prisma";
+import { cachedQuery } from "@/lib/cache/data-cache";
 import type { City } from "@prisma/client";
 
 // Чистые константы/хелперы путей живут в base-path.ts (клиенто-безопасно);
@@ -7,13 +8,16 @@ import type { City } from "@prisma/client";
 export { cityBasePath, DEFAULT_CITY_SLUG, DEFAULT_LANG } from "./base-path";
 
 /**
- * Резолвит город по slug. Кешируется в пределах одного запроса (React cache),
- * поэтому страница и её части не бьют в базу повторно.
- * Города мало и меняются редко — сложный middleware не нужен.
+ * Резолвит город по slug. Два слоя кэша: React cache — дедуп в пределах одного
+ * запроса (layout/metadata/страница), cachedQuery — между запросами (города
+ * меняются редко; даты города публичный код не трогает, строкам на кэш-хите
+ * тут ломаться не в чем).
  */
-export const getCityBySlug = cache(async (slug: string): Promise<City | null> => {
-  return prisma.city.findFirst({ where: { slug } });
-});
+export const getCityBySlug = cache(
+  cachedQuery("city-by-slug", ["cities"], async (slug: string): Promise<City | null> => {
+    return prisma.city.findFirst({ where: { slug } });
+  }),
+);
 
 /** Базовый URL сайта для абсолютных ссылок (sitemap/robots). */
 export function getSiteUrl(): string {

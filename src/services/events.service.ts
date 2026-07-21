@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { prisma } from "@/db/prisma";
+import { cachedQuery } from "@/lib/cache/data-cache";
 import { EVENT_SORTING } from "@/lib/constants/event-sorting";
 import type { EventType } from "@/lib/constants/event-types";
 import { demoFilter } from "@/lib/demo/show-demo";
@@ -131,17 +132,22 @@ export async function getApprovedEvents(
  * Все одобренные события города (без пагинации) — чтобы страница отсортировала
  * по живому статусу (идёт сейчас → будущие → прошедшие) до нарезки на страницы.
  * getApprovedEvents (для /api) остаётся с SQL-пагинацией нетронутым.
+ *
+ * Кэш между запросами, поэтому БЕЗ фильтра вкладки в SQL: условие «прошло/идёт»
+ * зависит от «сейчас» и замерло бы вместе с кэшем — вкладки фильтрует страница
+ * по живому статусу поверх кэша. Даты на кэш-хите — строки (mapper терпим).
  */
-export async function getAllApprovedEvents(
-  filter?: EventsFilter,
-  cityId?: string,
-): Promise<EventWithPlace[]> {
-  return prisma.event.findMany({
-    where: buildApprovedEventsWhere(filter, undefined, cityId),
-    orderBy: { startDate: "asc" },
-    include: { place: true },
-  });
-}
+export const getCityEvents = cachedQuery(
+  "events-all",
+  ["events", "places"],
+  async (cityId: string): Promise<EventWithPlace[]> => {
+    return prisma.event.findMany({
+      where: { status: "APPROVED", ...demoFilter(), cityId },
+      orderBy: { startDate: "asc" },
+      include: { place: true },
+    });
+  },
+);
 
 export async function getApprovedEventsByPlaceSlug(
   placeSlug: string,
@@ -155,41 +161,57 @@ export async function getApprovedEventsByPlaceSlug(
   });
 }
 
-// React cache: дедуп между generateMetadata и страницей (один запрос в БД)
-export const getApprovedEventBySlug = cache(async function getApprovedEventBySlug(
-  slug: string,
-  cityId?: string,
-): Promise<EventDetailsResult | null> {
-  return prisma.event.findFirst({
-    where: {
-      slug,
-      status: "APPROVED",
-      ...demoFilter(),
-      ...(cityId ? { cityId } : {}),
+// React cache — дедуп между generateMetadata и страницей; cachedQuery — между
+// запросами. Страница события работает через DTO (даты уже строки) — кэш-хит
+// со строковыми датами ей не страшен.
+export const getApprovedEventBySlug = cache(
+  cachedQuery(
+    "event-by-slug",
+    ["events", "places"],
+    async function getApprovedEventBySlug(
+      slug: string,
+      cityId?: string,
+    ): Promise<EventDetailsResult | null> {
+      return prisma.event.findFirst({
+        where: {
+          slug,
+          status: "APPROVED",
+          ...demoFilter(),
+          ...(cityId ? { cityId } : {}),
+        },
+        include: {
+          place: true,
+        },
+      });
     },
-    include: {
-      place: true,
-    },
-  });
-});
+  ),
+);
 
+// кэшируем ВСЕ одобренные события места (без «сейчас» и take в SQL — время
+// замерло бы вместе с кэшем); будущее и первые 5 отбираются поверх кэша
+const getApprovedEventsByPlaceIdCached = cachedQuery(
+  "events-by-place",
+  ["events"],
+  async (placeId: string): Promise<Event[]> => {
+    return prisma.event.findMany({
+      where: {
+        placeId,
+        status: "APPROVED",
+        ...demoFilter(),
+      },
+      orderBy: {
+        startDate: "asc",
+      },
+    });
+  },
+);
+
+/** Ближайшие 5 будущих событий места (блок «скоро здесь» на детальной). */
 export async function getUpcomingApprovedEventsByPlaceId(
   placeId: string,
 ): Promise<Event[]> {
+  const events = await getApprovedEventsByPlaceIdCached(placeId);
   const now = new Date();
 
-  return prisma.event.findMany({
-    where: {
-      placeId,
-      status: "APPROVED",
-      ...demoFilter(),
-      startDate: {
-        gt: now,
-      },
-    },
-    orderBy: {
-      startDate: "asc",
-    },
-    take: 5,
-  });
+  return events.filter((event) => new Date(event.startDate) > now).slice(0, 5);
 }

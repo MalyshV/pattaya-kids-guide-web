@@ -6,7 +6,7 @@ import { EventFilters } from "@/components/events/event-filters";
 import { EventsPagination } from "@/components/events/events-pagination";
 import { matchesAnyAgeBucket, parseAgeBuckets } from "@/lib/age/age-buckets";
 import { mapEventListItemToDto } from "@/mappers/event.mapper";
-import { getAllApprovedEvents } from "@/services/events.service";
+import { getCityEvents } from "@/services/events.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeEventStatus, eventSortRank } from "@/lib/events/event-lifecycle";
 import { getDictionary } from "@/content/dictionary";
@@ -72,7 +72,9 @@ export default async function CityEventsPage({
   const currentPage = parsePositiveNumberParam(pageParam) ?? 1;
   const ageBuckets = parseAgeBuckets(ageParam);
 
-  const allEvents = await getAllApprovedEvents({ type }, city.id);
+  // выборка кэшируется целиком (без вкладки в SQL — «сейчас» замерло бы в
+  // кэше); вкладку идёт/будущие/прошедшие фильтруем ниже по живому статусу
+  const allEvents = await getCityEvents(city.id);
   const now = new Date();
 
   // Живой статус + сортировка: идёт сейчас → будущие (ближайшие выше) →
@@ -92,7 +94,10 @@ export default async function CityEventsPage({
         : undefined;
 
       return { event, status, startMs };
-    });
+    })
+    // вкладка типа — та же логика, что раньше в SQL (buildEventLifecycleWhere),
+    // только по вычисленному статусу
+    .filter((entry) => (type ? entry.status === type : true));
 
   eventsWithStatus.sort((a, b) => {
     const rank = eventSortRank(a.status) - eventSortRank(b.status);

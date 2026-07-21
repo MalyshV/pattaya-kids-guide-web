@@ -54,6 +54,9 @@ function eventRow(overrides: Partial<SearchEventRow> = {}): SearchEventRow {
     locationNameEn: "Terminal 21",
     locationNameTh: null,
     place: null,
+    // строкой, как с кэш-хита data-cache (в индекс даты не попадают)
+    startDate: "2099-01-01T10:00:00.000Z",
+    endDate: null,
     ...overrides,
   };
 }

@@ -3,12 +3,11 @@ import { prisma } from "@/db/prisma";
 
 export async function GET() {
   try {
-    const usersCount = await prisma.user.count();
+    // SELECT 1 вместо count(): проверяем доступность БД, не гоняя реальный
+    // запрос по таблице — health-чек должен быть самым дешёвым запросом
+    await prisma.$queryRaw`SELECT 1`;
 
-    return NextResponse.json({
-      status: "ok",
-      users: usersCount,
-    });
+    return NextResponse.json({ status: "ok" });
   } catch (error) {
     console.error("Health check error:", error);
 

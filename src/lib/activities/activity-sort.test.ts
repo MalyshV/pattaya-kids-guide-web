@@ -74,6 +74,47 @@ describe("isActivityActive", () => {
   });
 });
 
+describe("терпимость к строковым датам (кэш-хит data-cache: JSON превращает Date в строки)", () => {
+  it("будущий лагерь со строковыми датами — активен (регресс: NaN-сравнение делало его «прошедшим»)", () => {
+    expect(
+      isActivityActive(
+        {
+          type: "CAMP",
+          startDate: "2026-08-10T00:00:00.000Z",
+          endDate: "2026-08-20T00:00:00.000Z",
+        },
+        NOW,
+      ),
+    ).toBe(true);
+  });
+
+  it("идущий лагерь со строковыми датами — активен", () => {
+    expect(
+      isActivityActive(
+        {
+          type: "CAMP",
+          startDate: "2026-07-07T00:00:00.000Z",
+          endDate: "2026-07-09T00:00:00.000Z",
+        },
+        NOW,
+      ),
+    ).toBe(true);
+  });
+
+  it("прошедший лагерь со строковыми датами — неактивен", () => {
+    expect(
+      isActivityActive(
+        {
+          type: "CAMP",
+          startDate: "2026-07-01T00:00:00.000Z",
+          endDate: "2026-07-05T00:00:00.000Z",
+        },
+        NOW,
+      ),
+    ).toBe(false);
+  });
+});
+
 describe("activitySortRank (активные выше прошедших лагерей)", () => {
   it("активное → 0, прошедший лагерь → 1", () => {
     expect(

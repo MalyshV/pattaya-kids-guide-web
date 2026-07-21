@@ -29,8 +29,11 @@ export function mapActivityToListItem(
     ),
     minAgeMonths: activity.minAgeMonths,
     maxAgeMonths: activity.maxAgeMonths,
-    startDate: activity.startDate,
-    endDate: activity.endDate,
+    // с кэш-хита (data-cache) даты приходят строками — возвращаем им Date,
+    // иначе сравнения в сортировке ленты (activity-sort) дают NaN и любой
+    // будущий лагерь считался бы «прошедшим»
+    startDate: activity.startDate ? new Date(activity.startDate) : null,
+    endDate: activity.endDate ? new Date(activity.endDate) : null,
     place: activity.place
       ? {
           name: activity.place.name,

@@ -3208,3 +3208,116 @@ input {
     flex-wrap: wrap;
   }
 }
+
+/* ── скелетон загрузки (loading.tsx) ─────────────────────────────────────────
+   Пока сервер ждёт БД (холодный старт — секунды), родитель видит знакомый
+   каркас каталога, а не белый экран. Тона — приглушённый беж поверх карточных
+   поверхностей, дыхание мягкое; при reduced-motion — статичные блоки. */
+
+.skeleton-line,
+.skeleton-chip,
+.skeleton-search,
+.skeleton-card-image {
+  background: var(--surface-muted);
+  border-radius: 10px;
+  animation: skeleton-breathe 1.6s ease-in-out infinite;
+}
+
+@keyframes skeleton-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-line,
+  .skeleton-chip,
+  .skeleton-search,
+  .skeleton-card-image {
+    animation: none;
+  }
+}
+
+.skeleton-hero {
+  display: grid;
+  gap: 14px;
+}
+
+.skeleton-eyebrow {
+  width: 90px;
+  height: 14px;
+}
+
+.skeleton-title {
+  width: min(420px, 80%);
+  height: 34px;
+}
+
+.skeleton-subtitle {
+  width: min(520px, 95%);
+  height: 18px;
+}
+
+.skeleton-search {
+  height: 52px;
+  border-radius: 16px;
+  margin: 20px 0 16px;
+}
+
+.skeleton-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.skeleton-chip {
+  width: 110px;
+  height: 38px;
+  border-radius: 999px;
+}
+
+.skeleton-card {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.skeleton-card-image {
+  height: 160px;
+  border-radius: 12px;
+}
+
+.skeleton-card-title {
+  width: 70%;
+  height: 18px;
+}
+
+.skeleton-card-text {
+  width: 95%;
+  height: 13px;
+}
+
+.skeleton-card-text-short {
+  width: 55%;
+  height: 13px;
+}
+
+/* текст только для скринридеров (стандартный паттерн visually-hidden) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

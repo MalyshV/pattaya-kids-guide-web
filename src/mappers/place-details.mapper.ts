@@ -142,7 +142,9 @@ export function mapPlaceDetailsToDto(
       id: tip.id,
       text: pickLocalized(tip.text, tip.textEn, tip.textTh, lang),
       topic: tip.topic,
-      verifiedAt: tip.verifiedAt,
+      // с кэш-хита (data-cache) дата приходит строкой — возвращаем ей Date,
+      // страница зовёт toLocaleDateString
+      verifiedAt: tip.verifiedAt ? new Date(tip.verifiedAt) : null,
     })),
     contacts: place.contacts.map((contact) => ({
       id: contact.id,
@@ -169,8 +171,9 @@ export function mapPlaceDetailsToDto(
         program.priceUnitTh,
         lang,
       ),
-      startDate: program.startDate,
-      endDate: program.endDate,
+      // с кэш-хита (data-cache) даты приходят строками — возвращаем им Date
+      startDate: program.startDate ? new Date(program.startDate) : null,
+      endDate: program.endDate ? new Date(program.endDate) : null,
     })),
   };
 }
