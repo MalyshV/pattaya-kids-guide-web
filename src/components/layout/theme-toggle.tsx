@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
-import { THEME_STORAGE_KEY } from "@/lib/theme/theme-script";
+import { applyStoredTheme, THEME_STORAGE_KEY } from "@/lib/theme/theme-script";
 
 /**
  * Переключатель темы: кнопка-иконка рядом с выбором языка. Меняет data-theme
@@ -53,19 +53,10 @@ export function ThemeToggle(): React.ReactElement {
   const dict = useDictionary();
 
   // пока выбор не сделан — живьём следуем за сменой системной темы
-  // (выбор в localStorage «пришпиливает» тему и отключает это поведение)
+  // (сохранённый выбор внутри applyStoredTheme всегда сильнее системы)
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = (): void => {
-      try {
-        if (localStorage.getItem(THEME_STORAGE_KEY)) {
-          return;
-        }
-      } catch {
-        // приватный режим: localStorage может бросить — просто следуем системе
-      }
-      document.documentElement.dataset.theme = media.matches ? "dark" : "light";
-    };
+    const onChange = (): void => applyStoredTheme();
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
   }, []);
