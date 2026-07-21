@@ -20,6 +20,7 @@ export const ru = {
     birthdays: "Дни рождения",
     aria: "Разделы сайта",
     langAria: "Выбор языка",
+    themeToggle: "Сменить тему оформления",
     skipToContent: "К основному содержимому",
   },
 

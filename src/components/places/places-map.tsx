@@ -68,6 +68,7 @@ export function PlacesMap({
 
   useEffect(() => {
     let map: LeafletMap | undefined;
+    let themeObserver: MutationObserver | undefined;
     let cancelled = false;
 
     void import("leaflet").then((L) => {
@@ -82,15 +83,22 @@ export function PlacesMap({
         scrollWheelZoom: false,
       });
 
-      // тема читается один раз при создании карты: живое переключение системной
-      // темы посреди сессии — редкость, а карта и так пересоздаётся при фильтрах
-      const darkTiles =
-        typeof window.matchMedia === "function" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches;
-      L.tileLayer(darkTiles ? TILE_URL_DARK : TILE_URL_LIGHT, {
+      // тема приходит из data-theme на <html> (его ведут theme-script и
+      // кнопка в шапке); наблюдатель ниже живьём меняет тайлы при переключении
+      const tileUrlForTheme = (): string =>
+        document.documentElement.dataset.theme === "dark"
+          ? TILE_URL_DARK
+          : TILE_URL_LIGHT;
+      const tiles = L.tileLayer(tileUrlForTheme(), {
         attribution: TILE_ATTRIBUTION,
         maxZoom: 19,
       }).addTo(map);
+      themeObserver = new MutationObserver(() => {
+        tiles.setUrl(tileUrlForTheme());
+      });
+      themeObserver.observe(document.documentElement, {
+        attributeFilter: ["data-theme"],
+      });
 
       const placeIcon = L.divIcon({
         className: "map-pin",
@@ -159,6 +167,7 @@ export function PlacesMap({
 
     return () => {
       cancelled = true;
+      themeObserver?.disconnect();
       map?.remove();
     };
   }, [markersKey, userKey, basePath, youAreHereLabel]);
