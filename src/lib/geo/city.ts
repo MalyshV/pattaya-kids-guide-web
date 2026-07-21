@@ -19,9 +19,21 @@ export const getCityBySlug = cache(
   }),
 );
 
-/** Базовый URL сайта для абсолютных ссылок (sitemap/robots). */
+/**
+ * Базовый URL сайта для абсолютных ссылок (canonical/hreflang/OG/sitemap).
+ * Приоритет: явная переменная → боевой домен проекта на Vercel → localhost.
+ * Средняя ступень критична: без неё, если NEXT_PUBLIC_SITE_URL забыли задать
+ * на Vercel, ссылки молча указывали бы на localhost и это всплыло бы только
+ * в выдаче Google и битых превью соцсетей.
+ */
 export function getSiteUrl(): string {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL;
+  }
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  }
+  return "http://localhost:3000";
 }
 
 /**

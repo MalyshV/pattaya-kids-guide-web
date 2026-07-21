@@ -14,7 +14,7 @@ import { breadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { formatAgeRange } from "@/lib/age/format-age";
-import { articleOpenGraph, metaDescription } from "@/lib/seo/meta";
+import { articleOpenGraph, metaDescription, pageAlternates } from "@/lib/seo/meta";
 import { dateLocale, getDictionary, type Dictionary } from "@/content/dictionary";
 import { pickLocalized } from "@/lib/i18n/localize";
 
@@ -37,7 +37,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const dict = getDictionary(lang);
-  const title = `${pickLocalized(activity.name, activity.nameEn, activity.nameTh, lang)} — ${dict.brand}`;
+  // бренд-суффикс в <title> добавит template; og:title короткий (бренд — в
+  // og:site_name)
+  const title = pickLocalized(activity.name, activity.nameEn, activity.nameTh, lang);
   const description = metaDescription(
     pickLocalized(
       activity.description,
@@ -51,6 +53,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description,
+    // canonical на сам URL занятия + hreflang на его переводы
+    alternates: pageAlternates(lang, citySlug, `/activities/${slug}`),
     openGraph: articleOpenGraph({
       title,
       description,

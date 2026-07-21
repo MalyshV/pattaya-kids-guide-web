@@ -13,7 +13,7 @@ import { matchesCategory } from "@/lib/activities/activity-filter";
 import { getDictionary } from "@/content/dictionary";
 import { localizedCityName, pickLocalized } from "@/lib/i18n/localize";
 import { LIST_PAGE_SIZE } from "@/lib/constants/pagination";
-import { listPageAlternates } from "@/lib/seo/meta";
+import { pageAlternates } from "@/lib/seo/meta";
 import {
   getSingleSearchParam,
   parsePositiveNumberParam,
@@ -33,10 +33,10 @@ export async function generateMetadata({
   const { lang, city: citySlug } = await params;
   const dict = getDictionary(lang);
   return {
-    // свой title: иначе все вкладки браузера называются одинаково по городу
-    title: `${dict.activities.heroTitle} — ${dict.brand}`,
+    // свой title (бренд добавит template): иначе вкладки одинаковы по городу
+    title: dict.activities.heroTitle,
     // self-canonical: ?page=/фильтры не плодят дубли в индексе
-    alternates: listPageAlternates(lang, citySlug, "/activities"),
+    alternates: pageAlternates(lang, citySlug, "/activities"),
   };
 }
 
