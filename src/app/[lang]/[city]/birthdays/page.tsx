@@ -167,9 +167,15 @@ export default async function BirthdaysPage({
                             <span className="contact-value">{contact.value}</span>
                           ) : null}
                           {external ? (
-                            <span className="contact-arrow" aria-hidden="true">
-                              ↗
-                            </span>
+                            <>
+                              <span className="contact-arrow" aria-hidden="true">
+                                ↗
+                              </span>
+                              <span className="sr-only">
+                                {" "}
+                                {dict.common.opensInNewTab}
+                              </span>
+                            </>
                           ) : null}
                         </a>
                       );

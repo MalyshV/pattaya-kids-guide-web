@@ -615,6 +615,7 @@ export default async function PlaceDetailsPage({
           rel="noopener noreferrer"
         >
           {dict.placeDetails.openInMaps} <span aria-hidden="true">↗</span>
+          <span className="sr-only"> {dict.common.opensInNewTab}</span>
         </a>
       </section>
 
@@ -641,9 +642,12 @@ export default async function PlaceDetailsPage({
                     <span className="contact-value">{contact.value}</span>
                   ) : null}
                   {external ? (
-                    <span className="contact-arrow" aria-hidden="true">
-                      ↗
-                    </span>
+                    <>
+                      <span className="contact-arrow" aria-hidden="true">
+                        ↗
+                      </span>
+                      <span className="sr-only"> {dict.common.opensInNewTab}</span>
+                    </>
                   ) : null}
                 </a>
               );

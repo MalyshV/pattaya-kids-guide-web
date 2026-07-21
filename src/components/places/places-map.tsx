@@ -131,5 +131,14 @@ export function PlacesMap({
     };
   }, [markersKey, userKey, basePath, youAreHereLabel]);
 
-  return <div ref={containerRef} className="places-map-shell" />;
+  // region + имя: скринридер объявляет «Карта мест» и может её пропустить —
+  // доступная альтернатива та же (список с теми же фильтрами)
+  return (
+    <div
+      ref={containerRef}
+      className="places-map-shell"
+      role="region"
+      aria-label={dict.places.mapRegionLabel}
+    />
+  );
 }

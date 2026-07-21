@@ -40,6 +40,7 @@ export const en: Dictionary = {
 
   common: {
     detailsCta: "Details",
+    opensInNewTab: "(opens in a new tab)",
     descriptionFallback: "Description coming soon.",
     // lightbox: click a photo to zoom, the balloon button closes it
     zoomPhoto: "Zoom photo",
@@ -169,6 +170,7 @@ export const en: Dictionary = {
     // List|Map toggle and map labels
     viewList: "List",
     viewMap: "Map",
+    mapRegionLabel: "Map of places",
     viewToggleAria: "View: list or map",
     mapYouAreHere: "You are here",
     mapMissingNote: (count: number): string =>
