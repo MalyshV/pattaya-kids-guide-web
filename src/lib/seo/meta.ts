@@ -1,30 +1,45 @@
 import type { Metadata } from "next";
 import { SUPPORTED_LANGS } from "@/content/dictionary";
-import { cityBasePath } from "@/lib/geo/base-path";
+import { cityBasePath, DEFAULT_LANG } from "@/lib/geo/base-path";
 
 /** Целевая длина meta description (рекомендация поисковиков ~150–160). */
 const META_DESCRIPTION_MAX = 160;
 
 /**
- * alternates для страницы-списка: self-canonical на ЧИСТЫЙ URL раздела (без
- * ?page=, ?view=map, ?age= — иначе Google индексирует их как отдельные дубли и
- * дробит вес) + hreflang на языковые версии этого же раздела. Next мёржит
- * metadata поверхностно и НЕ углубляется в alternates: layout задаёт languages
- * для корня города, поэтому на подстранице повторяем ОБЕ части здесь, иначе
- * потеряли бы hreflang. Относительные пути Next абсолютизирует от metadataBase.
+ * hreflang-карта раздела: все локали + x-default. x-default — для пользователей
+ * с языком вне ru/en/th: указывает на дефолтную локаль, тот же язык, на который
+ * их уводит middleware при заходе на «/». Пути относительные — Next
+ * абсолютизирует их от metadataBase.
+ */
+export function hreflangLanguages(
+  citySlug: string,
+  subPath = "",
+): Record<string, string> {
+  const languages: Record<string, string> = Object.fromEntries(
+    SUPPORTED_LANGS.map((l) => [l, `${cityBasePath(l, citySlug)}${subPath}`]),
+  );
+  languages["x-default"] = `${cityBasePath(DEFAULT_LANG, citySlug)}${subPath}`;
+  return languages;
+}
+
+/**
+ * alternates страницы: self-canonical на ЧИСТЫЙ URL (без ?page=/?view=map/?age=
+ * — иначе Google индексирует их как дубли и дробит вес) + hreflang на языковые
+ * версии этого же URL. Годится и спискам, и детальным карточкам (subPath =
+ * «/places/<slug>» и т.п.): Next мёржит metadata поверхностно и НЕ углубляется
+ * в alternates — layout задаёт languages лишь для корня города, поэтому на любой
+ * подстранице обе части задаём здесь, иначе потеряли бы canonical и hreflang.
  * robots (noindex-гейт ненаполненного города) лежит в отдельном ключе и
  * наследуется из layout — его это не затрагивает.
  */
-export function listPageAlternates(
+export function pageAlternates(
   lang: string,
   citySlug: string,
   subPath = "",
 ): NonNullable<Metadata["alternates"]> {
   return {
     canonical: `${cityBasePath(lang, citySlug)}${subPath}`,
-    languages: Object.fromEntries(
-      SUPPORTED_LANGS.map((l) => [l, `${cityBasePath(l, citySlug)}${subPath}`]),
-    ),
+    languages: hreflangLanguages(citySlug, subPath),
   };
 }
 

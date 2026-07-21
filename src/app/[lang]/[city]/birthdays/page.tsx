@@ -14,7 +14,7 @@ import {
 } from "@/lib/contacts/contact-link";
 import { getDictionary } from "@/content/dictionary";
 import { localizedCityName } from "@/lib/i18n/localize";
-import { listPageAlternates } from "@/lib/seo/meta";
+import { pageAlternates } from "@/lib/seo/meta";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string }>;
@@ -32,9 +32,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const dict = getDictionary(lang);
 
   return {
-    title: `${dict.birthdays.metaTitle(localizedCityName(city, lang))} — ${dict.brand}`,
+    // бренд-суффикс добавит template из [lang]/layout
+    title: dict.birthdays.metaTitle(localizedCityName(city, lang)),
     description: dict.birthdays.heroDescription,
-    alternates: listPageAlternates(lang, citySlug, "/birthdays"),
+    alternates: pageAlternates(lang, citySlug, "/birthdays"),
   };
 }
 

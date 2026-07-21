@@ -24,7 +24,7 @@ import { compareCatalogOrder } from "@/lib/places/catalog-order";
 import { getDictionary } from "@/content/dictionary";
 import { localizedCityName } from "@/lib/i18n/localize";
 import { LIST_PAGE_SIZE } from "@/lib/constants/pagination";
-import { listPageAlternates } from "@/lib/seo/meta";
+import { pageAlternates } from "@/lib/seo/meta";
 import {
   getSingleSearchParam,
   parsePositiveNumberParam,
@@ -42,8 +42,15 @@ export async function generateMetadata({
   params: PageProps["params"];
 }): Promise<Metadata> {
   const { lang, city: citySlug } = await params;
-  // self-canonical корня города: ?page=/?view=map/?age= не плодят дубли
-  return { alternates: listPageAlternates(lang, citySlug, "") };
+  const dict = getDictionary(lang);
+  return {
+    // title каталога с ключевым запросом (совпадает с h1); раньше корень города
+    // назывался «Pattaya Kids Guide — Паттайя» (бренд-первый, без запроса) —
+    // бренд-суффикс теперь добавляет template из [lang]/layout
+    title: dict.places.heroTitle,
+    // self-canonical корня города: ?page=/?view=map/?age= не плодят дубли
+    alternates: pageAlternates(lang, citySlug, ""),
+  };
 }
 
 function parseBooleanParam(value: string | undefined): boolean | undefined {

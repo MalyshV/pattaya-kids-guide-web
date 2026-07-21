@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { BackToTop } from "@/components/common/back-to-top";
 import { SiteHeader } from "@/components/layout/site-header";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
-import { getDictionary, isSupportedLang, SUPPORTED_LANGS } from "@/content/dictionary";
-import { localizedCityName } from "@/lib/i18n/localize";
+import { getDictionary, isSupportedLang } from "@/content/dictionary";
+import { hreflangLanguages } from "@/lib/seo/meta";
 
 type LayoutProps = {
   params: Promise<{ lang: string; city: string }>;
@@ -25,18 +25,19 @@ export async function generateMetadata({
 
   const dict = getDictionary(lang);
 
+  // title здесь НЕ задаём: у каждой страницы под городом свой (корень города —
+  // в page.tsx), а бренд-суффикс добавляет template из [lang]/layout. Слой
+  // города отвечает за общие description, hreflang и noindex-гейт.
   return {
-    title: `${dict.brand} — ${localizedCityName(city, lang)}`,
     // seoDescription в БД пока русский; для en честнее generic-описание словаря
     description:
       lang === "ru"
         ? (city.seoDescription ?? dict.meta.description)
         : dict.meta.description,
-    // языковые версии одной страницы (hreflang)
+    // hreflang по умолчанию (наследуют страницы без своих alternates, напр.
+    // saved); страницы каталога/детальные задают полный набор сами
     alternates: {
-      languages: Object.fromEntries(
-        SUPPORTED_LANGS.map((l) => [l, cityBasePath(l, citySlug)]),
-      ),
+      languages: hreflangLanguages(citySlug),
     },
     // SEO-гейт: ненаполненный город не индексируется, пока не опубликован
     robots: city.isPublished ? undefined : { index: false, follow: false },

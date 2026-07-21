@@ -24,7 +24,7 @@ import {
   isExternalContact,
   showsContactValue,
 } from "@/lib/contacts/contact-link";
-import { articleOpenGraph, metaDescription } from "@/lib/seo/meta";
+import { articleOpenGraph, metaDescription, pageAlternates } from "@/lib/seo/meta";
 import { dateLocale, getDictionary, type Dictionary } from "@/content/dictionary";
 import { localizedCityName, pickLocalized } from "@/lib/i18n/localize";
 
@@ -47,8 +47,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const dict = getDictionary(lang);
-  // название места — единое латинское (бренд), не локализуем; описание — да
-  const title = `${place.name} — ${dict.brand}`;
+  // название места — единое латинское (бренд), не локализуем; описание — да.
+  // Бренд-суффикс в <title> добавляет template из [lang]/layout; og:title
+  // остаётся коротким (бренд несёт og:site_name)
+  const title = place.name;
   const description = metaDescription(
     pickLocalized(place.description, place.descriptionEn, place.descriptionTh, lang),
     dict.meta.description,
@@ -57,6 +59,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description,
+    // canonical на сам URL карточки + hreflang на её переводы (без этого
+    // детальная наследовала бы hreflang на корень каталога — чужую страницу)
+    alternates: pageAlternates(lang, citySlug, `/places/${slug}`),
     openGraph: articleOpenGraph({
       title,
       description,

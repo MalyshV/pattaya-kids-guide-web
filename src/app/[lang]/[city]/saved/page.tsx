@@ -14,7 +14,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { lang } = await params;
   const dict = getDictionary(isSupportedLang(lang) ? lang : "ru");
   return {
-    title: `${dict.memory.pageTitle} — ${dict.brand}`,
+    // бренд-суффикс добавит template из [lang]/layout
+    title: dict.memory.pageTitle,
     robots: { index: false, follow: false },
   };
 }

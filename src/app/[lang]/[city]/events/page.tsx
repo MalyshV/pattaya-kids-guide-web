@@ -12,7 +12,7 @@ import { computeEventStatus, eventSortRank } from "@/lib/events/event-lifecycle"
 import { getDictionary } from "@/content/dictionary";
 import { localizedCityName } from "@/lib/i18n/localize";
 import { LIST_PAGE_SIZE } from "@/lib/constants/pagination";
-import { listPageAlternates } from "@/lib/seo/meta";
+import { pageAlternates } from "@/lib/seo/meta";
 import {
   getSingleSearchParam,
   parsePositiveNumberParam,
@@ -32,10 +32,10 @@ export async function generateMetadata({
   const { lang, city: citySlug } = await params;
   const dict = getDictionary(lang);
   return {
-    // свой title: иначе все вкладки браузера называются одинаково по городу
-    title: `${dict.events.heroTitle} — ${dict.brand}`,
+    // свой title (бренд добавит template): иначе вкладки одинаковы по городу
+    title: dict.events.heroTitle,
     // self-canonical: ?page=/фильтры не плодят дубли в индексе
-    alternates: listPageAlternates(lang, citySlug, "/events"),
+    alternates: pageAlternates(lang, citySlug, "/events"),
   };
 }
 

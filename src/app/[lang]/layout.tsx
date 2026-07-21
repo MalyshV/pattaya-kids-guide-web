@@ -39,7 +39,13 @@ export async function generateMetadata({
     // резолвил бы относительные пути от localhost/preview-URL, а не боевого
     // домена — соцсети и Google видели бы битые превью и языковые версии.
     metadataBase: new URL(getSiteUrl()),
-    title: dict.meta.title,
+    // template добавляет бренд-суффикс к title дочерних страниц — они задают
+    // только свою часть («Skippy Land»), суффикс не дублируется и не забывается;
+    // default — для страниц без своего title
+    title: {
+      default: dict.meta.title,
+      template: `%s — ${dict.brand}`,
+    },
     description: dict.meta.description,
     // Превью при пересылке ссылки в чат (главный канал роста — кнопка
     // «Поделиться»). Своё фото добавляют страницы-карточки; брендовую
