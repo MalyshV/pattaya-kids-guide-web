@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   absoluteUrl,
   breadcrumbJsonLd,
+  courseJsonLd,
   eventJsonLd,
   openingHoursSpecification,
   placeJsonLd,
@@ -134,6 +135,58 @@ describe("eventJsonLd", () => {
   it("без locationName площадкой становится адрес", () => {
     const ld = eventJsonLd({ ...base, address: "Jomtien Beach" });
     expect(ld.location).toMatchObject({ name: "Jomtien Beach" });
+  });
+});
+
+describe("courseJsonLd", () => {
+  const base = {
+    name: "Гимнастика",
+    description: "Занятия для детей 3–6 лет",
+    url: "https://example.com/ru/pattaya/activities/gym",
+    providerName: "The Little Gym",
+    price: null as number | null,
+    currency: "THB",
+    locationName: "The Little Gym",
+    locationAddress: "Central Pattaya",
+    cityName: "Pattaya",
+    startDate: null as string | Date | null,
+    endDate: null as string | Date | null,
+    inLanguage: "ru",
+  };
+
+  it("регулярный курс без дат — Course с provider, без hasCourseInstance", () => {
+    const ld = courseJsonLd(base);
+    expect(ld["@type"]).toBe("Course");
+    expect(ld.provider).toEqual({ "@type": "Organization", name: "The Little Gym" });
+    expect(ld).not.toHaveProperty("hasCourseInstance");
+    expect(ld).not.toHaveProperty("offers");
+  });
+
+  it("цена → offers", () => {
+    const ld = courseJsonLd({ ...base, price: 500 });
+    expect(ld.offers).toEqual({ "@type": "Offer", price: 500, priceCurrency: "THB" });
+  });
+
+  it("лагерь с датами → hasCourseInstance с courseMode, location и датами", () => {
+    const ld = courseJsonLd({
+      ...base,
+      startDate: "2026-08-01T00:00:00.000Z",
+      endDate: "2026-08-07T00:00:00.000Z",
+    });
+    expect(ld.hasCourseInstance).toMatchObject({
+      "@type": "CourseInstance",
+      courseMode: "Onsite",
+      startDate: "2026-08-01T00:00:00.000Z",
+      endDate: "2026-08-07T00:00:00.000Z",
+      location: { "@type": "Place", name: "The Little Gym" },
+    });
+  });
+
+  it("принимает Date (из DTO) наравне со строкой", () => {
+    const ld = courseJsonLd({ ...base, startDate: new Date("2026-08-01T00:00:00Z") });
+    expect((ld.hasCourseInstance as Record<string, unknown>).startDate).toBe(
+      "2026-08-01T00:00:00.000Z",
+    );
   });
 });
 

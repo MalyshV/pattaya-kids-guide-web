@@ -197,6 +197,79 @@ export function eventJsonLd(input: EventJsonLdInput): JsonLdObject {
   });
 }
 
+export type CourseJsonLdInput = {
+  name: string;
+  description: string | null;
+  url: string;
+  /** кто ведёт — место или площадка (Organization) */
+  providerName: string;
+  price: number | null;
+  currency: string;
+  locationName: string | null;
+  locationAddress: string | null;
+  cityName: string;
+  /** даты лагеря (Date из DTO или ISO-строка с кэша); регулярный курс — null */
+  startDate: string | Date | null;
+  endDate: string | Date | null;
+  inLanguage: string;
+};
+
+function toIsoOrNull(value: string | Date | null): string | null {
+  if (value == null) {
+    return null;
+  }
+  return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+}
+
+/**
+ * Занятие как schema.org Course. Регулярное (COURSE) — базовый Course; лагерь
+ * с датами (CAMP) — плюс hasCourseInstance с расписанием, что даёт право на
+ * enhanced-результат Google. Инстанс добавляем только к датированным занятиям:
+ * у него обязателен courseMode, а без дат Google предупреждал бы о нехватке
+ * расписания. provider обязателен — берём место/площадку.
+ */
+export function courseJsonLd(input: CourseJsonLdInput): JsonLdObject {
+  const offers =
+    input.price != null
+      ? { "@type": "Offer", price: input.price, priceCurrency: input.currency }
+      : null;
+
+  const startDate = toIsoOrNull(input.startDate);
+
+  const hasCourseInstance = startDate
+    ? compact({
+        "@type": "CourseInstance",
+        courseMode: "Onsite",
+        location: input.locationName
+          ? compact({
+              "@type": "Place",
+              name: input.locationName,
+              address: compact({
+                "@type": "PostalAddress",
+                streetAddress: input.locationAddress,
+                addressLocality: input.cityName,
+                addressCountry: "TH",
+              }),
+            })
+          : null,
+        startDate,
+        endDate: toIsoOrNull(input.endDate),
+      })
+    : null;
+
+  return compact({
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: input.name,
+    description: input.description,
+    url: input.url,
+    provider: { "@type": "Organization", name: input.providerName },
+    offers,
+    hasCourseInstance,
+    inLanguage: input.inLanguage,
+  });
+}
+
 export type BreadcrumbItem = {
   name: string;
   url: string;
