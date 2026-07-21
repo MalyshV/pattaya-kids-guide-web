@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/admin/auth";
 import { loginAction } from "@/app/admin/actions";
+import { SubmitButton } from "@/app/admin/submit-button";
 
 type LoginPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -43,9 +44,7 @@ export default async function AdminLoginPage({
             required
           />
         </label>
-        <button type="submit" className="admin-button">
-          Войти
-        </button>
+        <SubmitButton pendingLabel="Вхожу…">Войти</SubmitButton>
       </form>
     </section>
   );
