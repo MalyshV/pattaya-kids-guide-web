@@ -189,9 +189,12 @@ input {
     color 0.15s ease;
 }
 
-.site-nav-link:hover {
-  background: var(--surface-muted);
-  color: var(--foreground);
+/* hover — нежный терракотовый тинт (та же пара, что у активных чипов
+   возраста); активный пункт не перекрашиваем — «вы здесь» остаётся
+   спокойной нейтральной меткой */
+.site-nav-link:not(.site-nav-link-active):hover {
+  background: var(--tint-active);
+  color: var(--accent-deep);
 }
 
 .site-nav-link-active {
