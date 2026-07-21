@@ -23,7 +23,19 @@ export type PlaceMapMarker = {
   longitude: number;
   /** «≈ 800 м» в режиме «Рядом со мной» */
   distanceLabel?: string;
+  /** обложка места — фото в попапе (null = только название) */
+  imageUrl?: string | null;
 };
+
+/// Пин-маркер в стиле нашего шарика: терракотовый купол с белой обводкой,
+/// узелок и ниточка-указатель к точке (её кончик — iconAnchor). Тот же мотив,
+/// что у заглушки обложек и кнопки-закрывашки лайтбокса.
+const PIN_SVG =
+  '<svg viewBox="0 0 30 40" width="30" height="40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+  '<ellipse cx="15" cy="14" rx="11.5" ry="13" fill="#c96f4a" stroke="#ffffff" stroke-width="2.5"/>' +
+  '<path d="M11.6 26.2 15 23l3.4 3.2z" fill="#c96f4a" stroke="#ffffff" stroke-width="1.4" stroke-linejoin="round"/>' +
+  '<path d="M15 26.4q3 4.4 0 6.2t0 5" fill="none" stroke="#c96f4a" stroke-width="2" stroke-linecap="round"/>' +
+  "</svg>";
 
 type PlacesMapProps = {
   markers: PlaceMapMarker[];
@@ -72,9 +84,11 @@ export function PlacesMap({
 
       const placeIcon = L.divIcon({
         className: "map-pin",
-        iconSize: [16, 16],
-        iconAnchor: [8, 8],
-        popupAnchor: [0, -10],
+        html: PIN_SVG,
+        iconSize: [30, 40],
+        // кончик ниточки указывает на координату; попап — над куполом
+        iconAnchor: [15, 38],
+        popupAnchor: [0, -34],
       });
 
       const bounds: Array<[number, number]> = [];
@@ -86,6 +100,14 @@ export function PlacesMap({
         // Попап собираем DOM-узлами: textContent сам экранирует название
         const popup = document.createElement("div");
         popup.className = "map-popup";
+        if (marker.imageUrl) {
+          const photo = document.createElement("img");
+          photo.className = "map-popup-photo";
+          photo.src = marker.imageUrl;
+          photo.alt = "";
+          photo.loading = "lazy";
+          popup.appendChild(photo);
+        }
         const link = document.createElement("a");
         link.href = `${basePath}/places/${marker.slug}`;
         link.textContent = marker.name;
