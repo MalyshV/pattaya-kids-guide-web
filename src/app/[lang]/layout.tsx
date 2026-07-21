@@ -4,6 +4,7 @@ import "@/app/globals.css";
 import { fontVariables } from "@/app/fonts";
 import { themeInitScript } from "@/lib/theme/theme-script";
 import { HtmlLangSync } from "@/components/layout/html-lang-sync";
+import { ThemeSync } from "@/components/layout/theme-sync";
 import { getSiteUrl, DEFAULT_LANG } from "@/lib/geo/city";
 import { getDictionary, isSupportedLang, type Lang } from "@/content/dictionary";
 
@@ -84,8 +85,10 @@ export default async function LangLayout({
             без мигания светлым у тёмных пользователей */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         {children}
-        {/* страховка атрибута при клиентских переходах между локалями */}
+        {/* страховки атрибутов <html> при клиентских переходах между
+            локалями: React пересобирает элемент и теряет lang/data-theme */}
         <HtmlLangSync />
+        <ThemeSync />
         {/* Vercel Analytics: без cookies (баннер согласия не нужен);
             локально молчит, активируется на Vercel-деплое */}
         <Analytics />
