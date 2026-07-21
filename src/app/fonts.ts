@@ -1,20 +1,12 @@
-import { Geist, Geist_Mono, Sarabun } from "next/font/google";
+import { Sarabun } from "next/font/google";
 
 /**
- * Шрифты в общем модуле: корневых layout теперь два (публичный `[lang]` и
- * админка), а next/font инициализируется в module scope — оба layout берут
- * одни и те же экземпляры, без дублирования @font-face.
+ * Шрифты в общем модуле: корневых layout два (публичный `[lang]` и админка),
+ * a next/font инициализируется в module scope — оба layout берут один
+ * экземпляр. Латиница/кириллица набираются системной Arial (globals.css) —
+ * отдельная веб-гарнитура для них не подключается (перф-аудит 07.2026: Geist
+ * был подключён, но нигде не использовался).
  */
-
-export const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-export const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 // Тайская гарнитура (у Arial тайских глифов нет). Sarabun — спокойная,
 // читаемая, с традиционными «петельками». Подключена в font-family после
@@ -27,5 +19,5 @@ export const sarabun = Sarabun({
   display: "swap",
 });
 
-/** Класс для <body>: CSS-переменные всех гарнитур разом. */
-export const fontVariables = `${geistSans.variable} ${geistMono.variable} ${sarabun.variable}`;
+/** Класс для <body>: CSS-переменные гарнитур. */
+export const fontVariables = sarabun.variable;

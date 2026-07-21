@@ -35,6 +35,9 @@ const nextConfig: NextConfig = {
   },
 
   images: {
+    // AVIF первым (на ~20–30% легче webp при том же качестве), webp — фолбэк
+    // для старых браузеров; next/image выберет по заголовку Accept
+    formats: ["image/avif", "image/webp"],
     // фото из админки на проде живут в Vercel Blob
     remotePatterns: [
       {
