@@ -32,8 +32,10 @@ export function SavedList({ age }: { age?: string | null }): React.ReactElement 
   const lang = params.lang ?? DEFAULT_LANG;
   const city = params.city ?? DEFAULT_CITY_SLUG;
   const basePath = cityBasePath(lang, city);
-  // назад в каталог — с возрастом, который родитель уже выбирал
-  const backHref = age ? `${basePath}?age=${encodeURIComponent(age)}` : basePath;
+  // назад в каталог (тексты обещают «К местам») — с возрастом, который
+  // родитель уже выбирал
+  const catalogPath = `${basePath}/places`;
+  const backHref = age ? `${catalogPath}?age=${encodeURIComponent(age)}` : catalogPath;
   const dict = useDictionary();
   const { items, hydrated, toggle } = useParentMemory();
 

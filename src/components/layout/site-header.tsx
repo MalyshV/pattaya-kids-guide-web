@@ -48,7 +48,9 @@ function NavLinks({
   const isActivities = pathname.startsWith(`${basePath}/activities`);
   const isBirthdays = pathname.startsWith(`${basePath}/birthdays`);
   const isSaved = pathname.startsWith(`${basePath}/saved`);
-  const isPlaces = !isEvents && !isActivities && !isBirthdays && !isSaved;
+  // каталог и детальные места живут под /places; корень города — посадочная,
+  // на ней ни один пункт меню не активен
+  const isPlaces = pathname.startsWith(`${basePath}/places`);
   // два счётчика: ♡ сохранённое и ✓ посещённое — обе функции видны из шапки,
   // родителю не нужно догадываться, что внутри «одной кнопки» живут две
   const savedCount = hydrated ? listByKind(items, "saved").length : 0;
@@ -57,7 +59,7 @@ function NavLinks({
   return (
     <nav className="site-nav" aria-label={dict.nav.aria}>
       <Link
-        href={withAge(basePath, age)}
+        href={withAge(`${basePath}/places`, age)}
         className={`site-nav-link${isPlaces ? " site-nav-link-active" : ""}`}
       >
         {dict.nav.places}

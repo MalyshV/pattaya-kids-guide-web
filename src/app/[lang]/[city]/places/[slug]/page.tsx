@@ -247,7 +247,7 @@ export default async function PlaceDetailsPage({
     inLanguage: lang,
   });
   const breadcrumbsLd = breadcrumbJsonLd([
-    { name: dict.nav.places, url: `${siteUrl}${basePath}` },
+    { name: dict.nav.places, url: `${siteUrl}${basePath}/places` },
     { name: dto.name, url: pageUrl },
   ]);
 
@@ -259,7 +259,10 @@ export default async function PlaceDetailsPage({
       <JsonLd data={placeLd} />
       <JsonLd data={breadcrumbsLd} />
       <div className="back-link-wrapper">
-        <SmartBackLink fallbackHref={basePath} label={dict.placeDetails.back} />
+        <SmartBackLink
+          fallbackHref={`${basePath}/places`}
+          label={dict.placeDetails.back}
+        />
         {/* сохранить/отметить можно и со страницы — не только с карточки списка */}
         <div className="detail-actions">
           <MemoryButtons

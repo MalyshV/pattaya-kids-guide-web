@@ -15,20 +15,22 @@ const nextConfig: NextConfig = {
   // (/ru, /en, /th) — простые CDN-редиректы на каталог города по умолчанию.
   async redirects() {
     return [
-      // /ru, /en и /th без города — не тупиковый 404, а каталог города по умолчанию
+      // /ru, /en и /th без города — не тупиковый 404, а каталог города по
+      // умолчанию. Целимся сразу в /places, минуя редирект корня города
+      // (второй прыжок); когда корень станет посадочной — вернуть на /{lang}/pattaya
       {
         source: "/ru",
-        destination: "/ru/pattaya",
+        destination: "/ru/pattaya/places",
         permanent: false,
       },
       {
         source: "/en",
-        destination: "/en/pattaya",
+        destination: "/en/pattaya/places",
         permanent: false,
       },
       {
         source: "/th",
-        destination: "/th/pattaya",
+        destination: "/th/pattaya/places",
         permanent: false,
       },
     ];

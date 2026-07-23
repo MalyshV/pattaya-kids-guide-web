@@ -22,7 +22,9 @@ export function NotFoundContent(): React.ReactElement {
         <p className="hero-description">{dict.notFound.description}</p>
         <p>
           <Link
-            href={cityBasePath(langFromPath(pathname), DEFAULT_CITY_SLUG)}
+            // CTA обещает «К местам» — ведём сразу в каталог, без прыжка
+            // через редирект корня города
+            href={`${cityBasePath(langFromPath(pathname), DEFAULT_CITY_SLUG)}/places`}
             className="back-link"
           >
             {dict.notFound.cta}

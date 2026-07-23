@@ -63,8 +63,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const entry = (subPath: string, lastModified?: Date) =>
       localizedSitemapEntry(baseUrl, city.slug, subPath, lastModified);
 
-    // разделы
+    // разделы (корень города — посадочная; каталог мест — /places)
     entries.push(entry("", cityLastMod));
+    entries.push(entry("/places", cityLastMod));
     entries.push(entry("/events", cityLastMod));
     entries.push(entry("/activities", cityLastMod));
     entries.push(entry("/birthdays", cityLastMod));
