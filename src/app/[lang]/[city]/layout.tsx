@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { BackToTop } from "@/components/common/back-to-top";
 import { SiteHeader } from "@/components/layout/site-header";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
+import { getSearchRows } from "@/services/search.service";
+import { getSearchIndex } from "@/lib/search/search-index";
 import { getDictionary, isSupportedLang } from "@/content/dictionary";
 import { hreflangLanguages } from "@/lib/seo/meta";
 
@@ -65,6 +67,22 @@ export default async function CityLayout({
 
   const dict = getDictionary(lang);
 
+  // Индекс для лупы в шапке посадочной: тот же кэшированный запрос, что
+  // собирает строку поиска каталога. Осознанный размен: индекс уезжает в
+  // payload каждой страницы города, хотя лупа видна только на посадочной —
+  // зато после клиентского перехода на неё лупа работает мгновенно; каталог
+  // крошечный (десятки записей). Вырастет — перейти на ленивую подгрузку
+  // индекса при первом открытии панели.
+  const searchRows = await getSearchRows(cityEntity.id);
+  const basePath = cityBasePath(lang, city);
+  const searchIndex = getSearchIndex(
+    searchRows.places,
+    searchRows.activities,
+    searchRows.events,
+    basePath,
+    lang,
+  );
+
   return (
     <>
       {/* skip-ссылка: первый фокус на странице уводит мимо 8+ ссылок шапки
@@ -72,7 +90,7 @@ export default async function CityLayout({
       <a href="#main-content" className="skip-link">
         {dict.nav.skipToContent}
       </a>
-      <SiteHeader basePath={cityBasePath(lang, city)} />
+      <SiteHeader basePath={basePath} searchItems={searchIndex} />
       {/* цель skip-ссылки: tabIndex=-1 — чтобы фокус реально сюда переехал */}
       <div id="main-content" tabIndex={-1}>
         {children}
