@@ -27,6 +27,10 @@ export type LandingSlot = "morning" | "day" | "evening" | "night";
 /** Порог честности: меньше карточек — сценарий выбывает из ротации. */
 export const MIN_SCENARIO_PLACES = 3;
 
+/** Порог разделов (события/ДР/развивашки): раздел честен и с одной записью,
+ *  но пустым обещать нечего. */
+export const MIN_SECTION_ITEMS = 1;
+
 /** Сколько ответов видно одновременно. */
 export const VISIBLE_SCENARIOS = 3;
 
@@ -136,17 +140,43 @@ export function scenarioPriority(slot: LandingSlot, isWeekend: boolean): Scenari
 }
 
 /**
- * Пул после порога честности. В counts — только порогуемые сценарии (места);
- * сценарий без записи (разделы: события/ДР/развивашки) порогом не режется.
+ * Пул после порога честности. counts — сценарии мест (порог 3+ карточек),
+ * sectionCounts — разделы: события/ДР/развивашки (порог 1+ — раздел честен
+ * и с одной записью, но пустая афиша — то самое «красивое обещание без
+ * выдачи»). Сценарий без записи в обоих словарях не режется (near —
+ * сортировка над непустым каталогом).
  */
 export function eligibleScenarios(
   priority: ScenarioKey[],
   counts: Partial<Record<ScenarioKey, number>>,
+  sectionCounts: Partial<Record<ScenarioKey, number>> = {},
 ): ScenarioKey[] {
   return priority.filter((key) => {
     const count = counts[key];
-    return count === undefined || count >= MIN_SCENARIO_PLACES;
+    if (count !== undefined) {
+      return count >= MIN_SCENARIO_PLACES;
+    }
+    const sectionCount = sectionCounts[key];
+    return sectionCount === undefined || sectionCount >= MIN_SECTION_ITEMS;
   });
+}
+
+/**
+ * 23:00–23:59: «сегодня» в расписаниях — ещё уходящий день, а ночной слот
+ * смотрит в завтра. Чтобы не обещать «открыто с утра» по данным уходящего
+ * дня (и не вести в каталог, который фильтрует по нему же), openMorning на
+ * этот час выпадает; после полуночи день переключается и сценарий
+ * возвращается уже корректным.
+ */
+export function dropLateNightMorning(
+  pool: ScenarioKey[],
+  slot: LandingSlot,
+  minutes: number,
+): ScenarioKey[] {
+  if (slot !== "night" || minutes < 23 * 60) {
+    return pool;
+  }
+  return pool.filter((key) => key !== "openMorning");
 }
 
 /**

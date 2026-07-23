@@ -2,7 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import { LandingHero, type LandingScenarioDto } from "@/components/landing/landing-hero";
 import { JsonLd } from "@/components/seo/json-ld";
 import { websiteJsonLd } from "@/lib/seo/json-ld";
-import { getAllApprovedPlaces } from "@/services/places.service";
+import { getAllApprovedPlaces, getBirthdayPlaces } from "@/services/places.service";
+import { getSearchRows } from "@/services/search.service";
 import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
 import {
   computeOpenStatus,
@@ -11,6 +12,7 @@ import {
   opensEarlyToday,
 } from "@/lib/schedule/open-status";
 import {
+  dropLateNightMorning,
   eligibleScenarios,
   isShelterPlace,
   isWorkFriendlyPlace,
@@ -109,7 +111,13 @@ export default async function CityLandingPage({
   // Слот времени и порог честности: сценарий мест показывается, только если
   // под ним достаточно карточек — красивый ответ с пустой выдачей хуже, чем
   // ответ попроще. Каталог маленький, считаем по одному запросу в памяти.
-  const places = await getAllApprovedPlaces({}, city.id);
+  // getSearchRows/getBirthdayPlaces кэшированы (layout уже звал первый) —
+  // лишних кругов до базы нет.
+  const [places, searchRows, birthdayPlaces] = await Promise.all([
+    getAllApprovedPlaces({}, city.id),
+    getSearchRows(city.id),
+    getBirthdayPlaces(city.id),
+  ]);
   const now = nowInCity(city.timezone);
   const slot: LandingSlot = landingSlot(now.minutes);
 
@@ -123,8 +131,19 @@ export default async function CityLandingPage({
     shelter: places.filter(isShelterPlace).length,
   };
 
+  // разделы: пустая афиша/ДР/занятия не обещаются (порог 1 в ядре)
+  const sectionCounts: Partial<Record<ScenarioKey, number>> = {
+    events: searchRows.events.length,
+    birthdays: birthdayPlaces.length,
+    age: searchRows.activities.length,
+  };
+
   const priority = scenarioPriority(slot, isWeekendDay(now.day));
-  const pool = eligibleScenarios(priority, counts);
+  const pool = dropLateNightMorning(
+    eligibleScenarios(priority, counts, sectionCounts),
+    slot,
+    now.minutes,
+  );
 
   const scenarioHrefs: Record<ScenarioKey, { href: string; needsAge?: boolean }> = {
     age: { href: `${basePath}/activities`, needsAge: true },

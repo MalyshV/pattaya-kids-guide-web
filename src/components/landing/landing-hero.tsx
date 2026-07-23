@@ -91,6 +91,12 @@ export function LandingHero({
       <h1 className="landing-question">{dict.landing.question}</h1>
       <p className="landing-slot-note">{dict.landing.slotNotes[slot]}</p>
 
+      {/* live-регион: после «показать другие» скринридер слышит новую тройку
+          (текст меняется вместе с ней); при первой загрузке не озвучивается */}
+      <p className="sr-only" role="status">
+        {visible.map((scenario) => labels[scenario.key].label).join(", ")}
+      </p>
+
       <div className="landing-answers">
         {visible.map((scenario) => {
           const { label, hint } = labels[scenario.key];
@@ -105,7 +111,13 @@ export function LandingHero({
                   {scenario.emoji.join(" ")}
                 </p>
                 <h2 className="landing-card-title">
-                  <Link href={ageHref} className="landing-card-link">
+                  <Link
+                    href={ageHref}
+                    className="landing-card-link"
+                    // имя ссылки обрывалось на «…для ребёнка» — возраст живёт
+                    // в соседнем select; озвучиваем фразу целиком
+                    aria-label={`${label} ${dict.landing.ageOption(ageYears)}`}
+                  >
                     {label}
                   </Link>{" "}
                   <select

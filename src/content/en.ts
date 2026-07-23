@@ -219,7 +219,7 @@ export const en: Dictionary = {
       morning: "morning — the answers will change by evening",
       day: "afternoon — the answers will change by evening",
       evening: "evening — it'll be different in the morning",
-      night: "late night — answers for tomorrow morning",
+      night: "late night — it'll be different in the morning",
     },
     refresh: "Show others",
     refreshAria: "Show other options",

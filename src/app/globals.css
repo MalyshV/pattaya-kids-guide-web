@@ -3663,16 +3663,18 @@ html[data-theme="dark"] .theme-toggle-moon {
   line-height: 1.45;
 }
 
-/* крутилка возраста живёт ПОВЕРХ растянутой ссылки карточки */
+/* крутилка возраста живёт ПОВЕРХ растянутой ссылки карточки.
+   16px — пол iOS Safari для form-контролов (меньше = авто-zoom при фокусе);
+   паддинги дают цель ~32px и буфер от растянутой ссылки вокруг */
 .landing-age-select {
   position: relative;
   z-index: 1;
-  padding: 2px 6px;
+  padding: 6px 10px;
   border: 1px solid var(--border-soft);
   border-radius: 8px;
   background: var(--surface-muted);
   color: inherit;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -3780,4 +3782,43 @@ html[data-theme="dark"] .theme-toggle-moon {
   border-radius: 14px;
   box-shadow: var(--shadow);
   z-index: 60;
+}
+
+/* фокус-стили новых элементов — по действующей схеме проекта:
+   accent для кнопок и ссылок, sage для полей ввода */
+.header-search-toggle:focus-visible,
+.landing-refresh:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.landing-age-select:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 1px;
+}
+
+.landing-exit-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* На мобильной шапке кнопка-лупа стоит у левого края переносящейся строки —
+   панель, заякоренная на кнопку (right:0), уезжала за левый край экрана.
+   Якорим панель на всю ширину шапки: позиционированный предок —
+   .site-header-inner (единственный другой позиционированный потомок —
+   .lang-menu со своим relative, его дропдаун не затрагивается). */
+@media (max-width: 760px) {
+  .site-header-inner {
+    position: relative;
+  }
+
+  .header-search {
+    position: static;
+  }
+
+  .header-search-panel {
+    left: 0;
+    right: 0;
+    width: auto;
+  }
 }

@@ -26,6 +26,7 @@ export function HeaderSearch({
   const dict = useDictionary();
   const [isOpen, setIsOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement | null>(null);
+  const toggleRef = useRef<HTMLButtonElement | null>(null);
 
   const isLanding = pathname === basePath;
 
@@ -40,8 +41,15 @@ export function HeaderSearch({
       }
     };
     const onKeyDown = (event: KeyboardEvent): void => {
+      // SearchBox пометил Escape обработанным (закрыл подсказки) — панель
+      // остаётся, закроется вторым нажатием
+      if (event.defaultPrevented) {
+        return;
+      }
       if (event.key === "Escape") {
         setIsOpen(false);
+        // фокус не должен «упасть» в body — возвращаем на лупу
+        toggleRef.current?.focus();
       }
     };
     document.addEventListener("pointerdown", onPointerDown);
@@ -68,6 +76,7 @@ export function HeaderSearch({
     <div className="header-search" ref={wrapRef}>
       <button
         type="button"
+        ref={toggleRef}
         className="header-search-toggle"
         aria-label={dict.search.ariaLabel}
         aria-expanded={isOpen}

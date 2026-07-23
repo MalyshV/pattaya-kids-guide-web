@@ -10,7 +10,7 @@ import { parseVisitedParam } from "@/lib/memory/visited-filter";
 import { getAllApprovedPlaces } from "@/services/places.service";
 import { getSearchRows } from "@/services/search.service";
 import { mapPlaceToListItemDto } from "@/mappers/place.mapper";
-import { mapSearchIndex } from "@/mappers/search.mapper";
+import { getSearchIndex } from "@/lib/search/search-index";
 import { parseAgeBuckets, placeAgeGroupsMatch } from "@/lib/age/age-buckets";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import {
@@ -152,7 +152,7 @@ export default async function CityPlacesPage({
     ),
   ]);
 
-  const searchIndex = mapSearchIndex(
+  const searchIndex = getSearchIndex(
     searchRows.places,
     searchRows.activities,
     searchRows.events,

@@ -45,6 +45,13 @@ export function SearchBox({ items, autoFocus }: SearchBoxProps): React.ReactElem
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>): void {
     if (event.key === "Escape") {
+      if (showList || showEmpty) {
+        // первый Escape закрывает только подсказки: preventDefault гасит
+        // нативную очистку input[type=search] (текст остаётся) и сообщает
+        // обёртке (лупа в шапке), что этот Escape уже обработан — панель
+        // закроется только вторым нажатием
+        event.preventDefault();
+      }
       close();
       return;
     }
