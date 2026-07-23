@@ -41,7 +41,10 @@ type PlacesResultsProps = {
   near: boolean;
   /** ?view=map — карта вместо списка (уважает те же фильтры) */
   view: "list" | "map";
+  /** корень города `/ru/pattaya` — от него строятся ссылки на карточки */
   basePath: string;
+  /** путь списка `/ru/pattaya/places` — ссылки фильтров/пагинации/сброса */
+  listPath: string;
   currentPage: number;
   totalPages: number;
   pageSize: number;
@@ -65,6 +68,7 @@ export function PlacesResults({
   near,
   view,
   basePath,
+  listPath,
   currentPage,
   totalPages: serverTotalPages,
   pageSize,
@@ -249,7 +253,7 @@ export function PlacesResults({
       params.delete("view");
     }
     const query = params.toString();
-    return query ? `${basePath}?${query}` : basePath;
+    return query ? `${listPath}?${query}` : listPath;
   }
 
   const viewToggle = (
@@ -347,7 +351,7 @@ export function PlacesResults({
       params.set("view", "map");
     }
     const query = params.toString();
-    const showAllHref = query ? `${basePath}?${query}` : basePath;
+    const showAllHref = query ? `${listPath}?${query}` : listPath;
 
     return (
       <>
@@ -476,7 +480,7 @@ export function PlacesResults({
       <PlacesPagination
         currentPage={safePage}
         totalPages={totalPages}
-        basePath={basePath}
+        listPath={listPath}
         {...pagination}
       />
     </>

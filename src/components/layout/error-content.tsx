@@ -29,7 +29,8 @@ export function ErrorContent({ reset }: { reset?: () => void }): React.ReactElem
             </button>
           ) : null}
           <Link
-            href={cityBasePath(langFromPath(pathname), DEFAULT_CITY_SLUG)}
+            // CTA обещает «К местам» — сразу в каталог (см. not-found-content)
+            href={`${cityBasePath(langFromPath(pathname), DEFAULT_CITY_SLUG)}/places`}
             className="back-link"
           >
             {dict.errorPage.cta}

@@ -4,7 +4,8 @@ import { getDictionary, langFromPath } from "@/content/dictionary";
 type PlacesPaginationProps = {
   currentPage: number;
   totalPages: number;
-  basePath: string;
+  /** путь списка `/ru/pattaya/places` — страницы листаются внутри него */
+  listPath: string;
   age?: string;
   visited?: string;
   openNow?: string;
@@ -25,7 +26,7 @@ type PlacesPaginationProps = {
 function buildPageHref(
   page: number,
   params: Record<string, string | undefined>,
-  basePath: string,
+  listPath: string,
 ): string {
   const searchParams = new URLSearchParams();
 
@@ -39,13 +40,13 @@ function buildPageHref(
 
   // #results: новая страница начинается с карточек, а не с шапки и стека
   // фильтров (Next сам подводит к якорю после навигации)
-  return `${basePath}?${searchParams.toString()}#results`;
+  return `${listPath}?${searchParams.toString()}#results`;
 }
 
 export function PlacesPagination({
   currentPage,
   totalPages,
-  basePath,
+  listPath,
   age,
   visited,
   openNow,
@@ -62,7 +63,7 @@ export function PlacesPagination({
   canLeaveChild,
   animalContact,
 }: PlacesPaginationProps): React.ReactElement | null {
-  const dict = getDictionary(langFromPath(basePath));
+  const dict = getDictionary(langFromPath(listPath));
 
   if (totalPages <= 1) {
     return null;
@@ -99,7 +100,7 @@ export function PlacesPagination({
         {hasPrevious ? (
           <Link
             className="pagination-link"
-            href={buildPageHref(currentPage - 1, baseParams, basePath)}
+            href={buildPageHref(currentPage - 1, baseParams, listPath)}
           >
             ← {dict.pagination.previous}
           </Link>
@@ -112,7 +113,7 @@ export function PlacesPagination({
         {hasNext ? (
           <Link
             className="pagination-link"
-            href={buildPageHref(currentPage + 1, baseParams, basePath)}
+            href={buildPageHref(currentPage + 1, baseParams, listPath)}
           >
             {dict.pagination.next} →
           </Link>
