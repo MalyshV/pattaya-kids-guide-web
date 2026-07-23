@@ -212,6 +212,46 @@ export const en: Dictionary = {
     typeEvent: "event",
   },
 
+  landing: {
+    metaTitle: "Where to go with kids in Pattaya",
+    question: "What are you looking for right now?",
+    slotNotes: {
+      morning: "morning — the answers will change by evening",
+      day: "afternoon — the answers will change by evening",
+      evening: "evening — it'll be different in the morning",
+      night: "late night — answers for tomorrow morning",
+    },
+    refresh: "Show others",
+    refreshAria: "Show other options",
+    allCatalog: "Full catalog",
+    onMap: "View on the map",
+    scenarios: {
+      ageBefore: "Activities for kids aged",
+      ageHint: "Classes and clubs for this age",
+      ageAria: "Child's age",
+      workFriendly: "A place to get work done",
+      workFriendlyHint: "Your kid plays — you're on the laptop: Wi-Fi, AC, café",
+      openMorning: "Open early in the morning",
+      openMorningHint: "Already open by 8:00–9:00",
+      openNow: "Go right now",
+      openNowHint: "Open now or opening shortly",
+      shelter: "Escape the heat",
+      shelterHint: "Cool inside: AC or shade — and dry when it rains",
+      events: "What's on this week",
+      eventsHint: "Upcoming events nearby",
+      birthdays: "Celebrate a birthday",
+      birthdaysHint: "Venues and party packages",
+      near: "Near me",
+      nearHint: "Closest first; your location stays in the browser",
+    },
+    ageOption: (years: number): string => {
+      if (years < 1) {
+        return "under 1";
+      }
+      return years === 1 ? "1 year" : `${years} years`;
+    },
+  },
+
   scenarios: {
     title: "Quick picks",
     openNow: "Go now",

@@ -17,10 +17,8 @@ export function middleware(request: NextRequest): NextResponse {
   );
 
   const url = request.nextUrl.clone();
-  // временно целимся сразу в каталог, минуя редирект корня города (иначе вход
-  // с домена — два прыжка подряд); когда корень города станет посадочной —
-  // вернуть на `/${lang}/${DEFAULT_CITY_SLUG}`
-  url.pathname = `/${lang}/${DEFAULT_CITY_SLUG}/places`;
+  // корень города = посадочная «Что ищете прямо сейчас?»
+  url.pathname = `/${lang}/${DEFAULT_CITY_SLUG}`;
   return NextResponse.redirect(url);
 }
 

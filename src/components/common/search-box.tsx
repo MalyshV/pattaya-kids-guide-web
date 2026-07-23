@@ -14,9 +14,12 @@ import type { SearchItemDto } from "@/dto/search-item.dto";
 
 type SearchBoxProps = {
   items: SearchItemDto[];
+  /** true — фокус в поле сразу после появления (лупа в шапке раскрывает
+      панель: без фокуса пришлось бы кликать второй раз) */
+  autoFocus?: boolean;
 };
 
-export function SearchBox({ items }: SearchBoxProps): React.ReactElement {
+export function SearchBox({ items, autoFocus }: SearchBoxProps): React.ReactElement {
   const dict = useDictionary();
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -89,6 +92,9 @@ export function SearchBox({ items }: SearchBoxProps): React.ReactElement {
         <input
           type="search"
           className="search-input"
+          // управляемый autoFocus для панели из лупы; глобально не мешает —
+          // на страницах со встроенной строкой проп не передаётся
+          autoFocus={autoFocus}
           role="combobox"
           aria-expanded={showList}
           aria-controls="search-results"

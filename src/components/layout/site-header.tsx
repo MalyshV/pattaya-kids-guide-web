@@ -7,11 +7,15 @@ import { useDictionary } from "@/lib/i18n/use-dictionary";
 import { useParentMemory } from "@/lib/memory/use-parent-memory";
 import { listByKind } from "@/lib/memory/parent-memory";
 import { markClientNavigation } from "@/components/common/smart-back-link";
+import { HeaderSearch } from "@/components/layout/header-search";
 import { LanguageMenu } from "@/components/layout/language-menu";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import type { SearchItemDto } from "@/dto/search-item.dto";
 
 type SiteHeaderProps = {
   basePath: string;
+  /** индекс для лупы-поиска (сама лупа видна только на посадочной) */
+  searchItems?: SearchItemDto[];
 };
 
 // Возраст ребёнка (?age=) — сквозной контекст: шапка переносит его между
@@ -111,18 +115,28 @@ function NavLinks({
   );
 }
 
-function HeaderRight({ basePath }: { basePath: string }): React.ReactElement {
+function HeaderRight({
+  basePath,
+  searchItems,
+}: {
+  basePath: string;
+  searchItems?: SearchItemDto[];
+}): React.ReactElement {
   const searchParams = useSearchParams();
   return (
     <div className="site-header-right">
       <NavLinks basePath={basePath} age={searchParams.get("age")} />
+      {searchItems ? <HeaderSearch basePath={basePath} items={searchItems} /> : null}
       <ThemeToggle />
       <LanguageMenu />
     </div>
   );
 }
 
-export function SiteHeader({ basePath }: SiteHeaderProps): React.ReactElement {
+export function SiteHeader({
+  basePath,
+  searchItems,
+}: SiteHeaderProps): React.ReactElement {
   return (
     <header className="site-header">
       <div className="site-header-inner">
@@ -139,7 +153,7 @@ export function SiteHeader({ basePath }: SiteHeaderProps): React.ReactElement {
             </div>
           }
         >
-          <HeaderRight basePath={basePath} />
+          <HeaderRight basePath={basePath} searchItems={searchItems} />
         </Suspense>
       </div>
     </header>
