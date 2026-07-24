@@ -5,11 +5,17 @@ import type { Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
 import type { GeoPoint } from "@/lib/geo/distance";
+import { spreadOverlapping } from "@/lib/geo/spread-points";
+import type { MapPointKind } from "@/dto/map-point.dto";
 
 /**
- * Карта мест. Обёртка над движком: снаружи проект знает только маркеры,
- * точку «вы здесь» и basePath — захотим сменить Leaflet на Google Maps,
- * поменяются только внутренности этого файла.
+ * Карта. Обёртка над движком: снаружи проект знает только маркеры, точку «вы
+ * здесь» и basePath — захотим сменить Leaflet на Google Maps, поменяются
+ * только внутренности этого файла.
+ *
+ * Один маркер = одна точка любого типа (место/событие/занятие): цвет пина по
+ * kind, ссылка по href. Без kind/href маркер ведёт себя как место (каталог
+ * мест передаёт только места) — обратная совместимость.
  *
  * Leaflet загружается динамически в эффекте: ему нужен window, на сервере
  * компонент рендерит только пустой контейнер.
@@ -18,30 +24,48 @@ import type { GeoPoint } from "@/lib/geo/distance";
 export type PlaceMapMarker = {
   id: string;
   name: string;
-  slug: string;
+  /** slug места — для fallback-ссылки, если href не задан (каталог мест) */
+  slug?: string;
   latitude: number;
   longitude: number;
+  /** тип точки — цвет пина; без него «место» (терракота) */
+  kind?: MapPointKind;
+  /** готовая ссылка; без неё строится ссылка на место по slug */
+  href?: string;
   /** «≈ 800 м» в режиме «Рядом со мной» */
   distanceLabel?: string;
-  /** обложка места — фото в попапе (null = только название) */
+  /** обложка — фото в попапе (null = только название) */
   imageUrl?: string | null;
 };
 
-/// Пин-маркер в стиле нашего шарика: терракотовый купол с белой обводкой,
-/// узелок и ниточка-указатель к точке (её кончик — iconAnchor). Тот же мотив,
-/// что у заглушки обложек и кнопки-закрывашки лайтбокса.
-const PIN_SVG =
-  '<svg viewBox="0 0 30 40" width="30" height="40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-  '<ellipse cx="15" cy="14" rx="11.5" ry="13" fill="#c96f4a" stroke="#ffffff" stroke-width="2.5"/>' +
-  '<path d="M11.6 26.2 15 23l3.4 3.2z" fill="#c96f4a" stroke="#ffffff" stroke-width="1.4" stroke-linejoin="round"/>' +
-  '<path d="M15 26.4q3 4.4 0 6.2t0 5" fill="none" stroke="#c96f4a" stroke-width="2" stroke-linecap="round"/>' +
-  "</svg>";
+/// Цвет купола пина по типу точки. Насыщенные тона палитры — читаются и на
+/// светлых, и на тёмных тайлах (белая обводка отделяет от фона).
+const PIN_COLOR: Record<MapPointKind, string> = {
+  place: "#c96f4a", // терракота (accent)
+  event: "#d38b2c", // янтарь
+  activity: "#5f8368", // шалфей
+};
+
+/// Пин-маркер в стиле нашего шарика: купол с белой обводкой, узелок и
+/// ниточка-указатель к точке (её кончик — iconAnchor). Тот же мотив, что у
+/// заглушки обложек и кнопки-закрывашки лайтбокса.
+function pinSvg(color: string): string {
+  return (
+    '<svg viewBox="0 0 30 40" width="30" height="40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    `<ellipse cx="15" cy="14" rx="11.5" ry="13" fill="${color}" stroke="#ffffff" stroke-width="2.5"/>` +
+    `<path d="M11.6 26.2 15 23l3.4 3.2z" fill="${color}" stroke="#ffffff" stroke-width="1.4" stroke-linejoin="round"/>` +
+    `<path d="M15 26.4q3 4.4 0 6.2t0 5" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round"/>` +
+    "</svg>"
+  );
+}
 
 type PlacesMapProps = {
   markers: PlaceMapMarker[];
   /** позиция пользователя (только с его согласия) — точка «вы здесь» */
   userPoint: GeoPoint | null;
   basePath: string;
+  /** какие типы показать в легенде; без него легенды нет (каталог мест) */
+  legendKinds?: MapPointKind[];
 };
 
 /// спокойные тайлы CARTO поверх данных OpenStreetMap: светлые и тёмные —
@@ -55,6 +79,7 @@ export function PlacesMap({
   markers,
   userPoint,
   basePath,
+  legendKinds,
 }: PlacesMapProps): React.ReactElement {
   const dict = useDictionary();
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -76,7 +101,10 @@ export function PlacesMap({
         return;
       }
 
-      const parsedMarkers = JSON.parse(markersKey) as PlaceMapMarker[];
+      const rawMarkers = JSON.parse(markersKey) as PlaceMapMarker[];
+      // пины в одной точке (место + его занятия/события) раздвигаем, чтобы
+      // не сливались; попап и ссылка у каждого свои
+      const parsedMarkers = spreadOverlapping(rawMarkers);
 
       map = L.map(containerRef.current, {
         // колесо мыши не перехватываем: страница должна скроллиться спокойно
@@ -100,20 +128,31 @@ export function PlacesMap({
         attributeFilter: ["data-theme"],
       });
 
-      const placeIcon = L.divIcon({
-        className: "map-pin",
-        html: PIN_SVG,
-        iconSize: [30, 40],
-        // кончик ниточки указывает на координату; попап — над куполом
-        iconAnchor: [15, 38],
-        popupAnchor: [0, -34],
-      });
+      // иконка на каждый тип — создаём один раз, переиспользуем
+      const iconByKind = new Map<MapPointKind, ReturnType<typeof L.divIcon>>();
+      const iconFor = (kind: MapPointKind): ReturnType<typeof L.divIcon> => {
+        const cached = iconByKind.get(kind);
+        if (cached) {
+          return cached;
+        }
+        const icon = L.divIcon({
+          className: "map-pin",
+          html: pinSvg(PIN_COLOR[kind]),
+          iconSize: [30, 40],
+          // кончик ниточки указывает на координату; попап — над куполом
+          iconAnchor: [15, 38],
+          popupAnchor: [0, -34],
+        });
+        iconByKind.set(kind, icon);
+        return icon;
+      };
 
       const bounds: Array<[number, number]> = [];
 
       for (const marker of parsedMarkers) {
         const position: [number, number] = [marker.latitude, marker.longitude];
         bounds.push(position);
+        const kind: MapPointKind = marker.kind ?? "place";
 
         // Попап собираем DOM-узлами: textContent сам экранирует название
         const popup = document.createElement("div");
@@ -127,7 +166,7 @@ export function PlacesMap({
           popup.appendChild(photo);
         }
         const link = document.createElement("a");
-        link.href = `${basePath}/places/${marker.slug}`;
+        link.href = marker.href ?? `${basePath}/places/${marker.slug}`;
         link.textContent = marker.name;
         popup.appendChild(link);
         if (marker.distanceLabel) {
@@ -137,7 +176,7 @@ export function PlacesMap({
           popup.appendChild(distance);
         }
 
-        L.marker(position, { icon: placeIcon, title: marker.name })
+        L.marker(position, { icon: iconFor(kind), title: marker.name })
           .addTo(map)
           .bindPopup(popup);
       }
@@ -172,14 +211,33 @@ export function PlacesMap({
     };
   }, [markersKey, userKey, basePath, youAreHereLabel]);
 
-  // region + имя: скринридер объявляет «Карта мест» и может её пропустить —
+  const legend =
+    legendKinds && legendKinds.length > 0 ? (
+      <ul className="map-legend" aria-label={dict.places.mapLegend.title}>
+        {legendKinds.map((kind) => (
+          <li key={kind} className="map-legend-item">
+            <span
+              className="map-legend-dot"
+              style={{ background: PIN_COLOR[kind] }}
+              aria-hidden="true"
+            />
+            {dict.places.mapLegend[kind]}
+          </li>
+        ))}
+      </ul>
+    ) : null;
+
+  // region + имя: скринридер объявляет «Карта» и может её пропустить —
   // доступная альтернатива та же (список с теми же фильтрами)
   return (
-    <div
-      ref={containerRef}
-      className="places-map-shell"
-      role="region"
-      aria-label={dict.places.mapRegionLabel}
-    />
+    <div className="places-map-wrap">
+      <div
+        ref={containerRef}
+        className="places-map-shell"
+        role="region"
+        aria-label={dict.places.mapRegionLabel}
+      />
+      {legend}
+    </div>
   );
 }

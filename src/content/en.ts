@@ -174,6 +174,12 @@ export const en: Dictionary = {
     viewList: "List",
     viewMap: "Map",
     mapRegionLabel: "Map of places",
+    mapLegend: {
+      title: "Legend",
+      place: "places",
+      event: "events",
+      activity: "activities",
+    },
     viewToggleAria: "View: list or map",
     mapYouAreHere: "You are here",
     mapMissingNote: (count: number): string =>
