@@ -129,16 +129,38 @@ export function LanguageMenu(): React.ReactElement {
     }
   };
 
+  // Safari (Mac и iPhone) не фокусирует ссылки по клику: при клике по пункту
+  // фокус «падает» на body, прилетает blur с relatedTarget=null — и закрытие
+  // по blur размонтировало бы пункт ДО его click, навигация не происходила
+  // (в Chrome фокус переходит на пункт, поэтому там баг не виден). Флаг
+  // «жест начался внутри меню» просит blur не закрывать; сбрасывается
+  // макротаской — click успевает раньше неё.
+  const pointerInsideRef = useRef(false);
+  const onRootPointerDownCapture = (): void => {
+    pointerInsideRef.current = true;
+    window.setTimeout(() => {
+      pointerInsideRef.current = false;
+    }, 0);
+  };
+
   // уход фокуса за пределы меню (напр. по Tab) — закрываем, чтобы не оставлять
   // раскрытый список без фокуса
   const onRootBlur = (event: React.FocusEvent): void => {
+    if (pointerInsideRef.current) {
+      return;
+    }
     if (!rootRef.current?.contains(event.relatedTarget as Node)) {
       setOpen(false);
     }
   };
 
   return (
-    <div className="lang-menu" ref={rootRef} onBlur={onRootBlur}>
+    <div
+      className="lang-menu"
+      ref={rootRef}
+      onBlur={onRootBlur}
+      onPointerDownCapture={onRootPointerDownCapture}
+    >
       <button
         ref={buttonRef}
         type="button"
