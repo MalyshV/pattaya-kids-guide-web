@@ -3974,6 +3974,9 @@ html[data-theme="dark"] .theme-toggle-moon {
   height: 17px;
 }
 
+/* меню разделов и памяти — тот же стиль, что у выпадашки языков
+   (.lang-menu-dropdown / .lang-menu-item): спокойный нейтральный hover,
+   те же отступы, ширина и радиусы */
 .header-menu-dropdown {
   position: absolute;
   top: calc(100% + 6px);
@@ -3982,7 +3985,7 @@ html[data-theme="dark"] .theme-toggle-moon {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  min-width: 196px;
+  min-width: 172px;
   max-width: calc(100vw - 24px);
   padding: 6px;
   background: var(--surface);
@@ -3994,15 +3997,17 @@ html[data-theme="dark"] .theme-toggle-moon {
 .header-menu-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
+  gap: 8px;
+  padding: 8px 10px;
   border-radius: 8px;
+  color: var(--foreground);
+  text-decoration: none;
   font-size: 14px;
   transition: background 0.15s ease;
 }
 
 .header-menu-item:hover {
-  background: var(--tint-hover);
+  background: var(--surface-muted);
 }
 
 .header-menu-item:focus-visible {
