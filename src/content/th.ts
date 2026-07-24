@@ -173,6 +173,12 @@ export const th: Dictionary = {
     viewList: "รายการ",
     viewMap: "แผนที่",
     mapRegionLabel: "แผนที่สถานที่",
+    mapLegend: {
+      title: "คำอธิบายสัญลักษณ์",
+      place: "สถานที่",
+      event: "อีเวนต์",
+      activity: "คลาสเรียน",
+    },
     viewToggleAria: "สลับมุมมอง: รายการหรือแผนที่",
     mapYouAreHere: "คุณอยู่ที่นี่",
     mapMissingNote: (count: number): string =>

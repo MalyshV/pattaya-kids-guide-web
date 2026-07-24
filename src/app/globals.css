@@ -1445,6 +1445,10 @@ input {
 }
 
 /* карта мест */
+.places-map-wrap {
+  position: relative;
+}
+
 .places-map-shell {
   height: min(65vh, 560px);
   border-radius: 18px;
@@ -1454,6 +1458,53 @@ input {
      над шапкой и кнопкой «наверх» */
   isolation: isolate;
   z-index: 0;
+}
+
+/* легенда единой карты — цвета пинов по типу. Левый низ: зум Leaflet сверху-
+   слева, копирайт снизу-справа, попапы открываются вверх — низ свободен.
+   pointer-events:none: легенда информационная, не должна перехватывать клики
+   по пинам под ней и блокировать перетаскивание карты. */
+.map-legend {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+  padding: 9px 12px;
+  list-style: none;
+  background: var(--surface-veil);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  color: var(--foreground);
+}
+
+.map-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* фигура-пин в легенде: та же форма, что на карте, вписана в 22px-бокс */
+.map-legend-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.map-legend-icon svg {
+  width: auto;
+  height: auto;
+  max-width: 20px;
+  max-height: 20px;
 }
 
 /* маркер места — пин-шарик (SVG внутри divIcon); гасим дефолтный белый
