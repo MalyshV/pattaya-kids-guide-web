@@ -274,6 +274,10 @@ model PlaceProgram {
   venueNameEn   String?
   venueNameTh   String?
   venueAddress  String?
+  /// координаты текстовой площадки (для единой карты); у каталожного места
+  /// координаты берёт Place — эти поля только для занятий без своей страницы
+  venueLatitude  Float?
+  venueLongitude Float?
   /// Демо-запись (см. Place.isDemo)
   isDemo        Boolean                   @default(false)
   /// город занятия для scoping БЕЗместных занятий (у place-занятий — из place)

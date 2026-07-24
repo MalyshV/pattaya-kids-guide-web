@@ -152,6 +152,41 @@ async function main(): Promise<void> {
     totalGaps += eventsWithoutAge.length;
   }
 
+  // Гео-пробелы для единой карты: событие без координат (своих или через
+  // место) и занятие без каталожного места и без venue-координат на карту
+  // не встанут — их пин просто не появится.
+  const eventsWithoutGeo = await prisma.event.findMany({
+    where: { status: "APPROVED", latitude: null, placeId: null },
+    orderBy: { startDate: "asc" },
+    select: { title: true, slug: true, locationName: true },
+  });
+  if (eventsWithoutGeo.length > 0) {
+    console.log(`▸ События без координат (не попадут на карту):`);
+    for (const event of eventsWithoutGeo) {
+      console.log(
+        `   • ${event.title} (${event.slug}) — площадка: ${event.locationName ?? "не указана"}`,
+      );
+    }
+    console.log("");
+    totalGaps += eventsWithoutGeo.length;
+  }
+
+  const programsWithoutGeo = await prisma.placeProgram.findMany({
+    where: { placeId: null, venueLatitude: null },
+    orderBy: { name: "asc" },
+    select: { name: true, slug: true, venueName: true },
+  });
+  if (programsWithoutGeo.length > 0) {
+    console.log(`▸ Занятия без координат площадки (не попадут на карту):`);
+    for (const program of programsWithoutGeo) {
+      console.log(
+        `   • ${program.name} (${program.slug ?? "без страницы"}) — площадка: ${program.venueName ?? "не указана"}`,
+      );
+    }
+    console.log("");
+    totalGaps += programsWithoutGeo.length;
+  }
+
   // Черновики движка данных: импортированы, но ещё не проверены человеком.
   // Они вне цикла выше (тот смотрит APPROVED) — напоминаем отдельно.
   const pendingImports = await prisma.place.findMany({
