@@ -1449,6 +1449,9 @@ async function main() {
     locationName: "Terminal 21 Pattaya",
     locationNameEn: "Terminal 21 Pattaya",
     address: "G Floor (Paris zone), Terminal 21 Pattaya, Pattaya, Chon Buri",
+    // координаты Terminal 21 Pattaya — OpenStreetMap (Nominatim), 2026-07-24
+    latitude: 12.9498756,
+    longitude: 100.8897673,
     sourceType: "ADMIN" as const,
     status: "APPROVED" as const,
     cityId: pattaya.id,
@@ -1804,6 +1807,10 @@ async function main() {
       minAgeMonths: 0,
       maxAgeMonths: 36,
       venueName: "Tara Pattana International School Thailand",
+      // адрес и координаты школы — OpenStreetMap (Nominatim), 2026-07-24
+      venueAddress: "Phatthanakan Road, Huai Yai, Bang Lamung, Chonburi 20150",
+      venueLatitude: 12.9065872,
+      venueLongitude: 100.9245352,
       cityId: pattaya.id,
       order: 5,
     },
@@ -1846,6 +1853,9 @@ async function main() {
       maxAgeMonths: 48,
       venueName: "Детский сад «Солнышко»",
       venueAddress: "Демо-адрес, Северная Паттайя",
+      // демо-координаты (север Паттайи) — чтобы демо-режим показывал пин
+      venueLatitude: 12.966,
+      venueLongitude: 100.9,
       cityId: pattaya.id,
       isDemo: true,
       order: 10,
@@ -1877,6 +1887,9 @@ async function main() {
       maxAgeMonths: 72,
       locationName: "Central Festival Pattaya",
       address: "Central Festival Pattaya Beach, Pattaya",
+      // центр комплекса Central Pattaya (Beach Road) — OpenStreetMap, 2026-07-24
+      latitude: 12.9343,
+      longitude: 100.8838,
       status: "APPROVED",
       isAnonymous: true,
       isDemo: true,
@@ -1893,6 +1906,9 @@ async function main() {
       endDate: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 2),
       locationName: "Central Festival Pattaya",
       address: "Central Festival Pattaya Beach, Pattaya",
+      // центр комплекса Central Pattaya (Beach Road) — OpenStreetMap, 2026-07-24
+      latitude: 12.9343,
+      longitude: 100.8838,
       status: "APPROVED",
       isAnonymous: true,
       isDemo: true,
@@ -1928,6 +1944,9 @@ async function main() {
       endDate: new Date(now.getTime() + 1000 * 60 * 60 * 3),
       locationName: "Terminal 21 Pattaya",
       address: "Terminal 21, Pattaya",
+      // координаты Terminal 21 Pattaya — OpenStreetMap (Nominatim), 2026-07-24
+      latitude: 12.9498756,
+      longitude: 100.8897673,
       status: "APPROVED",
       isAnonymous: true,
       isDemo: true,
@@ -1942,6 +1961,9 @@ async function main() {
       endDate: new Date(now.getTime() + 1000 * 60 * 60 * 3),
       locationName: "Terminal 21 Pattaya",
       address: "Terminal 21, Pattaya",
+      // координаты Terminal 21 Pattaya — OpenStreetMap (Nominatim), 2026-07-24
+      latitude: 12.9498756,
+      longitude: 100.8897673,
       status: "APPROVED",
       isAnonymous: true,
       isDemo: true,
@@ -1977,6 +1999,9 @@ async function main() {
       endDate: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 9),
       locationName: "City Park Pattaya",
       address: "Pattaya City Park",
+      // городской парк Паттайи (สวนสาธารณะเมืองพัทยา) — OpenStreetMap, 2026-07-24
+      latitude: 12.8854685,
+      longitude: 100.9221101,
       status: "APPROVED",
       isAnonymous: true,
       isDemo: true,
@@ -1991,6 +2016,9 @@ async function main() {
       endDate: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 9),
       locationName: "City Park Pattaya",
       address: "Pattaya City Park",
+      // городской парк Паттайи (สวนสาธารณะเมืองพัทยา) — OpenStreetMap, 2026-07-24
+      latitude: 12.8854685,
+      longitude: 100.9221101,
       status: "APPROVED",
       isAnonymous: true,
       isDemo: true,
