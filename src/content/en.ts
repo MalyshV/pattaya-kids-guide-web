@@ -20,6 +20,7 @@ export const en: Dictionary = {
     birthdays: "Birthdays",
     aria: "Site sections",
     langAria: "Language",
+    sectionsAria: "Sections",
     themeToggle: "Switch color theme",
     skipToContent: "Skip to main content",
   },
@@ -63,6 +64,7 @@ export const en: Dictionary = {
   },
 
   memory: {
+    menuAria: "Saved and visited",
     navSaved: "Saved",
     navVisited: "Been here",
     pageTitle: "Saved",
@@ -221,9 +223,10 @@ export const en: Dictionary = {
       evening: "evening — it'll be different in the morning",
       night: "late night — it'll be different in the morning",
     },
-    refresh: "Show others",
+    refresh: "show others",
     refreshAria: "Show other options",
     allCatalog: "Full catalog",
+    mapTitle: "On the map",
     onMap: "View on the map",
     scenarios: {
       ageBefore: "Activities for kids aged",

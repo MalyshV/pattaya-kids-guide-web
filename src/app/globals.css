@@ -3585,10 +3585,15 @@ html[data-theme="dark"] .theme-toggle-moon {
    три живых ответа. Первый экран свят: ничего лишнего.
    ============================================================ */
 .landing-shell {
+  /* карта живёт ниже сгиба — сам shell обычный поток */
+  display: block;
+}
+
+/* первый экран: герой занимает вьюпорт за вычетом шапки и паддингов page-shell */
+.landing-hero-viewport {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* воздух: герой занимает вьюпорт за вычетом шапки и паддингов page-shell */
   min-height: calc(100dvh - 200px);
 }
 
@@ -3599,7 +3604,8 @@ html[data-theme="dark"] .theme-toggle-moon {
 
 .landing-question {
   margin: 0;
-  font-size: clamp(28px, 5vw, 42px);
+  font-size: clamp(27px, 4.6vw, 40px);
+  font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.01em;
 }
@@ -3614,7 +3620,8 @@ html[data-theme="dark"] .theme-toggle-moon {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
-  margin: 36px auto 0;
+  /* воздух: подпись «ответы сменятся» не должна липнуть к карточкам */
+  margin: 56px auto 0;
   max-width: 880px;
 }
 
@@ -3624,10 +3631,19 @@ html[data-theme="dark"] .theme-toggle-moon {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 22px 18px;
+  padding: 24px 18px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.landing-card:hover,
+.landing-card:focus-within {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
 }
 
 /* вся карточка кликабельна растянутой ссылкой (паттерн place-card) */
@@ -3643,10 +3659,17 @@ html[data-theme="dark"] .theme-toggle-moon {
   outline-offset: 2px;
 }
 
-.landing-card-emoji {
-  margin: 0;
-  font-size: 22px;
-  letter-spacing: 6px;
+/* пара line-art пиктограмм над ответом — шалфей, как графика статусов */
+.landing-card-icons {
+  margin: 0 0 4px;
+  display: flex;
+  gap: 12px;
+  color: var(--sage);
+}
+
+.landing-card-icons svg {
+  width: 22px;
+  height: 22px;
 }
 
 .landing-card-title {
@@ -3680,7 +3703,10 @@ html[data-theme="dark"] .theme-toggle-moon {
 }
 
 .landing-refresh {
-  margin-top: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 34px;
   padding: 8px 16px;
   border: none;
   background: none;
@@ -3696,12 +3722,12 @@ html[data-theme="dark"] .theme-toggle-moon {
 }
 
 .landing-refresh-icon {
-  display: inline-block;
-  font-size: 15px;
+  width: 15px;
+  height: 15px;
 }
 
 .landing-exits {
-  margin: 34px 0 0;
+  margin: 40px 0 0;
   font-size: 15px;
 }
 
@@ -3722,7 +3748,7 @@ html[data-theme="dark"] .theme-toggle-moon {
 }
 
 @media (max-width: 640px) {
-  .landing-shell {
+  .landing-hero-viewport {
     align-items: flex-start;
     min-height: 0;
   }
@@ -3812,13 +3838,138 @@ html[data-theme="dark"] .theme-toggle-moon {
     position: relative;
   }
 
-  .header-search {
+  .header-search,
+  .header-menu {
     position: static;
   }
 
-  .header-search-panel {
+  .header-search-panel,
+  .header-menu-dropdown {
     left: 0;
     right: 0;
     width: auto;
   }
+}
+
+/* стрелка у «Смотреть на карте» — тихий намёк, что карта ниже на странице */
+.landing-exit-arrow {
+  color: var(--muted);
+}
+
+/* карта посадочной: ниже сгиба, к ней ведёт плавный скролл по якорю */
+.landing-map {
+  margin-top: 18vh;
+  /* воздух над заголовком карты после якорного скролла */
+  scroll-margin-top: 84px;
+}
+
+.landing-map-title {
+  margin: 0 0 14px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* до ленивого маунта Leaflet держим высоту — якорю есть куда ехать */
+.landing-map > div {
+  min-height: min(65vh, 560px);
+  border-radius: 18px;
+  background: var(--surface-deep);
+}
+
+/* меню-кнопки компактной шапки посадочной (разделы, ♡): в один ряд и в одном
+   стиле с лупой/темой/языком */
+/* обёртка компакт-навигации посадочной: тот же ряд, что и у кнопок справа */
+.header-compact-nav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header-menu {
+  position: relative;
+  display: inline-flex;
+}
+
+.header-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.header-menu-trigger:hover,
+.header-menu-trigger[aria-expanded="true"] {
+  color: var(--accent-text);
+  background: var(--tint-hover);
+}
+
+.header-menu-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.header-menu-trigger svg {
+  width: 17px;
+  height: 17px;
+}
+
+.header-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 196px;
+  max-width: calc(100vw - 24px);
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.header-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: background 0.15s ease;
+}
+
+.header-menu-item:hover {
+  background: var(--tint-hover);
+}
+
+.header-menu-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.header-menu-item-mark {
+  color: var(--sage);
+}
+
+.header-menu-item-count {
+  margin-left: auto;
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--chip-bg);
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
 }
