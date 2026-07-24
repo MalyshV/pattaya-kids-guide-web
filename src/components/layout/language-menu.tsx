@@ -129,38 +129,27 @@ export function LanguageMenu(): React.ReactElement {
     }
   };
 
-  // Safari (Mac и iPhone) не фокусирует ссылки по клику: при клике по пункту
-  // фокус «падает» на body, прилетает blur с relatedTarget=null — и закрытие
-  // по blur размонтировало бы пункт ДО его click, навигация не происходила
-  // (в Chrome фокус переходит на пункт, поэтому там баг не виден). Флаг
-  // «жест начался внутри меню» просит blur не закрывать; сбрасывается
-  // макротаской — click успевает раньше неё.
-  const pointerInsideRef = useRef(false);
-  const onRootPointerDownCapture = (): void => {
-    pointerInsideRef.current = true;
-    window.setTimeout(() => {
-      pointerInsideRef.current = false;
-    }, 0);
-  };
-
-  // уход фокуса за пределы меню (напр. по Tab) — закрываем, чтобы не оставлять
-  // раскрытый список без фокуса
+  // Уход фокуса за пределы меню (Tab/Shift+Tab) — закрываем, чтобы не
+  // оставлять раскрытый список без фокуса. Закрываем ТОЛЬКО когда фокус
+  // реально перешёл к другому элементу (relatedTarget есть и он вне меню).
+  //
+  // Blur с relatedTarget=null НЕ закрывает: Safari (Mac) не фокусирует
+  // ссылки по клику, а на iPhone blur и вовсе прилетает после отпускания
+  // пальца — в обоих случаях фокус «падает» на body, и закрытие здесь
+  // размонтировало бы пункт ДО его click: меню схлопывалось, язык не
+  // менялся. (Первый фикс с флагом pointerdown+setTimeout(0) чинил только
+  // десктоп: на тач события мыши приходят позже макротаски сброса.)
+  // Случай «фокус ушёл в никуда кликом мимо» закрывает pointerdown-слушатель
+  // на document, Escape — свой обработчик; без фокуса меню не остаётся.
   const onRootBlur = (event: React.FocusEvent): void => {
-    if (pointerInsideRef.current) {
-      return;
-    }
-    if (!rootRef.current?.contains(event.relatedTarget as Node)) {
+    const next = event.relatedTarget as Node | null;
+    if (next !== null && !rootRef.current?.contains(next)) {
       setOpen(false);
     }
   };
 
   return (
-    <div
-      className="lang-menu"
-      ref={rootRef}
-      onBlur={onRootBlur}
-      onPointerDownCapture={onRootPointerDownCapture}
-    >
+    <div className="lang-menu" ref={rootRef} onBlur={onRootBlur}>
       <button
         ref={buttonRef}
         type="button"
