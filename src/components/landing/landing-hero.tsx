@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
+import { RefreshIcon, SCENARIO_ICONS } from "@/components/landing/scenario-icons";
 import {
   visibleScenarios,
   yearsToAgeBucket,
@@ -19,7 +20,6 @@ import {
 
 export type LandingScenarioDto = {
   key: ScenarioKey;
-  emoji: string[];
   /** готовая ссылка; для age — база, к которой клиент цепляет ?age= */
   href: string;
   needsAge?: boolean;
@@ -107,8 +107,10 @@ export function LandingHero({
               // паттерн place-card: карточка кликабельна растянутой ссылкой
               // (::after), крутилка возраста лежит поверх неё (z-index)
               <article key={scenario.key} className="landing-card">
-                <p className="landing-card-emoji" aria-hidden="true">
-                  {scenario.emoji.join(" ")}
+                <p className="landing-card-icons" aria-hidden="true">
+                  {SCENARIO_ICONS[scenario.key].map((Icon, index) => (
+                    <Icon key={index} />
+                  ))}
                 </p>
                 <h2 className="landing-card-title">
                   <Link
@@ -140,8 +142,10 @@ export function LandingHero({
 
           return (
             <article key={scenario.key} className="landing-card">
-              <p className="landing-card-emoji" aria-hidden="true">
-                {scenario.emoji.join(" ")}
+              <p className="landing-card-icons" aria-hidden="true">
+                {SCENARIO_ICONS[scenario.key].map((Icon, index) => (
+                  <Icon key={index} />
+                ))}
               </p>
               <h2 className="landing-card-title">
                 <Link href={scenario.href} className="landing-card-link">
@@ -161,9 +165,7 @@ export function LandingHero({
           aria-label={dict.landing.refreshAria}
           onClick={() => setOffset((value) => value + 1)}
         >
-          <span className="landing-refresh-icon" aria-hidden="true">
-            ↻
-          </span>{" "}
+          <RefreshIcon className="landing-refresh-icon" />
           {dict.landing.refresh}
         </button>
       ) : null}
@@ -175,9 +177,40 @@ export function LandingHero({
         <span className="landing-exit-divider" aria-hidden="true">
           ·
         </span>
-        <Link href={`${listPath}?view=map`} className="landing-exit-link">
+        {/* карта живёт на этой же странице ниже сгиба — плавно подводим к ней;
+            href остаётся якорем для новой вкладки и без JS */}
+        <a
+          href="#map"
+          className="landing-exit-link"
+          onClick={(event) => {
+            // модифицированный клик (новая вкладка/окно) отдаём браузеру —
+            // сработает обычный href="#map"
+            if (
+              event.defaultPrevented ||
+              event.button !== 0 ||
+              event.metaKey ||
+              event.ctrlKey ||
+              event.shiftKey ||
+              event.altKey
+            ) {
+              return;
+            }
+            event.preventDefault();
+            const reduceMotion = window.matchMedia(
+              "(prefers-reduced-motion: reduce)",
+            ).matches;
+            document.getElementById("map")?.scrollIntoView({
+              behavior: reduceMotion ? "auto" : "smooth",
+              block: "start",
+            });
+          }}
+        >
           {dict.landing.onMap}
-        </Link>
+          <span className="landing-exit-arrow" aria-hidden="true">
+            {" "}
+            ↓
+          </span>
+        </a>
       </p>
     </section>
   );

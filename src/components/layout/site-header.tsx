@@ -8,6 +8,7 @@ import { useParentMemory } from "@/lib/memory/use-parent-memory";
 import { listByKind } from "@/lib/memory/parent-memory";
 import { markClientNavigation } from "@/components/common/smart-back-link";
 import { HeaderSearch } from "@/components/layout/header-search";
+import { MemoryMenu, SectionsMenu } from "@/components/layout/header-menus";
 import { LanguageMenu } from "@/components/layout/language-menu";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import type { SearchItemDto } from "@/dto/search-item.dto";
@@ -39,15 +40,6 @@ function NavLinks({
   const dict = useDictionary();
   const { items, hydrated } = useParentMemory();
 
-  // считаем клиентские переходы для SmartBackLink: только смену pathname,
-  // первый рендер страницы переходом не является
-  const prevPathnameRef = useRef(pathname);
-  useEffect(() => {
-    if (prevPathnameRef.current !== pathname) {
-      prevPathnameRef.current = pathname;
-      markClientNavigation();
-    }
-  }, [pathname]);
   const isEvents = pathname.startsWith(`${basePath}/events`);
   const isActivities = pathname.startsWith(`${basePath}/activities`);
   const isBirthdays = pathname.startsWith(`${basePath}/birthdays`);
@@ -123,9 +115,28 @@ function HeaderRight({
   searchItems?: SearchItemDto[];
 }): React.ReactElement {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const age = searchParams.get("age");
+
+  // Посадочная встречает вопросом, а не десятью ссылками: разделы и память
+  // родителя свёрнуты в кнопки-меню в один ряд с лупой/темой/языком.
+  // На остальных страницах — обычная навигация-строка.
+  const isLanding = pathname === basePath;
+
+  const dict = useDictionary();
+
   return (
     <div className="site-header-right">
-      <NavLinks basePath={basePath} age={searchParams.get("age")} />
+      {isLanding ? (
+        // тот же nav-ориентир, что у NavLinks: скринридер находит навигацию
+        // и на посадочной, просто в свёрнутом виде
+        <nav className="header-compact-nav" aria-label={dict.nav.aria}>
+          <SectionsMenu basePath={basePath} age={age} />
+          <MemoryMenu basePath={basePath} age={age} />
+        </nav>
+      ) : (
+        <NavLinks basePath={basePath} age={age} />
+      )}
       {searchItems ? <HeaderSearch basePath={basePath} items={searchItems} /> : null}
       <ThemeToggle />
       <LanguageMenu />
@@ -137,6 +148,21 @@ export function SiteHeader({
   basePath,
   searchItems,
 }: SiteHeaderProps): React.ReactElement {
+  const pathname = usePathname();
+
+  // Считаем клиентские переходы для SmartBackLink: только смену pathname,
+  // первый рендер страницы переходом не является. Живёт в SiteHeader (а не в
+  // NavLinks): на посадочной вместо NavLinks рендерятся кнопки-меню, а шапка
+  // смонтирована всегда — иначе первый переход с посадочной не считался бы
+  // и «← Назад» на детальной вёл бы в каталог вместо возврата.
+  const prevPathnameRef = useRef(pathname);
+  useEffect(() => {
+    if (prevPathnameRef.current !== pathname) {
+      prevPathnameRef.current = pathname;
+      markClientNavigation();
+    }
+  }, [pathname]);
+
   return (
     <header className="site-header">
       <div className="site-header-inner">

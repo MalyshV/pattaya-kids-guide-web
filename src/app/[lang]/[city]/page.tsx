@@ -1,5 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { LandingHero, type LandingScenarioDto } from "@/components/landing/landing-hero";
+import { LazyMount } from "@/components/common/lazy-mount";
+import { PlacesMap, type PlaceMapMarker } from "@/components/places/places-map";
 import { JsonLd } from "@/components/seo/json-ld";
 import { websiteJsonLd } from "@/lib/seo/json-ld";
 import { getAllApprovedPlaces, getBirthdayPlaces } from "@/services/places.service";
@@ -66,18 +68,6 @@ const CATALOG_PARAMS = new Set([
   "canLeaveChild",
   "animalContact",
 ]);
-
-/** Эмоджи-подсказки сценариев (тексты — в словарях). */
-const SCENARIO_EMOJI: Record<ScenarioKey, string[]> = {
-  age: ["🧩", "✏️"],
-  workFriendly: ["💻", "📶"],
-  openMorning: ["🌅", "🕗"],
-  openNow: ["🏃", "✨"],
-  shelter: ["❄️", "🌴"],
-  events: ["🎪", "📅"],
-  birthdays: ["🎂", "🎈"],
-  near: ["📍", "🚶"],
-};
 
 export default async function CityLandingPage({
   params,
@@ -158,9 +148,24 @@ export default async function CityLandingPage({
 
   const scenarios: LandingScenarioDto[] = pool.map((key) => ({
     key,
-    emoji: SCENARIO_EMOJI[key],
     ...scenarioHrefs[key],
   }));
+
+  // Карта живёт на этой же странице ниже сгиба (первый экран свят — карту
+  // «просто так» не видно, к ней ведёт «Смотреть на карте» плавным скроллом).
+  // Пока это карта мест; единая карта всех сущностей — следующий шаг.
+  const markers: PlaceMapMarker[] = places
+    .filter(
+      (place) => Number.isFinite(place.latitude) && Number.isFinite(place.longitude),
+    )
+    .map((place) => ({
+      id: place.id,
+      name: place.name,
+      slug: place.slug,
+      latitude: place.latitude,
+      longitude: place.longitude,
+      imageUrl: place.imageUrl,
+    }));
 
   return (
     <main className="page-shell landing-shell">
@@ -169,7 +174,20 @@ export default async function CityLandingPage({
       <JsonLd
         data={websiteJsonLd({ name: dict.brand, url: getSiteUrl(), inLanguage: lang })}
       />
-      <LandingHero slot={slot} scenarios={scenarios} listPath={listPath} />
+      {/* первый экран — вопрос и ответы, занимает вьюпорт целиком */}
+      <div className="landing-hero-viewport">
+        <LandingHero slot={slot} scenarios={scenarios} listPath={listPath} />
+      </div>
+
+      {/* ниже сгиба: карта; Leaflet монтируется только при приближении.
+          Без aria-label: внутри PlacesMap уже есть region «Карта мест»,
+          второй почти одноимённый ориентир только путал бы скринридер */}
+      <section id="map" className="landing-map">
+        <h2 className="landing-map-title">{dict.landing.mapTitle}</h2>
+        <LazyMount>
+          <PlacesMap markers={markers} userPoint={null} basePath={basePath} />
+        </LazyMount>
+      </section>
     </main>
   );
 }

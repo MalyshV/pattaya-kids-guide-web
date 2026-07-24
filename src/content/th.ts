@@ -24,6 +24,7 @@ export const th: Dictionary = {
     birthdays: "วันเกิด",
     aria: "หมวดของเว็บไซต์",
     langAria: "เลือกภาษา",
+    sectionsAria: "หมวดหมู่",
     themeToggle: "สลับธีมสีเว็บไซต์",
     skipToContent: "ไปยังเนื้อหาหลัก",
   },
@@ -68,6 +69,7 @@ export const th: Dictionary = {
   },
 
   memory: {
+    menuAria: "ที่บันทึกไว้และเคยไปแล้ว",
     navSaved: "ที่บันทึกไว้",
     navVisited: "เคยไปแล้ว",
     pageTitle: "รายการของฉัน",
@@ -223,6 +225,7 @@ export const th: Dictionary = {
     refresh: "ดูตัวเลือกอื่น",
     refreshAria: "แสดงตัวเลือกอื่น",
     allCatalog: "ดูทั้งหมด",
+    mapTitle: "บนแผนที่",
     onMap: "ดูบนแผนที่",
     scenarios: {
       ageBefore: "กิจกรรมสำหรับเด็กวัย",
