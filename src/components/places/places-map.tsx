@@ -270,10 +270,14 @@ export function PlacesMap({
       <ul className="map-legend" aria-label={dict.places.mapLegend.title}>
         {legendKinds.map((kind) => (
           <li key={kind} className="map-legend-item">
+            {/* та же фигура, что и пин на карте — легенда учит форме, не
+                только цвету (текст рядом остаётся для доступности) */}
             <span
-              className="map-legend-dot"
-              style={{ background: PIN_COLOR[kind] }}
+              className="map-legend-icon"
               aria-hidden="true"
+              dangerouslySetInnerHTML={{
+                __html: PIN_SHAPE[kind].html(PIN_COLOR[kind]),
+              }}
             />
             {dict.places.mapLegend[kind]}
           </li>
