@@ -44,6 +44,20 @@
   --chip-bg: #eee7de;
   /* светлая сердцевина ореола за шариком-заглушкой обложки */
   --placeholder-glow: #fbf7f2;
+  /* Свой чекбокс. Граница КОНТРОЛА темнее обычной --border: рамка поля
+     ввода — не декор, её видимость обязана держать 3:1 на всех фонах,
+     где чекбокс встречается (карточка, плитка фильтра, глубокая зона).
+     Галочка своим токеном, потому что на светлой заливке тёмной темы
+     белая читалась бы хуже нормы. */
+  --control-border: #857d70;
+  --control-fill: #a9563a;
+  --control-check: #ffffff;
+  /* текст поверх затемняющей подложки (лайтбокс): подложка тёмная в ОБЕИХ
+     темах, поэтому цвет один — раньше здесь стоял --surface, и в тёмной
+     теме счётчик «2 из 4» становился тёмным на тёмном */
+  --on-overlay: #fffdf9;
+  /* выбранная половинка переключателя «Список | Карта» */
+  --toggle-active-bg: #fffdf9;
   /* янтарь — предупреждения («скоро закрытие») */
   --amber-text: #855426;
   --amber-bg: #f6eee1;
@@ -92,6 +106,14 @@ html[data-theme="dark"] {
   --tint-active: #4a3327;
   --chip-bg: #423729;
   --placeholder-glow: #4c3e2e;
+  /* заливка светлее светлой темы (на тёмной плитке --accent-strong давал
+     всего 2.37:1 — слабее нативного контрола, который мы заменили),
+     поэтому и галочка на ней тёмная */
+  --control-border: #9c8f7c;
+  --control-fill: #d8865e;
+  --control-check: #211b14;
+  /* здесь «выступает» — значит светлее дорожки, а не белее */
+  --toggle-active-bg: #4c4133;
   --amber-text: #e0b273;
   --amber-bg: #42351f;
   --danger-text: #e2836e;
@@ -156,7 +178,7 @@ input[type="checkbox"] {
   height: 17px;
   flex: none;
   margin: 0;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--control-border);
   border-radius: 5px;
   background: var(--surface);
   cursor: pointer;
@@ -172,7 +194,7 @@ input[type="checkbox"]::after {
   content: "";
   width: 9px;
   height: 5px;
-  border: 2px solid var(--accent-foreground);
+  border: 2px solid var(--control-check);
   border-top: none;
   border-right: none;
   border-radius: 1px;
@@ -181,8 +203,8 @@ input[type="checkbox"]::after {
 }
 
 input[type="checkbox"]:checked {
-  background: var(--accent-strong);
-  border-color: var(--accent-strong);
+  background: var(--control-fill);
+  border-color: var(--control-fill);
 }
 
 input[type="checkbox"]:checked::after {
@@ -400,8 +422,6 @@ input[type="checkbox"]:focus-visible {
   border: 1px solid var(--border);
   border-radius: 16px;
   background: var(--surface-muted);
-  /* галочка в тон дизайну вместо системной синей */
-  accent-color: var(--accent);
   color: var(--foreground);
   cursor: pointer;
   transition: background 0.15s ease;
@@ -424,20 +444,9 @@ input[type="checkbox"]:focus-visible {
   background: var(--surface-deep);
 }
 
-/* размер, флекс-фикс («флекс сжимал чекбокс рядом с длинным текстом»)
-   и курсор теперь в базовом input[type="checkbox"] — здесь только то,
-   что отличает чекбокс ВНУТРИ плитки: на её приглушённом фоне он
-   светлее, иначе тонул бы в ней */
-.filter-toggle input {
-  background: var(--surface);
-}
-
-/* активная плитка залита терракотой — чекбокс на ней держится белым
-   контуром, а не растворяется в заливке */
-.filter-toggle-active input {
-  border-color: var(--accent-foreground);
-  background: transparent;
-}
+/* Размер, флекс-фикс («флекс сжимал чекбокс рядом с длинным текстом») и
+   курсор задаёт базовый input[type="checkbox"] — своих правил плитке не
+   нужно: рамка контрола держит 3:1 и на её приглушённом фоне. */
 
 .filter-toggle-active {
   background: var(--accent-strong);
@@ -1333,7 +1342,7 @@ input[type="checkbox"]:focus-visible {
   padding: 6px 14px;
   border-radius: 999px;
   background: rgba(43, 36, 27, 0.7);
-  color: var(--surface);
+  color: var(--on-overlay);
   font-size: 14px;
 }
 
@@ -1512,8 +1521,13 @@ input[type="checkbox"]:focus-visible {
   color: var(--sage);
 }
 
+/* выбранная половинка «Список | Карта» выступает из своей дорожки. В
+   светлой её поднимала белая заливка и тень; в тёмной обе не работали
+   (заливка выходила ТЕМНЕЕ дорожки, тень на тёмном не видна) — активность
+   держалась на одном цвете текста. Токен даёт «выступающую» сторону в
+   каждой палитре, тень осталась подспорьем для светлой. */
 .view-toggle-active {
-  background: var(--surface);
+  background: var(--toggle-active-bg);
   color: var(--sage);
   box-shadow: 0 1px 3px rgba(60, 50, 35, 0.12);
 }
