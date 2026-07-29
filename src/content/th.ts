@@ -111,6 +111,7 @@ export const th: Dictionary = {
     filterEmptyHiddenHint:
       "ทุกสถานที่ในผลลัพธ์นี้มีเครื่องหมาย ✓ “เคยไปแล้ว” — ปิดตัวกรองเพื่อดูทั้งหมด",
     filterEmptyCta: "แสดงทั้งหมด",
+    filterApplying: "กำลังใช้ตัวกรองตามเครื่องหมาย “เคยไปแล้ว”…",
   },
 
   age: {

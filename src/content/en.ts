@@ -106,6 +106,7 @@ export const en: Dictionary = {
     filterEmptyHiddenHint:
       "All of these results carry the ✓ “been here” mark — show all to see them.",
     filterEmptyCta: "Show all",
+    filterApplying: "Applying your “been here” filter…",
   },
 
   age: {
