@@ -42,6 +42,8 @@
   --tint-active: #fbf1ec;
   /* нейтральные чипы-теги («В помещении») */
   --chip-bg: #eee7de;
+  /* светлая сердцевина ореола за шариком-заглушкой обложки */
+  --placeholder-glow: #fbf7f2;
   /* янтарь — предупреждения («скоро закрытие») */
   --amber-text: #855426;
   --amber-bg: #f6eee1;
@@ -54,19 +56,26 @@
    терракота и шалфей чуть светлее (контраст на тёмном), белых пятен нет.
    Темой управляет data-theme на <html>: его до первой отрисовки выставляет
    инлайн-скрипт (см. src/lib/theme/theme-script.ts) — сохранённый выбор
-   пользователя или системная настройка; кнопка в шапке переключает. */
+   пользователя или системная настройка; кнопка в шапке переключает.
+
+   ГЛУБИНА ЗДЕСЬ ДЕЛАЕТСЯ СВЕТЛОТОЙ, А НЕ ТЕНЬЮ. В светлой теме карточку
+   поднимает мягкая тень, но на тёмном фоне чёрная тень не видна вовсе —
+   поэтому каждый следующий слой (фон → карточка → приглушённая зона →
+   глубокая) здесь светлее предыдущего, лесенкой. Отсюда правило для новых
+   цветов: подбирать не «красиво само по себе», а на своём слое — плашка
+   должна отделяться от карточки, а карточка от фона. */
 html[data-theme="dark"] {
   /* тёмная схема: браузер сам красит скроллбары и нативные контролы */
   color-scheme: dark;
   --background: #211b14;
-  --surface: #2a231b;
-  --surface-muted: #342c21;
-  --surface-deep: #3e3528;
-  --surface-veil: rgba(42, 35, 27, 0.92);
-  --surface-veil-soft: rgba(42, 35, 27, 0.82);
+  --surface: #352c22;
+  --surface-muted: #3d3429;
+  --surface-deep: #463c2f;
+  --surface-veil: rgba(53, 44, 34, 0.92);
+  --surface-veil-soft: rgba(53, 44, 34, 0.82);
   --foreground: #ede5d8;
-  --muted: #a99e8d;
-  --border: #493f31;
+  --muted: #b3a897;
+  --border: #564a39;
   --border-soft: rgba(237, 229, 216, 0.22);
   --accent: #d8865e;
   --accent-foreground: #ffffff;
@@ -76,16 +85,20 @@ html[data-theme="dark"] {
   --accent-hover: #b95f3d;
   --sage: #a9c3ad;
   --sage-strong: #c4d7c6;
-  --sage-bg: #2c352c;
-  --sage-border: #4e6151;
+  --sage-bg: #334033;
+  --sage-border: #5a6f5c;
   --sage-graphic: #71856f;
-  --tint-hover: #322a20;
-  --tint-active: #3d2e25;
-  --chip-bg: #3a3126;
-  --amber-text: #d9a968;
-  --amber-bg: #3b3120;
+  --tint-hover: #3e3429;
+  --tint-active: #4a3327;
+  --chip-bg: #423729;
+  --placeholder-glow: #4c3e2e;
+  --amber-text: #e0b273;
+  --amber-bg: #42351f;
   --danger-text: #e2836e;
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  /* короче и плотнее светлой: работает как контактная тень у краёв
+     приподнятой карточки, а не как размытое пятно, которое на тёмном
+     фоне всё равно не читается */
+  --shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
 }
 
 html {
@@ -129,6 +142,60 @@ a {
 button,
 input {
   font: inherit;
+}
+
+/* Свой чекбокс вместо системного. Нативный квадратик браузер красит
+   холодно-серым, и в тёплой палитре (особенно в тёмной теме, где он
+   единственное синеватое пятно среди кофейных плиток) он выглядит
+   чужим. Здесь та же геометрия, что у системного, но рамка и заливка —
+   на наших токенах, поэтому обе темы получают его бесплатно. */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 17px;
+  height: 17px;
+  flex: none;
+  margin: 0;
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  background: var(--surface);
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+/* галочка рисуется одним уголком из бордера — без картинок и шрифтов */
+input[type="checkbox"]::after {
+  content: "";
+  width: 9px;
+  height: 5px;
+  border: 2px solid var(--accent-foreground);
+  border-top: none;
+  border-right: none;
+  border-radius: 1px;
+  transform: rotate(-45deg) translate(1px, -1px);
+  opacity: 0;
+}
+
+input[type="checkbox"]:checked {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+input[type="checkbox"]:checked::after {
+  opacity: 1;
+}
+
+input[type="checkbox"]:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .page-shell {
@@ -357,12 +424,19 @@ input {
   background: var(--surface-deep);
 }
 
+/* размер, флекс-фикс («флекс сжимал чекбокс рядом с длинным текстом»)
+   и курсор теперь в базовом input[type="checkbox"] — здесь только то,
+   что отличает чекбокс ВНУТРИ плитки: на её приглушённом фоне он
+   светлее, иначе тонул бы в ней */
 .filter-toggle input {
-  width: 16px;
-  height: 16px;
-  /* фикс-размер: флекс сжимал чекбокс рядом с длинным текстом */
-  flex: none;
-  cursor: pointer;
+  background: var(--surface);
+}
+
+/* активная плитка залита терракотой — чекбокс на ней держится белым
+   контуром, а не растворяется в заливке */
+.filter-toggle-active input {
+  border-color: var(--accent-foreground);
+  background: transparent;
 }
 
 .filter-toggle-active {
@@ -701,7 +775,7 @@ input {
 
 .admin-card {
   background: var(--surface);
-  border: 1px solid rgba(60, 50, 35, 0.1);
+  border: 1px solid var(--border-soft);
   border-radius: 18px;
   padding: 24px;
 }
@@ -729,7 +803,7 @@ input {
 
 .admin-list-item {
   background: var(--surface);
-  border: 1px solid rgba(60, 50, 35, 0.1);
+  border: 1px solid var(--border-soft);
   border-radius: 14px;
 }
 
@@ -808,7 +882,7 @@ input {
 }
 
 .admin-fieldset {
-  border: 1px solid rgba(60, 50, 35, 0.12);
+  border: 1px solid var(--border-soft);
   border-radius: 14px;
   padding: 14px 16px;
   display: grid;
@@ -899,7 +973,7 @@ input {
 .admin-divider {
   margin: 28px 0;
   border: none;
-  border-top: 1px solid rgba(60, 50, 35, 0.12);
+  border-top: 1px solid var(--border-soft);
 }
 
 /* Блок «Разобрать афишу» над формой события: визуально отделён от полей,
@@ -1025,7 +1099,7 @@ input {
   aspect-ratio: 4 / 3;
   object-fit: cover;
   border-radius: 12px;
-  border: 1px solid rgba(60, 50, 35, 0.1);
+  border: 1px solid var(--border-soft);
 }
 
 /* лайтбокс: клик по фото — увеличить; закрыть — шарик, Esc или клик вне */
@@ -1366,7 +1440,7 @@ input {
   padding: 6px;
   list-style: none;
   background: var(--surface);
-  border: 1px solid rgba(60, 50, 35, 0.1);
+  border: 1px solid var(--border-soft);
   border-radius: 18px;
   box-shadow: 0 10px 30px var(--border-soft);
 }
@@ -1453,7 +1527,7 @@ input {
   height: min(65vh, 560px);
   border-radius: 18px;
   overflow: hidden;
-  border: 1px solid rgba(60, 50, 35, 0.1);
+  border: 1px solid var(--border-soft);
   /* свой stacking-context: панели Leaflet (z-index до ~700) не всплывают
      над шапкой и кнопкой «наверх» */
   isolation: isolate;
@@ -1630,10 +1704,12 @@ html[data-theme="dark"] .place-image-img {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* тёплый ореол за шариком — обложка «ждёт фото», а не серый провал */
+  /* тёплый ореол за шариком — обложка «ждёт фото», а не серый провал.
+     Центр берём из своего токена, а не из --tint-hover: в тёмной палитре
+     тот почти совпал с --surface-muted, и ореол выродился в плоское пятно */
   background: radial-gradient(
     circle at 50% 44%,
-    var(--tint-hover) 0%,
+    var(--placeholder-glow) 0%,
     var(--surface-muted) 72%
   );
   color: var(--accent);
