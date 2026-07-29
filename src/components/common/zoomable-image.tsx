@@ -2,6 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import {
+  hasLightboxHistoryEntry,
+  openLightboxHistoryEntry,
+  subscribeLightboxHistoryGuard,
+} from "@/components/common/lightbox-history";
 import { PlaceImage } from "@/components/places/place-image";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
 
@@ -9,6 +14,11 @@ import { useDictionary } from "@/lib/i18n/use-dictionary";
  * Фото с увеличением: клик открывает лайтбокс на весь экран. Закрытие —
  * клик вне фото, Esc или кнопка-шарик (нажал — шарик улетает вверх).
  * Без url ведёт себя как обычный PlaceImage-плейсхолдер, клика нет.
+ *
+ * История: открытие кладёт запись, закрытие всегда идёт через history.back()
+ * → popstate. После закрытия запись остаётся в forward-стеке без слушателя —
+ * «Вперёд» приводил бы на фантом, съедающий следующий «Назад»; такие записи
+ * гасит общий страж из lightbox-history (подписка mount-эффектом ниже).
  */
 
 type ZoomableImageProps = {
@@ -60,10 +70,13 @@ export function ZoomableImage({
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
 
+  // страж фантомных записей истории — один на вкладку (refcount в модуле)
+  useEffect(() => subscribeLightboxHistoryGuard(), []);
+
   // Запрос закрытия: откатываем свою запись истории — popstate закроет и
   // вернёт фокус. Если записи нет (edge) — закрываем напрямую.
   const requestClose = useCallback(() => {
-    if (window.history.state?.lightbox) {
+    if (hasLightboxHistoryEntry()) {
       window.history.back();
     } else {
       setIsOpen(false);
@@ -76,11 +89,13 @@ export function ZoomableImage({
   // (гасит лайтбокс и возвращает фокус, каким бы способом ни закрыли).
   // Закрытие всегда идёт через history.back(): cleanup back() не дёргаем,
   // иначе навигация ВПЕРЁД при открытом фото уводила бы на шаг назад.
+  // Модуль истории заодно считает открытые лайтбоксы — пока счётчик не
+  // обнулился (cleanup), страж в наш popstate не вмешивается.
   useEffect(() => {
     if (!isOpen) {
       return;
     }
-    window.history.pushState({ lightbox: true }, "");
+    const markClosed = openLightboxHistoryEntry();
 
     const onPopState = (): void => {
       setIsOpen(false);
@@ -88,7 +103,10 @@ export function ZoomableImage({
       triggerRef.current?.focus();
     };
     window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      markClosed();
+    };
   }, [isOpen]);
 
   // клик по шарику: даём анимации улететь, потом закрываем
