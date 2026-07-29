@@ -1,7 +1,7 @@
 import {
   SkeletonCardGrid,
+  SkeletonChipFilterRow,
   SkeletonChips,
-  SkeletonFiltersPanel,
   SkeletonHero,
   SkeletonPage,
   SkeletonResultsHeader,
@@ -19,8 +19,9 @@ export default function CityActivitiesLoading(): React.ReactElement {
 
       <SkeletonChips count={4} withLabel />
 
-      {/* панель «Тип занятий» — чипы категорий, как в ActivityFilters */}
-      <SkeletonFiltersPanel toggles={4} />
+      {/* панель «Тип занятий» — строка маленьких чипов, как в ActivityFilters
+          («Все» + категории); плитки-фасеты были бы вдвое выше настоящего */}
+      <SkeletonChipFilterRow count={5} />
 
       <SkeletonResultsHeader />
       <SkeletonCardGrid gridClassName="activities-grid" count={6} />

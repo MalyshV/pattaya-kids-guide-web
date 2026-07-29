@@ -88,8 +88,28 @@ export function SkeletonFiltersPanel({
 export function SkeletonResultsHeader(): React.ReactElement {
   return (
     <section className="results-header" aria-hidden="true">
-      <div className="skeleton-line skeleton-section-title" />
-      <div className="skeleton-line skeleton-count" />
+      {/* как на реальных страницах: заголовок и счётчик стопкой в одном
+          div — иначе flex-ряд .results-header разнёс бы их по краям */}
+      <div>
+        <div className="skeleton-line skeleton-section-title" />
+        <div className="skeleton-line skeleton-count" />
+      </div>
+    </section>
+  );
+}
+
+/** строка «подпись + маленькие чипы» — форма ActivityFilters (тип занятий) */
+export function SkeletonChipFilterRow({ count }: { count: number }): React.ReactElement {
+  return (
+    <section className="filters-panel" aria-hidden="true">
+      <div className="activity-filter-row">
+        <div className="skeleton-line skeleton-filter-label" />
+        <div className="filter-chips">
+          {Array.from({ length: count }, (_, index) => (
+            <div key={index} className="skeleton-line skeleton-filter-chip" />
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

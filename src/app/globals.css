@@ -3678,6 +3678,18 @@ html[data-theme="dark"] .theme-toggle-moon {
   border-radius: 16px;
 }
 
+/* строка «подпись + маленькие чипы» — форма activity-filter-row */
+.skeleton-filter-label {
+  width: 120px;
+  height: 15px;
+}
+
+.skeleton-filter-chip {
+  width: 84px;
+  height: 32px;
+  border-radius: 999px;
+}
+
 /* детальная: обложка той же формы, что place-image-hero */
 .skeleton-detail-banner {
   aspect-ratio: 16 / 7;
