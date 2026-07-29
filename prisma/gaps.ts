@@ -304,10 +304,12 @@ async function main(): Promise<void> {
   // Переводы: жёсткие EN-пробелы построчно (в счётчик), мягкие TH — одной
   // сводкой в конце. У Place нет nameEn/nameTh — названия мест и так бренды.
   console.log("🌐 Переводы");
-  console.log("   (без EN и en-, и th-версия молча показывают русский)\n");
+  console.log("   (без EN — и en-, и th-версия молча показывают русский)\n");
 
   let translationGaps = 0;
   let softThGaps = 0;
+  // места с EN-пробелами: не должны попасть в «✓ Без пробелов» ниже
+  const placesWithTranslationGaps = new Set<string>();
 
   for (const place of places) {
     const items: string[] = [];
@@ -363,6 +365,7 @@ async function main(): Promise<void> {
     if (items.length > 0) {
       console.log(`▸ ${place.name} — без EN: ${items.join("; ")}`);
       translationGaps += enCount;
+      placesWithTranslationGaps.add(place.name);
     }
   }
 
@@ -486,8 +489,11 @@ async function main(): Promise<void> {
     console.log("🎉 Все места заполнены — пробелов нет.\n");
   } else {
     console.log(`— Итого: ${totalGaps} пробел(ов) в ${placesWithGaps} мест(ах).`);
-    if (complete.length > 0) {
-      console.log(`✓ Без пробелов: ${complete.join(", ")}.`);
+    // «без пробелов» — честно только когда закрыты и факты, и EN-переводы:
+    // иначе место стояло бы одновременно в этой строке и в секции «Переводы»
+    const fullyComplete = complete.filter((name) => !placesWithTranslationGaps.has(name));
+    if (fullyComplete.length > 0) {
+      console.log(`✓ Без пробелов: ${fullyComplete.join(", ")}.`);
     }
     console.log("");
   }
