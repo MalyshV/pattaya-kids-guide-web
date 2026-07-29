@@ -18,7 +18,9 @@ import { cleanOcrText } from "@/lib/import/ocr-text";
  * Пока зона на экране, картинку можно и вставить (⌘V), и уронить в любое
  * место страницы: дроп мимо зоны по умолчанию УВОДИЛ бы вкладку на файл,
  * теряя заполненную форму. Скрины, прилетевшие во время распознавания,
- * не пропадают — дозабираются тем же воркером из очереди. Из-за этих
+ * не пропадают: очередь дозабирается тем же воркером, а хвост, успевший
+ * прилететь после последнего забора, уходит в повторный прогон — очередь
+ * только сливается в обработку, никогда не выбрасывается. Из-за этих
  * document-слушателей зона на странице должна быть ОДНА.
  */
 
@@ -89,126 +91,141 @@ export function OcrZone({
   const queueRef = useRef<File[]>([]);
 
   const recognizeFiles = useCallback(
-    async (files: File[]): Promise<void> => {
-      const images = files.filter((file) => file.type.startsWith("image/"));
-      if (busyRef.current) {
-        // «второй скрин» не теряется молча — дозаберём в текущем прогоне
-        if (images.length > 0) {
-          queueRef.current.push(...images);
-        }
-        return;
-      }
-      if (images.length === 0) {
-        setPhase({
-          kind: "error",
-          message: "Это не картинка — нужен скрин или фото (PNG/JPG).",
-        });
-        return;
-      }
-      busyRef.current = true;
-      try {
-        setPhase({
-          kind: "working",
-          message:
-            "Готовлю распознавание… при первом запуске докачается ~15 МБ, это может занять до минуты",
-        });
-
-        // Этап 1 — движок (сеть). tesseract v7 при обрыве скачивания
-        // словарей глотает отказ, и промис createWorker не завершается
-        // НИКОГДА — без спасательного errorHandler + таймаута зона зависла
-        // бы навсегда с занятым busyRef.
-        let worker;
-        try {
-          const { createWorker, OEM } = await import("tesseract.js");
-          let breakInit: (error: Error) => void = () => {};
-          const initFailed = new Promise<never>((_, reject) => {
-            breakInit = reject;
-          });
-          // поздние вызовы breakInit (ошибки recognize после старта) не
-          // должны становиться unhandled rejection
-          void initFailed.catch(() => {});
-          const timer = window.setTimeout(
-            () => breakInit(new Error("ocr init timeout")),
-            INIT_TIMEOUT_MS,
-          );
-          try {
-            worker = await Promise.race([
-              createWorker(OCR_LANGS, OEM.LSTM_ONLY, {
-                logger: (m) => {
-                  if (m.status === "recognizing text") {
-                    setPhase({
-                      kind: "working",
-                      message: `Распознаю текст… ${Math.round(m.progress * 100)}%`,
-                    });
-                  }
-                },
-                errorHandler: () => breakInit(new Error("ocr init failed")),
-              }),
-              initFailed,
-            ]);
-          } finally {
-            window.clearTimeout(timer);
+    (files: File[]): Promise<void> => {
+      // именованная функция вместо стрелки: колбэк перезапускает сам себя,
+      // когда в хвосте прогона (между последним забором очереди и finally —
+      // там есть await) успел прилететь новый файл
+      async function run(input: File[]): Promise<void> {
+        const images = input.filter((file) => file.type.startsWith("image/"));
+        if (busyRef.current) {
+          // «второй скрин» не теряется молча — дозаберём в текущем прогоне
+          // или в повторном (см. finally)
+          if (images.length > 0) {
+            queueRef.current.push(...images);
           }
-        } catch {
+          return;
+        }
+        if (images.length === 0) {
           setPhase({
             kind: "error",
-            message:
-              "Распознавание не запустилось — проверьте интернет и попробуйте ещё раз.",
+            message: "Это не картинка — нужен скрин или фото (PNG/JPG).",
           });
           return;
         }
-
-        // Этап 2 — сами файлы: ошибка формата (HEIC?) — это не «нет сети»,
-        // каждый файл ловим отдельно и честно считаем нечитаемые
-        const parts: string[] = [];
-        let unreadable = 0;
+        busyRef.current = true;
         try {
-          let batch = images;
-          while (batch.length > 0) {
-            for (const image of batch) {
-              try {
-                const source = await toRecognizable(image);
-                const { data } = await worker.recognize(source);
-                const cleaned = cleanOcrText(data.text);
-                if (cleaned !== "") {
-                  parts.push(cleaned);
-                }
-              } catch {
-                unreadable += 1;
-              }
+          setPhase({
+            kind: "working",
+            message:
+              "Готовлю распознавание… при первом запуске докачается ~15 МБ, это может занять до минуты",
+          });
+
+          // Этап 1 — движок (сеть). tesseract v7 при обрыве скачивания
+          // словарей глотает отказ, и промис createWorker не завершается
+          // НИКОГДА — без спасательного errorHandler + таймаута зона зависла
+          // бы навсегда с занятым busyRef.
+          let worker;
+          try {
+            const { createWorker, OEM } = await import("tesseract.js");
+            let breakInit: (error: Error) => void = () => {};
+            const initFailed = new Promise<never>((_, reject) => {
+              breakInit = reject;
+            });
+            // поздние вызовы breakInit (ошибки recognize после старта) не
+            // должны становиться unhandled rejection
+            void initFailed.catch(() => {});
+            const timer = window.setTimeout(
+              () => breakInit(new Error("ocr init timeout")),
+              INIT_TIMEOUT_MS,
+            );
+            try {
+              worker = await Promise.race([
+                createWorker(OCR_LANGS, OEM.LSTM_ONLY, {
+                  logger: (m) => {
+                    if (m.status === "recognizing text") {
+                      setPhase({
+                        kind: "working",
+                        message: `Распознаю текст… ${Math.round(m.progress * 100)}%`,
+                      });
+                    }
+                  },
+                  errorHandler: () => breakInit(new Error("ocr init failed")),
+                }),
+                initFailed,
+              ]);
+            } finally {
+              window.clearTimeout(timer);
             }
-            batch = queueRef.current.splice(0);
+          } catch {
+            setPhase({
+              kind: "error",
+              message:
+                "Распознавание не запустилось — проверьте интернет и попробуйте ещё раз.",
+            });
+            return;
+          }
+
+          // Этап 2 — сами файлы: ошибка формата (HEIC?) — это не «нет сети»,
+          // каждый файл ловим отдельно и честно считаем нечитаемые
+          const parts: string[] = [];
+          let unreadable = 0;
+          try {
+            let batch = images;
+            while (batch.length > 0) {
+              for (const image of batch) {
+                try {
+                  const source = await toRecognizable(image);
+                  const { data } = await worker.recognize(source);
+                  const cleaned = cleanOcrText(data.text);
+                  if (cleaned !== "") {
+                    parts.push(cleaned);
+                  }
+                } catch {
+                  unreadable += 1;
+                }
+              }
+              batch = queueRef.current.splice(0);
+            }
+          } finally {
+            await worker.terminate().catch(() => {});
+          }
+
+          if (parts.length > 0) {
+            onText(parts.join("\n\n"));
+            setPhase({
+              kind: "done",
+              message:
+                unreadable > 0
+                  ? `Распознано, но часть файлов не прочиталась (${unreadable} шт.) — обычно это HEIC с iPhone, сохраните их как PNG/JPG. ${doneMessage}`
+                  : `Распознано. ${doneMessage}`,
+            });
+          } else if (unreadable > 0) {
+            setPhase({
+              kind: "error",
+              message:
+                "Файл не прочитался — похоже, формат не поддерживается (частый случай — HEIC с iPhone). Сохраните скрин как PNG или JPG и попробуйте снова.",
+            });
+          } else {
+            setPhase({
+              kind: "error",
+              message:
+                "Текст с картинки не прочитался — попробуйте скрин покрупнее или вставьте текст руками.",
+            });
           }
         } finally {
-          await worker.terminate().catch(() => {});
+          busyRef.current = false;
+          // Инвариант: попавшее в очередь не выбрасывается. Файл, прилетевший
+          // в хвосте прогона (после последнего забора, но до этой строки —
+          // например, во время await terminate) или во время неудачной
+          // инициализации движка, уходит в повторный прогон. Между сбросом
+          // busy и перезапуском нет await — однопоточность JS закрывает щель.
+          const leftovers = queueRef.current.splice(0);
+          if (leftovers.length > 0) {
+            void run(leftovers);
+          }
         }
-
-        if (parts.length > 0) {
-          onText(parts.join("\n\n"));
-          setPhase({
-            kind: "done",
-            message:
-              unreadable > 0
-                ? `Распознано, но часть файлов не прочиталась (${unreadable} шт.) — обычно это HEIC с iPhone, сохраните их как PNG/JPG. ${doneMessage}`
-                : `Распознано. ${doneMessage}`,
-          });
-        } else if (unreadable > 0) {
-          setPhase({
-            kind: "error",
-            message:
-              "Файл не прочитался — похоже, формат не поддерживается (частый случай — HEIC с iPhone). Сохраните скрин как PNG или JPG и попробуйте снова.",
-          });
-        } else {
-          setPhase({
-            kind: "error",
-            message:
-              "Текст с картинки не прочитался — попробуйте скрин покрупнее или вставьте текст руками.",
-          });
-        }
-      } finally {
-        busyRef.current = false;
-        queueRef.current = [];
       }
+      return run(files);
     },
     [onText, doneMessage],
   );

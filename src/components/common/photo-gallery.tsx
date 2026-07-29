@@ -2,6 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import {
+  hasLightboxHistoryEntry,
+  openLightboxHistoryEntry,
+  subscribeLightboxHistoryGuard,
+} from "@/components/common/lightbox-history";
 import { PlaceImage } from "@/components/places/place-image";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
 
@@ -15,7 +20,10 @@ import { useDictionary } from "@/lib/i18n/use-dictionary";
  * История: закрытие ВСЕГДА идёт через history.back() → popstate — единая
  * точка, где лайтбокс гаснет и фокус возвращается на миниатюру. Это чинит
  * потерю фокуса при Esc/фоне/«Назад» и не даёт cleanup дёргать back() при
- * навигации ВПЕРЁД (иначе уводило бы на шаг назад).
+ * навигации ВПЕРЁД (иначе уводило бы на шаг назад). После закрытия запись
+ * лайтбокса остаётся в forward-стеке уже без слушателя — «Вперёд» приводил
+ * бы на фантом, съедающий следующий «Назад»; такие записи гасит общий страж
+ * из lightbox-history (подписка mount-эффектом ниже).
  *
  * Одиночное фото (обложки) остаётся на ZoomableImage — там листать нечего.
  */
@@ -74,10 +82,13 @@ export function PhotoGallery({
     setOpenIndex(index);
   }, []);
 
+  // страж фантомных записей истории — один на вкладку (refcount в модуле)
+  useEffect(() => subscribeLightboxHistoryGuard(), []);
+
   // Запрос закрытия: откатываем свою запись истории — popstate закроет и
   // вернёт фокус. Если записи вдруг нет (edge) — закрываем напрямую.
   const requestClose = useCallback(() => {
-    if (window.history.state?.lightbox) {
+    if (hasLightboxHistoryEntry()) {
       window.history.back();
     } else {
       setOpenIndex(null);
@@ -99,12 +110,14 @@ export function PhotoGallery({
 
   // История открытия: одна запись на сессию просмотра (листание индекс не
   // трогает историю — эффект висит на isOpen). popstate — единственное место
-  // закрытия: гасит лайтбокс и возвращает фокус на миниатюру.
+  // закрытия: гасит лайтбокс и возвращает фокус на миниатюру. Модуль истории
+  // заодно считает открытые лайтбоксы — пока счётчик не обнулился (cleanup),
+  // страж в наш popstate не вмешивается.
   useEffect(() => {
     if (!isOpen) {
       return;
     }
-    window.history.pushState({ lightbox: true }, "");
+    const markClosed = openLightboxHistoryEntry();
 
     const onPopState = (): void => {
       const index = openIndexRef.current;
@@ -114,7 +127,10 @@ export function PhotoGallery({
       }
     };
     window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      markClosed();
+    };
   }, [isOpen]);
 
   useEffect(() => {

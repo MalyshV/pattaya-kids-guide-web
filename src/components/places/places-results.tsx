@@ -78,9 +78,10 @@ export function PlacesResults({
   const lang = useLang();
   const router = useRouter();
 
-  // ✓-фильтр: до гидрации памяти показываем серверный список как есть
-  // (SSR совпадает, ничего не мигает), после — честно фильтруем и
-  // пересчитываем пагинацию по видимому списку
+  // ✓-фильтр: отметки в localStorage, SSR их не знает — до гидрации памяти
+  // вместо серверного списка рендерим скелетон (иначе первый кадр мигал бы
+  // ПОЛНЫМ каталогом, который тут же схлопывается), после — честно фильтруем
+  // и пересчитываем пагинацию по видимому списку
   const memory = useParentMemory();
   const visitedSlugs = useMemo(() => visitedPlaceSlugs(memory.items), [memory.items]);
   const filterActive = visitedFilter !== null && memory.hydrated;
@@ -317,6 +318,33 @@ export function PlacesResults({
       ) : null}
     </div>
   );
+
+  // ✓-фильтр запрошен, но память ещё не гидрировалась: тихий скелетон вместо
+  // вспышки полного каталога. SSR и первый клиентский рендер совпадают
+  // (hydrated=false и там и там) — hydration mismatch исключён. Карта в этом
+  // окне тоже не рисуется (мигала бы полным набором пинов). Все хуки выше —
+  // ранний return их не перепрыгивает.
+  if (visitedFilter !== null && !memory.hydrated) {
+    const skeletonCount = Math.min(pageSize, serverItems.length);
+    return (
+      <>
+        {viewToggle}
+        <section className="places-grid" aria-hidden="true">
+          {Array.from({ length: skeletonCount }, (_, index) => (
+            <div key={index} className="skeleton-card">
+              <div className="skeleton-card-image" />
+              <div className="skeleton-line skeleton-card-title" />
+              <div className="skeleton-line skeleton-card-text" />
+              <div className="skeleton-line skeleton-card-text-short" />
+            </div>
+          ))}
+        </section>
+        <p className="sr-only" role="status">
+          {dict.memory.filterApplying}
+        </p>
+      </>
+    );
+  }
 
   // Честность ✓-фильтра: серверный счётчик «Найдено» не знает про отметки —
   // расхождение объясняем на месте (в обоих режимах), а не оставляем загадкой.
