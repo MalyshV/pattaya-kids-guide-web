@@ -34,7 +34,7 @@ export const MORNING_TOMORROW_FROM_MIN = 17 * 60;
 
 export type OpenStatus =
   | { kind: "open"; hoursLeft: number | null }
-  | { kind: "closingSoon" }
+  | { kind: "closingSoon"; minutesLeft: number }
   | { kind: "opensLater"; opensAt: string; minutesUntilOpen: number }
   | { kind: "closedToday" }
   | { kind: "unknown" };
@@ -217,7 +217,7 @@ export function computeOpenStatus(
   if (current) {
     const minutesLeft = current.close - minutes;
     if (minutesLeft <= CLOSING_SOON_MIN) {
-      return { kind: "closingSoon" };
+      return { kind: "closingSoon", minutesLeft };
     }
     // сутки и больше (круглосуточно) — «~30 ч» звучит странно, просто «открыто»
     if (minutesLeft >= OPEN_LONG_MIN && minutesLeft < DAY_MIN) {
@@ -325,13 +325,36 @@ export function opensEarlyNextMorning(
 }
 
 /**
- * Ранг для сортировки списка мест: сначала открытые/скоро откроются (0), затем
- * закрытые сегодня (1), затем места без расписания (2). Внутри одного ранга
- * порядок сохраняется (стабильная сортировка по имени).
+ * «Закроется через N мин» — сколько минут обещать (недооценка безопаснее
+ * переоценки): меньше 5 → 0 («вот-вот закроется»), до часа — вниз до 5 минут
+ * (27 → 25), час и больше → 60 («через час»; closingSoon — до 90 минут).
  */
-export function statusSortRank(status: OpenStatus): number {
-  if (isPositiveStatus(status)) {
+export function roundClosingMinutes(minutesLeft: number): number {
+  if (minutesLeft < 5) {
     return 0;
   }
-  return status.kind === "unknown" ? 2 : 1;
+  if (minutesLeft >= 60) {
+    return 60;
+  }
+  return Math.floor(minutesLeft / 5) * 5;
+}
+
+/**
+ * Ранг для сортировки списка мест: сначала открытые надолго и те, что скоро
+ * откроются (0), затем те, что вот-вот закроются (1) — сверху то, куда точно
+ * успеете (решение Вероники 21.09), затем закрытые сегодня (2), затем места
+ * без расписания (3). Внутри ранга — порядок каталога (новые первыми).
+ */
+export function statusSortRank(status: OpenStatus): number {
+  switch (status.kind) {
+    case "open":
+    case "opensLater":
+      return 0;
+    case "closingSoon":
+      return 1;
+    case "closedToday":
+      return 2;
+    case "unknown":
+      return 3;
+  }
 }

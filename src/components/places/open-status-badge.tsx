@@ -1,4 +1,4 @@
-import type { OpenStatus } from "@/lib/schedule/open-status";
+import { roundClosingMinutes, type OpenStatus } from "@/lib/schedule/open-status";
 import { getDictionary, type Dictionary } from "@/content/dictionary";
 
 type OpenStatusBadgeProps = {
@@ -28,7 +28,10 @@ function render(status: OpenStatus, dict: Dictionary): Rendered | null {
         text: dict.openStatus.opensAt(status.opensAt),
       };
     case "closingSoon":
-      return { className: "open-status-soon", text: dict.openStatus.closingSoon };
+      return {
+        className: "open-status-soon",
+        text: dict.openStatus.closesIn(roundClosingMinutes(status.minutesLeft)),
+      };
     case "closedToday":
       return { className: "open-status-closed", text: dict.openStatus.closedToday };
     case "unknown":

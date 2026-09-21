@@ -325,7 +325,15 @@ export default async function CityPlacesPage({
           items={visiblePlaces.map(({ place, status }) => ({
             place: mapPlaceToListItemDto(place),
             status,
+            // только поля расписания — бейдж статуса пересчитывается в браузере
+            schedules: place.schedules.map((schedule) => ({
+              day: schedule.day,
+              openTime: schedule.openTime,
+              closeTime: schedule.closeTime,
+              isClosed: schedule.isClosed,
+            })),
           }))}
+          timezone={city.timezone}
           visitedFilter={visitedFilter}
           near={isNear}
           view={view}
