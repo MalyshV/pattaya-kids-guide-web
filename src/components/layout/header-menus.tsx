@@ -70,10 +70,13 @@ function useDisclosure(): {
 function HeaderDropdown({
   ariaLabel,
   icon,
+  current = false,
   children,
 }: {
   ariaLabel: string;
   icon: React.ReactNode;
+  /** страница этого меню открыта — кнопка помечена «вы здесь» (только вид) */
+  current?: boolean;
   children: React.ReactNode;
 }): React.ReactElement {
   const { open, setOpen, rootRef, buttonRef, onBlur } = useDisclosure();
@@ -83,7 +86,7 @@ function HeaderDropdown({
       <button
         type="button"
         ref={buttonRef}
-        className="header-menu-trigger"
+        className={`header-menu-trigger${current ? " header-menu-trigger-current" : ""}`}
         aria-expanded={open}
         aria-label={ariaLabel}
         onClick={() => setOpen((value) => !value)}
@@ -127,11 +130,16 @@ function SectionsIcon(): React.ReactElement {
   );
 }
 
-/** Сердце — вход в «память родителя». */
-function HeartIcon(): React.ReactElement {
+/**
+ * Пара ♡✓ — вход в «память родителя»: значок сам служит легендой, что внутри
+ * две вещи — «сохранить на потом» и «были здесь» (одно сердце говорило только
+ * о первой). Тот же line-art, что сетка/луна/глобус: штрих 1.6, без заливки.
+ */
+function MemoryIcon(): React.ReactElement {
   return (
     <svg
-      viewBox="0 0 24 24"
+      className="memory-menu-icon"
+      viewBox="0 0 30 24"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.6"
@@ -140,7 +148,8 @@ function HeartIcon(): React.ReactElement {
       aria-hidden="true"
       focusable="false"
     >
-      <path d="M12 19.8S4.4 15 4.4 9.7a4.1 4.1 0 0 1 7.6-2.2A4.1 4.1 0 0 1 19.6 9.7c0 5.3-7.6 10.1-7.6 10.1z" />
+      <path d="M10 19.8S2.4 15 2.4 9.7a4.1 4.1 0 0 1 7.6-2.2A4.1 4.1 0 0 1 17.6 9.7c0 5.3-7.6 10.1-7.6 10.1z" />
+      <path d="M20.4 13.2l2.6 2.6 4.8-5.4" />
     </svg>
   );
 }
@@ -213,12 +222,17 @@ export function MemoryMenu({
   age: string | null;
 }): React.ReactElement {
   const dict = useDictionary();
+  const pathname = usePathname();
   const { items, hydrated } = useParentMemory();
   const savedCount = hydrated ? listByKind(items, "saved").length : 0;
   const visitedCount = hydrated ? listByKind(items, "visited").length : 0;
 
   return (
-    <HeaderDropdown ariaLabel={dict.memory.menuAria} icon={<HeartIcon />}>
+    <HeaderDropdown
+      ariaLabel={dict.memory.menuAria}
+      icon={<MemoryIcon />}
+      current={pathname.startsWith(`${basePath}/saved`)}
+    >
       <Link href={withAge(`${basePath}/saved`, age)} className="header-menu-item">
         <span className="header-menu-item-mark" aria-hidden="true">
           ♡
