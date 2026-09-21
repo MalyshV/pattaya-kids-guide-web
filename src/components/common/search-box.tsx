@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MIN_QUERY_LENGTH, searchItems } from "@/lib/search/match";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
@@ -21,6 +21,10 @@ type SearchBoxProps = {
 
 export function SearchBox({ items, autoFocus }: SearchBoxProps): React.ReactElement {
   const dict = useDictionary();
+  // строк поиска на странице бывает две (лупа в шапке + строка каталога) —
+  // id списка и вариантов должны быть свои у каждой, иначе aria-связки
+  // одной строки указывали бы на подсказки другой
+  const listId = `${useId()}-results`;
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -104,10 +108,10 @@ export function SearchBox({ items, autoFocus }: SearchBoxProps): React.ReactElem
           autoFocus={autoFocus}
           role="combobox"
           aria-expanded={showList}
-          aria-controls="search-results"
+          aria-controls={listId}
           aria-autocomplete="list"
           aria-activedescendant={
-            activeIndex >= 0 ? `search-option-${activeIndex}` : undefined
+            activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined
           }
           aria-label={dict.search.ariaLabel}
           placeholder={dict.search.placeholder}
@@ -123,11 +127,11 @@ export function SearchBox({ items, autoFocus }: SearchBoxProps): React.ReactElem
       </div>
 
       {showList ? (
-        <ul className="search-results" id="search-results" role="listbox">
+        <ul className="search-results" id={listId} role="listbox">
           {results.map((item, index) => (
             <li
               key={item.id}
-              id={`search-option-${index}`}
+              id={`${listId}-${index}`}
               role="option"
               aria-selected={index === activeIndex}
               className={`search-result${index === activeIndex ? " search-result-active" : ""}`}

@@ -13,7 +13,7 @@ import type { SearchItemDto } from "@/dto/search-item.dto";
 
 type SiteHeaderProps = {
   basePath: string;
-  /** индекс для лупы-поиска (сама лупа видна только на посадочной) */
+  /** индекс для лупы-поиска в шапке (есть на всех страницах города) */
   searchItems?: SearchItemDto[];
 };
 
@@ -125,7 +125,7 @@ function HeaderRight({
   return (
     <div className={`site-header-right${isLanding ? "" : " site-header-right-inner"}`}>
       <HeaderNav basePath={basePath} age={age} isLanding={isLanding} />
-      {searchItems ? <HeaderSearch basePath={basePath} items={searchItems} /> : null}
+      {searchItems ? <HeaderSearch items={searchItems} /> : null}
       <ThemeToggle />
       <LanguageMenu />
     </div>
