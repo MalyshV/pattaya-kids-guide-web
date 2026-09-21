@@ -103,6 +103,94 @@ export function nowInCity(timezone: string, now: Date = new Date()): CityNow {
   };
 }
 
+const DAY_MIN = 24 * 60;
+const DAY_ORDER = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+
+/** День недели (enum), сдвинутый на delta дней; неизвестный день — как есть. */
+function shiftDay(day: string, delta: number): string {
+  const index = DAY_ORDER.indexOf(day);
+  if (index === -1) {
+    return day;
+  }
+  return DAY_ORDER[(((index + delta) % 7) + 7) % 7];
+}
+
+/**
+ * Рабочий интервал дня в минутах от начала ЭТОГО дня. Закрытие не позже
+ * открытия = работа через полночь: «10:00–00:00» → close 1440 (конец суток),
+ * «20:00–02:00» → close 1560 (02:00 следующего дня), «00:00–00:00» →
+ * круглые сутки. Поэтому close может быть больше DAY_MIN.
+ */
+type Interval = {
+  open: number;
+  close: number;
+  openStr: string;
+  closeStr: string;
+};
+
+function intervalsOn(schedules: ScheduleInput[], day: string): Interval[] {
+  const result: Interval[] = [];
+  for (const s of schedules) {
+    if (s.day !== day || s.isClosed) {
+      continue;
+    }
+    const open = parseHhMm(s.openTime);
+    const close = parseHhMm(s.closeTime);
+    if (open === null || close === null) {
+      continue;
+    }
+    result.push({
+      open,
+      close: close <= open ? close + DAY_MIN : close,
+      openStr: s.openTime,
+      closeStr: s.closeTime,
+    });
+  }
+  return result.sort((a, b) => a.open - b.open);
+}
+
+/**
+ * Окно, которое открыто в момент minutes (минуты от начала сегодняшнего дня).
+ * Сначала — «хвост» вчерашнего интервала через полночь (в 01:00 место с
+ * часами 20:00–02:00 открыто по вчерашнему расписанию, даже если сегодня у
+ * него выходной), затем — сегодняшние интервалы. close — на оси сегодняшнего
+ * дня; круглосуточные дни подряд склеиваются, чтобы в 23:00 не было ложного
+ * «скоро закрытие».
+ */
+function currentWindow(
+  schedules: ScheduleInput[],
+  day: string,
+  minutes: number,
+): { close: number; closeStr: string } | null {
+  const tail = intervalsOn(schedules, shiftDay(day, -1)).find(
+    (interval) => minutes < interval.close - DAY_MIN,
+  );
+  const todays = intervalsOn(schedules, day).find(
+    (interval) => minutes >= interval.open && minutes < interval.close,
+  );
+  const found = tail
+    ? { close: tail.close - DAY_MIN, closeStr: tail.closeStr }
+    : todays
+      ? { close: todays.close, closeStr: todays.closeStr }
+      : null;
+  if (!found) {
+    return null;
+  }
+
+  // склейка: закрылось ровно в полночь, а следующий день открывается в 00:00
+  for (let k = 1; k <= 7 && found.close === k * DAY_MIN; k += 1) {
+    const next = intervalsOn(schedules, shiftDay(day, k)).find(
+      (interval) => interval.open === 0,
+    );
+    if (!next) {
+      break;
+    }
+    found.close = k * DAY_MIN + next.close;
+    found.closeStr = next.closeStr;
+  }
+  return found;
+}
+
 /**
  * Статус места «прямо сейчас». Возвращает unknown, если расписания нет —
  * тогда UI ничего не показывает.
@@ -118,37 +206,20 @@ export function computeOpenStatus(
 
   const { day, minutes } = nowInCity(timezone, now);
 
-  const todays = schedules
-    .filter((s) => s.day === day && !s.isClosed)
-    .map((s) => ({
-      open: parseHhMm(s.openTime),
-      close: parseHhMm(s.closeTime),
-      openStr: s.openTime,
-    }))
-    .filter(
-      (s): s is { open: number; close: number; openStr: string } =>
-        s.open !== null && s.close !== null && s.close > s.open,
-    )
-    .sort((a, b) => a.open - b.open);
-
-  if (todays.length === 0) {
-    return { kind: "closedToday" };
-  }
-
-  for (const interval of todays) {
-    if (minutes >= interval.open && minutes < interval.close) {
-      const minutesLeft = interval.close - minutes;
-      if (minutesLeft <= CLOSING_SOON_MIN) {
-        return { kind: "closingSoon" };
-      }
-      if (minutesLeft >= OPEN_LONG_MIN) {
-        return { kind: "open", hoursLeft: Math.floor(minutesLeft / 60) };
-      }
-      return { kind: "open", hoursLeft: null };
+  const current = currentWindow(schedules, day, minutes);
+  if (current) {
+    const minutesLeft = current.close - minutes;
+    if (minutesLeft <= CLOSING_SOON_MIN) {
+      return { kind: "closingSoon" };
     }
+    // сутки и больше (круглосуточно) — «~30 ч» звучит странно, просто «открыто»
+    if (minutesLeft >= OPEN_LONG_MIN && minutesLeft < DAY_MIN) {
+      return { kind: "open", hoursLeft: Math.floor(minutesLeft / 60) };
+    }
+    return { kind: "open", hoursLeft: null };
   }
 
-  const next = todays.find((interval) => interval.open > minutes);
+  const next = intervalsOn(schedules, day).find((interval) => interval.open > minutes);
   if (next) {
     return {
       kind: "opensLater",
@@ -158,6 +229,30 @@ export function computeOpenStatus(
   }
 
   return { kind: "closedToday" };
+}
+
+/**
+ * До скольки место работает «сегодня» — для подсказки «сегодня до …» на
+ * странице места. Если открыто сейчас — время закрытия текущего окна (в 01:00
+ * при часах 20:00–02:00 это «02:00»). Иначе — самое позднее закрытие
+ * сегодняшних интервалов, считая полночь концом суток, а не началом
+ * (строковая сортировка ставила «00:00» первым). Нет часов — null.
+ */
+export function todayClosingTime(
+  schedules: ScheduleInput[],
+  timezone: string,
+  now: Date = new Date(),
+): string | null {
+  const { day, minutes } = nowInCity(timezone, now);
+  const current = currentWindow(schedules, day, minutes);
+  if (current) {
+    return current.closeStr;
+  }
+  const latest = intervalsOn(schedules, day).reduce<Interval | null>(
+    (best, interval) => (best === null || interval.close > best.close ? interval : best),
+    null,
+  );
+  return latest?.closeStr ?? null;
 }
 
 /**
