@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SUPPORTED_LANGS } from "@/content/dictionary";
 import { cityBasePath, DEFAULT_LANG } from "@/lib/geo/base-path";
+import { OG_HEIGHT, OG_WIDTH, ogImagePath } from "@/lib/seo/og-image-path";
 
 /** Целевая длина meta description (рекомендация поисковиков ~150–160). */
 const META_DESCRIPTION_MAX = 160;
@@ -56,9 +57,8 @@ export function ogLocale(lang: string): string {
 
 /**
  * Open Graph для страницы-карточки (место/событие/занятие): под пересылку
- * ссылок в чаты — заголовок, описание, свой URL и фото сущности, если оно есть.
- * Относительные пути (url и imageUrl из public) Next абсолютизирует от
- * metadataBase; ссылки Vercel Blob уже абсолютны и остаются как есть.
+ * ссылок в чаты — заголовок, описание, свой URL и картинка 1200×630.
+ * Относительные пути Next абсолютизирует от metadataBase.
  */
 export function articleOpenGraph(opts: {
   title: string;
@@ -75,7 +75,40 @@ export function articleOpenGraph(opts: {
     description: opts.description,
     url: opts.path,
     locale: ogLocale(opts.lang),
-    ...(opts.imageUrl ? { images: [{ url: opts.imageUrl }] } : {}),
+    // своё фото — собранная картинка 1200×630 (кадр или афиша в рамке);
+    // без фото — фирменная, как у главной и каталогов
+    images: [
+      opts.imageUrl
+        ? {
+            url: ogImagePath(opts.imageUrl),
+            width: OG_WIDTH,
+            height: OG_HEIGHT,
+            alt: opts.title,
+          }
+        : brandOgImage(opts.lang),
+    ],
+  };
+}
+
+/**
+ * Фирменная картинка превью (public/og/brand-*.jpg, рисует
+ * scripts/images/build-og-brand.ts) — для главной, каталогов и страниц без
+ * своего фото: в чате ссылка приходит с картинкой, а не голым текстом.
+ */
+export function brandOgImage(lang: string): {
+  url: string;
+  width: number;
+  height: number;
+  alt: string;
+} {
+  const code = (SUPPORTED_LANGS as readonly string[]).includes(lang)
+    ? lang
+    : DEFAULT_LANG;
+  return {
+    url: `/og/brand-${code}.jpg`,
+    width: OG_WIDTH,
+    height: OG_HEIGHT,
+    alt: "Pattaya Kids Guide",
   };
 }
 
