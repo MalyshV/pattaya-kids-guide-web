@@ -7,7 +7,11 @@ import { mapPlaceDetailsToDto } from "@/mappers/place-details.mapper";
 import { getUpcomingApprovedEventsByPlaceId } from "@/services/events.service";
 import { getApprovedPlaceBySlug } from "@/services/places.service";
 import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
-import { computeOpenStatus, nowInCity } from "@/lib/schedule/open-status";
+import {
+  computeOpenStatus,
+  nowInCity,
+  todayClosingTime,
+} from "@/lib/schedule/open-status";
 import { JsonLd } from "@/components/seo/json-ld";
 import { absoluteUrl, breadcrumbJsonLd, placeJsonLd } from "@/lib/seo/json-ld";
 import { ShareButton } from "@/components/common/share-button";
@@ -123,10 +127,9 @@ function currencySymbol(code: string): string {
  */
 function buildSummaryChips(
   dto: PlaceDetailsDto,
-  todayEnum: string,
+  todayClose: string | null,
   lang: string,
   dict: Dictionary,
-  isClosedToday: boolean,
 ): string[] {
   const chips: string[] = [];
   const s = dict.placeDetails.summary;
@@ -162,21 +165,8 @@ function buildSummaryChips(
     );
   }
 
-  // вечером после закрытия чип «сегодня до 19:00» противоречил бы бейджу
-  // «Сегодня закрыто» рядом — в этом случае чип не показываем
-  const todayHours = isClosedToday
-    ? []
-    : dto.schedules.filter(
-        (schedule) => schedule.day === todayEnum && !schedule.isClosed,
-      );
-  if (todayHours.length > 0) {
-    const lastClose = todayHours
-      .map((schedule) => schedule.closeTime)
-      .sort()
-      .at(-1);
-    if (lastClose) {
-      chips.push(s.todayUntil(lastClose));
-    }
+  if (todayClose) {
+    chips.push(s.todayUntil(todayClose));
   }
 
   return chips;
@@ -206,13 +196,13 @@ export default async function PlaceDetailsPage({
   const dto: PlaceDetailsDto = mapPlaceDetailsToDto(place, lang);
   const openStatus = computeOpenStatus(dto.schedules, city.timezone);
   const todayEnum = nowInCity(city.timezone).day;
-  const summaryChips = buildSummaryChips(
-    dto,
-    todayEnum,
-    lang,
-    dict,
-    openStatus.kind === "closedToday",
-  );
+  // вечером после закрытия чип «сегодня до 19:00» противоречил бы бейджу
+  // «Сегодня закрыто» рядом — в этом случае чип не показываем
+  const todayClose =
+    openStatus.kind === "closedToday"
+      ? null
+      : todayClosingTime(dto.schedules, city.timezone);
+  const summaryChips = buildSummaryChips(dto, todayClose, lang, dict);
 
   // Занятия (курсы/лагеря — ведут на свою страницу) отдельно от абонементов
   // (тарифы места), чтобы занятия не терялись под абонементами

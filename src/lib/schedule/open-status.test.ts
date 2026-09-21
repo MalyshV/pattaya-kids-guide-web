@@ -4,6 +4,7 @@ import {
   isGoNowStatus,
   opensEarlyToday,
   statusSortRank,
+  todayClosingTime,
   type OpenStatus,
   type ScheduleInput,
 } from "./open-status";
@@ -150,6 +151,91 @@ describe("computeOpenStatus — раздельные интервалы (обе�
       opensAt: "14:00",
       minutesUntilOpen: 60,
     });
+  });
+});
+
+describe("computeOpenStatus — полночь и работа через полночь", () => {
+  it("до полуночи: 00:00 — конец суток, а не начало (раньше — «закрыто сегодня»)", () => {
+    // 20:00, до 00:00 = 240 мин → open ~4 ч
+    expect(computeOpenStatus([day("10:00", "00:00")], "UTC", at("20:00"))).toEqual({
+      kind: "open",
+      hoursLeft: 4,
+    });
+    expect(computeOpenStatus([day("10:00", "00:00")], "UTC", at("23:00"))).toEqual({
+      kind: "closingSoon",
+    });
+  });
+
+  it("через полночь: вечером открыто с учётом часов после полуночи", () => {
+    // 21:00, до 02:00 следующего дня = 300 мин → open ~5 ч
+    expect(computeOpenStatus([day("20:00", "02:00")], "UTC", at("21:00"))).toEqual({
+      kind: "open",
+      hoursLeft: 5,
+    });
+  });
+
+  it("после полуночи место открыто по вчерашнему расписанию", () => {
+    // среда 01:00, вторник 20:00–02:00 → ещё 60 мин → скоро закрытие
+    expect(computeOpenStatus([day("20:00", "02:00", "TUE")], "UTC", at("01:00"))).toEqual(
+      { kind: "closingSoon" },
+    );
+  });
+
+  it("вчерашний хвост действует, даже если сегодня выходной", () => {
+    expect(
+      computeOpenStatus([day("20:00", "04:00", "TUE"), CLOSED_WED], "UTC", at("01:00")),
+    ).toEqual({ kind: "open", hoursLeft: 3 });
+  });
+
+  it("хвост кончился → сегодняшние часы как обычно", () => {
+    const schedules = [day("20:00", "02:00", "TUE"), day("20:00", "02:00")];
+    expect(computeOpenStatus(schedules, "UTC", at("03:00"))).toEqual({
+      kind: "opensLater",
+      opensAt: "20:00",
+      minutesUntilOpen: 1020,
+    });
+  });
+
+  it("неделя с воскресенья на понедельник замыкается", () => {
+    // 2026-07-06 — понедельник; воскресенье 20:00–02:00
+    expect(
+      computeOpenStatus(
+        [day("20:00", "02:00", "SUN")],
+        "UTC",
+        new Date("2026-07-06T01:00:00Z"),
+      ),
+    ).toEqual({ kind: "closingSoon" });
+  });
+
+  it("00:00–00:00 — круглые сутки; дни подряд склеиваются, без ложного «скоро закрытие»", () => {
+    const allDay = [day("00:00", "00:00"), day("00:00", "00:00", "THU")];
+    expect(computeOpenStatus(allDay, "UTC", at("23:00"))).toEqual({
+      kind: "open",
+      hoursLeft: null,
+    });
+  });
+
+  it("круглые сутки, а завтра выходной — к полуночи честно «скоро закрытие»", () => {
+    expect(computeOpenStatus([day("00:00", "00:00")], "UTC", at("23:00"))).toEqual({
+      kind: "closingSoon",
+    });
+  });
+});
+
+describe("todayClosingTime (чип «сегодня до …»)", () => {
+  it("полночь — самое позднее закрытие, а не самое раннее", () => {
+    const split = [day("10:00", "14:00"), day("16:00", "00:00")];
+    expect(todayClosingTime(split, "UTC", at("08:00"))).toBe("00:00");
+  });
+
+  it("после полуночи в хвосте — время закрытия хвоста", () => {
+    const schedules = [day("20:00", "02:00", "TUE"), day("20:00", "03:00")];
+    expect(todayClosingTime(schedules, "UTC", at("01:00"))).toBe("02:00");
+  });
+
+  it("обычный день — последнее закрытие; нет часов — null", () => {
+    expect(todayClosingTime([day("09:00", "18:00")], "UTC", at("08:00"))).toBe("18:00");
+    expect(todayClosingTime([CLOSED_WED], "UTC", at("08:00"))).toBeNull();
   });
 });
 
