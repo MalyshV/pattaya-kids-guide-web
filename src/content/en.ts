@@ -71,7 +71,7 @@ export const en: Dictionary = {
     navVisited: "Been there",
     pageTitle: "Liked · Been there",
     pageIntro:
-      "Places, activities and events you like and places you've already been to. The list is kept in this browser only — no sign-up.",
+      "Places, activities and events you like and places you've already been to. The list is kept in this browser only — no sign-up. Safari on iPhone and Mac may clear the list on its own if you don't visit the site for about a week.",
     backToCatalog: "← To places",
     emptyCta: "Browse places",
     saveLabel: "Like",
