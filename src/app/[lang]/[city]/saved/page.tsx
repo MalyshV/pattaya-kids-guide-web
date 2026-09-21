@@ -26,5 +26,11 @@ export default async function SavedPage({
   // возраст — сквозной контекст: страница его не применяет, но обязана донести
   // обратно в каталог через «← К местам», чтобы выбор родителя не слетал
   const resolved = (await searchParams) ?? {};
-  return <SavedList age={getSingleSearchParam(resolved.age) ?? null} />;
+  // та же обёртка, что у остальных страниц: боковые поля на телефоне и
+  // ориентир <main> для скринридера (раньше текст прилипал к краю экрана)
+  return (
+    <main className="page-shell">
+      <SavedList age={getSingleSearchParam(resolved.age) ?? null} />
+    </main>
+  );
 }

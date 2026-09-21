@@ -22,7 +22,7 @@ const ENTITY_PATH: Record<MemoryEntity, string> = {
 };
 
 /**
- * Страница «Избранное» — рисуется целиком из localStorage (снимки name/imageUrl
+ * Страница «Хотим сходить · Уже были» — рисуется целиком из localStorage (снимки name/imageUrl
  * сохранены при клике), поэтому не ходит в БД. Ссылка ведёт на актуальную
  * страницу, где данные свежие. До гидрации показываем только заголовок и
  * вступление (списки пусты, «пусто» не мигает).
@@ -102,7 +102,7 @@ export function SavedList({ age }: { age?: string | null }): React.ReactElement 
     kind: MemoryKind,
   ): React.ReactElement | null => {
     if (list.length === 0) {
-      // секция не исчезает молча: пришедший по «✓ Были здесь» из шапки
+      // секция не исчезает молча: пришедший по «✓ Уже были» из меню шапки
       // должен увидеть, куда попал и как сюда попадают записи
       return (
         <section className="saved-section" id={kind}>

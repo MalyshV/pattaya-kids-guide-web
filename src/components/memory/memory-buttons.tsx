@@ -14,10 +14,13 @@ type MemoryButtonsProps = {
 };
 
 /**
- * Две закладки без регистрации: «Сохранить» (♡ — хочу сходить) и «Были здесь»
- * (✓ — уже посетили). Клиентский островок внутри серверных карточек. До
- * гидрации кнопки в неактивном состоянии (localStorage ещё не прочитан) —
- * так SSR и первый клиентский рендер совпадают.
+ * Две закладки без регистрации: ♡ «Хотим сходить» (план) и ✓ «Уже были»
+ * (память). Честные переключатели: имя кнопки постоянное (скринридер слышит
+ * «Хотим сходить: Skippy Land, нажата»), состояние — aria-pressed и заливка;
+ * подсказка при наведении на нажатую говорит, что сделает повторный тап.
+ * Клиентский островок внутри серверных карточек. До гидрации кнопки в
+ * неактивном состоянии (localStorage ещё не прочитан) — так SSR и первый
+ * клиентский рендер совпадают.
  */
 export function MemoryButtons({
   entity,
@@ -40,8 +43,8 @@ export function MemoryButtons({
         className={`memory-btn memory-btn-saved${saved ? " memory-btn-active" : ""}`}
         aria-pressed={saved}
         // имя сущности в метке: в сетке карточек icon-only кнопки иначе звучат
-        // для скринридера одинаково («Сохранить») и неотличимы по месту
-        aria-label={`${saved ? dict.memory.savedAria : dict.memory.saveAria}: ${name}`}
+        // для скринридера одинаково и неотличимы по месту
+        aria-label={`${dict.memory.saveLabel}: ${name}`}
         title={saved ? dict.memory.savedLabel : dict.memory.saveLabel}
         onClick={() => toggle(snapshot, "saved")}
       >
@@ -49,9 +52,7 @@ export function MemoryButtons({
           {saved ? "♥" : "♡"}
         </span>
         {compact ? null : (
-          <span className="memory-btn-text">
-            {saved ? dict.memory.savedLabel : dict.memory.saveLabel}
-          </span>
+          <span className="memory-btn-text">{dict.memory.saveLabel}</span>
         )}
       </button>
 
@@ -59,7 +60,7 @@ export function MemoryButtons({
         type="button"
         className={`memory-btn memory-btn-visited${visited ? " memory-btn-active" : ""}`}
         aria-pressed={visited}
-        aria-label={`${visited ? dict.memory.visitedAria : dict.memory.visitAria}: ${name}`}
+        aria-label={`${dict.memory.visitLabel}: ${name}`}
         title={visited ? dict.memory.visitedLabel : dict.memory.visitLabel}
         onClick={() => toggle(snapshot, "visited")}
       >
@@ -68,9 +69,7 @@ export function MemoryButtons({
           ✓
         </span>
         {compact ? null : (
-          <span className="memory-btn-text">
-            {visited ? dict.memory.visitedLabel : dict.memory.visitLabel}
-          </span>
+          <span className="memory-btn-text">{dict.memory.visitLabel}</span>
         )}
       </button>
     </div>
