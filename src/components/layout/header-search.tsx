@@ -7,28 +7,23 @@ import { useDictionary } from "@/lib/i18n/use-dictionary";
 import type { SearchItemDto } from "@/dto/search-item.dto";
 
 /**
- * Лупа в шапке — только на посадочной (решение: первый экран пуст, шапка не
- * перегружена; в каталоге строка поиска и так встроена в страницу). Клик
- * раскрывает панель с обычным SearchBox под шапкой; Escape и клик мимо
- * закрывают. Индекс приходит из layout города — тот же кэш, что у каталога.
+ * Лупа в шапке — на всех страницах города, включая детальные (решение
+ * Вероники 21.09: поиск доступен из шапки абсолютно везде; раньше — только
+ * на посадочной). Клик раскрывает панель с обычным SearchBox под шапкой;
+ * Escape и клик мимо закрывают. Индекс приходит из layout города — тот же
+ * кэш, что у каталога.
  */
 
 type HeaderSearchProps = {
-  basePath: string;
   items: SearchItemDto[];
 };
 
-export function HeaderSearch({
-  basePath,
-  items,
-}: HeaderSearchProps): React.ReactElement | null {
+export function HeaderSearch({ items }: HeaderSearchProps): React.ReactElement {
   const pathname = usePathname();
   const dict = useDictionary();
   const [isOpen, setIsOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const toggleRef = useRef<HTMLButtonElement | null>(null);
-
-  const isLanding = pathname === basePath;
 
   // закрытие по клику мимо панели и по Escape
   useEffect(() => {
@@ -66,10 +61,6 @@ export function HeaderSearch({
   if (pathname !== prevPathname) {
     setPrevPathname(pathname);
     setIsOpen(false);
-  }
-
-  if (!isLanding) {
-    return null;
   }
 
   return (

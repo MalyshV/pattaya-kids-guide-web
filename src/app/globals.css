@@ -4327,11 +4327,32 @@ html[data-theme="dark"] .theme-label-to-light {
   }
 }
 
-/* узкие телефоны: логотип и три кнопки держат одну строку и на 360px */
-@media (max-width: 400px) {
+/* телефон: логотип и четыре кнопки (▦ ♡✓ лупа язык) держат одну строку от
+   360px — плотнее промежутки, у языка остаётся код «RU ▾» без глобуса (имя
+   кнопки для скринридера прежнее), на самых узких логотип на тон мельче.
+   На 320px строка честно переносится, но ничего не обрезается. */
+@media (max-width: 760px) {
+  .site-header-inner {
+    column-gap: 10px;
+  }
+
   .site-header-right-inner,
   .site-header-right-inner .header-compact-nav {
     gap: 8px;
+  }
+
+  .site-header-right-inner .lang-menu-globe {
+    display: none;
+  }
+
+  .site-header-right-inner .lang-menu-trigger {
+    padding-inline: 7px;
+  }
+}
+
+@media (max-width: 380px) {
+  .site-brand {
+    font-size: 15px;
   }
 }
 
