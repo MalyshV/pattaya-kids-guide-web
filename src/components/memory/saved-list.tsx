@@ -22,10 +22,11 @@ const ENTITY_PATH: Record<MemoryEntity, string> = {
 };
 
 /**
- * Страница «Хотим сходить · Уже были» — рисуется целиком из localStorage (снимки name/imageUrl
- * сохранены при клике), поэтому не ходит в БД. Ссылка ведёт на актуальную
- * страницу, где данные свежие. До гидрации показываем только заголовок и
- * вступление (списки пусты, «пусто» не мигает).
+ * Страница «Нравится · Уже были» — рисуется целиком из localStorage (снимки
+ * name/imageUrl сохранены при клике), поэтому не ходит в БД. Ссылка ведёт на
+ * актуальную страницу, где данные свежие. До гидрации показываем только
+ * заголовок и вступление: разделы появляются, когда память прочитана, —
+ * иначе после перезагрузки мигало «Пока пусто», будто всё пропало.
  */
 export function SavedList({ age }: { age?: string | null }): React.ReactElement {
   const params = useParams<{ lang?: string; city?: string }>();
@@ -79,9 +80,26 @@ export function SavedList({ age }: { age?: string | null }): React.ReactElement 
     setRemoved(null);
   };
 
+  // «Скрыть, где уже были» в разделе «Нравится» (просьба Вероники 21.09):
+  // понравившееся остаётся понравившимся, просто не мешает искать новое
+  const [hideVisited, setHideVisited] = useState(false);
+
+  // #visited из меню шапки: до гидрации раздела ещё нет в разметке, и
+  // браузер не докручивает — докручиваем сами, когда память прочитана
+  useEffect(() => {
+    if (!hydrated || !window.location.hash) {
+      return;
+    }
+    document.getElementById(window.location.hash.slice(1))?.scrollIntoView();
+  }, [hydrated]);
+
   const saved = listByKind(items, "saved");
   const visited = listByKind(items, "visited");
   const isEmpty = hydrated && saved.length === 0 && visited.length === 0;
+  const visitedKeys = new Set(visited.map((item) => `${item.entity}:${item.slug}`));
+  const likedVisitedCount = saved.filter((item) =>
+    visitedKeys.has(`${item.entity}:${item.slug}`),
+  ).length;
 
   // switch без default: добавят сущность в MemoryEntity — TS потребует новую
   // ветку (как исчерпывающий ENTITY_PATH), молчаливого «Событие» не случится
@@ -115,40 +133,65 @@ export function SavedList({ age }: { age?: string | null }): React.ReactElement 
         </section>
       );
     }
+    // переключатель — только в «Нравится» и только когда есть что скрывать
+    const canHide = kind === "saved" && likedVisitedCount > 0;
+    const shown =
+      canHide && hideVisited
+        ? list.filter((item) => !visitedKeys.has(`${item.entity}:${item.slug}`))
+        : list;
     return (
-      // id — якорь для ссылок шапки (♡ → #saved, ✓ → #visited)
+      // id — якорь для пунктов меню шапки (♡ → #saved, ✓ → #visited)
       <section className="saved-section" id={kind}>
         <h2 className="saved-section-title">
-          {title} <span className="saved-count">{list.length}</span>
+          {title} <span className="saved-count">{shown.length}</span>
         </h2>
-        <ul className="saved-grid">
-          {list.map((item) => (
-            <li
-              key={itemKey(item.entity, item.slug, item.kind)}
-              className="saved-item interactive-surface"
+        {canHide ? (
+          <div className="saved-section-tools">
+            <button
+              type="button"
+              className={`age-chip${hideVisited ? " age-chip-active" : ""}`}
+              aria-pressed={hideVisited}
+              onClick={() => setHideVisited((value) => !value)}
             >
-              <Link
-                href={`${basePath}/${ENTITY_PATH[item.entity]}/${item.slug}`}
-                className="saved-item-link"
+              {dict.memory.likedHideVisited} · {likedVisitedCount}
+            </button>
+          </div>
+        ) : null}
+        {shown.length === 0 ? (
+          <div className="saved-section-empty" role="status">
+            <p className="saved-empty-title">{dict.memory.likedAllVisitedTitle}</p>
+            <p>{dict.memory.likedAllVisitedHint}</p>
+          </div>
+        ) : (
+          <ul className="saved-grid">
+            {shown.map((item) => (
+              <li
+                key={itemKey(item.entity, item.slug, item.kind)}
+                className="saved-item interactive-surface"
               >
-                <PlaceImage url={item.imageUrl} alt={item.name} />
-                <span className="saved-item-type">{entityLabel(item.entity)}</span>
-                <span className="saved-item-name">{item.name}</span>
-              </Link>
-              <button
-                type="button"
-                className="saved-item-remove"
-                // имя места в подписи: иначе в списке десять неразличимых
-                // «Убрать» — скринридер не поймёт, что именно удаляет
-                aria-label={`${dict.memory.remove}: ${item.name}`}
-                title={`${dict.memory.remove}: ${item.name}`}
-                onClick={() => removeWithUndo(item, kind)}
-              >
-                <span aria-hidden="true">×</span>
-              </button>
-            </li>
-          ))}
-        </ul>
+                <Link
+                  href={`${basePath}/${ENTITY_PATH[item.entity]}/${item.slug}`}
+                  className="saved-item-link"
+                >
+                  <PlaceImage url={item.imageUrl} alt={item.name} />
+                  <span className="saved-item-type">{entityLabel(item.entity)}</span>
+                  <span className="saved-item-name">{item.name}</span>
+                </Link>
+                <button
+                  type="button"
+                  className="saved-item-remove"
+                  // имя места в подписи: иначе в списке десять неразличимых
+                  // «Убрать» — скринридер не поймёт, что именно удаляет
+                  aria-label={`${dict.memory.remove}: ${item.name}`}
+                  title={`${dict.memory.remove}: ${item.name}`}
+                  onClick={() => removeWithUndo(item, kind)}
+                >
+                  <span aria-hidden="true">×</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     );
   };
@@ -174,12 +217,12 @@ export function SavedList({ age }: { age?: string | null }): React.ReactElement 
             {dict.memory.emptyCta}
           </Link>
         </div>
-      ) : (
+      ) : hydrated ? (
         <>
           {renderSection(dict.memory.savedSection, saved, "saved")}
           {renderSection(dict.memory.visitedSection, visited, "visited")}
         </>
-      )}
+      ) : null}
 
       {removed ? (
         <p className="saved-undo" role="status">

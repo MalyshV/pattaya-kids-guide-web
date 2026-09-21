@@ -3227,7 +3227,7 @@ html[data-theme="dark"] .theme-toggle-moon {
 }
 
 /* ============================================================
-   Память родителя: закладки ♡ «хотим сходить» / ✓ «уже были»
+   Память родителя: закладки ♡ «нравится» / ✓ «уже были»
    ============================================================ */
 
 /* карточки-контейнеры для абсолютных кнопок в углу обложки */
@@ -3282,6 +3282,13 @@ html[data-theme="dark"] .theme-toggle-moon {
 
 /* компактный режим: только иконка, полупрозрачный фон поверх фото.
    40px — комфортная зона нажатия на телефоне (близко к рекомендации 44px) */
+/* место под скрытую ✓ (предстоящее событие) — ♡ не съезжает в угол */
+.memory-btn-placeholder {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
 .memory-buttons-compact .memory-btn {
   width: 40px;
   height: 40px;
@@ -3299,7 +3306,7 @@ html[data-theme="dark"] .theme-toggle-moon {
   outline-offset: 3px;
 }
 
-/* активные состояния: хотим сходить — терракот, уже были — sage */
+/* активные состояния: нравится — терракот, уже были — sage */
 .memory-btn-saved.memory-btn-active {
   color: var(--accent-text);
   border-color: var(--accent-text);
@@ -3387,7 +3394,7 @@ html[data-theme="dark"] .theme-toggle-moon {
   outline-offset: 3px;
 }
 
-/* страница «Хотим сходить · Уже были» */
+/* страница «Нравится · Уже были» */
 .saved-page {
   max-width: 1100px;
   margin: 0 auto;
@@ -3424,6 +3431,11 @@ html[data-theme="dark"] .theme-toggle-moon {
 .saved-section-empty {
   color: var(--muted);
   margin: 8px 0 0;
+}
+
+/* «Скрыть, где уже были» — под заголовком раздела «Нравится» */
+.saved-section-tools {
+  margin: -4px 0 14px;
 }
 
 /* тихая строка под hero (напр. «возраст здесь не фильтрует») */
