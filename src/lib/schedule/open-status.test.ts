@@ -4,6 +4,7 @@ import {
   isGoNowStatus,
   isMorningTomorrow,
   opensEarlyNextMorning,
+  roundClosingMinutes,
   statusSortRank,
   todayClosingTime,
   type OpenStatus,
@@ -70,9 +71,11 @@ describe("computeOpenStatus", () => {
   it("ровно 90 минут и меньше → closingSoon", () => {
     expect(computeOpenStatus([day("09:00", "18:00")], "UTC", at("16:30"))).toEqual({
       kind: "closingSoon",
+      minutesLeft: 90,
     });
     expect(computeOpenStatus([day("09:00", "18:00")], "UTC", at("17:59"))).toEqual({
       kind: "closingSoon",
+      minutesLeft: 1,
     });
   });
 
@@ -164,6 +167,7 @@ describe("computeOpenStatus — полночь и работа через пол
     });
     expect(computeOpenStatus([day("10:00", "00:00")], "UTC", at("23:00"))).toEqual({
       kind: "closingSoon",
+      minutesLeft: 60,
     });
   });
 
@@ -178,7 +182,7 @@ describe("computeOpenStatus — полночь и работа через пол
   it("после полуночи место открыто по вчерашнему расписанию", () => {
     // среда 01:00, вторник 20:00–02:00 → ещё 60 мин → скоро закрытие
     expect(computeOpenStatus([day("20:00", "02:00", "TUE")], "UTC", at("01:00"))).toEqual(
-      { kind: "closingSoon" },
+      { kind: "closingSoon", minutesLeft: 60 },
     );
   });
 
@@ -205,7 +209,7 @@ describe("computeOpenStatus — полночь и работа через пол
         "UTC",
         new Date("2026-07-06T01:00:00Z"),
       ),
-    ).toEqual({ kind: "closingSoon" });
+    ).toEqual({ kind: "closingSoon", minutesLeft: 60 });
   });
 
   it("00:00–00:00 — круглые сутки; дни подряд склеиваются, без ложного «скоро закрытие»", () => {
@@ -219,6 +223,7 @@ describe("computeOpenStatus — полночь и работа через пол
   it("круглые сутки, а завтра выходной — к полуночи честно «скоро закрытие»", () => {
     expect(computeOpenStatus([day("00:00", "00:00")], "UTC", at("23:00"))).toEqual({
       kind: "closingSoon",
+      minutesLeft: 60,
     });
   });
 });
@@ -242,7 +247,7 @@ describe("todayClosingTime (чип «сегодня до …»)", () => {
 
 describe("isGoNowStatus («Пойти сейчас»)", () => {
   const open: OpenStatus = { kind: "open", hoursLeft: 3 };
-  const soon: OpenStatus = { kind: "closingSoon" };
+  const soon: OpenStatus = { kind: "closingSoon", minutesLeft: 45 };
   const closed: OpenStatus = { kind: "closedToday" };
   const unknown: OpenStatus = { kind: "unknown" };
 
@@ -344,14 +349,30 @@ describe("isMorningTomorrow", () => {
   });
 });
 
-describe("statusSortRank (открытые выше закрытых)", () => {
-  it("позитивные → 0, закрытые сегодня → 1, unknown → 2", () => {
+describe("statusSortRank (сверху то, куда успеете)", () => {
+  it("открытые и скоро откроются → 0, вот-вот закроются → 1, закрытые → 2, unknown → 3", () => {
     expect(statusSortRank({ kind: "open", hoursLeft: 2 })).toBe(0);
-    expect(statusSortRank({ kind: "closingSoon" })).toBe(0);
     expect(
       statusSortRank({ kind: "opensLater", opensAt: "10:00", minutesUntilOpen: 60 }),
     ).toBe(0);
-    expect(statusSortRank({ kind: "closedToday" })).toBe(1);
-    expect(statusSortRank({ kind: "unknown" })).toBe(2);
+    expect(statusSortRank({ kind: "closingSoon", minutesLeft: 30 })).toBe(1);
+    expect(statusSortRank({ kind: "closedToday" })).toBe(2);
+    expect(statusSortRank({ kind: "unknown" })).toBe(3);
+  });
+});
+
+describe("roundClosingMinutes («закроется через N мин»)", () => {
+  it("вниз до 5 минут — не обещаем лишнего", () => {
+    expect(roundClosingMinutes(27)).toBe(25);
+    expect(roundClosingMinutes(30)).toBe(30);
+    expect(roundClosingMinutes(5)).toBe(5);
+    expect(roundClosingMinutes(59)).toBe(55);
+  });
+
+  it("меньше 5 минут → 0 («вот-вот»), час и больше → 60 («через час»)", () => {
+    expect(roundClosingMinutes(4)).toBe(0);
+    expect(roundClosingMinutes(1)).toBe(0);
+    expect(roundClosingMinutes(60)).toBe(60);
+    expect(roundClosingMinutes(90)).toBe(60);
   });
 });

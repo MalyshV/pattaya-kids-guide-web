@@ -131,7 +131,12 @@ export const en: Dictionary = {
     openHours: (hours: number): string =>
       `Open for ~${hours} more ${hours === 1 ? "hour" : "hours"}`,
     openNow: "Open now",
-    closingSoon: "Closing soon",
+    closesIn: (minutes: number): string =>
+      minutes === 0
+        ? "Closing any minute"
+        : minutes >= 60
+          ? "Closes in an hour"
+          : `Closes in ${minutes} min`,
     opensAt: (time: string): string => `Opens at ${time}`,
     closedToday: "Closed today",
   },

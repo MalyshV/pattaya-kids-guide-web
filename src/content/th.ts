@@ -135,7 +135,12 @@ export const th: Dictionary = {
   openStatus: {
     openHours: (hours: number): string => `เปิดอีกประมาณ ${hours} ชั่วโมง`,
     openNow: "เปิดอยู่ตอนนี้",
-    closingSoon: "ใกล้เวลาปิดแล้ว",
+    closesIn: (minutes: number): string =>
+      minutes === 0
+        ? "ใกล้ปิดแล้ว"
+        : minutes >= 60
+          ? "ปิดในอีก 1 ชั่วโมง"
+          : `ปิดในอีก ${minutes} นาที`,
     opensAt: (time: string): string => `จะเปิดเวลา ${time} น.`,
     closedToday: "วันนี้ปิด",
   },

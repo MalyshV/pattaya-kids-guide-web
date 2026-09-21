@@ -1,9 +1,10 @@
 import Link from "next/link";
 import type { PlaceListItemDto } from "@/dto/place-list-item.dto";
 import { OpenStatusBadge } from "@/components/places/open-status-badge";
+import { LiveOpenStatusBadge } from "@/components/places/live-open-status-badge";
 import { PlaceImage } from "@/components/places/place-image";
 import { MemoryButtons } from "@/components/memory/memory-buttons";
-import type { OpenStatus } from "@/lib/schedule/open-status";
+import type { OpenStatus, ScheduleInput } from "@/lib/schedule/open-status";
 import { getDictionary, langFromPath } from "@/content/dictionary";
 import { pickLocalized } from "@/lib/i18n/localize";
 
@@ -11,6 +12,9 @@ type PlaceCardProps = {
   place: PlaceListItemDto;
   basePath: string;
   status?: OpenStatus;
+  /** расписание и пояс города — бейдж статуса живёт (пересчёт раз в минуту) */
+  schedules?: ScheduleInput[];
+  timezone?: string;
   /** «≈ 800 м» в режиме «Рядом со мной»; расстояние по прямой */
   distanceLabel?: string;
 };
@@ -19,6 +23,8 @@ export function PlaceCard({
   place,
   basePath,
   status,
+  schedules,
+  timezone,
   distanceLabel,
 }: PlaceCardProps): React.ReactElement {
   const lang = langFromPath(basePath);
@@ -61,7 +67,16 @@ export function PlaceCard({
 
       {status && status.kind !== "unknown" ? (
         <div className="place-card-status">
-          <OpenStatusBadge status={status} lang={lang} />
+          {schedules && timezone ? (
+            <LiveOpenStatusBadge
+              initial={status}
+              schedules={schedules}
+              timezone={timezone}
+              lang={lang}
+            />
+          ) : (
+            <OpenStatusBadge status={status} lang={lang} />
+          )}
         </div>
       ) : null}
 

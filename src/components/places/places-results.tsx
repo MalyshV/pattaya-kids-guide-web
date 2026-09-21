@@ -15,7 +15,7 @@ import {
   type VisitedFilterMode,
 } from "@/lib/memory/visited-filter";
 import type { PlaceListItemDto } from "@/dto/place-list-item.dto";
-import type { OpenStatus } from "@/lib/schedule/open-status";
+import type { OpenStatus, ScheduleInput } from "@/lib/schedule/open-status";
 
 /**
  * Результаты списка мест. Обычный режим — серверная сортировка и пагинация,
@@ -30,6 +30,8 @@ import type { OpenStatus } from "@/lib/schedule/open-status";
 type PlaceWithStatus = {
   place: PlaceListItemDto;
   status: OpenStatus;
+  /** расписание — бейдж статуса на карточке пересчитывается раз в минуту */
+  schedules: ScheduleInput[];
 };
 
 type PlacesResultsProps = {
@@ -43,6 +45,8 @@ type PlacesResultsProps = {
   view: "list" | "map";
   /** корень города `/ru/pattaya` — от него строятся ссылки на карточки */
   basePath: string;
+  /** пояс города — живой статус считается по его часам */
+  timezone: string;
   /** путь списка `/ru/pattaya/places` — ссылки фильтров/пагинации/сброса */
   listPath: string;
   currentPage: number;
@@ -68,6 +72,7 @@ export function PlacesResults({
   near,
   view,
   basePath,
+  timezone,
   listPath,
   currentPage,
   totalPages: serverTotalPages,
@@ -481,6 +486,8 @@ export function PlacesResults({
               place={item.place}
               basePath={basePath}
               status={item.status}
+              schedules={item.schedules}
+              timezone={timezone}
               distanceLabel={
                 distanceM !== null ? formatDistance(distanceM, lang) : undefined
               }
@@ -500,8 +507,15 @@ export function PlacesResults({
       {filterNote}
 
       <section className="places-grid">
-        {pageItems.map(({ place, status }) => (
-          <PlaceCard key={place.id} place={place} basePath={basePath} status={status} />
+        {pageItems.map(({ place, status, schedules }) => (
+          <PlaceCard
+            key={place.id}
+            place={place}
+            basePath={basePath}
+            status={status}
+            schedules={schedules}
+            timezone={timezone}
+          />
         ))}
       </section>
 

@@ -156,7 +156,14 @@ export const ru = {
     openHours: (hours: number): string =>
       `Открыто ещё ~${hours} ${plural(hours, ["час", "часа", "часов"])}`,
     openNow: "Открыто сейчас",
-    closingSoon: "Скоро закрытие",
+    // минуты уже округлены вниз (roundClosingMinutes): 0 — меньше 5 минут,
+    // 60 — час и больше; бейдж живой — пересчитывается раз в минуту
+    closesIn: (minutes: number): string =>
+      minutes === 0
+        ? "Вот-вот закроется"
+        : minutes >= 60
+          ? "Закроется через час"
+          : `Закроется через ${minutes} мин`,
     opensAt: (time: string): string => `Откроется в ${time}`,
     closedToday: "Сегодня закрыто",
   },

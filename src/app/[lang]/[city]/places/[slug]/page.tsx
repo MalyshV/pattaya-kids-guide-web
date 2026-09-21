@@ -17,7 +17,7 @@ import { absoluteUrl, breadcrumbJsonLd, placeJsonLd } from "@/lib/seo/json-ld";
 import { ShareButton } from "@/components/common/share-button";
 import { SmartBackLink } from "@/components/common/smart-back-link";
 import { MemoryButtons } from "@/components/memory/memory-buttons";
-import { OpenStatusBadge } from "@/components/places/open-status-badge";
+import { LiveOpenStatusBadge } from "@/components/places/live-open-status-badge";
 import { PlaceProgramCard } from "@/components/places/place-program-card";
 import { ZoomableImage } from "@/components/common/zoomable-image";
 import { PhotoGallery } from "@/components/common/photo-gallery";
@@ -279,7 +279,12 @@ export default async function PlaceDetailsPage({
         <h1 className="hero-title">{dto.name}</h1>
         {openStatus.kind !== "unknown" ? (
           <div className="hero-status">
-            <OpenStatusBadge status={openStatus} lang={lang} />
+            <LiveOpenStatusBadge
+              initial={openStatus}
+              schedules={dto.schedules}
+              timezone={city.timezone}
+              lang={lang}
+            />
           </div>
         ) : null}
         {summaryChips.length > 0 ? (

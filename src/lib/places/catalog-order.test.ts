@@ -5,6 +5,7 @@ import type { OpenStatus } from "@/lib/schedule/open-status";
 const OPEN: OpenStatus = { kind: "open", hoursLeft: 3 };
 const CLOSED: OpenStatus = { kind: "closedToday" };
 const UNKNOWN: OpenStatus = { kind: "unknown" };
+const CLOSING: OpenStatus = { kind: "closingSoon", minutesLeft: 20 };
 
 const older = new Date("2026-01-01T00:00:00Z");
 const newer = new Date("2026-07-01T00:00:00Z");
@@ -33,6 +34,17 @@ describe("compareCatalogOrder", () => {
     const a = { id: "old", status: CLOSED, createdAt: older };
     const b = { id: "new", status: CLOSED, createdAt: newer };
     expect(sortOrder([a, b]).map((x) => x.id)).toEqual(["new", "old"]);
+  });
+
+  it("вот-вот закроется — ниже открытого надолго, но выше закрытого", () => {
+    const closingNew = { id: "closing-new", status: CLOSING, createdAt: newer };
+    const openOld = { id: "open-old", status: OPEN, createdAt: older };
+    const closed = { id: "closed", status: CLOSED, createdAt: newer };
+    expect(sortOrder([closed, closingNew, openOld]).map((x) => x.id)).toEqual([
+      "open-old",
+      "closing-new",
+      "closed",
+    ]);
   });
 
   it("«уточняется» (unknown) опускается ниже закрытых", () => {
