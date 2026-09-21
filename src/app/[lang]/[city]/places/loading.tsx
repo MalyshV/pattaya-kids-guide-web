@@ -19,8 +19,6 @@ export default function CityPlacesLoading(): React.ReactElement {
     <SkeletonPage>
       <SkeletonHero />
 
-      <div className="skeleton-search" aria-hidden="true" />
-
       {/* вопрос возраста и сценарии — два ряда чипов, как на живой странице */}
       <SkeletonChips count={4} withLabel />
       <SkeletonChips count={5} />
