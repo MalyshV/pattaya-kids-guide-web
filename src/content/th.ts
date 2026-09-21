@@ -249,6 +249,7 @@ export const th: Dictionary = {
       openMorningTomorrow: "พรุ่งนี้เปิดตั้งแต่เช้า",
       openNow: "ไปได้เลยตอนนี้",
       openNowHint: "เปิดอยู่ตอนนี้ หรือกำลังจะเปิด",
+      openNowHintOpen: "เปิดอยู่ตอนนี้",
       shelter: "หลบร้อน",
       shelterHint: "เย็นสบาย: แอร์หรือร่มเงา — และหลบฝนได้",
       events: "สัปดาห์นี้มีอะไรบ้าง",

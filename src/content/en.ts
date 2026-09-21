@@ -250,6 +250,7 @@ export const en: Dictionary = {
       openMorningTomorrow: "Open early tomorrow",
       openNow: "Go right now",
       openNowHint: "Open now or opening shortly",
+      openNowHintOpen: "Open right now",
       shelter: "Escape the heat",
       shelterHint: "Cool inside: AC or shade — and dry when it rains",
       events: "What's on this week",

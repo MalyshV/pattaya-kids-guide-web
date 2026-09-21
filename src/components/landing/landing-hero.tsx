@@ -71,7 +71,11 @@ export function LandingHero({
     },
     openNow: {
       label: dict.landing.scenarios.openNow,
-      hint: dict.landing.scenarios.openNowHint,
+      // «вот-вот откроется» — только утром: днём и вечером места уже открыты
+      hint:
+        slot === "morning"
+          ? dict.landing.scenarios.openNowHint
+          : dict.landing.scenarios.openNowHintOpen,
     },
     shelter: {
       label: dict.landing.scenarios.shelter,
