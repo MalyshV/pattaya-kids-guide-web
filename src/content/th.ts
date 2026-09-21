@@ -26,6 +26,8 @@ export const th: Dictionary = {
     langAria: "เลือกภาษา",
     sectionsAria: "หมวดหมู่",
     themeToggle: "สลับธีมสีเว็บไซต์",
+    themeToDark: "ธีมมืด",
+    themeToLight: "ธีมสว่าง",
     skipToContent: "ไปยังเนื้อหาหลัก",
   },
 

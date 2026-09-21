@@ -1,16 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
 import { useParentMemory } from "@/lib/memory/use-parent-memory";
 import { listByKind } from "@/lib/memory/parent-memory";
+import { ThemeMenuItem } from "@/components/layout/theme-toggle";
 
 /**
- * Компактная шапка посадочной: разделы и «память родителя» свёрнуты в две
- * кнопки-иконки с выпадающими списками — первый экран встречает вопросом,
- * а не десятью ссылками (решение Вероники 24.07). На остальных страницах
- * остаётся обычная навигация-строка.
+ * Компактная шапка: разделы и «память родителя» свёрнуты в две кнопки-иконки
+ * с выпадающими списками. На посадочной — всегда (первый экран встречает
+ * вопросом, а не десятью ссылками; решение Вероники 24.07). На внутренних
+ * страницах — там, где строка разделов не помещается в одну линию (телефон,
+ * планшет; решение Вероники 21.09: одна строка вместо 4 этажей), шире —
+ * обычная навигация-строка.
  *
  * Закрытие — по правилу из [[safari-blur-pitfall]]: blur закрывает только
  * при реальном переходе фокуса (Tab), blur «в никуда» (клики/тапы в
@@ -152,11 +156,15 @@ function withAge(href: string, age: string | null): string {
 export function SectionsMenu({
   basePath,
   age,
+  withTheme = false,
 }: {
   basePath: string;
   age: string | null;
+  /** пункт темы в конце — на внутренних страницах отдельной кнопке нет места */
+  withTheme?: boolean;
 }): React.ReactElement {
   const dict = useDictionary();
+  const pathname = usePathname();
   const sections = [
     { href: `${basePath}/places`, label: dict.nav.places },
     { href: `${basePath}/events`, label: dict.nav.events },
@@ -166,15 +174,33 @@ export function SectionsMenu({
 
   return (
     <HeaderDropdown ariaLabel={dict.nav.sectionsAria} icon={<SectionsIcon />}>
-      {sections.map((section) => (
-        <Link
-          key={section.href}
-          href={withAge(section.href, age)}
-          className="header-menu-item"
-        >
-          {section.label}
-        </Link>
-      ))}
+      {sections.map((section) => {
+        // «вы здесь» без открытия страницы-раздела: сам раздел — page,
+        // карточка внутри него (детальная) — true; отмечаем жирным, не ✓
+        // (галочка у нас уже значит «были здесь» и выбранный язык)
+        const current =
+          pathname === section.href
+            ? "page"
+            : pathname.startsWith(`${section.href}/`)
+              ? "true"
+              : undefined;
+        return (
+          <Link
+            key={section.href}
+            href={withAge(section.href, age)}
+            aria-current={current}
+            className={`header-menu-item${current ? " header-menu-item-current" : ""}`}
+          >
+            {section.label}
+          </Link>
+        );
+      })}
+      {withTheme ? (
+        <>
+          <div className="header-menu-divider" aria-hidden="true" />
+          <ThemeMenuItem />
+        </>
+      ) : null}
     </HeaderDropdown>
   );
 }
