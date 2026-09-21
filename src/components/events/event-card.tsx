@@ -46,6 +46,7 @@ export function EventCard({
         slug={event.slug}
         name={event.title}
         imageUrl={event.imageUrl}
+        canMarkVisited={status !== "upcoming"}
       />
 
       <div className="event-card-header">

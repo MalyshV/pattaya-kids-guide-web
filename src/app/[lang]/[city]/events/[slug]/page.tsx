@@ -175,6 +175,7 @@ export default async function EventDetailsPage({
             slug={dto.slug}
             name={dto.title}
             imageUrl={dto.imageUrl}
+            canMarkVisited={eventStatus !== "upcoming"}
           />
           <ShareButton title={dto.title} />
         </div>

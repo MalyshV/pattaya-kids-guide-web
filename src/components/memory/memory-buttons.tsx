@@ -11,12 +11,15 @@ type MemoryButtonsProps = {
   imageUrl: string | null;
   /// компактный вид (иконки без подписей) — для угла карточки
   compact?: boolean;
+  /// можно ли отметить «Уже были»: у предстоящего события — нет (ещё не
+  /// начиналось); уже поставленная отметка видна всегда, чтобы её снять
+  canMarkVisited?: boolean;
 };
 
 /**
- * Две закладки без регистрации: ♡ «Хотим сходить» (план) и ✓ «Уже были»
+ * Две закладки без регистрации: ♡ «Нравится» (вкус) и ✓ «Уже были»
  * (память). Честные переключатели: имя кнопки постоянное (скринридер слышит
- * «Хотим сходить: Skippy Land, нажата»), состояние — aria-pressed и заливка;
+ * «Нравится: Skippy Land, нажата»), состояние — aria-pressed и заливка;
  * подсказка при наведении на нажатую говорит, что сделает повторный тап.
  * Клиентский островок внутри серверных карточек. До гидрации кнопки в
  * неактивном состоянии (localStorage ещё не прочитан) — так SSR и первый
@@ -28,6 +31,7 @@ export function MemoryButtons({
   name,
   imageUrl,
   compact = false,
+  canMarkVisited = true,
 }: MemoryButtonsProps): React.ReactElement {
   const dict = useDictionary();
   const { has, toggle, hydrated } = useParentMemory();
@@ -56,22 +60,28 @@ export function MemoryButtons({
         )}
       </button>
 
-      <button
-        type="button"
-        className={`memory-btn memory-btn-visited${visited ? " memory-btn-active" : ""}`}
-        aria-pressed={visited}
-        aria-label={`${dict.memory.visitLabel}: ${name}`}
-        title={visited ? dict.memory.visitedLabel : dict.memory.visitLabel}
-        onClick={() => toggle(snapshot, "visited")}
-      >
-        {/* глиф один; активность передаётся классом memory-btn-active + aria-pressed */}
-        <span className="memory-btn-icon" aria-hidden="true">
-          ✓
-        </span>
-        {compact ? null : (
-          <span className="memory-btn-text">{dict.memory.visitLabel}</span>
-        )}
-      </button>
+      {canMarkVisited || visited ? (
+        <button
+          type="button"
+          className={`memory-btn memory-btn-visited${visited ? " memory-btn-active" : ""}`}
+          aria-pressed={visited}
+          aria-label={`${dict.memory.visitLabel}: ${name}`}
+          title={visited ? dict.memory.visitedLabel : dict.memory.visitLabel}
+          onClick={() => toggle(snapshot, "visited")}
+        >
+          {/* глиф один; активность передаётся классом memory-btn-active + aria-pressed */}
+          <span className="memory-btn-icon" aria-hidden="true">
+            ✓
+          </span>
+          {compact ? null : (
+            <span className="memory-btn-text">{dict.memory.visitLabel}</span>
+          )}
+        </button>
+      ) : compact ? (
+        // пустое место под ✓: ♡ в углу карточки всегда на одной точке —
+        // на соседних карточках палец не промахивается
+        <span className="memory-btn-placeholder" aria-hidden="true" />
+      ) : null}
     </div>
   );
 }
