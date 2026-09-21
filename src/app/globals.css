@@ -1763,6 +1763,26 @@ input[type="checkbox"]:focus-visible {
   display: block;
 }
 
+/* Афиша «в рамке» (см. PlaceImage): целиком по центру, по бокам — мягкое
+   размытое продолжение её же цветов. Ничего не обрезается и не
+   растягивается, поэтому текст афиши чёткий; клик — на весь экран. */
+.place-image-poster .place-image-img {
+  object-fit: contain;
+}
+
+.place-image-backdrop {
+  object-fit: cover;
+  /* scale прячет размытые края, которые иначе светлеют у рамки */
+  transform: scale(1.2);
+  filter: blur(22px) saturate(0.75) brightness(1.04);
+  opacity: 0.6;
+}
+
+html[data-theme="dark"] .place-image-backdrop {
+  filter: blur(22px) saturate(0.7) brightness(0.6);
+  opacity: 0.7;
+}
+
 /* в тёмной теме фото чуть приглушаем — иначе яркие обложки «кричат»
    на тёмном фоне (контент остаётся главным, но не слепит) */
 html[data-theme="dark"] .place-image-img {
@@ -3101,6 +3121,8 @@ html[data-theme="dark"] .theme-toggle-moon {
    стопкой (адрес длинный, переносится, поэтому НЕ .event-inline с датой справа) */
 .activity-venue {
   display: block;
+  /* воздух под заголовком «Где проходит» — как у сетки фактов под своим */
+  margin-top: 12px;
   padding: 12px 16px;
   border-radius: 14px;
   background: var(--surface-muted);

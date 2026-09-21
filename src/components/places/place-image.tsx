@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { isPosterShape } from "@/lib/images/image-shape";
 
 type PlaceImageProps = {
   url: string | null;
@@ -73,8 +74,25 @@ export function PlaceImage({
     );
   }
 
+  // Афиша (вертикальная или почти квадратная картинка) — целиком «в рамке»:
+  // в широкой обложке от неё оставалась растянутая полоска. Форма известна
+  // до загрузки (lib/images/image-shape), поэтому обложка не перестраивается.
+  const poster = isPosterShape(url);
+
   return (
-    <div className={cls}>
+    <div className={`${cls}${poster ? " place-image-poster" : ""}`}>
+      {poster ? (
+        // размытый фон из той же картинки: маленькая копия (~64px) — крупную
+        // второй раз не качаем; для скринридера это украшение
+        <Image
+          src={url}
+          alt=""
+          aria-hidden="true"
+          fill
+          sizes="64px"
+          className="place-image-backdrop"
+        />
+      ) : null}
       <Image
         src={url}
         alt={alt}
