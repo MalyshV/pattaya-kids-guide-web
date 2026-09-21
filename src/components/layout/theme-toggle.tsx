@@ -49,6 +49,18 @@ function SunIcon(): React.ReactElement {
   );
 }
 
+/** Сменить тему и запомнить выбор — общая для кнопки и пункта меню. */
+function toggleTheme(): void {
+  const root = document.documentElement;
+  const next = root.dataset.theme === "dark" ? "light" : "dark";
+  root.dataset.theme = next;
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, next);
+  } catch {
+    // без localStorage тема переключится, но не переживёт перезагрузку
+  }
+}
+
 export function ThemeToggle(): React.ReactElement {
   const dict = useDictionary();
 
@@ -61,26 +73,40 @@ export function ThemeToggle(): React.ReactElement {
     return () => media.removeEventListener("change", onChange);
   }, []);
 
-  const toggle = (): void => {
-    const root = document.documentElement;
-    const next = root.dataset.theme === "dark" ? "light" : "dark";
-    root.dataset.theme = next;
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, next);
-    } catch {
-      // без localStorage тема переключится, но не переживёт перезагрузку
-    }
-  };
-
   return (
     <button
       type="button"
       className="theme-toggle"
       aria-label={dict.nav.themeToggle}
-      onClick={toggle}
+      onClick={toggleTheme}
     >
       <MoonIcon />
       <SunIcon />
+    </button>
+  );
+}
+
+/**
+ * Та же смена темы, но пунктом меню разделов — для компактной шапки
+ * внутренних страниц, где отдельной кнопке темы нет места в строке.
+ * Подпись называет тему, в которую переключит пункт; какая из двух видна —
+ * решает CSS по data-theme (как с иконками), без клиентского состояния.
+ * Слушатель системной темы живёт в ThemeToggle — она смонтирована всегда
+ * (на узком экране просто скрыта стилями).
+ */
+export function ThemeMenuItem(): React.ReactElement {
+  const dict = useDictionary();
+
+  return (
+    <button
+      type="button"
+      className="header-menu-item header-menu-theme"
+      onClick={toggleTheme}
+    >
+      <MoonIcon />
+      <SunIcon />
+      <span className="theme-label-to-dark">{dict.nav.themeToDark}</span>
+      <span className="theme-label-to-light">{dict.nav.themeToLight}</span>
     </button>
   );
 }

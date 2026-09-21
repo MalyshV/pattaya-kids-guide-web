@@ -271,6 +271,8 @@ input[type="checkbox"]:focus-visible {
   color: var(--foreground);
   font-weight: 700;
   letter-spacing: 0.02em;
+  /* «Pattaya Kids Guide» не рвётся на две строки на планшете */
+  white-space: nowrap;
 }
 
 .site-nav {
@@ -2107,6 +2109,7 @@ html[data-theme="dark"] .place-image-img {
 /* переключатель темы — кнопка-иконка в паре с выбором языка; какая иконка
    видна, решает тема: в светлой — луна («включить тёмную»), в тёмной — солнце */
 .theme-toggle {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2151,6 +2154,7 @@ html[data-theme="dark"] .theme-toggle-moon {
 }
 
 .lang-menu-trigger {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -4133,8 +4137,7 @@ html[data-theme="dark"] .theme-toggle-moon {
     position: relative;
   }
 
-  .header-search,
-  .header-menu {
+  .header-search {
     position: static;
   }
 
@@ -4185,7 +4188,17 @@ html[data-theme="dark"] .theme-toggle-moon {
   display: inline-flex;
 }
 
+/* на телефоне выпадашки меню — на всю ширину шапки (якорь — .site-header-inner,
+   см. блок лупы выше). Правило стоит ПОСЛЕ базового relative: раньше оно было
+   выше и проигрывало ему, меню жались к кнопке */
+@media (max-width: 760px) {
+  .header-menu {
+    position: static;
+  }
+}
+
 .header-menu-trigger {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -4261,6 +4274,77 @@ html[data-theme="dark"] .theme-toggle-moon {
 
 .header-menu-item-mark {
   color: var(--sage);
+}
+
+/* «вы здесь» в меню разделов — как активная пилюля строки-навигации:
+   спокойный фон и жирнее, без галочки (✓ у нас — «были здесь» и язык) */
+.header-menu-item-current {
+  background: var(--surface-muted);
+  font-weight: 600;
+}
+
+.header-menu-divider {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--border);
+}
+
+/* пункт темы в меню разделов: кнопка в виде пункта-ссылки */
+.header-menu-theme {
+  width: 100%;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.header-menu-theme svg {
+  width: 17px;
+  height: 17px;
+  color: var(--muted);
+}
+
+.theme-label-to-light,
+html[data-theme="dark"] .theme-label-to-dark {
+  display: none;
+}
+
+html[data-theme="dark"] .theme-label-to-light {
+  display: inline;
+}
+
+/* Внутренние страницы: строка разделов влезает в одну линию только на
+   широком экране (ru с двумя ссылками памяти ≈ 1010px) — уже неё шапка
+   сворачивается в одну строку «логотип … ▦ ♡ язык», как на посадочной
+   (решение Вероники 21.09 вместо 2–4 этажей). Оба вида уже в разметке —
+   CSS только выбирает, поэтому гидрация не мигает. */
+.header-compact-nav-inner {
+  display: none;
+}
+
+@media (max-width: 1079px) {
+  .site-nav-wide {
+    display: none;
+  }
+
+  .header-compact-nav-inner {
+    display: flex;
+  }
+
+  /* тема — пунктом в меню разделов */
+  .site-header-right-inner > .theme-toggle {
+    display: none;
+  }
+}
+
+/* узкие телефоны: логотип и три кнопки держат одну строку и на 360px */
+@media (max-width: 400px) {
+  .site-header-right-inner,
+  .site-header-right-inner .header-compact-nav {
+    gap: 8px;
+  }
 }
 
 .header-menu-item-count {

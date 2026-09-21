@@ -22,6 +22,8 @@ export const en: Dictionary = {
     langAria: "Language",
     sectionsAria: "Sections",
     themeToggle: "Switch color theme",
+    themeToDark: "Dark theme",
+    themeToLight: "Light theme",
     skipToContent: "Skip to main content",
   },
 

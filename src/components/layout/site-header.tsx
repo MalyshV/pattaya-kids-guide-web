@@ -53,7 +53,7 @@ function NavLinks({
   const visitedCount = hydrated ? listByKind(items, "visited").length : 0;
 
   return (
-    <nav className="site-nav" aria-label={dict.nav.aria}>
+    <nav className="site-nav site-nav-wide" aria-label={dict.nav.aria}>
       <Link
         href={withAge(`${basePath}/places`, age)}
         className={`site-nav-link${isPlaces ? " site-nav-link-active" : ""}`}
@@ -107,6 +107,53 @@ function NavLinks({
   );
 }
 
+/**
+ * Навигация шапки. Посадочная встречает вопросом, а не десятью ссылками:
+ * разделы и память родителя всегда свёрнуты в кнопки-меню. На внутренних
+ * страницах в разметке оба вида — строка (широкий экран) и те же кнопки-меню
+ * (телефон, планшет: строка там ломалась на 2–4 этажа); какой виден, решает
+ * CSS по ширине (.site-nav-wide / .header-compact-nav-inner), поэтому сервер и
+ * клиент рисуют одно и то же и шапка не мигает при гидрации. Тема в
+ * компактном виде уезжает пунктом в меню разделов — в строке ей нет места.
+ */
+function HeaderNav({
+  basePath,
+  age,
+  isLanding,
+}: {
+  basePath: string;
+  age: string | null;
+  isLanding: boolean;
+}): React.ReactElement {
+  const dict = useDictionary();
+
+  if (isLanding) {
+    // тот же nav-ориентир, что у NavLinks: скринридер находит навигацию
+    // и на посадочной, просто в свёрнутом виде
+    return (
+      <nav className="header-compact-nav" aria-label={dict.nav.aria}>
+        <SectionsMenu basePath={basePath} age={age} />
+        <MemoryMenu basePath={basePath} age={age} />
+      </nav>
+    );
+  }
+
+  // скрытый стилями nav (display:none) выпадает и из дерева доступности —
+  // ориентир «Разделы сайта» у скринридера всегда один
+  return (
+    <>
+      <NavLinks basePath={basePath} age={age} />
+      <nav
+        className="header-compact-nav header-compact-nav-inner"
+        aria-label={dict.nav.aria}
+      >
+        <SectionsMenu basePath={basePath} age={age} withTheme />
+        <MemoryMenu basePath={basePath} age={age} />
+      </nav>
+    </>
+  );
+}
+
 function HeaderRight({
   basePath,
   searchItems,
@@ -117,26 +164,11 @@ function HeaderRight({
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const age = searchParams.get("age");
-
-  // Посадочная встречает вопросом, а не десятью ссылками: разделы и память
-  // родителя свёрнуты в кнопки-меню в один ряд с лупой/темой/языком.
-  // На остальных страницах — обычная навигация-строка.
   const isLanding = pathname === basePath;
 
-  const dict = useDictionary();
-
   return (
-    <div className="site-header-right">
-      {isLanding ? (
-        // тот же nav-ориентир, что у NavLinks: скринридер находит навигацию
-        // и на посадочной, просто в свёрнутом виде
-        <nav className="header-compact-nav" aria-label={dict.nav.aria}>
-          <SectionsMenu basePath={basePath} age={age} />
-          <MemoryMenu basePath={basePath} age={age} />
-        </nav>
-      ) : (
-        <NavLinks basePath={basePath} age={age} />
-      )}
+    <div className={`site-header-right${isLanding ? "" : " site-header-right-inner"}`}>
+      <HeaderNav basePath={basePath} age={age} isLanding={isLanding} />
       {searchItems ? <HeaderSearch basePath={basePath} items={searchItems} /> : null}
       <ThemeToggle />
       <LanguageMenu />
@@ -149,6 +181,7 @@ export function SiteHeader({
   searchItems,
 }: SiteHeaderProps): React.ReactElement {
   const pathname = usePathname();
+  const isLanding = pathname === basePath;
 
   // Считаем клиентские переходы для SmartBackLink: только смену pathname,
   // первый рендер страницы переходом не является. Живёт в SiteHeader (а не в
@@ -173,8 +206,10 @@ export function SiteHeader({
         {/* useSearchParams требует Suspense; fallback — те же ссылки без age */}
         <Suspense
           fallback={
-            <div className="site-header-right">
-              <NavLinks basePath={basePath} age={null} />
+            <div
+              className={`site-header-right${isLanding ? "" : " site-header-right-inner"}`}
+            >
+              <HeaderNav basePath={basePath} age={null} isLanding={isLanding} />
               <ThemeToggle />
             </div>
           }
