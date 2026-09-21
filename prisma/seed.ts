@@ -876,7 +876,9 @@ async function main() {
       {
         placeId: lariDea.id,
         type: "facebook",
-        value: "https://www.facebook.com/share/g/18WkRmomTk",
+        // страница кафе (так ссылается их сайт laridea.co.th); прежняя ссылка
+        // вела в группу, а не на страницу места
+        value: "https://www.facebook.com/LariDea",
         order: 3,
       },
       {
