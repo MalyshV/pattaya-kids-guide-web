@@ -1,16 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AgeQuestion } from "@/components/common/age-question";
-import { SearchBox } from "@/components/common/search-box";
 import { PlaceFilters } from "@/components/places/place-filters";
 import { ScenarioBar } from "@/components/places/scenario-bar";
 import { PlacesResults } from "@/components/places/places-results";
 import { VisitedFilterChips } from "@/components/places/visited-filter-chips";
 import { parseVisitedParam } from "@/lib/memory/visited-filter";
 import { getAllApprovedPlaces } from "@/services/places.service";
-import { getSearchRows } from "@/services/search.service";
 import { mapPlaceToListItemDto } from "@/mappers/place.mapper";
-import { getSearchIndex } from "@/lib/search/search-index";
 import { parseAgeBuckets, placeAgeGroupsMatch } from "@/lib/age/age-buckets";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import {
@@ -134,33 +131,22 @@ export default async function CityPlacesPage({
     animalContact,
   };
 
-  // индекс поиска и места не зависят друг от друга — забираем параллельно,
-  // а не по очереди (каждый круг до базы — это время ответа страницы)
-  const [searchRows, allPlaces] = await Promise.all([
-    getSearchRows(city.id),
-    getAllApprovedPlaces(
-      {
-        indoor: parseBooleanParam(indoor),
-        outdoor: parseBooleanParam(outdoor),
-        hasFood: parseBooleanParam(hasFood),
-        hasWifi: parseBooleanParam(hasWifi),
-        hasAirCon: parseBooleanParam(hasAirCon),
-        hasParking: parseBooleanParam(hasParking),
-        canLeaveChild: parseBooleanParam(canLeaveChild),
-        animalContact: parseBooleanParam(animalContact),
-        workFriendly: parseBooleanParam(workFriendly),
-        shelter: parseBooleanParam(shelter),
-      },
-      city.id,
-    ),
-  ]);
-
-  const searchIndex = getSearchIndex(
-    searchRows.places,
-    searchRows.activities,
-    searchRows.events,
-    basePath,
-    lang,
+  // поиск живёт в шапке (лупа на всех страницах) — строка на странице каталога
+  // дублировала его один в один и убрана (решение Вероники 21.09)
+  const allPlaces = await getAllApprovedPlaces(
+    {
+      indoor: parseBooleanParam(indoor),
+      outdoor: parseBooleanParam(outdoor),
+      hasFood: parseBooleanParam(hasFood),
+      hasWifi: parseBooleanParam(hasWifi),
+      hasAirCon: parseBooleanParam(hasAirCon),
+      hasParking: parseBooleanParam(hasParking),
+      canLeaveChild: parseBooleanParam(canLeaveChild),
+      animalContact: parseBooleanParam(animalContact),
+      workFriendly: parseBooleanParam(workFriendly),
+      shelter: parseBooleanParam(shelter),
+    },
+    city.id,
   );
 
   // Живой статус + сортировка: открытые сейчас выше закрытых, а среди мест с
@@ -239,8 +225,6 @@ export default async function CityPlacesPage({
         <h1 className="hero-title">{dict.places.heroTitle}</h1>
         <p className="hero-description">{dict.places.heroDescription}</p>
       </section>
-
-      <SearchBox items={searchIndex} />
 
       <AgeQuestion
         pathname={listPath}

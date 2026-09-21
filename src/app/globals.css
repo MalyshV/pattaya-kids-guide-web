@@ -150,6 +150,39 @@ body {
   overflow-x: hidden;
 }
 
+/* body: clip вместо hidden — hidden делает body отдельным контейнером
+   прокрутки, и липкая шапка перестаёт липнуть (прокручивается окно, а не
+   body). clip режет так же, но контейнером прокрутки не становится;
+   старый Safari без clip просто остаётся на hidden. */
+body {
+  overflow-x: clip;
+}
+
+/* Липкая шапка (решение Вероники 21.09: разделы, память, поиск и язык под
+   рукой на любой глубине страницы). Переходы по якорям (#map, #results,
+   #visited…) и scrollIntoView останавливаются под шапкой, а не за ней. */
+:root {
+  --header-offset: 64px;
+}
+
+@media (max-width: 374px) {
+  :root {
+    /* на 320px строка шапки переносится — она выше */
+    --header-offset: 92px;
+  }
+}
+
+@media (max-width: 760px) {
+  /* посадочная на телефоне: логотип и значки в две строки */
+  html:has(.landing-hero) {
+    --header-offset: 92px;
+  }
+}
+
+html {
+  scroll-padding-top: var(--header-offset);
+}
+
 body {
   margin: 0;
   /* Плоский спокойный фон вместо вертикального градиента: градиент на
@@ -252,6 +285,11 @@ input[type="checkbox"]:focus-visible {
 
 /* шапка сайта: бренд + спокойный переключатель разделов */
 .site-header {
+  /* липнет к верху окна; над карточками, картой (у неё свой контекст
+     isolation) и кнопкой «наверх», но ниже лайтбокса и модалок (1000+) */
+  position: sticky;
+  top: 0;
+  z-index: 100;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
 }
@@ -3465,9 +3503,10 @@ html[data-theme="dark"] .theme-toggle-moon {
   outline-offset: 3px;
 }
 
-/* якорь ДР-блока на странице места: заголовок не прячется под краем */
+/* якорь ДР-блока на странице места: немного воздуха под липкой шапкой
+   (саму шапку учитывает scroll-padding-top у html) */
 #birthday {
-  scroll-margin-top: 90px;
+  scroll-margin-top: 16px;
 }
 
 /* якорь результатов для пагинации: «Далее» начинает страницу с карточек */
@@ -3504,8 +3543,8 @@ html[data-theme="dark"] .theme-toggle-moon {
 }
 .saved-section {
   margin-top: 28px;
-  /* при переходе по якорю из шапки (#visited) заголовок не прячется под краем */
-  scroll-margin-top: 90px;
+  /* при переходе по якорю из меню шапки (#visited) — воздух под липкой шапкой */
+  scroll-margin-top: 16px;
 }
 .saved-section-title {
   font-size: 1.15rem;
@@ -3609,7 +3648,6 @@ html[data-theme="dark"] .theme-toggle-moon {
 
 .skeleton-line,
 .skeleton-chip,
-.skeleton-search,
 .skeleton-card-image {
   background: var(--surface-muted);
   border-radius: 10px;
@@ -3629,7 +3667,6 @@ html[data-theme="dark"] .theme-toggle-moon {
 @media (prefers-reduced-motion: reduce) {
   .skeleton-line,
   .skeleton-chip,
-  .skeleton-search,
   .skeleton-card-image {
     animation: none;
   }
@@ -3653,12 +3690,6 @@ html[data-theme="dark"] .theme-toggle-moon {
 .skeleton-subtitle {
   width: min(520px, 95%);
   height: 18px;
-}
-
-.skeleton-search {
-  height: 52px;
-  border-radius: 16px;
-  margin: 20px 0 16px;
 }
 
 .skeleton-chips {
@@ -4144,8 +4175,8 @@ html[data-theme="dark"] .theme-toggle-moon {
 /* карта посадочной: ниже сгиба, к ней ведёт плавный скролл по якорю */
 .landing-map {
   margin-top: 18vh;
-  /* воздух над заголовком карты после якорного скролла */
-  scroll-margin-top: 84px;
+  /* воздух над заголовком карты под липкой шапкой после якорного скролла */
+  scroll-margin-top: 24px;
 }
 
 .landing-map-title {
