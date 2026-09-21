@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { brandOgImage } from "@/lib/seo/meta";
 import { Analytics } from "@vercel/analytics/next";
 import "@/app/globals.css";
 import { fontVariables } from "@/app/fonts";
@@ -50,14 +51,15 @@ export async function generateMetadata({
     },
     description: dict.meta.description,
     // Превью при пересылке ссылки в чат (главный канал роста — кнопка
-    // «Поделиться»). Своё фото добавляют страницы-карточки; брендовую
-    // дефолт-картинку для списков подставим позже (нужен ассет).
+    // «Поделиться»). Страницы-карточки ставят своё фото; главная, каталоги
+    // и остальные — фирменную картинку на языке страницы.
     openGraph: {
       type: "website",
       siteName: dict.brand,
       title: dict.meta.title,
       description: dict.meta.description,
       locale: OG_LOCALES[lang],
+      images: [brandOgImage(lang)],
     },
     // Только card: заголовок/описание/картинку X берёт из og:* каждой страницы —
     // так карточка места показывает название места, а не общий бренд.
