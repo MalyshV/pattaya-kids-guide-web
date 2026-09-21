@@ -3294,8 +3294,7 @@ html[data-theme="dark"] .theme-toggle-moon {
 /* фокус клавиатурой — тем же контуром, что у остальных интерактивных элементов */
 .memory-btn:focus-visible,
 .saved-item-remove:focus-visible,
-.saved-item-link:focus-visible,
-.site-nav-saved:focus-visible {
+.saved-item-link:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
@@ -3386,30 +3385,6 @@ html[data-theme="dark"] .theme-toggle-moon {
 .saved-undo-restore:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
-}
-
-/* ссылка «Избранное» в шапке + счётчик */
-.site-nav-saved {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-.site-nav-saved-icon {
-  font-size: 1rem;
-  line-height: 1;
-}
-.site-nav-saved-count {
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 999px;
-  background: var(--accent-strong);
-  color: var(--accent-foreground);
-  font-size: 0.72rem;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* страница «Избранное» */
@@ -4221,6 +4196,13 @@ html[data-theme="dark"] .theme-toggle-moon {
   background: var(--tint-hover);
 }
 
+/* страница, куда ведёт меню, открыта (память на /saved): кнопка помечена
+   тем же спокойным фоном, что активный раздел */
+.header-menu-trigger-current {
+  background: var(--surface-muted);
+  color: var(--foreground);
+}
+
 .header-menu-trigger:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -4229,6 +4211,11 @@ html[data-theme="dark"] .theme-toggle-moon {
 .header-menu-trigger svg {
   width: 17px;
   height: 17px;
+}
+
+/* пара ♡✓ шире квадрата: та же высота штриха, пропорции 30×24 */
+.header-menu-trigger .memory-menu-icon {
+  width: 22px;
 }
 
 /* меню разделов и памяти — тот же стиль, что у выпадашки языков
@@ -4316,21 +4303,22 @@ html[data-theme="dark"] .theme-label-to-light {
 }
 
 /* Внутренние страницы: строка разделов влезает в одну линию только на
-   широком экране (ru с двумя ссылками памяти ≈ 1010px) — уже неё шапка
-   сворачивается в одну строку «логотип … ▦ ♡ язык», как на посадочной
-   (решение Вероники 21.09 вместо 2–4 этажей). Оба вида уже в разметке —
-   CSS только выбирает, поэтому гидрация не мигает. */
-.header-compact-nav-inner {
+   широком экране (ru ≈ 730px: логотип, 4 раздела, ♡✓, тема, язык; граница
+   850 — с запасом на системные шрифты) — уже неё шапка сворачивается в одну
+   строку «логотип … ▦ ♡✓ язык», как на посадочной (решение Вероники 21.09
+   вместо 2–4 этажей). Оба вида уже в разметке — CSS только выбирает, поэтому
+   гидрация не мигает. */
+.header-sections-compact {
   display: none;
 }
 
-@media (max-width: 1079px) {
+@media (max-width: 849px) {
   .site-nav-wide {
     display: none;
   }
 
-  .header-compact-nav-inner {
-    display: flex;
+  .header-sections-compact {
+    display: inline-flex;
   }
 
   /* тема — пунктом в меню разделов */

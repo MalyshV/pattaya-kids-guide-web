@@ -4,8 +4,6 @@ import Link from "next/link";
 import { Suspense, useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
-import { useParentMemory } from "@/lib/memory/use-parent-memory";
-import { listByKind } from "@/lib/memory/parent-memory";
 import { markClientNavigation } from "@/components/common/smart-back-link";
 import { HeaderSearch } from "@/components/layout/header-search";
 import { MemoryMenu, SectionsMenu } from "@/components/layout/header-menus";
@@ -29,7 +27,8 @@ function withAge(href: string, age: string | null): string {
   return `${href}?${params.toString()}`;
 }
 
-function NavLinks({
+/** Разделы строкой — широкий экран внутренних страниц. */
+function SectionLinks({
   basePath,
   age,
 }: {
@@ -38,83 +37,50 @@ function NavLinks({
 }): React.ReactElement {
   const pathname = usePathname();
   const dict = useDictionary();
-  const { items, hydrated } = useParentMemory();
 
-  const isEvents = pathname.startsWith(`${basePath}/events`);
-  const isActivities = pathname.startsWith(`${basePath}/activities`);
-  const isBirthdays = pathname.startsWith(`${basePath}/birthdays`);
-  const isSaved = pathname.startsWith(`${basePath}/saved`);
   // каталог и детальные места живут под /places; корень города — посадочная,
-  // на ней ни один пункт меню не активен
-  const isPlaces = pathname.startsWith(`${basePath}/places`);
-  // два счётчика: ♡ сохранённое и ✓ посещённое — обе функции видны из шапки,
-  // родителю не нужно догадываться, что внутри «одной кнопки» живут две
-  const savedCount = hydrated ? listByKind(items, "saved").length : 0;
-  const visitedCount = hydrated ? listByKind(items, "visited").length : 0;
+  // на ней ни один пункт не активен
+  const sections = [
+    { href: `${basePath}/places`, label: dict.nav.places },
+    { href: `${basePath}/events`, label: dict.nav.events },
+    { href: `${basePath}/activities`, label: dict.nav.activities },
+    { href: `${basePath}/birthdays`, label: dict.nav.birthdays },
+  ];
 
   return (
-    <nav className="site-nav site-nav-wide" aria-label={dict.nav.aria}>
-      <Link
-        href={withAge(`${basePath}/places`, age)}
-        className={`site-nav-link${isPlaces ? " site-nav-link-active" : ""}`}
-      >
-        {dict.nav.places}
-      </Link>
-      <Link
-        href={withAge(`${basePath}/events`, age)}
-        className={`site-nav-link${isEvents ? " site-nav-link-active" : ""}`}
-      >
-        {dict.nav.events}
-      </Link>
-      <Link
-        href={withAge(`${basePath}/activities`, age)}
-        className={`site-nav-link${isActivities ? " site-nav-link-active" : ""}`}
-      >
-        {dict.nav.activities}
-      </Link>
-      <Link
-        href={withAge(`${basePath}/birthdays`, age)}
-        className={`site-nav-link${isBirthdays ? " site-nav-link-active" : ""}`}
-      >
-        {dict.nav.birthdays}
-      </Link>
-      <Link
-        href={withAge(`${basePath}/saved`, age)}
-        className={`site-nav-link site-nav-saved${isSaved ? " site-nav-link-active" : ""}`}
-      >
-        <span className="site-nav-saved-icon" aria-hidden="true">
-          ♡
-        </span>
-        {dict.memory.navSaved}
-        {savedCount > 0 ? (
-          <span className="site-nav-saved-count">{savedCount}</span>
-        ) : null}
-      </Link>
-      <Link
-        // query — строго до #visited: withAge после хэша дал бы битый URL
-        href={`${withAge(`${basePath}/saved`, age)}#visited`}
-        className={`site-nav-link site-nav-saved${isSaved ? " site-nav-link-active" : ""}`}
-      >
-        <span className="site-nav-saved-icon" aria-hidden="true">
-          ✓
-        </span>
-        {dict.memory.navVisited}
-        {visitedCount > 0 ? (
-          <span className="site-nav-saved-count">{visitedCount}</span>
-        ) : null}
-      </Link>
-    </nav>
+    <div className="site-nav site-nav-wide">
+      {sections.map((section) => {
+        // как в меню разделов: сам раздел — page, карточка внутри — true
+        const current =
+          pathname === section.href
+            ? "page"
+            : pathname.startsWith(`${section.href}/`)
+              ? "true"
+              : undefined;
+        return (
+          <Link
+            key={section.href}
+            href={withAge(section.href, age)}
+            aria-current={current}
+            className={`site-nav-link${current ? " site-nav-link-active" : ""}`}
+          >
+            {section.label}
+          </Link>
+        );
+      })}
+    </div>
   );
 }
 
 /**
- * Навигация шапки. Посадочная встречает вопросом, а не десятью ссылками:
- * разделы и память родителя всегда свёрнуты в кнопки-меню. На внутренних
- * страницах в разметке оба вида — строка (широкий экран) и те же кнопки-меню
- * (телефон, планшет: строка там ломалась на 2–4 этажа); какой виден, решает
- * CSS по ширине (.site-nav-wide / .header-compact-nav-inner), поэтому сервер и
- * клиент рисуют одно и то же и шапка не мигает при гидрации. Тема в
- * компактном виде уезжает пунктом в меню разделов — в строке ей нет места.
+ * Навигация шапки — один ориентир «Разделы сайта» на всех страницах.
+ * Память родителя везде одна дверь: значок ♡✓ с меню «Сохранённое · Были
+ * здесь» (решение Вероники 21.09 вместо двух ссылок на одну страницу — обе
+ * функции и их счётчики видны в меню до перехода). Разделы: на посадочной
+ * всегда свёрнуты в меню ▦ (первый экран встречает вопросом); на внутренних
+ * страницах в разметке и строка (широкий экран), и меню ▦ (телефон, планшет) —
+ * какой вид показать, решает CSS по ширине, поэтому гидрация не мигает. Тема
+ * на узком экране уезжает пунктом в меню ▦ — в строке ей нет места.
  */
 function HeaderNav({
   basePath,
@@ -127,30 +93,20 @@ function HeaderNav({
 }): React.ReactElement {
   const dict = useDictionary();
 
-  if (isLanding) {
-    // тот же nav-ориентир, что у NavLinks: скринридер находит навигацию
-    // и на посадочной, просто в свёрнутом виде
-    return (
-      <nav className="header-compact-nav" aria-label={dict.nav.aria}>
-        <SectionsMenu basePath={basePath} age={age} />
-        <MemoryMenu basePath={basePath} age={age} />
-      </nav>
-    );
-  }
-
-  // скрытый стилями nav (display:none) выпадает и из дерева доступности —
-  // ориентир «Разделы сайта» у скринридера всегда один
   return (
-    <>
-      <NavLinks basePath={basePath} age={age} />
-      <nav
-        className="header-compact-nav header-compact-nav-inner"
-        aria-label={dict.nav.aria}
-      >
-        <SectionsMenu basePath={basePath} age={age} withTheme />
-        <MemoryMenu basePath={basePath} age={age} />
-      </nav>
-    </>
+    <nav className="header-compact-nav" aria-label={dict.nav.aria}>
+      {isLanding ? (
+        <SectionsMenu basePath={basePath} age={age} />
+      ) : (
+        <>
+          <SectionLinks basePath={basePath} age={age} />
+          <div className="header-sections-compact">
+            <SectionsMenu basePath={basePath} age={age} withTheme />
+          </div>
+        </>
+      )}
+      <MemoryMenu basePath={basePath} age={age} />
+    </nav>
   );
 }
 
