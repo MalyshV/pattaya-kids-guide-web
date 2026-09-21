@@ -60,7 +60,10 @@ export async function uploadImage(file: File, folder: string): Promise<string> {
     throw new UploadError("Не получилось обработать файл как изображение");
   }
 
-  const fileName = `${Date.now()}-${safeBaseName(file.name)}.jpg`;
+  // размеры в имени файла: по ним сайт заранее знает форму картинки и
+  // показывает афиши целиком «в рамке», а фото — кадром (lib/images/image-shape)
+  const { width, height } = await sharp(resized).metadata();
+  const fileName = `${Date.now()}-${safeBaseName(file.name)}-${width}x${height}.jpg`;
 
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     try {
