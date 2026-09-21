@@ -24,6 +24,13 @@ export const OPENING_SOON_MIN = 30;
  * константа, легко поменять на 10:00, если по данным утренних мест мало.
  */
 export const MORNING_THRESHOLD_MIN = 9 * 60;
+/**
+ * С этого времени (минуты от полуночи) «Открыто с утра» смотрит в ЗАВТРА:
+ * вечером сегодняшнее утро уже прошло, а родитель планирует следующее.
+ * 17:00 — начало «вечера» на посадочной (lib/landing/scenarios). После
+ * полуночи день сменился — снова «сегодня», и это уже правильное утро.
+ */
+export const MORNING_TOMORROW_FROM_MIN = 17 * 60;
 
 export type OpenStatus =
   | { kind: "open"; hoursLeft: number | null }
@@ -284,14 +291,19 @@ export function isGoNowStatus(status: OpenStatus): boolean {
   return false;
 }
 
+/** «Открыто с утра» сейчас про завтрашнее утро (вечер), а не сегодняшнее. */
+export function isMorningTomorrow(timezone: string, now: Date = new Date()): boolean {
+  return nowInCity(timezone, now).minutes >= MORNING_TOMORROW_FROM_MIN;
+}
+
 /**
- * Сценарий «Открыто с утра»: сегодня у места есть рабочий интервал, который
- * открывается не позже MORNING_THRESHOLD_MIN (к 9:00). В отличие от «Пойти
- * сейчас» не зависит от текущей минуты — это про раннее открытие сегодня
- * (родитель планирует утро). Сегодня выходной / нет расписания → false (честно
- * не обещаем «утреннее», раз сегодня не работает).
+ * Сценарий «Открыто с утра»: у места есть рабочий интервал, который
+ * открывается не позже MORNING_THRESHOLD_MIN (к 9:00), — сегодня, а вечером
+ * (с MORNING_TOMORROW_FROM_MIN) — завтра. В отличие от «Пойти сейчас» не про
+ * текущую минуту: родитель планирует ближайшее утро. В тот день выходной /
+ * нет расписания → false (честно не обещаем «утреннее»).
  */
-export function opensEarlyToday(
+export function opensEarlyNextMorning(
   schedules: ScheduleInput[],
   timezone: string,
   now: Date = new Date(),
@@ -300,10 +312,11 @@ export function opensEarlyToday(
     return false;
   }
 
-  const { day } = nowInCity(timezone, now);
+  const { day, minutes } = nowInCity(timezone, now);
+  const targetDay = minutes >= MORNING_TOMORROW_FROM_MIN ? shiftDay(day, 1) : day;
 
   return schedules.some((s) => {
-    if (s.day !== day || s.isClosed) {
+    if (s.day !== targetDay || s.isClosed) {
       return false;
     }
     const open = parseHhMm(s.openTime);

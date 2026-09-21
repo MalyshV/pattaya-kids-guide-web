@@ -156,6 +156,8 @@ export const th: Dictionary = {
       "แต่ละที่เปิด–ปิดไม่ตรงกัน — ลองกลับมาดูอีกครั้ง หรือปิด “ไปตอนนี้” เพื่อดูสถานที่ทั้งหมด",
     emptyMorningTitle: "ช่วงเช้ายังเปิดไม่กี่ที่",
     emptyMorningHint: "สถานที่สำหรับเด็กส่วนใหญ่เปิดสายกว่านั้น ลองปิด “เปิดตั้งแต่เช้า”",
+    emptyMorningTomorrowHint:
+      "สถานที่สำหรับเด็กส่วนใหญ่เปิดสายกว่านั้น ลองปิด “พรุ่งนี้เช้า”",
     emptyShelterTitle: "สถานที่แบบนี้ยังมีไม่มาก",
     emptyShelterHint:
       "เรากำลังรวบรวมสถานที่หลบร้อนหลบฝน ระหว่างนี้ลองปิดตัวกรองนี้ดูก่อน",
@@ -242,6 +244,7 @@ export const th: Dictionary = {
       workFriendlyHint: "ลูกเล่น — คุณทำงาน: Wi-Fi แอร์ คาเฟ่",
       openMorning: "เปิดตั้งแต่เช้า",
       openMorningHint: "เปิดแล้วตั้งแต่ 8:00–9:00",
+      openMorningTomorrow: "พรุ่งนี้เปิดตั้งแต่เช้า",
       openNow: "ไปได้เลยตอนนี้",
       openNowHint: "เปิดอยู่ตอนนี้ หรือกำลังจะเปิด",
       shelter: "หลบร้อน",
@@ -269,6 +272,9 @@ export const th: Dictionary = {
     openMorning: "เปิดตั้งแต่เช้า",
     openMorningHint: "เปิดเช้า — ก่อน 9:00 น.",
     openMorningActive: "กำลังแสดงสถานที่ที่เปิดตั้งแต่เช้า",
+    openMorningTomorrow: "พรุ่งนี้เช้า",
+    openMorningTomorrowHint: "พรุ่งนี้เปิดเช้า — ก่อน 9:00 น.",
+    openMorningTomorrowActive: "กำลังแสดงสถานที่ที่พรุ่งนี้เปิดก่อน 9:00 น.",
     workFriendly: "นั่งทำงานได้",
     workFriendlyHint: "มี Wi-Fi แอร์ และที่นั่งสบาย ๆ",
     workFriendlyActive: "กำลังแสดงสถานที่ที่นั่งทำงานใกล้ลูกได้สะดวก",

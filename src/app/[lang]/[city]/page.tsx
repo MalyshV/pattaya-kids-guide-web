@@ -22,10 +22,10 @@ import {
   computeOpenStatus,
   isGoNowStatus,
   nowInCity,
-  opensEarlyToday,
+  isMorningTomorrow,
+  opensEarlyNextMorning,
 } from "@/lib/schedule/open-status";
 import {
-  dropLateNightMorning,
   eligibleScenarios,
   isShelterPlace,
   isWorkFriendlyPlace,
@@ -132,8 +132,9 @@ export default async function CityLandingPage({
     openNow: places.filter((place) =>
       isGoNowStatus(computeOpenStatus(place.schedules, city.timezone)),
     ).length,
-    openMorning: places.filter((place) => opensEarlyToday(place.schedules, city.timezone))
-      .length,
+    openMorning: places.filter((place) =>
+      opensEarlyNextMorning(place.schedules, city.timezone),
+    ).length,
     workFriendly: places.filter(isWorkFriendlyPlace).length,
     shelter: places.filter(isShelterPlace).length,
   };
@@ -146,11 +147,7 @@ export default async function CityLandingPage({
   };
 
   const priority = scenarioPriority(slot, isWeekendDay(now.day));
-  const pool = dropLateNightMorning(
-    eligibleScenarios(priority, counts, sectionCounts),
-    slot,
-    now.minutes,
-  );
+  const pool = eligibleScenarios(priority, counts, sectionCounts);
 
   const scenarioHrefs: Record<ScenarioKey, { href: string; needsAge?: boolean }> = {
     age: { href: `${basePath}/activities`, needsAge: true },
@@ -211,7 +208,12 @@ export default async function CityLandingPage({
       />
       {/* первый экран — вопрос и ответы, занимает вьюпорт целиком */}
       <div className="landing-hero-viewport">
-        <LandingHero slot={slot} scenarios={scenarios} listPath={listPath} />
+        <LandingHero
+          slot={slot}
+          scenarios={scenarios}
+          listPath={listPath}
+          morningTomorrow={isMorningTomorrow(city.timezone)}
+        />
       </div>
 
       {/* ниже сгиба: карта; Leaflet монтируется только при приближении.

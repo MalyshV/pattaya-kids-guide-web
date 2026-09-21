@@ -175,6 +175,8 @@ export const ru = {
     emptyMorningTitle: "Утром пока мало что открыто",
     emptyMorningHint:
       "Большинство детских мест открывается позже. Попробуйте выключить «Открыто с утра».",
+    emptyMorningTomorrowHint:
+      "Большинство детских мест открывается позже. Попробуйте выключить «Завтра с утра».",
     emptyShelterTitle: "Пока таких мест немного",
     emptyShelterHint:
       "Собираем места, где хорошо укрыться от жары и дождя. Попробуйте пока выключить этот фильтр.",
@@ -271,6 +273,7 @@ export const ru = {
       workFriendlyHint: "Ребёнок играет — вы за ноутбуком: Wi-Fi, кондиционер, кафе",
       openMorning: "Открыто с самого утра",
       openMorningHint: "Уже работают к 8:00–9:00",
+      openMorningTomorrow: "Завтра с самого утра",
       openNow: "Пойти прямо сейчас",
       openNowHint: "Открыто сейчас или вот-вот откроется",
       shelter: "Спрятаться от жары",
@@ -304,6 +307,9 @@ export const ru = {
     openMorning: "Открыто с утра",
     openMorningHint: "Работает рано — открывается к 9:00",
     openMorningActive: "Показываю места, которые открыты с утра",
+    openMorningTomorrow: "Завтра с утра",
+    openMorningTomorrowHint: "Завтра работает рано — открывается к 9:00",
+    openMorningTomorrowActive: "Показываю места, которые завтра открываются к 9:00",
     workFriendly: "Можно поработать",
     workFriendlyHint: "Wi-Fi, кондиционер и место, где можно посидеть",
     workFriendlyActive: "Показываю, где удобно поработать рядом с ребёнком",

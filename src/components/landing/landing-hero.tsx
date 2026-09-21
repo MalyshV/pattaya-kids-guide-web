@@ -29,6 +29,8 @@ type LandingHeroProps = {
   slot: LandingSlot;
   scenarios: LandingScenarioDto[];
   listPath: string;
+  /** вечер: «Открыто с утра» ведёт в завтрашнее утро — подпись об этом */
+  morningTomorrow: boolean;
 };
 
 // ?age= на посадочной не живёт (старые ссылки с ним редиректятся в каталог),
@@ -40,6 +42,7 @@ export function LandingHero({
   slot,
   scenarios,
   listPath,
+  morningTomorrow,
 }: LandingHeroProps): React.ReactElement {
   const dict = useDictionary();
   const [offset, setOffset] = useState(0);
@@ -61,7 +64,9 @@ export function LandingHero({
       hint: dict.landing.scenarios.workFriendlyHint,
     },
     openMorning: {
-      label: dict.landing.scenarios.openMorning,
+      label: morningTomorrow
+        ? dict.landing.scenarios.openMorningTomorrow
+        : dict.landing.scenarios.openMorning,
       hint: dict.landing.scenarios.openMorningHint,
     },
     openNow: {

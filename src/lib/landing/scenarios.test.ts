@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  dropLateNightMorning,
   eligibleScenarios,
   isShelterPlace,
   isWorkFriendlyPlace,
@@ -87,19 +86,6 @@ describe("eligibleScenarios", () => {
       "age",
     ]);
     expect(eligibleScenarios(priority, {}, { events: 1 })).toEqual(priority);
-  });
-});
-
-describe("dropLateNightMorning", () => {
-  const pool: ScenarioKey[] = ["openMorning", "age", "events"];
-
-  it("в 23:00–23:59 «открыто с утра» выпадает: «сегодня» — ещё уходящий день", () => {
-    expect(dropLateNightMorning(pool, "night", 23 * 60 + 30)).toEqual(["age", "events"]);
-  });
-
-  it("после полуночи и в остальных слотах пул не меняется", () => {
-    expect(dropLateNightMorning(pool, "night", 30)).toEqual(pool);
-    expect(dropLateNightMorning(pool, "morning", 23 * 60 + 30)).toEqual(pool);
   });
 });
 

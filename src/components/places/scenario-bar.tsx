@@ -12,9 +12,14 @@ type ScenarioBarProps = {
   active: Record<ScenarioKey, boolean>;
   // Текущие фасеты (indoor, hasFood…) — сохраняем при переключении сценария.
   facets: Record<string, string | undefined>;
+  // Вечер: «Открыто с утра» смотрит в завтрашнее утро — подписи чипа об этом.
+  morningTomorrow: boolean;
 };
 
-function buildScenarios(dict: Dictionary): Array<{
+function buildScenarios(
+  dict: Dictionary,
+  morningTomorrow: boolean,
+): Array<{
   key: ScenarioKey;
   label: string;
   hint: string;
@@ -29,9 +34,15 @@ function buildScenarios(dict: Dictionary): Array<{
     },
     {
       key: "openMorning",
-      label: dict.scenarios.openMorning,
-      hint: dict.scenarios.openMorningHint,
-      activeHint: dict.scenarios.openMorningActive,
+      label: morningTomorrow
+        ? dict.scenarios.openMorningTomorrow
+        : dict.scenarios.openMorning,
+      hint: morningTomorrow
+        ? dict.scenarios.openMorningTomorrowHint
+        : dict.scenarios.openMorningHint,
+      activeHint: morningTomorrow
+        ? dict.scenarios.openMorningTomorrowActive
+        : dict.scenarios.openMorningActive,
     },
     {
       key: "workFriendly",
@@ -57,7 +68,11 @@ function buildScenarios(dict: Dictionary): Array<{
   ];
 }
 
-export function ScenarioBar({ active, facets }: ScenarioBarProps): React.ReactElement {
+export function ScenarioBar({
+  active,
+  facets,
+  morningTomorrow,
+}: ScenarioBarProps): React.ReactElement {
   const router = useRouter();
   const pathname = usePathname();
   const dict = useDictionary();
@@ -66,7 +81,10 @@ export function ScenarioBar({ active, facets }: ScenarioBarProps): React.ReactEl
   // ответа сервера (~0.3с на проде) — иначе кажется, что «не нажалось».
   const [shownActive, setShownActive] = useOptimistic(active);
 
-  const SCENARIOS = useMemo(() => buildScenarios(dict), [dict]);
+  const SCENARIOS = useMemo(
+    () => buildScenarios(dict, morningTomorrow),
+    [dict, morningTomorrow],
+  );
 
   // Один клик = результат: сценарий срабатывает сразу, без «Показать».
   // Сохраняем фасеты и другие активные сценарии — инвертируем только нажатый.

@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   computeOpenStatus,
   isGoNowStatus,
-  opensEarlyToday,
+  isMorningTomorrow,
+  opensEarlyNextMorning,
   statusSortRank,
   todayClosingTime,
   type OpenStatus,
@@ -265,27 +266,81 @@ describe("isGoNowStatus («Пойти сейчас»)", () => {
   });
 });
 
-describe("opensEarlyToday («Открыто с утра»)", () => {
+describe("opensEarlyNextMorning («Открыто с утра»)", () => {
   it("открытие ровно в 9:00 — граница включена", () => {
-    expect(opensEarlyToday([day("09:00", "18:00")], "UTC", at("13:00"))).toBe(true);
+    expect(opensEarlyNextMorning([day("09:00", "18:00")], "UTC", at("13:00"))).toBe(true);
   });
 
   it("открытие в 8:30 — утреннее", () => {
-    expect(opensEarlyToday([day("08:30", "18:00")], "UTC", at("13:00"))).toBe(true);
+    expect(opensEarlyNextMorning([day("08:30", "18:00")], "UTC", at("13:00"))).toBe(true);
   });
 
   it("открытие в 9:01 и позже — не утреннее", () => {
-    expect(opensEarlyToday([day("09:01", "18:00")], "UTC", at("13:00"))).toBe(false);
-    expect(opensEarlyToday([day("11:00", "20:00")], "UTC", at("13:00"))).toBe(false);
+    expect(opensEarlyNextMorning([day("09:01", "18:00")], "UTC", at("13:00"))).toBe(
+      false,
+    );
+    expect(opensEarlyNextMorning([day("11:00", "20:00")], "UTC", at("13:00"))).toBe(
+      false,
+    );
   });
 
   it("сегодня выходной или нет расписания → честно false", () => {
-    expect(opensEarlyToday([CLOSED_WED], "UTC", at("13:00"))).toBe(false);
-    expect(opensEarlyToday([], "UTC", at("13:00"))).toBe(false);
+    expect(opensEarlyNextMorning([CLOSED_WED], "UTC", at("13:00"))).toBe(false);
+    expect(opensEarlyNextMorning([], "UTC", at("13:00"))).toBe(false);
   });
 
-  it("не зависит от текущей минуты — вечером ответ тот же", () => {
-    expect(opensEarlyToday([day("08:30", "18:00")], "UTC", at("19:00"))).toBe(true);
+  it("днём — про сегодняшнее утро, даже если оно прошло (16:59)", () => {
+    expect(opensEarlyNextMorning([day("08:30", "18:00")], "UTC", at("16:59"))).toBe(true);
+  });
+
+  it("с 17:00 — про завтрашнее утро: смотрит на расписание завтра", () => {
+    // среда 17:00: в среду рано, в четверг поздно → уже нет
+    const schedules = [day("08:30", "18:00"), day("11:00", "20:00", "THU")];
+    expect(opensEarlyNextMorning(schedules, "UTC", at("17:00"))).toBe(false);
+    // и наоборот: в среду поздно, в четверг рано → да
+    const reversed = [day("11:00", "20:00"), day("08:30", "18:00", "THU")];
+    expect(opensEarlyNextMorning(reversed, "UTC", at("20:00"))).toBe(true);
+  });
+
+  it("вечером, а завтра выходной → честно false", () => {
+    const schedules = [
+      day("08:30", "18:00"),
+      { day: "THU", openTime: "", closeTime: "", isClosed: true },
+    ];
+    expect(opensEarlyNextMorning(schedules, "UTC", at("21:00"))).toBe(false);
+  });
+
+  it("воскресный вечер смотрит в понедельник", () => {
+    // 2026-07-12 — воскресенье
+    expect(
+      opensEarlyNextMorning(
+        [day("08:00", "18:00", "MON")],
+        "UTC",
+        new Date("2026-07-12T19:00:00Z"),
+      ),
+    ).toBe(true);
+  });
+
+  it("после полуночи день сменился — снова «сегодня», это и есть ближайшее утро", () => {
+    expect(opensEarlyNextMorning([day("08:30", "18:00")], "UTC", at("00:30"))).toBe(true);
+  });
+
+  it("считает вечер в часовом поясе города (Бангкок = UTC+7)", () => {
+    // 10:00 UTC = 17:00 в Паттайе → уже про завтра (четверг)
+    const schedules = [day("08:30", "18:00"), day("08:30", "18:00", "THU")];
+    expect(opensEarlyNextMorning(schedules, "Asia/Bangkok", at("10:00"))).toBe(true);
+    expect(
+      opensEarlyNextMorning([day("08:30", "18:00")], "Asia/Bangkok", at("10:00")),
+    ).toBe(false);
+  });
+});
+
+describe("isMorningTomorrow", () => {
+  it("граница 17:00 включена; после полуночи — снова сегодня", () => {
+    expect(isMorningTomorrow("UTC", at("16:59"))).toBe(false);
+    expect(isMorningTomorrow("UTC", at("17:00"))).toBe(true);
+    expect(isMorningTomorrow("UTC", at("23:59"))).toBe(true);
+    expect(isMorningTomorrow("UTC", at("00:00"))).toBe(false);
   });
 });
 
