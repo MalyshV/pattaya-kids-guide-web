@@ -16,7 +16,8 @@ import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import {
   computeOpenStatus,
   isGoNowStatus,
-  opensEarlyToday,
+  isMorningTomorrow,
+  opensEarlyNextMorning,
 } from "@/lib/schedule/open-status";
 import { compareCatalogOrder } from "@/lib/places/catalog-order";
 import { getDictionary } from "@/content/dictionary";
@@ -111,6 +112,8 @@ export default async function CityPlacesPage({
   const isWorkFriendly = parseBooleanParam(workFriendly) === true;
   const isOpenNow = parseBooleanParam(openNow) === true;
   const isOpenMorning = parseBooleanParam(openMorning) === true;
+  // вечером «Открыто с утра» — про завтрашнее утро (подписи чипа и пустоты)
+  const morningTomorrow = isMorningTomorrow(city.timezone);
   const isShelter = parseBooleanParam(shelter) === true;
   const isNear = parseBooleanParam(near) === true;
   const ageBuckets = parseAgeBuckets(age);
@@ -181,9 +184,9 @@ export default async function CityPlacesPage({
     visiblePlaces = visiblePlaces.filter(({ status }) => isGoNowStatus(status));
   }
   if (isOpenMorning) {
-    // «Открыто с утра»: сегодня открывается рано (к 9:00).
+    // «Открыто с утра»: открывается рано (к 9:00) — сегодня, а вечером завтра.
     visiblePlaces = visiblePlaces.filter(({ place }) =>
-      opensEarlyToday(place.schedules, city.timezone),
+      opensEarlyNextMorning(place.schedules, city.timezone),
     );
   }
   if (ageBuckets.length > 0) {
@@ -217,7 +220,9 @@ export default async function CityPlacesPage({
   const emptyHint = isOpenNow
     ? dict.places.emptyOpenNowHint
     : isOpenMorning
-      ? dict.places.emptyMorningHint
+      ? morningTomorrow
+        ? dict.places.emptyMorningTomorrowHint
+        : dict.places.emptyMorningHint
       : isShelter
         ? dict.places.emptyShelterHint
         : isWorkFriendly
@@ -290,6 +295,7 @@ export default async function CityPlacesPage({
           near: isNear,
         }}
         facets={facets}
+        morningTomorrow={morningTomorrow}
       />
 
       <PlaceFilters

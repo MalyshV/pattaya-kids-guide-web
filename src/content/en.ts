@@ -154,6 +154,8 @@ export const en: Dictionary = {
     emptyMorningTitle: "Not much is open in the morning",
     emptyMorningHint:
       "Most kids' places open later. Try turning off “Open in the morning”.",
+    emptyMorningTomorrowHint:
+      "Most kids' places open later. Try turning off “Tomorrow morning”.",
     emptyShelterTitle: "Not many such places yet",
     emptyShelterHint:
       "We're collecting places to hide from heat and rain. Try turning this filter off for now.",
@@ -243,6 +245,7 @@ export const en: Dictionary = {
       workFriendlyHint: "Your kid plays — you're on the laptop: Wi-Fi, AC, café",
       openMorning: "Open early in the morning",
       openMorningHint: "Already open by 8:00–9:00",
+      openMorningTomorrow: "Open early tomorrow",
       openNow: "Go right now",
       openNowHint: "Open now or opening shortly",
       shelter: "Escape the heat",
@@ -270,6 +273,9 @@ export const en: Dictionary = {
     openMorning: "Open in the morning",
     openMorningHint: "Opens early — by 9:00",
     openMorningActive: "Showing places that open early today",
+    openMorningTomorrow: "Tomorrow morning",
+    openMorningTomorrowHint: "Opens early tomorrow — by 9:00",
+    openMorningTomorrowActive: "Showing places that open by 9:00 tomorrow",
     workFriendly: "Work-friendly",
     workFriendlyHint: "Wi-Fi, aircon and a place to sit with a laptop",
     workFriendlyActive: "Showing places where a parent can work nearby",
