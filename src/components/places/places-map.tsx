@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import {
+  BASEMAP_ERRORS_BEFORE_FALLBACK,
+  OSM_BASEMAP,
+  pickBasemap,
+  type Basemap,
+} from "@/lib/map/basemap";
 import type { Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
@@ -121,13 +127,6 @@ type PlacesMapProps = {
   legendKinds?: MapPointKind[];
 };
 
-/// спокойные тайлы CARTO поверх данных OpenStreetMap: светлые и тёмные —
-/// подбираются под тему при создании карты (см. эффект ниже)
-const TILE_URL_LIGHT = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
-const TILE_URL_DARK = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
-const TILE_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
-
 export function PlacesMap({
   markers,
   userPoint,
@@ -164,18 +163,37 @@ export function PlacesMap({
         scrollWheelZoom: false,
       });
 
-      // тема приходит из data-theme на <html> (его ведут theme-script и
-      // кнопка в шапке); наблюдатель ниже живьём меняет тайлы при переключении
-      const tileUrlForTheme = (): string =>
-        document.documentElement.dataset.theme === "dark"
-          ? TILE_URL_DARK
-          : TILE_URL_LIGHT;
-      const tiles = L.tileLayer(tileUrlForTheme(), {
-        attribution: TILE_ATTRIBUTION,
-        maxZoom: 19,
-      }).addTo(map);
+      // Подложка: CARTO с ключом, иначе — запасная OSM (см. lib/map/basemap).
+      // Тема приходит из data-theme на <html> (его ведут theme-script и
+      // кнопка в шапке); наблюдатель ниже живьём меняет плитки при переключении.
+      const isDark = (): boolean => document.documentElement.dataset.theme === "dark";
+      let basemap = pickBasemap(process.env.NEXT_PUBLIC_CARTO_KEY);
+      const layerFor = (next: Basemap): ReturnType<typeof L.tileLayer> =>
+        L.tileLayer(next.url(isDark()), {
+          attribution: next.attribution,
+          maxZoom: 19,
+          ...(next.className ? { className: next.className } : {}),
+          ...(next.subdomains ? { subdomains: next.subdomains } : {}),
+        });
+      let tiles = layerFor(basemap).addTo(map);
+
+      // ключ отозван или адрес не из разрешённых — CARTO отвечает 403 на
+      // каждую плитку; после нескольких ошибок уходим на запасную подложку,
+      // чтобы карта не осталась серой
+      if (basemap.id === "carto") {
+        let failures = 0;
+        tiles.on("tileerror", () => {
+          failures += 1;
+          if (failures === BASEMAP_ERRORS_BEFORE_FALLBACK && map) {
+            map.removeLayer(tiles);
+            basemap = OSM_BASEMAP;
+            tiles = layerFor(basemap).addTo(map);
+          }
+        });
+      }
+
       themeObserver = new MutationObserver(() => {
-        tiles.setUrl(tileUrlForTheme());
+        tiles.setUrl(basemap.url(isDark()));
       });
       themeObserver.observe(document.documentElement, {
         attributeFilter: ["data-theme"],

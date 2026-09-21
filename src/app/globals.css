@@ -4172,6 +4172,19 @@ html[data-theme="dark"] .theme-toggle-moon {
   color: var(--muted);
 }
 
+/* запасная подложка карты (OSM без ключа CARTO, см. lib/map/basemap):
+   стандартные плитки пёстрые — приглушаем до тёплого спокойного тона; в
+   тёмной теме инверсия с разворотом оттенка (вода остаётся «водой»).
+   Фильтр на контейнере слоя плиток — пины и попапы не задевает. */
+.map-tiles-osm {
+  filter: grayscale(0.85) sepia(0.18) brightness(1.06) contrast(0.88);
+}
+
+html[data-theme="dark"] .map-tiles-osm {
+  filter: invert(1) hue-rotate(180deg) grayscale(0.8) sepia(0.1) brightness(0.85)
+    contrast(0.85);
+}
+
 /* карта посадочной: ниже сгиба, к ней ведёт плавный скролл по якорю */
 .landing-map {
   margin-top: 18vh;
