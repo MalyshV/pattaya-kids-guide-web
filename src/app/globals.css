@@ -172,13 +172,6 @@ body {
   }
 }
 
-@media (max-width: 760px) {
-  /* посадочная на телефоне: логотип и значки в две строки */
-  html:has(.landing-hero) {
-    --header-offset: 92px;
-  }
-}
-
 html {
   scroll-padding-top: var(--header-offset);
 }
@@ -4377,8 +4370,16 @@ html[data-theme="dark"] .theme-label-to-light {
     display: inline-flex;
   }
 
-  /* тема — пунктом в меню разделов */
-  .site-header-right-inner > .theme-toggle {
+  /* тема — пунктом в меню разделов (на всех страницах, включая посадочную) */
+  .site-header-right > .theme-toggle {
+    display: none;
+  }
+}
+
+/* шире — у темы своя кнопка в строке, пункт в меню ▦ посадочной не дублируем */
+@media (min-width: 850px) {
+  .header-menu-divider,
+  .header-menu-theme {
     display: none;
   }
 }
@@ -4392,16 +4393,16 @@ html[data-theme="dark"] .theme-label-to-light {
     column-gap: 10px;
   }
 
-  .site-header-right-inner,
-  .site-header-right-inner .header-compact-nav {
+  .site-header-right,
+  .site-header-right .header-compact-nav {
     gap: 8px;
   }
 
-  .site-header-right-inner .lang-menu-globe {
+  .site-header-right .lang-menu-globe {
     display: none;
   }
 
-  .site-header-right-inner .lang-menu-trigger {
+  .site-header-right .lang-menu-trigger {
     padding-inline: 7px;
   }
 }

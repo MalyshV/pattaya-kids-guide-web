@@ -80,7 +80,9 @@ function SectionLinks({
  * всегда свёрнуты в меню ▦ (первый экран встречает вопросом); на внутренних
  * страницах в разметке и строка (широкий экран), и меню ▦ (телефон, планшет) —
  * какой вид показать, решает CSS по ширине, поэтому гидрация не мигает. Тема
- * на узком экране уезжает пунктом в меню ▦ — в строке ей нет места.
+ * на узком экране (до 850px) — на всех страницах, включая посадочную, —
+ * уезжает пунктом в меню ▦: шапка везде одна строка «логотип … ▦ ♡✓ лупа
+ * язык» (решение Вероники 21.09).
  */
 function HeaderNav({
   basePath,
@@ -96,7 +98,7 @@ function HeaderNav({
   return (
     <nav className="header-compact-nav" aria-label={dict.nav.aria}>
       {isLanding ? (
-        <SectionsMenu basePath={basePath} age={age} />
+        <SectionsMenu basePath={basePath} age={age} withTheme />
       ) : (
         <>
           <SectionLinks basePath={basePath} age={age} />
@@ -123,7 +125,7 @@ function HeaderRight({
   const isLanding = pathname === basePath;
 
   return (
-    <div className={`site-header-right${isLanding ? "" : " site-header-right-inner"}`}>
+    <div className="site-header-right">
       <HeaderNav basePath={basePath} age={age} isLanding={isLanding} />
       {searchItems ? <HeaderSearch items={searchItems} /> : null}
       <ThemeToggle />
@@ -162,9 +164,7 @@ export function SiteHeader({
         {/* useSearchParams требует Suspense; fallback — те же ссылки без age */}
         <Suspense
           fallback={
-            <div
-              className={`site-header-right${isLanding ? "" : " site-header-right-inner"}`}
-            >
+            <div className="site-header-right">
               <HeaderNav basePath={basePath} age={null} isLanding={isLanding} />
               <ThemeToggle />
             </div>
