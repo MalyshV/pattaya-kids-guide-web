@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SuggestLink } from "@/components/suggest/suggest-link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { mapBirthdayPlaceToDto } from "@/mappers/birthday-place.mapper";
@@ -96,18 +97,25 @@ export default async function BirthdaysPage({
         {hasAgeParam ? <p className="hero-note">{dict.birthdays.ageNote}</p> : null}
       </section>
 
-      {items.length > 0 ? (
-        <ViewToggle
-          view={view}
-          listHref={viewHref(listPath, listParams, "list")}
-          mapHref={viewHref(listPath, listParams, "map")}
-          labels={{
-            list: dict.places.viewList,
-            map: dict.places.viewMap,
-            aria: dict.places.viewToggleAria,
-          }}
-        />
-      ) : null}
+      {/* «Список | Карта» и «Предложить своё» — одной строкой: шапки списка
+          с заголовком здесь нет (h2 заняты карточками площадок) */}
+      <div className="list-toolbar">
+        {items.length > 0 ? (
+          <ViewToggle
+            view={view}
+            listHref={viewHref(listPath, listParams, "list")}
+            mapHref={viewHref(listPath, listParams, "map")}
+            labels={{
+              list: dict.places.viewList,
+              map: dict.places.viewMap,
+              aria: dict.places.viewToggleAria,
+            }}
+          />
+        ) : (
+          <span />
+        )}
+        <SuggestLink basePath={basePath} kind="birthday" label={dict.suggest.cta} />
+      </div>
 
       {items.length === 0 ? (
         <section className="empty-state">
