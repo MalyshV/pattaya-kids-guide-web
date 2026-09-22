@@ -12,6 +12,8 @@ export function mapBirthdayPlaceToDto(
     name: place.name,
     imageUrl: place.imageUrl,
     address: place.address,
+    latitude: place.latitude,
+    longitude: place.longitude,
     minGuests: place.birthdayInfo?.minGuests ?? null,
     maxGuests: place.birthdayInfo?.maxGuests ?? null,
     depositRequired: place.birthdayInfo?.depositRequired ?? null,

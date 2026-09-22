@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { PlaceCard } from "@/components/places/place-card";
 import { PlacesMap, type PlaceMapMarker } from "@/components/places/places-map";
 import { PlacesPagination } from "@/components/places/places-pagination";
+import { ViewToggle } from "@/components/common/view-toggle";
 import { formatDistance, sortByDistance, type GeoPoint } from "@/lib/geo/distance";
 import { useDictionary, useLang } from "@/lib/i18n/use-dictionary";
 import { useParentMemory } from "@/lib/memory/use-parent-memory";
@@ -15,6 +16,7 @@ import {
   type VisitedFilterMode,
 } from "@/lib/memory/visited-filter";
 import type { PlaceListItemDto } from "@/dto/place-list-item.dto";
+import { viewHref, type ListView } from "@/lib/params/view-href";
 import type { OpenStatus, ScheduleInput } from "@/lib/schedule/open-status";
 
 /**
@@ -42,7 +44,7 @@ type PlacesResultsProps = {
   visitedFilter: VisitedFilterMode | null;
   near: boolean;
   /** ?view=map — карта вместо списка (уважает те же фильтры) */
-  view: "list" | "map";
+  view: ListView;
   /** корень города `/ru/pattaya` — от него строятся ссылки на карточки */
   basePath: string;
   /** пояс города — живой статус считается по его часам */
@@ -243,44 +245,17 @@ export function PlacesResults({
 
   const showMap = view === "map";
 
-  // ссылка переключателя Список|Карта: те же фильтры, без page (карта
-  // показывает всё, а список честно начинается с первой страницы)
-  function buildViewHref(nextView: "list" | "map"): string {
-    const params = new URLSearchParams();
-    for (const [key, value] of Object.entries(pagination)) {
-      if (value) {
-        params.set(key, value);
-      }
-    }
-    params.delete("page");
-    if (nextView === "map") {
-      params.set("view", "map");
-    } else {
-      params.delete("view");
-    }
-    const query = params.toString();
-    return query ? `${listPath}?${query}` : listPath;
-  }
-
   const viewToggle = (
-    <div className="view-toggle" role="group" aria-label={dict.places.viewToggleAria}>
-      <Link
-        href={buildViewHref("list")}
-        scroll={false}
-        className={`view-toggle-option${!showMap ? " view-toggle-active" : ""}`}
-        aria-current={!showMap ? "true" : undefined}
-      >
-        {dict.places.viewList}
-      </Link>
-      <Link
-        href={buildViewHref("map")}
-        scroll={false}
-        className={`view-toggle-option${showMap ? " view-toggle-active" : ""}`}
-        aria-current={showMap ? "true" : undefined}
-      >
-        {dict.places.viewMap}
-      </Link>
-    </div>
+    <ViewToggle
+      view={view}
+      listHref={viewHref(listPath, pagination, "list")}
+      mapHref={viewHref(listPath, pagination, "map")}
+      labels={{
+        list: dict.places.viewList,
+        map: dict.places.viewMap,
+        aria: dict.places.viewToggleAria,
+      }}
+    />
   );
 
   // Статусы геолокации — общие для списка и карты

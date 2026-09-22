@@ -40,6 +40,8 @@ export type PlaceMapMarker = {
   href?: string;
   /** «≈ 800 м» в режиме «Рядом со мной» */
   distanceLabel?: string;
+  /** короткая пометка под названием — у события «Начало 28 сент.»/«Уже прошло» */
+  note?: string;
   /** обложка — фото в попапе (null = только название) */
   imageUrl?: string | null;
 };
@@ -125,6 +127,8 @@ type PlacesMapProps = {
   basePath: string;
   /** какие типы показать в легенде; без него легенды нет (каталог мест) */
   legendKinds?: MapPointKind[];
+  /** имя региона для скринридера; без него «Карта мест» */
+  regionLabel?: string;
 };
 
 export function PlacesMap({
@@ -132,6 +136,7 @@ export function PlacesMap({
   userPoint,
   basePath,
   legendKinds,
+  regionLabel,
 }: PlacesMapProps): React.ReactElement {
   const dict = useDictionary();
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -241,6 +246,12 @@ export function PlacesMap({
         link.href = marker.href ?? `${basePath}/places/${marker.slug}`;
         link.textContent = marker.name;
         popup.appendChild(link);
+        if (marker.note) {
+          const note = document.createElement("div");
+          note.className = "map-popup-note";
+          note.textContent = marker.note;
+          popup.appendChild(note);
+        }
         if (marker.distanceLabel) {
           const distance = document.createElement("div");
           distance.className = "map-popup-distance";
@@ -311,7 +322,7 @@ export function PlacesMap({
         ref={containerRef}
         className="places-map-shell"
         role="region"
-        aria-label={dict.places.mapRegionLabel}
+        aria-label={regionLabel ?? dict.places.mapRegionLabel}
       />
       {legend}
     </div>

@@ -313,6 +313,7 @@ export const en: Dictionary = {
     preBookLabel: "Book:",
     preBookDays: (days: number): string => `${days} ${days === 1 ? "day" : "days"} ahead`,
     openPlace: "Place page",
+    mapRegionLabel: "Birthday venues map",
     emptyTitle: "Collecting venues",
     emptyHint:
       "We're confirming birthday packages with local venues — the list is coming soon.",
@@ -403,6 +404,11 @@ export const en: Dictionary = {
     emptyTitle: "Nothing found",
     emptyHint: "Try another filter, or view all events.",
     emptyCta: "Show all events",
+    mapRegionLabel: "Events map",
+    mapMissingNote: (count: number): string =>
+      count === 1
+        ? "1 more event has no address yet — find it in the list"
+        : `${count} more events have no address yet — find them in the list`,
   },
 
   activities: {

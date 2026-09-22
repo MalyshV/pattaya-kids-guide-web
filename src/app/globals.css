@@ -1675,9 +1675,11 @@ input[type="checkbox"]:focus-visible {
 }
 
 /* родная обёртка попапа Leaflet белая — ведём за токенами, чтобы в тёмной
-   теме попап не светился белым пятном */
-.leaflet-popup-content-wrapper,
-.leaflet-popup-tip {
+   теме попап не светился белым пятном. Префикс .leaflet-container нужен:
+   leaflet.css подключается ПОСЛЕ globals.css, и правило той же силы
+   проигрывало ему — в тёмной теме попап оставался белым (до 22.09) */
+.leaflet-container .leaflet-popup-content-wrapper,
+.leaflet-container .leaflet-popup-tip {
   background: var(--surface);
   color: var(--foreground);
 }
@@ -1697,7 +1699,8 @@ input[type="checkbox"]:focus-visible {
   margin-bottom: 6px;
 }
 
-.map-popup a {
+/* .leaflet-container — чтобы перебить синий `.leaflet-container a` из leaflet.css */
+.leaflet-container .map-popup a {
   font-weight: 600;
   color: var(--accent-text);
 }
@@ -1705,6 +1708,13 @@ input[type="checkbox"]:focus-visible {
 .map-popup-distance {
   margin-top: 2px;
   color: var(--sage);
+  font-size: 0.85rem;
+}
+
+/* пометка события в попапе («Начало 28 сент.», «Уже прошло») — тише названия */
+.map-popup-note {
+  margin-top: 2px;
+  color: var(--muted);
   font-size: 0.85rem;
 }
 

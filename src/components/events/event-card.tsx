@@ -4,7 +4,8 @@ import { PlaceImage } from "@/components/places/place-image";
 import { MemoryButtons } from "@/components/memory/memory-buttons";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import type { EventLifecycle } from "@/lib/events/event-lifecycle";
-import { dateLocale, getDictionary, langFromPath } from "@/content/dictionary";
+import { getDictionary, langFromPath } from "@/content/dictionary";
+import { formatEventDay } from "@/lib/events/event-date";
 import type { Dictionary } from "@/content/dictionary";
 import { formatAgeRange } from "@/lib/age/format-age";
 
@@ -15,14 +16,7 @@ type EventCardProps = {
 };
 
 function formatDate(value: string | null, dict: Dictionary, lang: string): string {
-  if (!value) {
-    return dict.eventCard.dateTbd;
-  }
-
-  return new Date(value).toLocaleDateString(dateLocale(lang), {
-    day: "numeric",
-    month: "short",
-  });
+  return formatEventDay(value, lang) ?? dict.eventCard.dateTbd;
 }
 
 export function EventCard({
