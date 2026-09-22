@@ -13,6 +13,11 @@ type PageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
+// Здесь же выполняется отправка формы с фото: sharp + до 5 загрузок в Blob.
+// Обычно это доли секунды; потолок — с запасом над 5 фото × тайм-аут sharp
+// (5 с), иначе на тарифе без Fluid функцию убило бы через 10 с посреди работы.
+export const maxDuration = 60;
+
 // служебная страница — из поиска прячем (и в sitemap её нет)
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { lang } = await params;

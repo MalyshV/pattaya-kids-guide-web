@@ -54,6 +54,12 @@ export function ActionResultBanner(): React.ReactElement | null {
   const error = params.get("error");
   const key = done ?? error ?? null;
 
+  // флаг ушёл из адреса — забываем закрытый: тот же результат ещё раз
+  // (например, повторный сбой «Удалить фото») должен показаться снова
+  if (key === null && closedKey !== null) {
+    setClosedKey(null);
+  }
+
   const success = done ? SUCCESS[done] : undefined;
   const failure = error ? ERROR[error] : undefined;
   const shown = success ?? failure;

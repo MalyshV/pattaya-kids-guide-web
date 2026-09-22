@@ -18,7 +18,7 @@ import { SUGGEST_PHOTOS } from "@/lib/suggest/photos";
 export const MAX_INPUT_PIXELS = 2048 * 2048;
 const JPEG_QUALITY = 82;
 /** Живой снимок пережимается за доли секунды; дольше — это не фото, а атака. */
-const PROCESS_TIMEOUT_SECONDS = 10;
+export const PROCESS_TIMEOUT_SECONDS = 5;
 
 export class PhotoProcessError extends Error {}
 

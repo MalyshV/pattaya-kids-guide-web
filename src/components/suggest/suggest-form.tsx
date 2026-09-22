@@ -412,6 +412,9 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
           ...(pendingHint ? [t.similar.pendingAdmin] : []),
         ];
     formData.set("shownMatches", shown.join("\n"));
+    // старая плашка («пропал интернет» и т.п.) не висит, пока идёт новая
+    // отправка и после успеха, пока грузится «Спасибо»
+    setCheck({ errors: {}, fixed: [] });
     startTransition(() => formAction(formData));
   }
 

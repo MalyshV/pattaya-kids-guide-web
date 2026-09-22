@@ -63,16 +63,28 @@ const KIND_TO_DB = {
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
 
-/** Остался ли общий потолок предложений с фото (см. PHOTO_SUBMISSIONS_*). */
-async function photoBudgetLeft(): Promise<boolean> {
+/**
+ * Остался ли общий потолок предложений с фото (см. PHOTO_SUBMISSIONS_*).
+ * Считаем по photoRightsOk — сервер ставит его при создании записи только
+ * вместе с фото, — и только записи, легшие раньше нашей: место бронируется
+ * сразу, одновременные запросы с разных адресов не проскочат потолок разом.
+ */
+async function photoBudgetLeft(mine: { id: string; createdAt: Date }): Promise<boolean> {
   const now = Date.now();
-  const withPhotos = (since: number): Promise<number> =>
+  const earlierWithPhotos = (since: number): Promise<number> =>
     prisma.submission.count({
-      where: { photoUrls: { isEmpty: false }, createdAt: { gte: new Date(since) } },
+      where: {
+        photoRightsOk: true,
+        createdAt: { gte: new Date(since) },
+        OR: [
+          { createdAt: { lt: mine.createdAt } },
+          { createdAt: mine.createdAt, id: { lt: mine.id } },
+        ],
+      },
     });
   const [day, month] = await Promise.all([
-    withPhotos(now - DAY_MS),
-    withPhotos(now - 30 * DAY_MS),
+    earlierWithPhotos(now - DAY_MS),
+    earlierWithPhotos(now - 30 * DAY_MS),
   ]);
   return day < PHOTO_SUBMISSIONS_PER_DAY && month < PHOTO_SUBMISSIONS_PER_30_DAYS;
 }
@@ -180,8 +192,14 @@ export async function submitSuggestionAction(
     console.error("suggest: submission not saved", error);
     return { status: "error", errors: {}, formError: "failed" };
   }
+  // не удалось удалить — пишем в лог: человеку сказали «не получилось», а
+  // запись в очереди осталась (в админке будет выглядеть как дубль)
   const discard = (): Promise<unknown> =>
-    prisma.submission.delete({ where: { id: created.id } }).catch(() => undefined);
+    prisma.submission
+      .delete({ where: { id: created.id } })
+      .catch((error: unknown) =>
+        console.error("suggest: discard failed", created.id, error),
+      );
 
   if (ipHash) {
     // сколько записей с этого адреса легло раньше нашей: первые пять остаются
@@ -206,7 +224,7 @@ export async function submitSuggestionAction(
   if (photos.length > 0) {
     let photoUrls: string[] = [];
     try {
-      if (!(await photoBudgetLeft())) {
+      if (!(await photoBudgetLeft(created))) {
         throw new Error("photo budget exhausted");
       }
       photoUrls = await storeSubmissionPhotos(photos);

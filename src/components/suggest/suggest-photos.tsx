@@ -40,6 +40,8 @@ export function useSuggestPhotos(): SuggestPhotosState {
   // сжимаем по одному: пять полноразмерных снимков, раскрытых в памяти разом,
   // слабому телефону тяжело (вкладка может перезагрузиться)
   const queue = useRef<Promise<void>>(Promise.resolve());
+  // ушли со страницы — недосжатые фото, закончив, ничего не создают
+  const alive = useRef(true);
 
   const commit = useCallback((next: SuggestPhoto[]): void => {
     itemsRef.current = next;
@@ -59,7 +61,7 @@ export function useSuggestPhotos(): SuggestPhotosState {
 
       // убрали (или «Начать заново», или ушли со страницы), пока ждало/сжималось
       const gone = (id: number): boolean =>
-        !itemsRef.current.some((item) => item.id === id);
+        !alive.current || !itemsRef.current.some((item) => item.id === id);
 
       for (const { file, id } of added) {
         queue.current = queue.current.then(async () => {
@@ -115,19 +117,18 @@ export function useSuggestPhotos(): SuggestPhotosState {
     setNotice(NO_NOTICE);
   }, [commit]);
 
-  // ушли со страницы — превью больше не нужны, а недосжатые фото, закончив,
-  // увидят пустой список и не создадут новых превью
-  useEffect(
-    () => () => {
+  // ушли со страницы — превью больше не нужны
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
       for (const item of itemsRef.current) {
         if (item.status === "ready") {
           URL.revokeObjectURL(item.previewUrl);
         }
       }
-      itemsRef.current = [];
-    },
-    [],
-  );
+    };
+  }, []);
 
   return { items, notice, add, remove, clear };
 }
