@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { prisma } from "@/db/prisma";
 import Link from "next/link";
 import { Suspense } from "react";
 import "@/app/globals.css";
@@ -30,6 +31,12 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }): Promise<React.ReactElement> {
   const authed = await isAdmin();
+  // сколько новых предложений ждёт; таблицы может ещё не быть (до db push) —
+  // тогда просто без счётчика, админка не падает
+  const newSuggestions = authed
+    ? await (async () =>
+        prisma.submission.count({ where: { status: "PENDING" } }))().catch(() => null)
+    : null;
 
   return (
     // suppressHydrationWarning: data-theme ставит инлайн-скрипт до гидрации
@@ -47,6 +54,14 @@ export default async function AdminLayout({
                 <Link href="/admin/places">Места</Link>
                 <Link href="/admin/events">События</Link>
                 <Link href="/admin/activities">Занятия</Link>
+                <Link href="/admin/suggestions">
+                  Предложения
+                  {newSuggestions ? (
+                    <span className="admin-count" aria-label={`новых: ${newSuggestions}`}>
+                      {newSuggestions}
+                    </span>
+                  ) : null}
+                </Link>
                 <Link href="/" target="_blank" rel="noopener">
                   Открыть сайт ↗
                 </Link>

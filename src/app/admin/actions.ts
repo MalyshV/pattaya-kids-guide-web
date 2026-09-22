@@ -16,6 +16,7 @@ import {
 import { UploadError, uploadImage } from "@/lib/admin/upload";
 import { slugify } from "@/lib/admin/slug";
 import { DEFAULT_CITY_SLUG } from "@/lib/geo/base-path";
+import { parseSubmissionStatus } from "@/lib/admin/submission-labels";
 
 /**
  * Server actions админки. Каждое действие начинается с requireAdmin():
@@ -624,4 +625,55 @@ export async function deleteActivityAction(formData: FormData): Promise<void> {
     redirect("/admin/activities?done=deleted");
   }
   redirect("/admin/activities");
+}
+
+// ── предложения из формы «Предложить своё» ──────────────────────────────────
+// На сайте их нет (входящие), поэтому revalidateSite() не нужен. Статус — из
+// белого списка; publish = «уже занесла в каталог» (само создание карточки из
+// предложения — следующая часть).
+
+export async function setSubmissionStatusAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = text(formData, "id");
+  const status = parseSubmissionStatus(text(formData, "status"));
+  if (!id || !status) {
+    redirect("/admin/suggestions");
+  }
+  try {
+    await prisma.submission.update({
+      where: { id },
+      data: { status, reviewedAt: new Date() },
+    });
+  } catch (error) {
+    if (prismaCode(error) === "P2025") {
+      redirect("/admin/suggestions");
+    }
+    throw error;
+  }
+  // счётчик «Предложения (N)» в шапке админки — пересчитать
+  revalidatePath("/admin", "layout");
+  redirect(`/admin/suggestions/${id}?done=status`);
+}
+
+export async function saveSubmissionNotesAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = text(formData, "id");
+  if (!id) {
+    redirect("/admin/suggestions");
+  }
+  const notes = textOrNull(formData, "reviewNotes");
+  try {
+    await prisma.submission.update({
+      where: { id },
+      data: { reviewNotes: notes ? notes.slice(0, 4000) : null },
+    });
+  } catch (error) {
+    if (prismaCode(error) === "P2025") {
+      redirect("/admin/suggestions");
+    }
+    throw error;
+  }
+  // счётчик «Предложения (N)» в шапке админки — пересчитать
+  revalidatePath("/admin", "layout");
+  redirect(`/admin/suggestions/${id}?done=updated`);
 }
