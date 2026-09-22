@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 import { applyThaiTranslations } from "./apply-thai";
+import { upsertPhoenixOctoberCamp } from "./programs/phoenix-october-camp";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is not defined");
@@ -1828,6 +1829,13 @@ async function main() {
       data: { programId: taraTots.id, categoryId: earlyDevForTaraTots.id },
     });
   }
+
+  // =========================
+  // РЕАЛЬНЫЙ ЛАГЕРЬ (безместный): Октябрьский лагерь в Phoenix Wittaya School,
+  // 1–30.10.2026 — данные и источники в prisma/programs/phoenix-october-camp.ts
+  // (один модуль для seed и точечного add-phoenix-camp.ts)
+  // =========================
+  await upsertPhoenixOctoberCamp(prisma, pattaya.id);
 
   // =========================
   // [ДЕМО] РАЗВИВАШКА В САДУ — занятие БЕЗ каталожного места (п.9 финал).
