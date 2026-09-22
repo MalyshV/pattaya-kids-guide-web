@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExternalArrow } from "@/components/common/external-arrow";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { PlaceDetailsDto } from "@/dto/place-details.dto";
@@ -612,7 +613,7 @@ export default async function PlaceDetailsPage({
           target="_blank"
           rel="noopener noreferrer"
         >
-          {dict.placeDetails.openInMaps} <span aria-hidden="true">↗</span>
+          {dict.placeDetails.openInMaps} <ExternalArrow />
           <span className="sr-only"> {dict.common.opensInNewTab}</span>
         </a>
       </section>
@@ -641,8 +642,8 @@ export default async function PlaceDetailsPage({
                   ) : null}
                   {external ? (
                     <>
-                      <span className="contact-arrow" aria-hidden="true">
-                        ↗
+                      <span className="contact-arrow">
+                        <ExternalArrow />
                       </span>
                       <span className="sr-only"> {dict.common.opensInNewTab}</span>
                     </>

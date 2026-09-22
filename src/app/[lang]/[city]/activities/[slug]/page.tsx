@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExternalArrow } from "@/components/common/external-arrow";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { mapActivityToListItem } from "@/mappers/activity.mapper";
@@ -314,7 +315,7 @@ export default async function ActivityDetailsPage({
                 target="_blank"
                 rel="noreferrer"
               >
-                {dict.placeDetails.openInMaps} <span aria-hidden="true">↗</span>
+                {dict.placeDetails.openInMaps} <ExternalArrow />
                 <span className="sr-only"> {dict.common.opensInNewTab}</span>
               </a>
             </div>

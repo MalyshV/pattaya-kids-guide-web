@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExternalArrow } from "@/components/common/external-arrow";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ClearSuggestDraft } from "@/components/suggest/clear-suggest-draft";
@@ -52,7 +53,7 @@ export default async function SuggestThanksPage({
         <p className="suggest-thanks-telegram">
           {t.telegramText}{" "}
           <a href={TELEGRAM_CHANNEL_URL} target="_blank" rel="noopener noreferrer">
-            {t.telegramCta} <span aria-hidden="true">↗</span>
+            {t.telegramCta} <ExternalArrow />
             <span className="sr-only"> {dict.common.opensInNewTab}</span>
           </a>
         </p>
