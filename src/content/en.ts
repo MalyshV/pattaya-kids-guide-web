@@ -192,6 +192,8 @@ export const en: Dictionary = {
     },
     viewToggleAria: "View: list or map",
     mapYouAreHere: "You are here",
+    mapEmptyTitle: "Nothing on the map yet",
+    mapShowList: "View as list",
     mapMissingNote: (count: number): string =>
       count === 1
         ? "1 place has no exact coordinates yet — find it in the list"
@@ -407,8 +409,12 @@ export const en: Dictionary = {
     mapRegionLabel: "Events map",
     mapMissingNote: (count: number): string =>
       count === 1
-        ? "1 more event has no address yet — find it in the list"
-        : `${count} more events have no address yet — find them in the list`,
+        ? "1 event has no address yet — find it in the list"
+        : `${count} events have no address yet — find them in the list`,
+    mapPastNote: (count: number): string =>
+      count === 1
+        ? "1 past event isn't shown on the map — find it in the list"
+        : `${count} past events aren't shown on the map — find them in the list`,
   },
 
   activities: {
@@ -422,6 +428,15 @@ export const en: Dictionary = {
     emptyHint: "We're filling the catalog — studios and clubs are coming.",
     emptyFilteredHint: "Nothing matches these filters — try a different age or type.",
     emptyCta: "Show all activities",
+    mapRegionLabel: "Activities map",
+    mapMissingNote: (count: number): string =>
+      count === 1
+        ? "1 activity has no address yet — find it in the list"
+        : `${count} activities have no address yet — find them in the list`,
+    mapPastNote: (count: number): string =>
+      count === 1
+        ? "1 past camp isn't shown on the map — find it in the list"
+        : `${count} past camps aren't shown on the map — find them in the list`,
     placeLabel: "Place",
     ageLabel: "Ages:",
     filterAgeTitle: "Child's age",
