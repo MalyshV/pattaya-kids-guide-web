@@ -141,6 +141,11 @@ export default async function ActivityDetailsPage({
     { name: dto.name, url: activityUrl },
   ]);
 
+  // «с родителем / без» — только у программ, где это вообще указано (Little
+  // Gym); у лагеря или кружков плашка «с родителем или без» и сноска про
+  // лобби были бы неправдой — у их классов parentRequired не задан ни у кого
+  const showParentBadges = dto.classes.some((cls) => cls.parentRequired !== null);
+
   return (
     <main className="page-shell">
       <JsonLd data={courseLd} />
@@ -255,9 +260,11 @@ export default async function ActivityDetailsPage({
                   <tr key={cls.id}>
                     <th scope="row">
                       <span className="class-name">{cls.name}</span>
-                      <span className={parentBadgeClass(cls.parentRequired)}>
-                        {parentBadgeLabel(cls.parentRequired, dict)}
-                      </span>
+                      {showParentBadges ? (
+                        <span className={parentBadgeClass(cls.parentRequired)}>
+                          {parentBadgeLabel(cls.parentRequired, dict)}
+                        </span>
+                      ) : null}
                     </th>
                     <td>{cls.ageLabel}</td>
                     <td className="class-schedule">
@@ -274,7 +281,9 @@ export default async function ActivityDetailsPage({
               </tbody>
             </table>
           </div>
-          <p className="class-legend">{dict.activityDetails.classLegend}</p>
+          {showParentBadges ? (
+            <p className="class-legend">{dict.activityDetails.classLegend}</p>
+          ) : null}
         </section>
       ) : null}
 
