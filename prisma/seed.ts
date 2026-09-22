@@ -876,7 +876,9 @@ async function main() {
       {
         placeId: lariDea.id,
         type: "facebook",
-        value: "https://www.facebook.com/share/g/18WkRmomTk",
+        // страница кафе (так ссылается их сайт laridea.co.th); прежняя ссылка
+        // вела в группу, а не на страницу места
+        value: "https://www.facebook.com/LariDea",
         order: 3,
       },
       {
@@ -1635,7 +1637,10 @@ async function main() {
       "Крытый парк снега и льда в районе Na Jomtien — способ спрятаться от тропической жары по-крупному: внутри держат −10 °C, пока на улице +32 °C. Под одной крышей две зоны. Снежная — с настоящим рыхлым снегом: большие снеговики, ледяные горки со спуском на надувном круге, детский снежный городок с деревянными горками и голографическое северное сияние на 360°. Ледяная — с фигурами и мебелью изо льда, декорациями-городами и крытым искусственным склоном. Тёплую куртку с капюшоном и сапоги выдают по билету; перчатки берут свои или покупают на кассе. Билет не ограничен по времени — можно прийти к открытию и остаться на весь день. Внутри есть еда. Ребёнка одного не оставляют — с каждым нужен сопровождающий взрослый.",
     descriptionEn:
       "An indoor snow-and-ice park in the Na Jomtien area — a big-scale way to escape the tropical heat: it's kept at −10 °C inside while it's +32 °C outdoors. Two zones under one roof. The snow zone has real powdery snow: giant snowmen, ice slides you ride down on a rubber ring, a kids' snow village with wooden slides and a 360° holographic aurora. The ice zone has ice sculptures and furniture, city-skyline sets and a covered artificial ski slope. A warm hooded jacket and boots come with the ticket; bring your own gloves or buy them at the desk. The ticket has no time limit — you can arrive at opening and stay all day. There's food inside. Children aren't left on their own — each child needs an accompanying adult.",
-    address: "Na Jomtien, near Pattaya Floating Market, Chon Buri 20150",
+    // адрес по карточке Google Карт (21.09): Na Jomtien — это район Sattahip,
+    // индекс 20250 (не паттайский 20150); ориентир оставлен — он помогает найти
+    address:
+      "226 Moo 1, Na Jomtien, Sattahip District, Chon Buri 20250 (near Pattaya Floating Market)",
     latitude: 12.8671072,
     longitude: 100.9043178,
     googleMapsUrl:
