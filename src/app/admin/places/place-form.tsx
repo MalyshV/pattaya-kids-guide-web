@@ -6,6 +6,7 @@ import {
   savePlaceAction,
 } from "@/app/admin/actions";
 import { OcrScratchpad } from "@/app/admin/ocr-scratchpad";
+import { PhotoField } from "@/app/admin/photo-field";
 import { SubmitButton } from "@/app/admin/submit-button";
 
 /**
@@ -176,12 +177,10 @@ export function PlaceForm({
           />
         </label>
 
-        <label className="admin-field">
-          <span>
-            Обложка {place?.imageUrl ? "(выбери файл — заменит текущую)" : "(файл)"}
-          </span>
-          <input type="file" name="coverFile" accept="image/*" />
-        </label>
+        <PhotoField
+          name="coverFile"
+          label={`Обложка ${place?.imageUrl ? "(выбери файл — заменит текущую)" : "(файл)"}`}
+        />
 
         <fieldset className="admin-fieldset">
           <legend>Формат места</legend>
@@ -327,10 +326,7 @@ export function PlaceForm({
 
           <form action={addPlacePhotoAction} className="admin-form admin-form-inline">
             <input type="hidden" name="placeId" value={place.id} />
-            <label className="admin-field">
-              <span>Добавить фото в галерею</span>
-              <input type="file" name="photoFile" accept="image/*" required />
-            </label>
+            <PhotoField name="photoFile" label="Добавить фото в галерею" required />
             <label className="admin-field">
               <span>Подпись (необязательно)</span>
               <input type="text" name="caption" />

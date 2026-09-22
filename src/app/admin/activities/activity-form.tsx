@@ -1,6 +1,7 @@
 import type { PlaceProgram } from "@prisma/client";
 import { deleteActivityAction, saveActivityAction } from "@/app/admin/actions";
 import { OcrScratchpad } from "@/app/admin/ocr-scratchpad";
+import { PhotoField } from "@/app/admin/photo-field";
 import { SubmitButton } from "@/app/admin/submit-button";
 
 /**
@@ -201,10 +202,10 @@ export function ActivityForm({
           />
         </label>
 
-        <label className="admin-field">
-          <span>Обложка {activity?.imageUrl ? "(файл заменит текущую)" : "(файл)"}</span>
-          <input type="file" name="coverFile" accept="image/*" />
-        </label>
+        <PhotoField
+          name="coverFile"
+          label={`Обложка ${activity?.imageUrl ? "(файл заменит текущую)" : "(файл)"}`}
+        />
 
         <label className="admin-check">
           <input
