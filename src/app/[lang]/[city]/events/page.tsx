@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SuggestLink } from "@/components/suggest/suggest-link";
 import { notFound } from "next/navigation";
 import { AgeQuestion } from "@/components/common/age-question";
 import { EventCard } from "@/components/events/event-card";
@@ -174,12 +175,13 @@ export default async function CityEventsPage({
 
       <EventFilters type={type} basePath={basePath} age={ageParam} view={viewParam} />
 
-      <section className="results-header" id="results">
+      <section className="results-header results-header-with-action" id="results">
         <div>
           <h2>{dict.events.sectionTitle}</h2>
           {/* role=status: после фильтрации скринридер озвучит счётчик */}
           <p role="status">{dict.events.count(total)}</p>
         </div>
+        <SuggestLink basePath={basePath} kind="event" label={dict.suggest.cta} />
       </section>
 
       {total === 0 ? (

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SuggestLink } from "@/components/suggest/suggest-link";
 import { notFound } from "next/navigation";
 import { ActivityCard } from "@/components/activities/activity-card";
 import { ActivityFilters } from "@/components/activities/activity-filters";
@@ -167,12 +168,13 @@ export default async function CityActivitiesPage({
         categories={availableCategories}
       />
 
-      <section className="results-header" id="results">
+      <section className="results-header results-header-with-action" id="results">
         <div>
           <h2>{dict.activities.sectionTitle}</h2>
           {/* role=status: после фильтрации скринридер озвучит счётчик */}
           <p role="status">{dict.activities.count(items.length)}</p>
         </div>
+        <SuggestLink basePath={basePath} kind="activity" label={dict.suggest.cta} />
       </section>
 
       {items.length === 0 ? (

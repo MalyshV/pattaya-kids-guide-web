@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SuggestLink } from "@/components/suggest/suggest-link";
 import { notFound } from "next/navigation";
 import { AgeQuestion } from "@/components/common/age-question";
 import { PlaceFilters } from "@/components/places/place-filters";
@@ -301,12 +302,13 @@ export default async function CityPlacesPage({
         animalContact={animalContact}
       />
 
-      <section className="results-header" id="results">
+      <section className="results-header results-header-with-action" id="results">
         <div>
           <h2>{dict.places.sectionTitle}</h2>
           {/* role=status: после фильтрации скринридер озвучит «Найдено N» */}
           <p role="status">{dict.places.count(total)}</p>
         </div>
+        <SuggestLink basePath={basePath} kind="place" label={dict.suggest.cta} />
       </section>
 
       {total === 0 ? (
