@@ -584,6 +584,7 @@ model City {
   places           Place[]
   events           Event[]
   programs         PlaceProgram[]
+  submissions      Submission[]
   createdAt        DateTime       @default(now())
 
   @@unique([countryId, slug])
@@ -679,4 +680,85 @@ model TelegramPost {
 enum TelegramPostEntity {
   EVENT
   PLACE
+}
+
+/// Предложение из формы «Предложить своё» (родитель или владелец места).
+/// ВХОДЯЩИЕ, а не каталог: в Place/Event/PlaceProgram запись попадает только
+/// после проверки Вероникой в админке — спам не засоряет каталог, дедуп
+/// импорта и `npm run gaps`. На сайте не показывается и не кэшируется.
+/// Поля под фото и Telegram заложены сразу (заполнятся в следующих частях),
+/// чтобы не гонять db push на каждом шаге.
+model Submission {
+  id               String           @id @default(cuid())
+  kind             SubmissionKind
+  /// тип, выставленный страницей, с которой открыли форму (null — открыли
+  /// напрямую); видно, поменял ли его человек
+  presetKind       SubmissionKind?
+  status           SubmissionStatus @default(PENDING)
+  name             String
+  /// поле «Где» как есть: ссылка Google Карт или адрес текстом
+  location         String
+  /// полная ссылка Карт (короткая maps.app.goo.gl раскрыта на сервере)
+  mapsUrl          String?
+  /// точка места из ссылки, если удалось достать
+  latitude         Float?
+  longitude        Float?
+  /// событие: «когда» свободным текстом
+  whenText         String?
+  /// «чем хорошо / подсказка для других родителей»
+  tip              String?
+  /// место для праздника: «что входит»
+  birthdayIncludes String?
+  /// сайт или соцсети (источник для проверки)
+  link             String?
+  /// «я представляю это место» (входящий путь «Это ваше место?»)
+  isOwner          Boolean          @default(false)
+  /// контакт владельца — личные данные: видит только админка
+  contact          String?
+  /// язык страницы, с которой отправили (ru/en/th)
+  lang             String
+  /// «похоже, уже есть …», которые форма показала, а человек всё равно отправил
+  shownMatches     String[]         @default([])
+  /// фото (часть 2) и согласие на их публикацию
+  photoUrls        String[]         @default([])
+  photoRightsOk    Boolean          @default(false)
+  /// чат автора в Telegram (часть 3) — чтобы написать, когда опубликуем.
+  /// Привязка — по ОТДЕЛЬНОМУ случайному токену (crypto.randomBytes), не по id:
+  /// id не секрет, по нему чужой мог бы привязать свой чат
+  telegramChatId   String?
+  /// во что превратилось при публикации (без FK, как TelegramPost)
+  resultType       String?
+  resultId         String?
+  reviewNotes      String?
+  reviewedAt       DateTime?
+  /// HMAC от IP — только для лимита отправок, сам IP не храним
+  ipHash           String?
+  cityId           String
+  city             City             @relation(fields: [cityId], references: [id])
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([cityId, status])
+  @@index([status, createdAt])
+  @@index([ipHash, createdAt])
+}
+
+enum SubmissionKind {
+  PLACE
+  EVENT
+  ACTIVITY
+  BIRTHDAY
+}
+
+enum SubmissionStatus {
+  /// новое — ждёт взгляда
+  PENDING
+  /// в работе: уточняем детали
+  IN_REVIEW
+  /// опубликовано на сайте
+  PUBLISHED
+  /// уже было на сайте или среди предложений
+  DUPLICATE
+  /// не подходит (спам, не для детей, закрылось)
+  REJECTED
 }
