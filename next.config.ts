@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+/** libvips для sharp: на сервере — linux-x64, локально — своя платформа. */
+const SHARP_LIBVIPS = "./node_modules/@img/sharp-libvips-*/lib/libvips-cpp.*";
+
 const nextConfig: NextConfig = {
   // Формы админки шлют фото файлом внутри server action: дефолтный лимит
   // тела 1 МБ рубил айфонные снимки (3–7 МБ) ДО нашего кода ошибкой 413.
@@ -33,6 +36,15 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
     ];
+  },
+
+  // sharp 0.35 подключает libvips (libvips-cpp.so) через rpath, и трассировка
+  // сборки этот файл не находит: на Vercel админка и /og/image падали с
+  // «libvips-cpp.so.8.18.3: cannot open shared object file». Кладём его явно —
+  // только тем маршрутам, что обрабатывают фото (библиотека ~20 МБ).
+  outputFileTracingIncludes: {
+    "/admin/**": [SHARP_LIBVIPS],
+    "/og/image": [SHARP_LIBVIPS],
   },
 
   images: {

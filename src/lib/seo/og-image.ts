@@ -1,4 +1,3 @@
-import sharp from "sharp";
 import { POSTER_MAX_ASPECT } from "@/lib/images/image-shape";
 
 /**
@@ -43,6 +42,9 @@ export function resolveOgSource(src: string | null, origin: string): string | nu
 }
 
 export async function renderOgImage(input: Buffer): Promise<Buffer> {
+  // sharp — при вызове, не при загрузке модуля: не поднимется на сервере —
+  // маршрут ответит спокойным 404 (catch в route.ts), а не 500
+  const sharp = (await import("sharp")).default;
   // rotate() — по EXIF: айфонные фото иначе легли бы на бок
   const { data: oriented, info } = await sharp(input)
     .rotate()
