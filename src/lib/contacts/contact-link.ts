@@ -6,6 +6,9 @@
 
 /** href для контакта: телефон → tel:, почта → mailto:, LINE → line.me по ID,
  *  остальное — value как URL. */
+/** веб-адрес Telegram для ссылок с сайта (см. комментарий у telegram ниже) */
+export const TELEGRAM_WEB = "https://telegram.me";
+
 export function contactHref(type: string, value: string): string {
   const trimmed = value.trim();
 
@@ -30,8 +33,14 @@ export function contactHref(type: string, value: string): string {
   if (type === "whatsapp" && !/^https?:\/\//.test(trimmed)) {
     return `https://wa.me/${trimmed.replace(/[^\d]/g, "")}`;
   }
-  if (type === "telegram" && !/^https?:\/\//.test(trimmed)) {
-    return `https://t.me/${trimmed.replace(/^@/, "")}`;
+  // telegram.me, а не t.me: у части тайских провайдеров t.me подменён в DNS
+  // и не открывается (проверено 22.09 — t.me → 125.26.170.3, тупик), а
+  // telegram.me — официальный запасной адрес Telegram, та же страница
+  if (type === "telegram") {
+    if (!/^https?:\/\//.test(trimmed)) {
+      return `${TELEGRAM_WEB}/${trimmed.replace(/^@/, "")}`;
+    }
+    return trimmed.replace(/^https?:\/\/t\.me\//i, `${TELEGRAM_WEB}/`);
   }
 
   // значение без протокола («laridea.co.th») стало бы относительной ссылкой

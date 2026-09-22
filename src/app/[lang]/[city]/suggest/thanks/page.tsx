@@ -3,6 +3,7 @@ import { ExternalArrow } from "@/components/common/external-arrow";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ClearSuggestDraft } from "@/components/suggest/clear-suggest-draft";
+import { TELEGRAM_WEB } from "@/lib/contacts/contact-link";
 import { getDictionary, isSupportedLang } from "@/content/dictionary";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { getSingleSearchParam } from "@/lib/params/search-params";
@@ -13,8 +14,9 @@ type PageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-/** канал, куда автопостинг приносит новые места и события */
-const TELEGRAM_CHANNEL_URL = "https://t.me/pattayakidsguide";
+/** канал, куда автопостинг приносит новые места и события. telegram.me, а не
+    t.me: у части тайских провайдеров t.me не открывается (см. contact-link) */
+const TELEGRAM_CHANNEL_URL = `${TELEGRAM_WEB}/pattayakidsguide`;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { lang } = await params;
