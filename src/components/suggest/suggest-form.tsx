@@ -25,6 +25,7 @@ import {
   type SuggestField,
   type SuggestKind,
 } from "@/lib/suggest/submission";
+import { ExternalArrow } from "@/components/common/external-arrow";
 
 /**
  * Форма «Предложить своё». Главные требования Вероники:
@@ -432,7 +433,7 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
                             rel="noopener noreferrer"
                             className="suggest-similar-link"
                           >
-                            {t.similar.open} <span aria-hidden="true">↗</span>
+                            {t.similar.open} <ExternalArrow />
                             <span className="sr-only"> {dict.common.opensInNewTab}</span>
                           </a>
                         ) : (

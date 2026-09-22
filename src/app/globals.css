@@ -4980,3 +4980,16 @@ html[data-theme="dark"] .theme-label-to-light {
 .suggest-thanks .suggest-thanks-telegram {
   margin-top: 4px;
 }
+
+/* стрелка «откроется в новой вкладке» (SVG вместо символа ↗ — см. external-arrow.tsx) */
+.external-arrow {
+  display: inline-block;
+  margin-left: 0.15em;
+  vertical-align: -0.02em;
+}
+
+/* у контактов шрифт 12px — стрелке нужно чуть больше, чтобы не терялась */
+.contact-arrow .external-arrow {
+  width: 0.95em;
+  height: 0.95em;
+}

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExternalArrow } from "@/components/common/external-arrow";
 import { SuggestLink } from "@/components/suggest/suggest-link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -218,8 +219,8 @@ export default async function BirthdaysPage({
                           ) : null}
                           {external ? (
                             <>
-                              <span className="contact-arrow" aria-hidden="true">
-                                ↗
+                              <span className="contact-arrow">
+                                <ExternalArrow />
                               </span>
                               <span className="sr-only">
                                 {" "}
