@@ -191,6 +191,8 @@ export const th: Dictionary = {
     },
     viewToggleAria: "สลับมุมมอง: รายการหรือแผนที่",
     mapYouAreHere: "คุณอยู่ที่นี่",
+    mapEmptyTitle: "ยังไม่มีอะไรบนแผนที่",
+    mapShowList: "ดูแบบรายการ",
     mapMissingNote: (count: number): string =>
       `${count} แห่งยังไม่มีพิกัดที่แน่นอน — แต่ยังดูได้ในรายการ`,
     features: {
@@ -405,7 +407,9 @@ export const th: Dictionary = {
     emptyCta: "แสดงอีเวนต์ทั้งหมด",
     mapRegionLabel: "แผนที่อีเวนต์",
     mapMissingNote: (count: number): string =>
-      `อีก ${count} อีเวนต์ยังไม่ระบุสถานที่ — แต่ยังดูได้ในรายการ`,
+      `${count} อีเวนต์ยังไม่ระบุสถานที่ — แต่ยังดูได้ในรายการ`,
+    mapPastNote: (count: number): string =>
+      `${count} อีเวนต์ที่จบไปแล้วไม่แสดงบนแผนที่ — แต่ยังดูได้ในรายการ`,
   },
 
   activities: {
@@ -418,6 +422,11 @@ export const th: Dictionary = {
     emptyHint: "เรากำลังเพิ่มข้อมูล — เร็ว ๆ นี้จะมีสตูดิโอและชมรมมาเพิ่ม",
     emptyFilteredHint: "ยังไม่มีคลาสที่ตรงกับตัวกรองนี้ — ลองเปลี่ยนช่วงวัยหรือประเภท",
     emptyCta: "แสดงคลาสทั้งหมด",
+    mapRegionLabel: "แผนที่คลาสเรียน",
+    mapMissingNote: (count: number): string =>
+      `${count} คลาสยังไม่ระบุสถานที่ — แต่ยังดูได้ในรายการ`,
+    mapPastNote: (count: number): string =>
+      `${count} แคมป์ที่จบไปแล้วไม่แสดงบนแผนที่ — แต่ยังดูได้ในรายการ`,
     placeLabel: "สถานที่",
     ageLabel: "อายุ:",
     filterAgeTitle: "วัยของลูก",

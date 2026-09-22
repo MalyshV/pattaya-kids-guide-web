@@ -5,6 +5,7 @@ import { EventCard } from "@/components/events/event-card";
 import { EventFilters } from "@/components/events/event-filters";
 import { EventsPagination } from "@/components/events/events-pagination";
 import { ViewToggle } from "@/components/common/view-toggle";
+import { MapEmpty } from "@/components/common/map-empty";
 import { PlacesMap, type PlaceMapMarker } from "@/components/places/places-map";
 import { matchesAnyAgeBucket, parseAgeBuckets } from "@/lib/age/age-buckets";
 import { mapEventListItemToDto } from "@/mappers/event.mapper";
@@ -124,17 +125,24 @@ export default async function CityEventsPage({
     safePage * LIST_PAGE_SIZE,
   );
 
-  // карта показывает ВСЕ события вкладки (без пагинации), в том же порядке
-  const mapMarkers: PlaceMapMarker[] =
-    view === "map"
-      ? eventsWithStatus.flatMap(({ raw, event, status }) => {
-          const point = eventToMapPoint(raw, basePath, lang);
-          return point
-            ? [{ ...point, note: eventTimingNote(status, event.startDate, dict, lang) }]
-            : [];
-        })
+  // Карта — события вкладки без пагинации, но БЕЗ прошедших (решение
+  // Вероники 22.09: на карте ищут, куда пойти; прошедшие остаются в списке)
+  const mapCandidates =
+    view === "map" ? eventsWithStatus.filter(({ status }) => status !== "past") : [];
+  const mapPastCount = view === "map" ? total - mapCandidates.length : 0;
+  const mapMarkers: PlaceMapMarker[] = mapCandidates.flatMap(({ raw, event, status }) => {
+    const point = eventToMapPoint(raw, basePath, lang);
+    return point
+      ? [{ ...point, note: eventTimingNote(status, event.startDate, dict, lang) }]
       : [];
-  const mapMissingCount = view === "map" ? total - mapMarkers.length : 0;
+  });
+  const mapMissingCount = mapCandidates.length - mapMarkers.length;
+  // честность: счётчик выше считает весь список — называем, чего на карте нет
+  // и почему; те же строки объясняют и совсем пустую карту
+  const mapNotes = [
+    ...(mapMissingCount > 0 ? [dict.events.mapMissingNote(mapMissingCount)] : []),
+    ...(mapPastCount > 0 ? [dict.events.mapPastNote(mapPastCount)] : []),
+  ];
 
   const listParams = { type, age: ageParam };
   const viewToggle = (
@@ -188,19 +196,28 @@ export default async function CityEventsPage({
       ) : view === "map" ? (
         <>
           {viewToggle}
-          <PlacesMap
-            markers={mapMarkers}
-            userPoint={null}
-            basePath={basePath}
-            regionLabel={dict.events.mapRegionLabel}
-          />
-          {/* честность: событие без точки (адрес уточняется) на карту не
-              поставишь — говорим, сколько их, они есть в списке */}
-          {mapMissingCount > 0 ? (
-            <p className="near-status map-missing-note">
-              {dict.events.mapMissingNote(mapMissingCount)}
-            </p>
-          ) : null}
+          {mapMarkers.length === 0 ? (
+            <MapEmpty
+              title={dict.places.mapEmptyTitle}
+              reasons={mapNotes}
+              listHref={viewHref(`${basePath}/events`, listParams, "list")}
+              listLabel={dict.places.mapShowList}
+            />
+          ) : (
+            <>
+              <PlacesMap
+                markers={mapMarkers}
+                userPoint={null}
+                basePath={basePath}
+                regionLabel={dict.events.mapRegionLabel}
+              />
+              {mapNotes.map((note) => (
+                <p key={note} className="near-status map-missing-note">
+                  {note}
+                </p>
+              ))}
+            </>
+          )}
         </>
       ) : (
         <>
