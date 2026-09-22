@@ -6,6 +6,8 @@ import { getBirthdayPlaces } from "@/services/places.service";
 import { PlaceImage } from "@/components/places/place-image";
 import { MemoryButtons } from "@/components/memory/memory-buttons";
 import { FactValue } from "@/components/places/fact-value";
+import { PlacesMap, type PlaceMapMarker } from "@/components/places/places-map";
+import { ViewToggle } from "@/components/common/view-toggle";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import {
   contactHref,
@@ -15,6 +17,8 @@ import {
 import { getDictionary } from "@/content/dictionary";
 import { localizedCityName } from "@/lib/i18n/localize";
 import { pageAlternates } from "@/lib/seo/meta";
+import { getSingleSearchParam } from "@/lib/params/search-params";
+import { parseListView, viewHref } from "@/lib/params/view-href";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string }>;
@@ -65,6 +69,24 @@ export default async function BirthdaysPage({
   const places = await getBirthdayPlaces(city.id);
   const items = places.map((place) => mapBirthdayPlaceToDto(place, lang));
 
+  // ?view=map — те же площадки на карте; ?age= (сквозной из шапки) сохраняем
+  const view = parseListView(getSingleSearchParam(resolvedSearchParams.view));
+  const listPath = `${basePath}/birthdays`;
+  const listParams = { age: getSingleSearchParam(resolvedSearchParams.age) };
+  const mapMarkers: PlaceMapMarker[] = items
+    .filter(
+      (place) => Number.isFinite(place.latitude) && Number.isFinite(place.longitude),
+    )
+    .map((place) => ({
+      id: place.id,
+      name: place.name,
+      latitude: place.latitude,
+      longitude: place.longitude,
+      // сразу к ДР-блоку места, как кнопка «Страница места» в карточке
+      href: `${basePath}/places/${place.slug}#birthday`,
+      imageUrl: place.imageUrl,
+    }));
+
   return (
     <main className="page-shell">
       <section className="hero">
@@ -74,11 +96,31 @@ export default async function BirthdaysPage({
         {hasAgeParam ? <p className="hero-note">{dict.birthdays.ageNote}</p> : null}
       </section>
 
+      {items.length > 0 ? (
+        <ViewToggle
+          view={view}
+          listHref={viewHref(listPath, listParams, "list")}
+          mapHref={viewHref(listPath, listParams, "map")}
+          labels={{
+            list: dict.places.viewList,
+            map: dict.places.viewMap,
+            aria: dict.places.viewToggleAria,
+          }}
+        />
+      ) : null}
+
       {items.length === 0 ? (
         <section className="empty-state">
           <h3>{dict.birthdays.emptyTitle}</h3>
           <p>{dict.birthdays.emptyHint}</p>
         </section>
+      ) : view === "map" ? (
+        <PlacesMap
+          markers={mapMarkers}
+          userPoint={null}
+          basePath={basePath}
+          regionLabel={dict.birthdays.mapRegionLabel}
+        />
       ) : (
         <section className="birthday-list">
           {items.map((place) => (

@@ -5,6 +5,9 @@ export type BirthdayPlaceDto = {
   name: string;
   imageUrl: string | null;
   address: string | null;
+  /** точка на карте «Дней рождения» */
+  latitude: number;
+  longitude: number;
   minGuests: number | null;
   maxGuests: number | null;
   /** tri-state: null = «уточняется» */

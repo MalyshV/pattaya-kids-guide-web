@@ -6,16 +6,26 @@ type EventFiltersProps = {
   type?: string;
   /// выбранный возраст (?age=) — сохраняется при смене типа события
   age?: string;
+  /// ?view=map — карта остаётся картой при смене вкладки
+  view?: string;
   basePath: string;
 };
 
-function buildTypeHref(basePath: string, type?: string, age?: string): string {
+function buildTypeHref(
+  basePath: string,
+  type?: string,
+  age?: string,
+  view?: string,
+): string {
   const searchParams = new URLSearchParams();
   if (type) {
     searchParams.set("type", type);
   }
   if (age) {
     searchParams.set("age", age);
+  }
+  if (view === "map") {
+    searchParams.set("view", "map");
   }
   const query = searchParams.toString();
   return `${basePath}/events${query ? `?${query}` : ""}`;
@@ -37,6 +47,7 @@ function buildEventTypeOptions(dict: Dictionary): EventTypeOption[] {
 export function EventFilters({
   type,
   age,
+  view,
   basePath,
 }: EventFiltersProps): React.ReactElement {
   const dict = getDictionary(langFromPath(basePath));
@@ -49,7 +60,7 @@ export function EventFilters({
           <p className="section-subtitle">{dict.eventFilters.subtitle}</p>
         </div>
 
-        <Link className="reset-link" href={buildTypeHref(basePath, undefined, age)}>
+        <Link className="reset-link" href={buildTypeHref(basePath, undefined, age, view)}>
           {dict.eventFilters.showAll}
         </Link>
       </div>
@@ -61,7 +72,7 @@ export function EventFilters({
           return (
             <Link
               key={option.value}
-              href={buildTypeHref(basePath, option.value, age)}
+              href={buildTypeHref(basePath, option.value, age, view)}
               aria-current={isActive ? "page" : undefined}
               className={`filter-toggle ${isActive ? "filter-toggle-active" : ""}`}
             >

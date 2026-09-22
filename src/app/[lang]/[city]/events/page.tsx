@@ -4,11 +4,15 @@ import { AgeQuestion } from "@/components/common/age-question";
 import { EventCard } from "@/components/events/event-card";
 import { EventFilters } from "@/components/events/event-filters";
 import { EventsPagination } from "@/components/events/events-pagination";
+import { ViewToggle } from "@/components/common/view-toggle";
+import { PlacesMap, type PlaceMapMarker } from "@/components/places/places-map";
 import { matchesAnyAgeBucket, parseAgeBuckets } from "@/lib/age/age-buckets";
 import { mapEventListItemToDto } from "@/mappers/event.mapper";
+import { eventToMapPoint } from "@/mappers/map-point.mapper";
 import { getCityEvents } from "@/services/events.service";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeEventStatus, eventSortRank } from "@/lib/events/event-lifecycle";
+import { eventTimingNote } from "@/lib/events/event-date";
 import { getDictionary } from "@/content/dictionary";
 import { localizedCityName } from "@/lib/i18n/localize";
 import { LIST_PAGE_SIZE } from "@/lib/constants/pagination";
@@ -17,6 +21,7 @@ import {
   getSingleSearchParam,
   parsePositiveNumberParam,
 } from "@/lib/params/search-params";
+import { parseListView, viewHref } from "@/lib/params/view-href";
 import type { Metadata } from "next";
 
 type PageProps = {
@@ -67,6 +72,9 @@ export default async function CityEventsPage({
   const typeParam = getSingleSearchParam(resolvedSearchParams.type);
   const pageParam = getSingleSearchParam(resolvedSearchParams.page);
   const ageParam = getSingleSearchParam(resolvedSearchParams.age);
+  // ?view=map — карта вместо списка (те же вкладка и возраст)
+  const viewParam = getSingleSearchParam(resolvedSearchParams.view);
+  const view = parseListView(viewParam);
 
   const type = parseEventType(typeParam);
   const currentPage = parsePositiveNumberParam(pageParam) ?? 1;
@@ -81,9 +89,10 @@ export default async function CityEventsPage({
   // прошедшие в конец (свежие выше). Сортировка до пагинации, как у мест.
   // Возрастной фильтр — как у занятий: событие без возраста не прячем.
   const eventsWithStatus = allEvents
-    .map((event) => mapEventListItemToDto(event, lang))
-    .filter((event) => matchesAnyAgeBucket(event, ageBuckets))
-    .map((event) => {
+    // сырое событие рядом с DTO — из него точка карты (координаты места)
+    .map((raw) => ({ raw, event: mapEventListItemToDto(raw, lang) }))
+    .filter(({ event }) => matchesAnyAgeBucket(event, ageBuckets))
+    .map(({ raw, event }) => {
       const startMs = event.startDate ? new Date(event.startDate).getTime() : 0;
       const status = event.startDate
         ? computeEventStatus(
@@ -93,7 +102,7 @@ export default async function CityEventsPage({
           )
         : undefined;
 
-      return { event, status, startMs };
+      return { raw, event, status, startMs };
     })
     // вкладка типа — та же логика, что раньше в SQL (buildEventLifecycleWhere),
     // только по вычисленному статусу
@@ -115,6 +124,32 @@ export default async function CityEventsPage({
     safePage * LIST_PAGE_SIZE,
   );
 
+  // карта показывает ВСЕ события вкладки (без пагинации), в том же порядке
+  const mapMarkers: PlaceMapMarker[] =
+    view === "map"
+      ? eventsWithStatus.flatMap(({ raw, event, status }) => {
+          const point = eventToMapPoint(raw, basePath, lang);
+          return point
+            ? [{ ...point, note: eventTimingNote(status, event.startDate, dict, lang) }]
+            : [];
+        })
+      : [];
+  const mapMissingCount = view === "map" ? total - mapMarkers.length : 0;
+
+  const listParams = { type, age: ageParam };
+  const viewToggle = (
+    <ViewToggle
+      view={view}
+      listHref={viewHref(`${basePath}/events`, listParams, "list")}
+      mapHref={viewHref(`${basePath}/events`, listParams, "map")}
+      labels={{
+        list: dict.places.viewList,
+        map: dict.places.viewMap,
+        aria: dict.places.viewToggleAria,
+      }}
+    />
+  );
+
   return (
     <main className="page-shell">
       <section className="hero">
@@ -126,10 +161,10 @@ export default async function CityEventsPage({
       <AgeQuestion
         pathname={`${basePath}/events`}
         activeBuckets={ageBuckets}
-        preservedParams={{ type }}
+        preservedParams={{ type, view: viewParam === "map" ? "map" : undefined }}
       />
 
-      <EventFilters type={type} basePath={basePath} age={ageParam} />
+      <EventFilters type={type} basePath={basePath} age={ageParam} view={viewParam} />
 
       <section className="results-header" id="results">
         <div>
@@ -143,12 +178,33 @@ export default async function CityEventsPage({
         <section className="empty-state">
           <h3>{dict.events.emptyTitle}</h3>
           <p>{dict.events.emptyHint}</p>
-          <Link href={`${basePath}/events`} className="empty-state-cta">
+          <Link
+            href={viewHref(`${basePath}/events`, {}, view)}
+            className="empty-state-cta"
+          >
             {dict.events.emptyCta}
           </Link>
         </section>
+      ) : view === "map" ? (
+        <>
+          {viewToggle}
+          <PlacesMap
+            markers={mapMarkers}
+            userPoint={null}
+            basePath={basePath}
+            regionLabel={dict.events.mapRegionLabel}
+          />
+          {/* честность: событие без точки (адрес уточняется) на карту не
+              поставишь — говорим, сколько их, они есть в списке */}
+          {mapMissingCount > 0 ? (
+            <p className="near-status map-missing-note">
+              {dict.events.mapMissingNote(mapMissingCount)}
+            </p>
+          ) : null}
+        </>
       ) : (
         <>
+          {viewToggle}
           <section className="events-grid">
             {pageItems.map(({ event, status }) => (
               <EventCard
