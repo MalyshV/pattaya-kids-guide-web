@@ -42,10 +42,28 @@ export async function shrinkPhoto(file: File): Promise<Blob> {
     throw new PhotoReadError("no canvas");
   }
 
+  try {
+    return await shrinkOnCanvas(image, canvas, context);
+  } finally {
+    // холст до 10 МБ — отдаём память сразу, не дожидаясь сборщика
+    canvas.width = 0;
+    canvas.height = 0;
+  }
+}
+
+async function shrinkOnCanvas(
+  image: HTMLImageElement,
+  canvas: HTMLCanvasElement,
+  context: CanvasRenderingContext2D,
+): Promise<Blob> {
   for (const step of SHRINK_STEPS) {
     const size = fitWithin(image.naturalWidth, image.naturalHeight, step.dimension);
     canvas.width = size.width;
     canvas.height = size.height;
+    // смена размера сбрасывает настройки контекста — ставим каждый раз;
+    // «high» — без лесенок при уменьшении в 3–5 раз
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
     // прозрачный PNG в JPEG иначе стал бы чёрным
     context.fillStyle = "#ffffff";
     context.fillRect(0, 0, size.width, size.height);

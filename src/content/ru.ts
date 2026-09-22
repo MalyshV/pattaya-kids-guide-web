@@ -651,8 +651,8 @@ export const ru = {
       preparing: "Готовим фото…",
       tooMany: (max: number): string =>
         `Можно добавить до ${max} фото — остальные мы не взяли.`,
-      unreadable: (names: string): string =>
-        `Не получилось открыть как фото: ${names}. Попробуйте другой файл — JPG или PNG.`,
+      unreadable: (names: readonly string[]): string =>
+        `Не получилось открыть как фото: ${names.map((name) => `«${name}»`).join(", ")}. Попробуйте другой файл — JPG или PNG.`,
       rightsLabel: "Это мои фото, или я вправе ими делиться",
       rightsRequired: "Отметьте, пожалуйста, эту галочку — или уберите фото.",
       lostOnRestore:

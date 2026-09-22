@@ -4539,11 +4539,16 @@ html[data-theme="dark"] .theme-label-to-light {
 }
 
 .suggest-label {
-  /* у «Фото» подпись — абзац (у группы нет одного поля), без его отступов */
+  /* у «Фото» подпись — абзац (у группы нет одного поля), без его отступов;
+     на неё переходит фокус, когда пропадает кнопка — без рамки, она не кнопка */
   margin: 0;
   font-weight: 600;
   font-size: 15px;
   color: var(--foreground);
+}
+
+.suggest-label:focus {
+  outline: none;
 }
 
 .suggest-optional {
@@ -4787,9 +4792,11 @@ html[data-theme="dark"] .theme-label-to-light {
   margin: 0;
 }
 
-/* зона нажатия побольше: кнопка под маленьким превью */
-.suggest-photo-remove {
-  padding: 6px 8px;
+/* зона нажатия 44 px: кнопка под маленьким превью. Двойной класс — иначе
+   .suggest-text-button ниже в файле обнулит padding и размер шрифта */
+.suggest-text-button.suggest-photo-remove {
+  min-height: 44px;
+  padding: 0 12px;
   font-size: 13px;
 }
 

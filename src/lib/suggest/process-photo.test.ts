@@ -42,9 +42,9 @@ describe("processPhoto — пережатие фото из формы на се
 
   it("большое уменьшает до 1600 по длинной стороне", async () => {
     const big = await sharp({
-      create: { width: 2400, height: 1800, channels: 3, background: "#88aa66" },
+      create: { width: 2000, height: 1500, channels: 3, background: "#88aa66" },
     })
-      .png()
+      .jpeg()
       .toBuffer();
     const result = await processPhoto(big);
     expect({ width: result.width, height: result.height }).toEqual({
@@ -59,12 +59,27 @@ describe("processPhoto — пережатие фото из формы на се
     ).rejects.toBeInstanceOf(PhotoProcessError);
   });
 
-  it("«PNG-бомба» (мало байт, много пикселей) не разбирается", async () => {
+  it("только JPEG: SVG и PNG не разбираем вовсе (SVG может рисоваться минутами)", async () => {
+    const svg = Buffer.from(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="4000" height="4000"><filter id="f"><feTurbulence numOctaves="10"/></filter><rect width="4000" height="4000" filter="url(#f)"/></svg>',
+    );
+    const png = await sharp({
+      create: { width: 40, height: 40, channels: 3, background: "#ffffff" },
+    })
+      .png()
+      .toBuffer();
+    const started = Date.now();
+    await expect(processPhoto(svg)).rejects.toBeInstanceOf(PhotoProcessError);
+    await expect(processPhoto(png)).rejects.toBeInstanceOf(PhotoProcessError);
+    expect(Date.now() - started).toBeLessThan(500);
+  });
+
+  it("«бомба» (мало байт, много пикселей) не разбирается", async () => {
     const side = Math.ceil(Math.sqrt(MAX_INPUT_PIXELS)) + 1;
     const bomb = await sharp({
       create: { width: side, height: side, channels: 3, background: "#ffffff" },
     })
-      .png({ compressionLevel: 9 })
+      .jpeg()
       .toBuffer();
     await expect(processPhoto(bomb)).rejects.toBeInstanceOf(PhotoProcessError);
   });

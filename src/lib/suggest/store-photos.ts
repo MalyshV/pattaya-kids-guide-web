@@ -25,8 +25,8 @@ export async function storeSubmissionPhotos(files: readonly File[]): Promise<str
   for (const file of files) {
     try {
       processed.push(await processPhoto(Buffer.from(await file.arrayBuffer())));
-    } catch {
-      throw new SubmissionPhotoError("process");
+    } catch (error) {
+      throw new SubmissionPhotoError("process", { cause: error });
     }
   }
 
@@ -37,9 +37,9 @@ export async function storeSubmissionPhotos(files: readonly File[]): Promise<str
       const fileName = `${randomBytes(16).toString("hex")}-${photo.width}x${photo.height}.jpg`;
       stored.push(await storeImageBuffer(FOLDER, fileName, photo.data));
     }
-  } catch {
+  } catch (error) {
     await removeSubmissionPhotos(stored);
-    throw new SubmissionPhotoError("store");
+    throw new SubmissionPhotoError("store", { cause: error });
   }
   return stored;
 }

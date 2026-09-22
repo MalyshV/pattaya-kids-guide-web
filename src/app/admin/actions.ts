@@ -13,11 +13,10 @@ import {
   revokeAdminCookie,
   verifyPassword,
 } from "@/lib/admin/auth";
-import { UploadError, uploadImage } from "@/lib/admin/upload";
+import { UploadError, removeStoredImage, uploadImage } from "@/lib/admin/upload";
 import { slugify } from "@/lib/admin/slug";
 import { DEFAULT_CITY_SLUG } from "@/lib/geo/base-path";
 import { parseSubmissionStatus } from "@/lib/admin/submission-labels";
-import { removeSubmissionPhotos } from "@/lib/suggest/store-photos";
 
 /**
  * Server actions админки. Каждое действие начинается с requireAdmin():
@@ -681,8 +680,9 @@ export async function saveSubmissionNotesAction(formData: FormData): Promise<voi
 
 /**
  * Убрать одно фото из предложения (чужие дети в кадре, не то место, плохое
- * качество). Сначала запись, потом файл: если хранилище не ответит, останется
- * сирота без ссылок, а не ссылка на пустоту.
+ * качество). Сначала файл, потом запись: удаляют ради приватности, поэтому
+ * «удалено» говорим, только когда файла в хранилище правда больше нет. Не
+ * вышло — ссылка остаётся на месте, баннер честно объясняет почему.
  */
 export async function deleteSubmissionPhotoAction(formData: FormData): Promise<void> {
   await requireAdmin();
@@ -702,10 +702,17 @@ export async function deleteSubmissionPhotoAction(formData: FormData): Promise<v
   if (!item.photoUrls.includes(url)) {
     redirect(`/admin/suggestions/${id}`);
   }
+  try {
+    await removeStoredImage(url);
+  } catch (error) {
+    console.error("admin: submission photo not deleted", error);
+    redirect(`/admin/suggestions/${id}?error=photoNotDeleted`);
+  }
+  // повторное удаление уже удалённого файла безопасно — при сбое базы
+  // достаточно нажать ещё раз
   await prisma.submission.update({
     where: { id },
     data: { photoUrls: item.photoUrls.filter((photo) => photo !== url) },
   });
-  await removeSubmissionPhotos([url]);
   redirect(`/admin/suggestions/${id}?done=photoDeleted`);
 }

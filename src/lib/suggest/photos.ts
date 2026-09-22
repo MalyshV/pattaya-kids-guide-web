@@ -52,12 +52,21 @@ export function fitWithin(
   };
 }
 
-export type PhotoProblem = "tooMany" | "tooLarge" | "notImage";
+/**
+ * Общий потолок предложений С ФОТО со всех адресов. Лимит «5 в час» — на один
+ * адрес, а адреса меняются; хранилище Blob общее с админкой, и его бесплатная
+ * квота (операции загрузки в месяц) не должна кончиться из-за чужого спама.
+ * Для молодого сайта с запасом; упрёмся — поднять.
+ */
+export const PHOTO_SUBMISSIONS_PER_DAY = 20;
+export const PHOTO_SUBMISSIONS_PER_30_DAYS = 150;
+
+export type PhotoProblem = "tooMany" | "tooLarge" | "notJpeg";
 
 /**
  * Серверная проверка присланных файлов ДО обработки: столько, сколько можно,
- * и уже сжатые. Большой файл значит, что его прислали в обход формы, —
- * такой не разбираем вовсе.
+ * и уже сжатые в JPEG. Большой файл или другой формат значит, что прислали в
+ * обход формы, — такой не разбираем вовсе.
  */
 export function checkPhotoFiles(
   files: ReadonlyArray<{ size: number; type: string }>,
@@ -69,8 +78,8 @@ export function checkPhotoFiles(
     if (file.size > SUGGEST_PHOTOS.maxBytes) {
       return "tooLarge";
     }
-    if (!file.type.startsWith("image/")) {
-      return "notImage";
+    if (file.type !== "image/jpeg") {
+      return "notJpeg";
     }
   }
   return null;

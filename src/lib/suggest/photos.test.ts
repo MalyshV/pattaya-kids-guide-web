@@ -47,13 +47,15 @@ describe("checkPhotoFiles — сервер не доверяет браузер�
     expect(checkPhotoFiles(Array(SUGGEST_PHOTOS.maxCount).fill(photo))).toBeNull();
   });
 
-  it("больше лимита, несжатые и не-картинки — нет", () => {
+  it("больше лимита, несжатые и не-JPEG — нет", () => {
     expect(checkPhotoFiles(Array(SUGGEST_PHOTOS.maxCount + 1).fill(photo))).toBe(
       "tooMany",
     );
     expect(checkPhotoFiles([{ size: 5 * 1024 * 1024, type: "image/jpeg" }])).toBe(
       "tooLarge",
     );
-    expect(checkPhotoFiles([{ size: 1000, type: "application/pdf" }])).toBe("notImage");
+    expect(checkPhotoFiles([{ size: 1000, type: "application/pdf" }])).toBe("notJpeg");
+    expect(checkPhotoFiles([{ size: 1000, type: "image/svg+xml" }])).toBe("notJpeg");
+    expect(checkPhotoFiles([{ size: 1000, type: "" }])).toBe("notJpeg");
   });
 });

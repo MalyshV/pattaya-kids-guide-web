@@ -34,6 +34,11 @@ const ERROR: Record<string, { title: string; message?: string }> = {
     title: "Фото не загрузилось",
     message: "Проверьте формат и размер файла и попробуйте ещё раз.",
   },
+  photoNotDeleted: {
+    title: "Фото не удалено",
+    message:
+      "Хранилище не ответило, или админка открыта локально без Blob-токена. Фото на месте — попробуйте ещё раз на сайте.",
+  },
 };
 
 export function ActionResultBanner(): React.ReactElement | null {

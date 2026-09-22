@@ -5,7 +5,11 @@ import { prisma } from "@/db/prisma";
 import { isSupportedLang } from "@/content/dictionary";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { SUBMISSIONS_PER_HOUR, clientIp, hashIp } from "@/lib/suggest/ip-hash";
-import { checkPhotoFiles } from "@/lib/suggest/photos";
+import {
+  PHOTO_SUBMISSIONS_PER_30_DAYS,
+  PHOTO_SUBMISSIONS_PER_DAY,
+  checkPhotoFiles,
+} from "@/lib/suggest/photos";
 import {
   removeSubmissionPhotos,
   storeSubmissionPhotos,
@@ -32,7 +36,8 @@ import { locationInfo } from "@/services/suggest-similar.service";
  * Фото приходят файлами «photos», уже сжатые браузером (lib/suggest/photos);
  * здесь — проверка, повторное сжатие и хранилище. Не легли фото — не
  * сохраняем и предложение: человек увидит, что фото не дошли, а не решит, что
- * всё отправлено.
+ * всё отправлено. Сбои пишем в лог (Vercel → Logs): иначе сломанная загрузка
+ * фото выглядела бы просто как «люди шлют без фото».
  */
 
 export type SubmitState =
@@ -54,6 +59,23 @@ const KIND_TO_DB = {
   activity: "ACTIVITY",
   birthday: "BIRTHDAY",
 } as const satisfies Record<SuggestKind, string>;
+
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
+
+/** Остался ли общий потолок предложений с фото (см. PHOTO_SUBMISSIONS_*). */
+async function photoBudgetLeft(): Promise<boolean> {
+  const now = Date.now();
+  const withPhotos = (since: number): Promise<number> =>
+    prisma.submission.count({
+      where: { photoUrls: { isEmpty: false }, createdAt: { gte: new Date(since) } },
+    });
+  const [day, month] = await Promise.all([
+    withPhotos(now - DAY_MS),
+    withPhotos(now - 30 * DAY_MS),
+  ]);
+  return day < PHOTO_SUBMISSIONS_PER_DAY && month < PHOTO_SUBMISSIONS_PER_30_DAYS;
+}
 
 function ipHashKey(): string {
   // случайный серверный секрет, НЕ пароль админки: иначе сохранённые отпечатки
@@ -110,11 +132,10 @@ export async function submitSuggestionAction(
 
   const ip = clientIp(await headers());
   const ipHash = ip ? hashIp(ip, ipHashKey()) : null;
+  const hourAgo = new Date(Date.now() - HOUR_MS);
   if (ipHash) {
     const recent = await prisma.submission
-      .count({
-        where: { ipHash, createdAt: { gte: new Date(Date.now() - 60 * 60 * 1000) } },
-      })
+      .count({ where: { ipHash, createdAt: { gte: hourAgo } } })
       // база споткнулась — не роняем страницу: сохранение ниже честно
       // ответит «не получилось», введённое останется в форме
       .catch(() => 0);
@@ -125,17 +146,12 @@ export async function submitSuggestionAction(
 
   const { link, fullUrl } = await locationInfo(value.location);
 
-  let photoUrls: string[] = [];
-  if (photos.length > 0) {
-    try {
-      photoUrls = await storeSubmissionPhotos(photos);
-    } catch {
-      return { status: "error", errors: {}, formError: "photos" };
-    }
-  }
-
+  // Запись — сразу, ещё без фото: так она занимает место в лимите до
+  // долгой работы с фото, и одновременные запросы с одного адреса видят друг
+  // друга (иначе каждый прошёл бы проверку выше и положил по 5 файлов).
+  let created: { id: string; createdAt: Date };
   try {
-    await prisma.submission.create({
+    created = await prisma.submission.create({
       data: {
         kind: KIND_TO_DB[value.kind],
         presetKind: value.presetKind ? KIND_TO_DB[value.presetKind] : null,
@@ -153,17 +169,56 @@ export async function submitSuggestionAction(
         contact: value.contact,
         lang,
         shownMatches: value.shownMatches,
-        photoUrls,
         photoRightsOk: value.photoRightsOk,
         ipHash,
         cityId: city.id,
       },
+      select: { id: true, createdAt: true },
     });
-  } catch {
-    // сбой на нашей стороне — введённое остаётся в форме, можно повторить;
-    // уже положенные фото убираем, повторная отправка положит их заново
-    await removeSubmissionPhotos(photoUrls);
+  } catch (error) {
+    // сбой на нашей стороне — введённое остаётся в форме, можно повторить
+    console.error("suggest: submission not saved", error);
     return { status: "error", errors: {}, formError: "failed" };
+  }
+  const discard = (): Promise<unknown> =>
+    prisma.submission.delete({ where: { id: created.id } }).catch(() => undefined);
+
+  if (ipHash) {
+    // сколько записей с этого адреса легло раньше нашей: первые пять остаются
+    const earlier = await prisma.submission
+      .count({
+        where: {
+          ipHash,
+          createdAt: { gte: hourAgo },
+          OR: [
+            { createdAt: { lt: created.createdAt } },
+            { createdAt: created.createdAt, id: { lt: created.id } },
+          ],
+        },
+      })
+      .catch(() => 0);
+    if (earlier >= SUBMISSIONS_PER_HOUR) {
+      await discard();
+      return { status: "error", errors: {}, formError: "rateLimited" };
+    }
+  }
+
+  if (photos.length > 0) {
+    let photoUrls: string[] = [];
+    try {
+      if (!(await photoBudgetLeft())) {
+        throw new Error("photo budget exhausted");
+      }
+      photoUrls = await storeSubmissionPhotos(photos);
+      await prisma.submission.update({ where: { id: created.id }, data: { photoUrls } });
+    } catch (error) {
+      // фото не легли — не оставляем и запись: человек увидит «фото не
+      // приняли» и отправит заново (с фото или без), а не решит, что всё ушло
+      console.error("suggest: photos not accepted", error);
+      await removeSubmissionPhotos(photoUrls);
+      await discard();
+      return { status: "error", errors: {}, formError: "photos" };
+    }
   }
 
   return { status: "sent", redirectTo: `${basePath}/suggest/thanks?type=${value.kind}` };

@@ -107,10 +107,11 @@ export async function storeImageBuffer(
         contentType: "image/jpeg",
       });
       return blob.url;
-    } catch {
+    } catch (error) {
       // сеть/протухший токен — спокойная ошибка формы, не 500
       throw new UploadError(
         "Хранилище не приняло файл — попробуйте ещё раз или проверьте Blob-токен",
+        { cause: error },
       );
     }
   }
@@ -132,6 +133,8 @@ export async function storeImageBuffer(
 /**
  * Удалить файл, который мы сами положили (Blob или локальные загрузки).
  * Чужие адреса и всё вне папки загрузок молча пропускаем — удаляем только своё.
+ * Свой Blob-файл удалить не вышло (нет токена — например, админка открыта
+ * локально; сбой сети) — ошибка: вызывающий честно скажет, что файл остался.
  */
 export async function removeStoredImage(url: string): Promise<void> {
   if (url.startsWith(LOCAL_UPLOADS_URL)) {
@@ -149,7 +152,11 @@ export async function removeStoredImage(url: string): Promise<void> {
   } catch {
     return;
   }
-  if (BLOB_HOST.test(host) && process.env.BLOB_READ_WRITE_TOKEN) {
-    await del(url);
+  if (!BLOB_HOST.test(host)) {
+    return;
   }
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    throw new UploadError("Нет BLOB_READ_WRITE_TOKEN — файл в хранилище не удалён");
+  }
+  await del(url);
 }

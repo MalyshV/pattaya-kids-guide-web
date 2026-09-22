@@ -586,8 +586,8 @@ export const en: Dictionary = {
       preparing: "Preparing photos…",
       tooMany: (max: number): string =>
         `You can add up to ${max} photos — we left out the rest.`,
-      unreadable: (names: string): string =>
-        `Couldn't open as a photo: ${names}. Please try another file — JPG or PNG.`,
+      unreadable: (names: readonly string[]): string =>
+        `Couldn't open as a photo: ${names.map((name) => `“${name}”`).join(", ")}. Please try another file — JPG or PNG.`,
       rightsLabel: "These are my photos, or I have the right to share them",
       rightsRequired: "Please tick this box — or remove the photos.",
       lostOnRestore: "Photos aren't saved in the draft — please add them again.",
