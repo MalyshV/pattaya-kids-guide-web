@@ -312,7 +312,7 @@ export const th: Dictionary = {
     preBookLabel: "ควรจองล่วงหน้า:",
     preBookDays: (days: number): string => `${days} วัน`,
     openPlace: "หน้าสถานที่",
-    mapRegionLabel: "แผนที่สถานที่จัดวันเกิด",
+    mapRegionLabel: "แผนที่สถานที่จัดงานวันเกิด",
     emptyTitle: "กำลังรวบรวมสถานที่",
     emptyHint:
       "เรากำลังสอบถามแพ็กเกจวันเกิดจากสถานที่ต่าง ๆ ในเมือง — เร็ว ๆ นี้จะมีให้ดูที่นี่",
@@ -405,7 +405,7 @@ export const th: Dictionary = {
     emptyCta: "แสดงอีเวนต์ทั้งหมด",
     mapRegionLabel: "แผนที่อีเวนต์",
     mapMissingNote: (count: number): string =>
-      `อีก ${count} อีเวนต์ยังไม่มีสถานที่ — แต่ยังดูได้ในรายการ`,
+      `อีก ${count} อีเวนต์ยังไม่ระบุสถานที่ — แต่ยังดูได้ในรายการ`,
   },
 
   activities: {
