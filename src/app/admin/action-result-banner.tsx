@@ -22,6 +22,7 @@ const SUCCESS: Record<string, { title: string; message?: string }> = {
   updated: { title: "Изменения сохранены" },
   deleted: { title: "Карточка удалена", message: "Запись удалена навсегда." },
   status: { title: "Статус предложения обновлён" },
+  photoDeleted: { title: "Фото удалено", message: "Из предложения и из хранилища." },
   cache: {
     title: "Кэш сайта обновлён",
     message: "Сайт показывает свежие данные из базы — скриптовые правки видны.",

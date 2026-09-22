@@ -17,6 +17,7 @@ import { UploadError, uploadImage } from "@/lib/admin/upload";
 import { slugify } from "@/lib/admin/slug";
 import { DEFAULT_CITY_SLUG } from "@/lib/geo/base-path";
 import { parseSubmissionStatus } from "@/lib/admin/submission-labels";
+import { removeSubmissionPhotos } from "@/lib/suggest/store-photos";
 
 /**
  * Server actions админки. Каждое действие начинается с requireAdmin():
@@ -676,4 +677,35 @@ export async function saveSubmissionNotesAction(formData: FormData): Promise<voi
   // счётчик «Предложения (N)» в шапке админки — пересчитать
   revalidatePath("/admin", "layout");
   redirect(`/admin/suggestions/${id}?done=updated`);
+}
+
+/**
+ * Убрать одно фото из предложения (чужие дети в кадре, не то место, плохое
+ * качество). Сначала запись, потом файл: если хранилище не ответит, останется
+ * сирота без ссылок, а не ссылка на пустоту.
+ */
+export async function deleteSubmissionPhotoAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = text(formData, "id");
+  const url = text(formData, "url");
+  if (!id || !url) {
+    redirect("/admin/suggestions");
+  }
+  const item = await prisma.submission.findUnique({
+    where: { id },
+    select: { photoUrls: true },
+  });
+  if (!item) {
+    redirect("/admin/suggestions");
+  }
+  // удаляем только то, что действительно лежит в этом предложении
+  if (!item.photoUrls.includes(url)) {
+    redirect(`/admin/suggestions/${id}`);
+  }
+  await prisma.submission.update({
+    where: { id },
+    data: { photoUrls: item.photoUrls.filter((photo) => photo !== url) },
+  });
+  await removeSubmissionPhotos([url]);
+  redirect(`/admin/suggestions/${id}?done=photoDeleted`);
 }

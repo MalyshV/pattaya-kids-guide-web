@@ -9,6 +9,7 @@ import {
   safeExternalHref,
 } from "@/lib/admin/submission-labels";
 import {
+  deleteSubmissionPhotoAction,
   saveSubmissionNotesAction,
   setSubmissionStatusAction,
 } from "@/app/admin/actions";
@@ -171,6 +172,36 @@ export default async function AdminSuggestionPage({
           </>
         ) : null}
       </dl>
+
+      {item.photoUrls.length > 0 ? (
+        <>
+          <h2>Фото ({item.photoUrls.length})</h2>
+          <p className="admin-muted">
+            {item.photoRightsOk
+              ? "Автор подтвердил: фото его или он вправе ими делиться."
+              : "Подтверждения прав на фото нет."}{" "}
+            Фото видно только здесь, пока вы не перенесёте их в карточку. Чужие дети в
+            кадре — лучше удалить.
+          </p>
+          <ul className="admin-photo-grid">
+            {item.photoUrls.map((url, index) => (
+              <li key={url} className="admin-photo">
+                <a href={url} target="_blank" rel="noopener noreferrer">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt={`Фото ${index + 1}`} loading="lazy" />
+                </a>
+                <form action={deleteSubmissionPhotoAction}>
+                  <input type="hidden" name="id" value={item.id} />
+                  <input type="hidden" name="url" value={url} />
+                  <SubmitButton className="admin-danger-link" pendingLabel="Удаляю…">
+                    Удалить фото
+                  </SubmitButton>
+                </form>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
 
       <h2>Статус</h2>
       <div className="admin-status-row">
