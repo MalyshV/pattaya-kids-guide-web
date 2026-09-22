@@ -3,7 +3,6 @@ import "server-only";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { put } from "@vercel/blob";
-import sharp from "sharp";
 
 /**
  * Загрузка фото из админки. Куда кладём:
@@ -21,6 +20,20 @@ const MAX_DIMENSION = 1600;
 const JPEG_QUALITY = 82;
 
 export class UploadError extends Error {}
+
+/**
+ * sharp грузим только в момент загрузки фото, а не при открытии админки:
+ * если его нативная часть на сервере не поднимется, упадёт одна загрузка
+ * (спокойной ошибкой формы), а вход, правки и «Обновить кэш» останутся
+ * рабочими. Так было 22.09: из-за потерянного libvips лежала вся админка.
+ */
+async function loadSharp(): Promise<typeof import("sharp").default> {
+  try {
+    return (await import("sharp")).default;
+  } catch {
+    throw new UploadError("Обработка фото на сервере сейчас недоступна");
+  }
+}
 
 function safeBaseName(fileName: string): string {
   const base = fileName.replace(/\.[^.]*$/, "");
@@ -46,6 +59,7 @@ export async function uploadImage(file: File, folder: string): Promise<string> {
     throw new UploadError("Файл больше 12 МБ — выберите фото поменьше");
   }
 
+  const sharp = await loadSharp();
   const original = Buffer.from(await file.arrayBuffer());
   let resized: Buffer;
   try {
