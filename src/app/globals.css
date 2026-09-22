@@ -4539,6 +4539,8 @@ html[data-theme="dark"] .theme-label-to-light {
 }
 
 .suggest-label {
+  /* у «Фото» подпись — абзац (у группы нет одного поля), без его отступов */
+  margin: 0;
   font-weight: 600;
   font-size: 15px;
   color: var(--foreground);
@@ -4743,6 +4745,104 @@ html[data-theme="dark"] .theme-label-to-light {
 
 .suggest-owner .suggest-field {
   margin-top: 6px;
+}
+
+/* фото: превью квадратами, «Добавить фото» — пилюлей с пунктиром */
+
+.suggest-photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.suggest-photo {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  width: 96px;
+}
+
+.suggest-photo-image {
+  width: 96px;
+  height: 96px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: var(--surface-muted);
+  object-fit: cover;
+}
+
+.suggest-photo-processing {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.suggest-photo-processing .button-spinner {
+  margin: 0;
+}
+
+/* зона нажатия побольше: кнопка под маленьким превью */
+.suggest-photo-remove {
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
+.suggest-photo-add {
+  position: relative;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 4px;
+  padding: 9px 16px;
+  border: 1px dashed var(--control-border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--accent-text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.suggest-photo-add:hover {
+  background: var(--tint-hover);
+}
+
+.suggest-photo-add:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* само поле выбора файла не видно, но с клавиатуры до него дойти можно */
+.suggest-photo-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.suggest-photo-notice {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.suggest-photo-rights {
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.suggest-photo-rights input {
+  accent-color: var(--accent-text);
 }
 
 .suggest-actions {

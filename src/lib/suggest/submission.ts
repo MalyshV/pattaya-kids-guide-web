@@ -1,8 +1,8 @@
 /**
  * Форма «Предложить своё»: чистая проверка присланного (без БД и сети).
  * Сервер не доверяет ничему из браузера: тип — из белого списка, длины
- * ограничены, поля «не своего» типа отбрасываются (у места нет «когда», у
- * длины ограничены, контакт — только у владельца.
+ * ограничены, контакт — только у владельца, фото — только с галочкой «вправе
+ * делиться».
  *
  * Обязательных полей два — название и «где» (ссылка Google Карт или адрес):
  * решение Вероники 22.09, форма должна быть максимально простой.
@@ -52,7 +52,9 @@ export type SuggestField =
   | "tip"
   | "birthday"
   | "link"
-  | "contact";
+  | "contact"
+  /** галочка «это мои фото или я вправе ими делиться» */
+  | "photoRights";
 export type SuggestError = "required" | "tooShort" | "tooLong";
 export type SuggestErrors = Partial<Record<SuggestField, SuggestError>>;
 
@@ -69,6 +71,8 @@ export type SuggestionValue = {
   isOwner: boolean;
   contact: string | null;
   shownMatches: string[];
+  /** человек подтвердил права на приложенные фото (без фото — всегда false) */
+  photoRightsOk: boolean;
 };
 
 export type RawSuggestion = Record<string, string | undefined>;
@@ -92,6 +96,8 @@ function multiLine(value: string | undefined): string {
 
 export function validateSuggestion(
   raw: RawSuggestion,
+  /** сколько фото пришло вместе с формой (сами файлы проверяются отдельно) */
+  photoCount = 0,
 ): { ok: true; value: SuggestionValue } | { ok: false; errors: SuggestErrors } {
   const errors: SuggestErrors = {};
 
@@ -143,6 +149,14 @@ export function validateSuggestion(
     ? optional("contact", singleLine(raw.contact), SUGGEST_LIMITS.contact)
     : null;
 
+  // решение Вероники: одна галочка «моё фото или вправе делиться» — без неё
+  // фото не принимаем (и не держим галочку заранее отмеченной)
+  const photoRightsOk =
+    photoCount > 0 && (raw.photoRightsOk === "on" || raw.photoRightsOk === "true");
+  if (photoCount > 0 && !photoRightsOk) {
+    errors.photoRights = "required";
+  }
+
   const shownMatches = (raw.shownMatches ?? "")
     .split("\n")
     .map((item) => singleLine(item).slice(0, SUGGEST_LIMITS.shownMatchLength))
@@ -167,6 +181,7 @@ export function validateSuggestion(
       isOwner,
       contact,
       shownMatches,
+      photoRightsOk,
     },
   };
 }

@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
   // Формы админки шлют фото файлом внутри server action: дефолтный лимит
   // тела 1 МБ рубил айфонные снимки (3–7 МБ) ДО нашего кода ошибкой 413.
   // 15 МБ = наш лимит файла 12 МБ + запас на остальные поля формы.
+  // ⚠️ На Vercel поверх этого — жёсткие 4,5 МБ на запрос к функции: поэтому
+  // форма «Предложить своё» сжимает фото ещё в браузере (lib/suggest/photos).
   experimental: {
     serverActions: {
       bodySizeLimit: "15mb",
@@ -42,9 +44,12 @@ const nextConfig: NextConfig = {
   // сборки этот файл не находит: на Vercel админка и /og/image падали с
   // «libvips-cpp.so.8.18.3: cannot open shared object file». Кладём его явно —
   // только тем маршрутам, что обрабатывают фото (библиотека ~20 МБ).
+  // Ключ — маршрут как glob (picomatch): «/*/*/suggest» — это
+  // /[lang]/[city]/suggest, где server action формы сжимает присланные фото.
   outputFileTracingIncludes: {
     "/admin/**": [SHARP_LIBVIPS],
     "/og/image": [SHARP_LIBVIPS],
+    "/*/*/suggest": [SHARP_LIBVIPS],
   },
 
   images: {

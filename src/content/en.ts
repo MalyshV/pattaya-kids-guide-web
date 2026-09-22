@@ -573,6 +573,25 @@ export const en: Dictionary = {
     honeypotLabel: "Leave this field empty",
     draftRestored: "We kept your unfinished draft.",
     draftStartOver: "Start over",
+    photos: {
+      label: "Photos",
+      hint: (max: number): string =>
+        `Up to ${max} photos. Ideally without other people's children in the frame.`,
+      add: "Add photos",
+      addMore: "Add more",
+      remove: "Remove",
+      removeLabel: (n: number): string => `Remove photo ${n}`,
+      alt: (n: number): string => `Photo ${n}`,
+      processing: "Preparing…",
+      preparing: "Preparing photos…",
+      tooMany: (max: number): string =>
+        `You can add up to ${max} photos — we left out the rest.`,
+      unreadable: (names: string): string =>
+        `Couldn't open as a photo: ${names}. Please try another file — JPG or PNG.`,
+      rightsLabel: "These are my photos, or I have the right to share them",
+      rightsRequired: "Please tick this box — or remove the photos.",
+      lostOnRestore: "Photos aren't saved in the draft — please add them again.",
+    },
     errorSummary: "Please check the highlighted fields.",
     errors: {
       required: "Please fill this in",
@@ -586,6 +605,8 @@ export const en: Dictionary = {
         "Something went wrong on our side. Please try again a little later — everything you typed is still here.",
       network:
         "Couldn't send — it looks like the connection dropped. Everything you typed is still here: please try again.",
+      photos:
+        "We couldn't accept the photos. Please try again — or remove them and send without. Everything else is still here.",
     },
     similar: {
       title: "Looks like this is already on the site:",

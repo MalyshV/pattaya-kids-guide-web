@@ -5,6 +5,11 @@ import { prisma } from "@/db/prisma";
 import { isSupportedLang } from "@/content/dictionary";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { SUBMISSIONS_PER_HOUR, clientIp, hashIp } from "@/lib/suggest/ip-hash";
+import { checkPhotoFiles } from "@/lib/suggest/photos";
+import {
+  removeSubmissionPhotos,
+  storeSubmissionPhotos,
+} from "@/lib/suggest/store-photos";
 import {
   looksLikeBot,
   validateSuggestion,
@@ -23,6 +28,11 @@ import { locationInfo } from "@/services/suggest-similar.service";
  * Не redirect(), а ответ «отправлено» с адресом «Спасибо»: навигацию делает
  * форма — так сбой сети при отправке ловится в форме (спокойное сообщение,
  * введённое на месте), а не роняет страницу.
+ *
+ * Фото приходят файлами «photos», уже сжатые браузером (lib/suggest/photos);
+ * здесь — проверка, повторное сжатие и хранилище. Не легли фото — не
+ * сохраняем и предложение: человек увидит, что фото не дошли, а не решит, что
+ * всё отправлено.
  */
 
 export type SubmitState =
@@ -31,8 +41,11 @@ export type SubmitState =
   | {
       status: "error";
       errors: SuggestErrors;
-      /** rateLimited — лимит в час; failed — сбой у нас; network — связь у человека */
-      formError?: "rateLimited" | "failed" | "network";
+      /**
+       * rateLimited — лимит в час; failed — сбой у нас; network — связь у
+       * человека; photos — фото не удалось принять (всё остальное в форме цело)
+       */
+      formError?: "rateLimited" | "failed" | "network" | "photos";
     };
 
 const KIND_TO_DB = {
@@ -59,11 +72,14 @@ export async function submitSuggestionAction(
 ): Promise<SubmitState> {
   const raw: RawSuggestion = {};
   for (const [key, value] of formData.entries()) {
-    // файлов в первой части формы нет — всё не-строковое отбрасываем
+    // файлы — только в поле photos (ниже); остальное не-строковое отбрасываем
     if (typeof value === "string") {
       raw[key] = value;
     }
   }
+  const photos = formData
+    .getAll("photos")
+    .filter((value): value is File => value instanceof File && value.size > 0);
 
   const lang = raw.lang ?? "";
   const city = isSupportedLang(lang) ? await getCityBySlug(raw.city ?? "") : null;
@@ -72,7 +88,7 @@ export async function submitSuggestionAction(
   }
   const basePath = cityBasePath(lang, city.slug);
 
-  const checked = validateSuggestion(raw);
+  const checked = validateSuggestion(raw, photos.length);
 
   // бот (заполнил скрытое поле): тихое «спасибо», ничего не сохраняя —
   // не подсказываем, что поймали
@@ -87,6 +103,10 @@ export async function submitSuggestionAction(
     return { status: "error", errors: checked.errors };
   }
   const value = checked.value;
+  // сжатые браузером фото всегда проходят; иначе прислали в обход формы
+  if (checkPhotoFiles(photos)) {
+    return { status: "error", errors: {}, formError: "photos" };
+  }
 
   const ip = clientIp(await headers());
   const ipHash = ip ? hashIp(ip, ipHashKey()) : null;
@@ -104,6 +124,15 @@ export async function submitSuggestionAction(
   }
 
   const { link, fullUrl } = await locationInfo(value.location);
+
+  let photoUrls: string[] = [];
+  if (photos.length > 0) {
+    try {
+      photoUrls = await storeSubmissionPhotos(photos);
+    } catch {
+      return { status: "error", errors: {}, formError: "photos" };
+    }
+  }
 
   try {
     await prisma.submission.create({
@@ -124,12 +153,16 @@ export async function submitSuggestionAction(
         contact: value.contact,
         lang,
         shownMatches: value.shownMatches,
+        photoUrls,
+        photoRightsOk: value.photoRightsOk,
         ipHash,
         cityId: city.id,
       },
     });
   } catch {
-    // сбой на нашей стороне — введённое остаётся в форме, можно повторить
+    // сбой на нашей стороне — введённое остаётся в форме, можно повторить;
+    // уже положенные фото убираем, повторная отправка положит их заново
+    await removeSubmissionPhotos(photoUrls);
     return { status: "error", errors: {}, formError: "failed" };
   }
 
