@@ -82,6 +82,16 @@ describe("parseMapsLink — как ссылки реально вставляю�
     ).not.toBeNull();
   });
 
+  it("ссылка «Поделиться» с телефона после раскрытия: название и адрес, точки нет", () => {
+    // реальная ссылка Вероники maps.app.goo.gl/TX4HGnXyKmPE3Gsc6 раскрывается
+    // так (22.09.2026): ?q=<название + адрес>&ftid=… — координат Google не даёт
+    const link = parseMapsLink(
+      "https://maps.google.com/?q=Coco+Play+%E0%B9%80%E0%B8%A5%E0%B8%82%E0%B8%97%E0%B8%B5%E0%B9%88+499+Beach+Rd,+Pattaya+City,+Bang+Lamung+District,+Chon+Buri+20150&ftid=0x3102bddda322419b:0x3a3bd1c131d98eb8&entry=gps",
+    );
+    expect(link?.pin).toBeNull();
+    expect(link?.name?.startsWith("Coco Play")).toBe(true);
+  });
+
   it("ссылка внутри текста с названием", () => {
     expect(parseMapsLink("The Play Barn https://maps.app.goo.gl/AbC123")?.isShort).toBe(
       true,

@@ -34,6 +34,15 @@ describe("nameSimilarity — как родители на самом деле п
     expect(nameSimilarity("โรงเรียนฟีนิกซ์วิทยา", "โรงเรียนฟีนิกซ์วิทยา")).toBe(1);
   });
 
+  it("название из ссылки с телефона (с адресом в хвосте) находит место", () => {
+    expect(
+      nameSimilarity(
+        "Coco Play เลขที่ 499 Beach Rd, Pattaya City, Bang Lamung District, Chon Buri 20150",
+        "Coco Play",
+      ),
+    ).toBeGreaterThanOrEqual(NAME_MATCH_MIN);
+  });
+
   it("регистр, кавычки и «Pattaya» не мешают", () => {
     expect(nameSimilarity("«Terminal 21»", "Terminal 21 Pattaya")).toBe(1);
   });
