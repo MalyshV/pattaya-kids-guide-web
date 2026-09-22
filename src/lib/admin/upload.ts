@@ -1,8 +1,8 @@
 import "server-only";
 
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { put } from "@vercel/blob";
+import { del, put } from "@vercel/blob";
 
 /**
  * Загрузка фото из админки. Куда кладём:
@@ -78,10 +78,31 @@ export async function uploadImage(file: File, folder: string): Promise<string> {
   // показывает афиши целиком «в рамке», а фото — кадром (lib/images/image-shape)
   const { width, height } = await sharp(resized).metadata();
   const fileName = `${Date.now()}-${safeBaseName(file.name)}-${width}x${height}.jpg`;
+  return storeImageBuffer(folder, fileName, resized);
+}
+
+const LOCAL_UPLOADS_URL = "/images/uploads/";
+const LOCAL_UPLOADS_DIR = path.join(process.cwd(), "public", "images", "uploads");
+const BLOB_HOST = /\.public\.blob\.vercel-storage\.com$/;
+
+/**
+ * Положить готовый JPEG в хранилище (Blob на проде, public/ локально) и
+ * вернуть URL. Общая часть для админки и фото из формы «Предложить своё».
+ */
+export async function storeImageBuffer(
+  folder: string,
+  fileName: string,
+  data: Buffer,
+): Promise<string> {
+  // контракт: и папка, и имя — наши, не пользовательский ввод; проверка —
+  // страховка от выхода за пределы папки загрузок
+  if (!/^[a-z-]+$/.test(folder) || !/^[a-z0-9-]+\.jpg$/.test(fileName)) {
+    throw new Error(`storeImageBuffer: недопустимый путь "${folder}/${fileName}"`);
+  }
 
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     try {
-      const blob = await put(`${folder}/${fileName}`, resized, {
+      const blob = await put(`${folder}/${fileName}`, data, {
         access: "public",
         contentType: "image/jpeg",
       });
@@ -102,8 +123,33 @@ export async function uploadImage(file: File, folder: string): Promise<string> {
     );
   }
 
-  const dir = path.join(process.cwd(), "public", "images", "uploads", folder);
+  const dir = path.join(LOCAL_UPLOADS_DIR, folder);
   await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, fileName), resized);
-  return `/images/uploads/${folder}/${fileName}`;
+  await writeFile(path.join(dir, fileName), data);
+  return `${LOCAL_UPLOADS_URL}${folder}/${fileName}`;
+}
+
+/**
+ * Удалить файл, который мы сами положили (Blob или локальные загрузки).
+ * Чужие адреса и всё вне папки загрузок молча пропускаем — удаляем только своё.
+ */
+export async function removeStoredImage(url: string): Promise<void> {
+  if (url.startsWith(LOCAL_UPLOADS_URL)) {
+    const file = path.resolve(LOCAL_UPLOADS_DIR, url.slice(LOCAL_UPLOADS_URL.length));
+    if (!file.startsWith(LOCAL_UPLOADS_DIR + path.sep)) {
+      return;
+    }
+    await unlink(file).catch(() => undefined);
+    return;
+  }
+  let host: string;
+  try {
+    const parsed = new URL(url);
+    host = parsed.protocol === "https:" ? parsed.hostname : "";
+  } catch {
+    return;
+  }
+  if (BLOB_HOST.test(host) && process.env.BLOB_READ_WRITE_TOKEN) {
+    await del(url);
+  }
 }
