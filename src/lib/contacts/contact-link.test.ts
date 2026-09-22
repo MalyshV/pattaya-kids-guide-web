@@ -34,10 +34,12 @@ describe("contactHref — мессенджеры и сайт без проток
     );
   });
 
-  it("telegram: @ник → t.me без собаки; готовый URL — как есть", () => {
-    expect(contactHref("telegram", "@pattaya_kids")).toBe("https://t.me/pattaya_kids");
+  it("telegram: @ник → telegram.me без собаки; t.me-ссылка → telegram.me (t.me режут провайдеры)", () => {
+    expect(contactHref("telegram", "@pattaya_kids")).toBe(
+      "https://telegram.me/pattaya_kids",
+    );
     expect(contactHref("telegram", "https://t.me/pattaya_kids")).toBe(
-      "https://t.me/pattaya_kids",
+      "https://telegram.me/pattaya_kids",
     );
   });
 
