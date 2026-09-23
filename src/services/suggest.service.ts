@@ -151,6 +151,9 @@ export async function getDupCandidates(
           cityId,
           status: { in: ["PENDING", "IN_REVIEW"] },
           createdAt: { gte: since },
+          // из предложения уже сделали карточку — она и так в каталоге выше,
+          // иначе одно и то же место подсказывалось бы человеку дважды
+          resultId: null,
         },
         select: { id: true, name: true },
         orderBy: { createdAt: "desc" },

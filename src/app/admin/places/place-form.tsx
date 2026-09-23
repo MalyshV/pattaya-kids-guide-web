@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Category, Place, PlacePhoto, PlaceSchedule } from "@prisma/client";
 import {
   addPlacePhotoAction,
@@ -8,11 +9,23 @@ import {
 import { OcrScratchpad } from "@/app/admin/ocr-scratchpad";
 import { PhotoField } from "@/app/admin/photo-field";
 import { SubmitButton } from "@/app/admin/submit-button";
+import type { PlacePrefill } from "@/lib/admin/submission-card";
 
 /**
  * Форма места: создание и редактирование (place=null → создание).
  * Обычная SSR-форма без клиентского state — server action всё разбирает сам.
+ *
+ * fromSubmission — пришли со страницы предложения: поля уже заполнены
+ * присланным, а фото перенесутся при сохранении (их переносит savePlaceAction:
+ * галереи у несозданной карточки ещё нет).
  */
+
+export type PlaceFormSubmission = {
+  id: string;
+  name: string;
+  photoCount: number;
+  prefill: PlacePrefill;
+};
 
 type PlaceFormProps = {
   place:
@@ -24,6 +37,7 @@ type PlaceFormProps = {
     | null;
   allCategories: Category[];
   error?: string;
+  fromSubmission?: PlaceFormSubmission;
 };
 
 const DAYS: Array<{ code: string; label: string }> = [
@@ -80,6 +94,7 @@ export function PlaceForm({
   place,
   allCategories,
   error,
+  fromSubmission,
 }: PlaceFormProps): React.ReactElement {
   const scheduleByDay = new Map(
     (place?.schedules ?? []).map((row) => [row.day as string, row]),
@@ -120,17 +135,43 @@ export function PlaceForm({
           черновик, из него копируется по полям; печатать с картинки не надо */}
       <OcrScratchpad subject="Скрин с инфой места (часы, цены, адрес)" />
 
+      {fromSubmission ? (
+        <p className="admin-from-submission">
+          Заполнено из предложения «{fromSubmission.name}» — проверьте и дополните.
+          {fromSubmission.photoCount > 0
+            ? ` Фото (${fromSubmission.photoCount}) перенесутся при сохранении: первое станет обложкой.`
+            : ""}{" "}
+          Сайт, «когда» и контакт в форму не переносятся —{" "}
+          <Link href={`/admin/suggestions/${fromSubmission.id}`}>
+            они остались в предложении
+          </Link>
+          .
+        </p>
+      ) : null}
+
       <form action={savePlaceAction} className="admin-form">
         {place ? <input type="hidden" name="id" value={place.id} /> : null}
+        {fromSubmission ? (
+          <input type="hidden" name="fromSubmission" value={fromSubmission.id} />
+        ) : null}
 
         <label className="admin-field">
           <span>Название *</span>
-          <input type="text" name="name" defaultValue={place?.name ?? ""} required />
+          <input
+            type="text"
+            name="name"
+            defaultValue={place?.name ?? fromSubmission?.prefill.name ?? ""}
+            required
+          />
         </label>
 
         <label className="admin-field">
           <span>Описание (рус)</span>
-          <textarea name="description" rows={5} defaultValue={place?.description ?? ""} />
+          <textarea
+            name="description"
+            rows={5}
+            defaultValue={place?.description ?? fromSubmission?.prefill.description ?? ""}
+          />
         </label>
 
         <label className="admin-field">
@@ -144,7 +185,11 @@ export function PlaceForm({
 
         <label className="admin-field">
           <span>Адрес</span>
-          <input type="text" name="address" defaultValue={place?.address ?? ""} />
+          <input
+            type="text"
+            name="address"
+            defaultValue={place?.address ?? fromSubmission?.prefill.address ?? ""}
+          />
         </label>
 
         <div className="admin-row">
@@ -153,7 +198,7 @@ export function PlaceForm({
             <input
               type="text"
               name="latitude"
-              defaultValue={place?.latitude ?? ""}
+              defaultValue={place?.latitude ?? fromSubmission?.prefill.latitude ?? ""}
               required
             />
           </label>
@@ -162,7 +207,7 @@ export function PlaceForm({
             <input
               type="text"
               name="longitude"
-              defaultValue={place?.longitude ?? ""}
+              defaultValue={place?.longitude ?? fromSubmission?.prefill.longitude ?? ""}
               required
             />
           </label>
@@ -173,7 +218,9 @@ export function PlaceForm({
           <input
             type="url"
             name="googleMapsUrl"
-            defaultValue={place?.googleMapsUrl ?? ""}
+            defaultValue={
+              place?.googleMapsUrl ?? fromSubmission?.prefill.googleMapsUrl ?? ""
+            }
           />
         </label>
 
