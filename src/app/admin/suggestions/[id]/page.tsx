@@ -8,6 +8,9 @@ import {
   SUBMISSION_STATUS_LABEL,
   safeExternalHref,
 } from "@/lib/admin/submission-labels";
+import { CARD_TARGET, cardHref } from "@/lib/admin/submission-card";
+import { cityBasePath, DEFAULT_LANG } from "@/lib/geo/base-path";
+import { isSupportedLang } from "@/content/dictionary";
 import {
   deleteSubmissionPhotoAction,
   saveSubmissionNotesAction,
@@ -34,6 +37,48 @@ function mapsSearchHref(text: string): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(text)}`;
 }
 
+/** Карточка, созданная из предложения: она же показывает, дошло ли дело до сайта. */
+type LinkedCard = {
+  name: string;
+  /** live — родители её видят; hidden — черновик; demo — демо-запись */
+  state: "live" | "hidden" | "demo";
+  adminHref: string;
+  siteHref: string;
+};
+
+async function linkedCard(item: {
+  resultType: string | null;
+  resultId: string | null;
+  lang: string;
+}): Promise<LinkedCard | null> {
+  if (item.resultType !== "PLACE" || !item.resultId) {
+    return null;
+  }
+  const place = await prisma.place
+    .findUnique({
+      where: { id: item.resultId },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        status: true,
+        isDemo: true,
+        city: { select: { slug: true } },
+      },
+    })
+    .catch(() => null);
+  if (!place) {
+    return null;
+  }
+  const lang = isSupportedLang(item.lang) ? item.lang : DEFAULT_LANG;
+  return {
+    name: place.name,
+    state: place.isDemo ? "demo" : place.status === "APPROVED" ? "live" : "hidden",
+    adminHref: `/admin/places/${place.id}`,
+    siteHref: `${cityBasePath(lang, place.city.slug)}/places/${place.slug}`,
+  };
+}
+
 /** Одно предложение: всё, что прислали, + статус и заметки Вероники. */
 export default async function AdminSuggestionPage({
   params,
@@ -57,6 +102,21 @@ export default async function AdminSuggestionPage({
   if (!item) {
     notFound();
   }
+
+  const card = await linkedCard(item);
+  const target = CARD_TARGET[item.kind];
+  const cardState = {
+    live: "на сайте",
+    hidden: "скрыта, это черновик",
+    demo: "помечена как демо — родителям не видна",
+  };
+  // у занятий в базе нет черновика, у события и места — есть
+  const visibilityStep =
+    item.kind === "ACTIVITY"
+      ? "Занятие появится на сайте сразу после сохранения — черновика у занятий пока нет."
+      : `Пока «Видимость» стоит «на сайте», ${
+          item.kind === "EVENT" ? "событие" : "место"
+        } сразу увидят родители. Нужно доделать позже — поставьте «скрыто».`;
 
   // всё, что прислал посторонний человек, выводим как текст; ссылками —
   // только проверенные http(s)
@@ -180,8 +240,9 @@ export default async function AdminSuggestionPage({
             {item.photoRightsOk
               ? "Автор подтвердил: фото его или он вправе ими делиться."
               : "Подтверждения прав на фото нет."}{" "}
-            Фото видно только здесь, пока вы не перенесёте их в карточку. Чужие дети в
-            кадре — лучше удалить.
+            {card
+              ? "Фото уже перенесены в карточку копиями: удаление здесь не убирает их с сайта — удалите и в карточке."
+              : "Фото видно только здесь, пока вы не перенесёте их в карточку. Чужие дети в кадре — лучше удалить."}
           </p>
           <ul className="admin-photo-grid">
             {item.photoUrls.map((url, index) => (
@@ -203,7 +264,67 @@ export default async function AdminSuggestionPage({
         </>
       ) : null}
 
+      <h2>Что дальше</h2>
+      {card ? (
+        <div className="admin-next">
+          <p>
+            Карточка создана: <Link href={card.adminHref}>{card.name}</Link> —{" "}
+            <strong>{cardState[card.state]}</strong>.
+          </p>
+          {card.state === "live" ? (
+            <p>
+              <a href={card.siteHref} target="_blank" rel="noopener noreferrer">
+                Посмотреть на сайте ↗
+              </a>
+            </p>
+          ) : (
+            <p className="admin-muted">
+              Чтобы место увидели родители, откройте карточку и поставьте «Видимость: на
+              сайте» (и снимите «демо-запись») — статус предложения обновится сам.
+            </p>
+          )}
+        </div>
+      ) : (
+        <div className="admin-next">
+          <ol className="admin-steps">
+            <li>
+              {target.prefilled
+                ? "Открыть форму — название, адрес, точка на карте и описание уже заполнены присланным"
+                : "Открыть форму — поля перенесите из присланного выше"}
+              {target.prefilled && item.photoUrls.length > 0
+                ? `; фото (${item.photoUrls.length}) перенесутся при сохранении, первое станет обложкой`
+                : ""}
+              .
+            </li>
+            <li>Дополнить и сохранить — карточка появится в каталоге.</li>
+            <li>{visibilityStep}</li>
+          </ol>
+          <p>
+            <Link className="admin-button" href={cardHref(item.kind, item.id)}>
+              {target.label}
+            </Link>
+          </p>
+          {!target.prefilled ? (
+            <p className="admin-muted">
+              Связки с карточкой у этого вида пока нет: когда занесёте, отметьте ниже
+              статус «Опубликовано» — предложение уйдёт из очереди.
+            </p>
+          ) : null}
+          {item.kind === "BIRTHDAY" ? (
+            <p className="admin-muted">
+              Праздник заносится как обычное место: пакеты и цены из «что входит» пока
+              переносятся руками.
+            </p>
+          ) : null}
+        </div>
+      )}
+
       <h2>Статус</h2>
+      <p className="admin-muted">
+        {card
+          ? "Меняется сам вслед за карточкой. Кнопки — если нужно отметить иначе."
+          : "Пометки для себя: «дубль» и «отклонено» — чтобы предложение ушло из очереди."}
+      </p>
       <div className="admin-status-row">
         {SUBMISSION_STATUSES.filter((status) => status !== item.status).map((status) => (
           <form key={status} action={setSubmissionStatusAction}>

@@ -14,6 +14,11 @@ import {
   verifyPassword,
 } from "@/lib/admin/auth";
 import { UploadError, removeStoredImage, uploadImage } from "@/lib/admin/upload";
+import {
+  attachSubmissionToPlace,
+  syncSubmissionsForPlace,
+  unlinkSubmissionsForPlace,
+} from "@/lib/admin/submission-link";
 import { slugify } from "@/lib/admin/slug";
 import { DEFAULT_CITY_SLUG } from "@/lib/geo/base-path";
 import { parseSubmissionStatus } from "@/lib/admin/submission-labels";
@@ -201,9 +206,18 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
   await requireAdmin();
 
   const id = textOrNull(formData, "id");
+  // пришли со страницы предложения: адрес возврата и признак «создаём из него»
+  const fromSubmission = textOrNull(formData, "fromSubmission");
+  // ошибка на создании возвращает на пустую форму — без ?from заполненное
+  // предложением пропало бы, и всё пришлось бы вводить руками
+  const newPlaceHref = (problem: string): string =>
+    `/admin/places/new?error=${problem}${
+      fromSubmission ? `&from=${encodeURIComponent(fromSubmission)}` : ""
+    }`;
+
   const name = text(formData, "name");
   if (!name) {
-    redirect(id ? `/admin/places/${id}?error=name` : "/admin/places/new?error=name");
+    redirect(id ? `/admin/places/${id}?error=name` : newPlaceHref("name"));
   }
 
   // место физически где-то: без координат оно попало бы в (0,0) — точку
@@ -211,7 +225,7 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
   const latitude = floatOrNull(formData, "latitude");
   const longitude = floatOrNull(formData, "longitude");
   if (latitude === null || longitude === null) {
-    redirect(id ? `/admin/places/${id}?error=coords` : "/admin/places/new?error=coords");
+    redirect(id ? `/admin/places/${id}?error=coords` : newPlaceHref("coords"));
   }
 
   // фото не должно топить остальные правки (по находке аудита): при ошибке
@@ -231,9 +245,7 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
     (row) => !row.isClosed && (row.openTime === "") !== (row.closeTime === ""),
   );
   if (halfFilled) {
-    redirect(
-      id ? `/admin/places/${id}?error=schedule` : "/admin/places/new?error=schedule",
-    );
+    redirect(id ? `/admin/places/${id}?error=schedule` : newPlaceHref("schedule"));
   }
 
   const data = {
@@ -259,7 +271,9 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
     hasFans: triState(formData, "hasFans"),
     status: text(formData, "status") === "APPROVED" ? "APPROVED" : "PENDING",
     isDemo: checkbox(formData, "isDemo"),
-    ...(cover !== undefined ? { imageUrl: cover } : {}),
+    // новая обложка — прежняя пометка о правах (например, «прислано через
+    // форму») к ней уже не относится
+    ...(cover !== undefined ? { imageUrl: cover, imageRightsNote: null } : {}),
   } as const;
 
   const categoryIds = formData.getAll("categoryIds").map(String);
@@ -310,17 +324,70 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
     // P2025 — запись удалили в другой вкладке; P2002 — двойной клик по
     // «Сохранить» (первый уже создал) — в обоих случаях честный выход в список
     if (code === "P2025" || code === "P2002") {
-      redirect("/admin/places");
+      // соседняя вкладка уже сохранила это же — говорим там, откуда пришли
+      redirect(
+        fromSubmission && !id
+          ? `/admin/suggestions/${fromSubmission}?error=saveConflict`
+          : "/admin/places",
+      );
     }
     throw error;
   }
 
+  // предложение, из которого создали карточку: перенести фото и пометить
+  // очередь. Карточка уже сохранена — сбой связки её не отменяет
+  let linkResult: "ok" | "withPhotos" | "photos" | "duplicate" | "failed" | null = null;
+  if (!id && fromSubmission) {
+    try {
+      const attached = await attachSubmissionToPlace({
+        submissionId: fromSubmission,
+        placeId,
+        placeStatus: data.status,
+        hasCover: cover !== undefined,
+      });
+      linkResult = attached.alreadyLinked
+        ? "duplicate"
+        : attached.photosFailed > 0
+          ? "photos"
+          : attached.photosCopied > 0
+            ? "withPhotos"
+            : "ok";
+    } catch (error) {
+      // карточка создана, но предложение не помечено — скажем об этом прямо
+      console.error("admin: предложение не связалось с карточкой", error);
+      linkResult = "failed";
+    }
+    revalidatePath("/admin", "layout");
+  } else if (id) {
+    // правили карточку: предложения, сделанные из неё, идут за её видимостью
+    await syncSubmissionsForPlace(id, data.status).catch((error: unknown) =>
+      console.error("admin: статус предложения не обновился", error),
+    );
+    revalidatePath("/admin", "layout");
+  }
+
   revalidateSite();
-  redirect(
-    uploadFailed
-      ? `/admin/places/${placeId}?error=upload`
-      : `/admin/places?done=${id ? "updated" : "created"}`,
-  );
+  // связка не удалась или предложение уже вело к другой карточке — вести надо
+  // к самой карточке: со страницы предложения её было бы не найти
+  if (linkResult === "failed" || linkResult === "duplicate") {
+    redirect(
+      `/admin/places/${placeId}?error=${
+        linkResult === "failed" ? "cardLink" : "cardDuplicate"
+      }`,
+    );
+  }
+  if (uploadFailed) {
+    redirect(`/admin/places/${placeId}?error=upload`);
+  }
+  if (fromSubmission && linkResult) {
+    // назад к предложению: оттуда пришли, там же видно, что получилось
+    const flag =
+      linkResult === "photos"
+        ? "error=cardPhotos"
+        : `done=${linkResult === "withPhotos" ? "cardCreatedPhotos" : "cardCreated"}`;
+    redirect(`/admin/suggestions/${fromSubmission}?${flag}`);
+  }
+  redirect(`/admin/places?done=${id ? "updated" : "created"}`);
 }
 
 export async function deletePlaceAction(formData: FormData): Promise<void> {
@@ -329,6 +396,16 @@ export async function deletePlaceAction(formData: FormData): Promise<void> {
   if (!id) {
     redirect("/admin/places");
   }
+
+  // адреса файлов собираем до удаления строк — потом их уже не узнать
+  const withPhotos = await prisma.place.findUnique({
+    where: { id },
+    select: { imageUrl: true, photos: { select: { url: true } } },
+  });
+  const photoUrls = [
+    ...(withPhotos?.imageUrl ? [withPhotos.imageUrl] : []),
+    ...(withPhotos?.photos.map((photo) => photo.url) ?? []),
+  ];
 
   // Полное удаление места со всеми деталями. События места НЕ удаляем —
   // отвязываем (placeId=null): у события своя страница и своя жизнь.
@@ -363,6 +440,20 @@ export async function deletePlaceAction(formData: FormData): Promise<void> {
 
     await tx.place.delete({ where: { id } });
   });
+
+  // файлы фото: без этого копии присланных снимков остались бы в хранилище
+  // навсегда (removeStoredImage трогает только наши загрузки)
+  for (const url of photoUrls) {
+    await removeStoredImage(url).catch((error: unknown) =>
+      console.error("admin: файл фото не удалён", url, error),
+    );
+  }
+
+  // карточку удалили — предложение снова ждёт работы, а не ссылается в пустоту
+  await unlinkSubmissionsForPlace(id).catch((error: unknown) =>
+    console.error("admin: предложение не отвязалось от карточки", error),
+  );
+  revalidatePath("/admin", "layout");
 
   revalidateSite();
   redirect("/admin/places?done=deleted");
