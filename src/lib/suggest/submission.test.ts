@@ -88,6 +88,25 @@ describe("validateSuggestion — два обязательных поля, ос�
   });
 });
 
+describe("фото — только с галочкой «вправе делиться»", () => {
+  it("без фото галочка не нужна и не сохраняется", () => {
+    const result = validateSuggestion({ ...BASE, photoRightsOk: "on" });
+    expect(result.ok && result.value.photoRightsOk).toBe(false);
+  });
+
+  it("фото есть, галочки нет — ошибка у галочки", () => {
+    expect(validateSuggestion(BASE, 2)).toEqual({
+      ok: false,
+      errors: { photoRights: "required" },
+    });
+  });
+
+  it("фото и галочка — ok", () => {
+    const result = validateSuggestion({ ...BASE, photoRightsOk: "on" }, 2);
+    expect(result.ok && result.value.photoRightsOk).toBe(true);
+  });
+});
+
 describe("looksLikeBot / parseSuggestKind", () => {
   it("ловушка заполнена — бот; быстрый человек с черновиком — не бот", () => {
     expect(looksLikeBot({ [HONEYPOT_FIELD]: "http://spam" })).toBe(true);

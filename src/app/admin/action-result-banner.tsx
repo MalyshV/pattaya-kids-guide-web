@@ -22,6 +22,7 @@ const SUCCESS: Record<string, { title: string; message?: string }> = {
   updated: { title: "Изменения сохранены" },
   deleted: { title: "Карточка удалена", message: "Запись удалена навсегда." },
   status: { title: "Статус предложения обновлён" },
+  photoDeleted: { title: "Фото удалено", message: "Из предложения и из хранилища." },
   cache: {
     title: "Кэш сайта обновлён",
     message: "Сайт показывает свежие данные из базы — скриптовые правки видны.",
@@ -32,6 +33,11 @@ const ERROR: Record<string, { title: string; message?: string }> = {
   upload: {
     title: "Фото не загрузилось",
     message: "Проверьте формат и размер файла и попробуйте ещё раз.",
+  },
+  photoNotDeleted: {
+    title: "Фото не удалено",
+    message:
+      "Хранилище не ответило, или админка открыта локально без Blob-токена. Фото на месте — попробуйте ещё раз на сайте.",
   },
 };
 
@@ -47,6 +53,12 @@ export function ActionResultBanner(): React.ReactElement | null {
   const done = params.get("done");
   const error = params.get("error");
   const key = done ?? error ?? null;
+
+  // флаг ушёл из адреса — забываем закрытый: тот же результат ещё раз
+  // (например, повторный сбой «Удалить фото») должен показаться снова
+  if (key === null && closedKey !== null) {
+    setClosedKey(null);
+  }
 
   const success = done ? SUCCESS[done] : undefined;
   const failure = error ? ERROR[error] : undefined;

@@ -46,6 +46,7 @@ export default async function AdminSuggestionsPage({
         lang: true,
         createdAt: true,
         shownMatches: true,
+        photoUrls: true,
       },
     }))().catch(() => null);
 
@@ -88,6 +89,7 @@ export default async function AdminSuggestionsPage({
                   {SUBMISSION_STATUS_LABEL[item.status]} ·{" "}
                   {DATE_FORMAT.format(item.createdAt)} · {item.lang.toUpperCase()}
                   {item.isOwner ? " · от владельца" : ""}
+                  {item.photoUrls.length > 0 ? ` · фото: ${item.photoUrls.length}` : ""}
                   {item.shownMatches.length > 0 ? " · видел(а) подсказку «похоже»" : ""}
                 </span>
               </Link>

@@ -21,11 +21,18 @@ import {
   SUGGEST_DRAFT_KEY,
   SUGGEST_KINDS,
   SUGGEST_LIMITS,
+  validateSuggestion,
+  type RawSuggestion,
   type SuggestErrors,
   type SuggestField,
   type SuggestKind,
 } from "@/lib/suggest/submission";
 import { ExternalArrow } from "@/components/common/external-arrow";
+import {
+  SuggestPhotos,
+  useSuggestPhotos,
+  type SuggestPhoto,
+} from "@/components/suggest/suggest-photos";
 
 /**
  * Форма «Предложить своё». Главные требования Вероники:
@@ -40,6 +47,8 @@ import { ExternalArrow } from "@/components/common/external-arrow";
  * сети ловится здесь же, а черновик живёт в localStorage, пока предложение не
  * ушло (чистит «Спасибо»). Рисуется только в браузере (suggest-form-loader) —
  * черновик читается сразу, без мигания и расхождения с серверной разметкой.
+ * Фото в черновик не попадают (слишком тяжёлые для localStorage) — после
+ * перезагрузки форма честно просит добавить их заново.
  */
 
 type Draft = {
@@ -65,6 +74,46 @@ const TEXT_FIELDS = [
   "link",
   "contact",
 ] as const;
+
+/** порядок полей на странице — фокус после ошибки встаёт на первое сверху */
+const FOCUS_ORDER: readonly SuggestField[] = [
+  "name",
+  "location",
+  "when",
+  "birthday",
+  "photoRights",
+  "tip",
+  "link",
+  "contact",
+];
+/** имя input у поля, если оно не совпадает с названием поля */
+const FIELD_INPUT_NAME: Partial<Record<SuggestField, string>> = {
+  photoRights: "photoRightsOk",
+};
+
+type FormError = NonNullable<Extract<SubmitState, { status: "error" }>["formError"]>;
+type ReadyPhoto = Extract<SuggestPhoto, { status: "ready" }>;
+
+/** Фокус — на первое сверху поле с ошибкой; поля нет — на общую плашку. */
+function focusFirstError(
+  form: HTMLFormElement | null,
+  errors: SuggestErrors,
+  fallback: HTMLElement | null,
+): void {
+  for (const field of FOCUS_ORDER) {
+    if (!errors[field]) {
+      continue;
+    }
+    const input = form?.querySelector<HTMLElement>(
+      `[name="${FIELD_INPUT_NAME[field] ?? field}"]`,
+    );
+    if (input) {
+      input.focus();
+      return;
+    }
+  }
+  fallback?.focus();
+}
 
 function emptyDraft(kind: SuggestKind): Draft {
   return {
@@ -93,17 +142,25 @@ function hasText(draft: Draft): boolean {
   );
 }
 
+type RestoredDraft = {
+  draft: Draft;
+  restored: boolean;
+  /** в черновике были фото — их надо добавить заново */
+  photosLost: boolean;
+};
+
 /** Черновик из localStorage — каждое поле проверяем: старый формат или мусор не роняет форму. */
-function readDraft(presetKind: SuggestKind): { draft: Draft; restored: boolean } {
+function readDraft(presetKind: SuggestKind): RestoredDraft {
   const fresh = emptyDraft(presetKind);
+  const nothing = { draft: fresh, restored: false, photosLost: false };
   try {
     const raw = window.localStorage.getItem(SUGGEST_DRAFT_KEY);
     if (!raw) {
-      return { draft: fresh, restored: false };
+      return nothing;
     }
     const parsed: unknown = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object") {
-      return { draft: fresh, restored: false };
+      return nothing;
     }
     const record = parsed as Record<string, unknown>;
     const draft: Draft = { ...fresh };
@@ -116,13 +173,14 @@ function readDraft(presetKind: SuggestKind): { draft: Draft; restored: boolean }
     draft.isOwner = record.isOwner === true;
     if (!hasText(draft)) {
       // пустой черновик не спорит со страницей: тип — тот, откуда пришли
-      return { draft: fresh, restored: false };
+      return nothing;
     }
     draft.kind = isKind(record.kind) ? record.kind : presetKind;
     draft.presetKind = isKind(record.presetKind) ? record.presetKind : draft.kind;
-    return { draft, restored: true };
+    const photosLost = typeof record.photoCount === "number" && record.photoCount > 0;
+    return { draft, restored: true, photosLost };
   } catch {
-    return { draft: fresh, restored: false };
+    return nothing;
   }
 }
 
@@ -150,6 +208,19 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
   const [initial] = useState(() => readDraft(presetKind));
   const [draft, setDraft] = useState<Draft>(initial.draft);
   const [restored, setRestored] = useState(initial.restored);
+  const photos = useSuggestPhotos();
+  const [photoRightsOk, setPhotoRightsOk] = useState(false);
+  const photoCount = photos.items.length;
+  const photosProcessing = photos.items.some((item) => item.status === "processing");
+  // убрали все фото — галочка сбрасывается: к новым фото права подтверждают
+  // заново, а не получают галочку уже отмеченной
+  const [hadPhotos, setHadPhotos] = useState(false);
+  if (hadPhotos !== photoCount > 0) {
+    setHadPhotos(photoCount > 0);
+    if (photoCount === 0) {
+      setPhotoRightsOk(false);
+    }
+  }
 
   // сбой сети при отправке ловим здесь: иначе вместо формы — страница ошибки,
   // а «проверьте интернет» человек не увидел бы никогда
@@ -171,14 +242,18 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
     }
   }, [state, router]);
 
-  // черновик — при каждом изменении (без setState: только внешняя запись)
+  // черновик — при каждом изменении (без setState: только внешняя запись);
+  // от фото — только их число: после перезагрузки попросим добавить заново
   useEffect(() => {
     try {
-      window.localStorage.setItem(SUGGEST_DRAFT_KEY, JSON.stringify(draft));
+      window.localStorage.setItem(
+        SUGGEST_DRAFT_KEY,
+        JSON.stringify({ ...draft, photoCount }),
+      );
     } catch {
       // приватный режим / хранилище недоступно — форма работает и без черновика
     }
-  }, [draft]);
+  }, [draft, photoCount]);
 
   // ── живая подсказка «похоже, уже есть» ────────────────────────────────
   const name = draft.name.trim();
@@ -230,52 +305,71 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
   const pendingHint =
     !dismissed && visibleHints.some((hint) => hint.kind === "submission");
 
-  // ── ошибки: после ответа сервера — фокус на первое поле с ошибкой ──────
-  const serverErrors: SuggestErrors = state.status === "error" ? state.errors : {};
-  const [fixedFields, setFixedFields] = useState<{
-    state: SubmitState;
-    fields: SuggestField[];
-  }>({ state, fields: [] });
-  // исправленное поле перестаёт быть «ошибочным» сразу, не дожидаясь отправки
-  const fixed = fixedFields.state === state ? fixedFields.fields : [];
+  // ── ошибки ─────────────────────────────────────────────────────────────
+  // Показываем итог последней проверки: своей (до отправки — чтобы ради
+  // «заполните название» не гонять по мобильному интернету мегабайты фото)
+  // или ответа сервера. Исправленное поле перестаёт быть «ошибочным» сразу.
+  const [check, setCheck] = useState<{
+    errors: SuggestErrors;
+    formError?: FormError;
+    fixed: SuggestField[];
+  }>({ errors: {}, fixed: [] });
+  // фокус — в эффекте, когда текст ошибки уже в DOM: иначе скринридер не
+  // прочтёт его вместе с полем
+  const [focusRequest, setFocusRequest] = useState<{ errors: SuggestErrors } | null>(
+    null,
+  );
+  const [seenState, setSeenState] = useState(state);
+  if (seenState !== state) {
+    setSeenState(state);
+    if (state.status === "error") {
+      setCheck({ errors: state.errors, formError: state.formError, fixed: [] });
+      setFocusRequest({ errors: state.errors });
+    }
+  }
   const errors: SuggestErrors = Object.fromEntries(
-    Object.entries(serverErrors).filter(
-      ([field]) => !fixed.includes(field as SuggestField),
+    Object.entries(check.errors).filter(
+      ([field]) =>
+        !check.fixed.includes(field as SuggestField) &&
+        // убрали все фото — галочка больше не нужна
+        (field !== "photoRights" || photoCount > 0),
     ),
   );
-  const formError = state.status === "error" ? state.formError : undefined;
+  const formError = check.formError;
   const formRef = useRef<HTMLFormElement | null>(null);
   const summaryRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (state.status !== "error") {
-      return;
+    if (focusRequest) {
+      focusFirstError(formRef.current, focusRequest.errors, summaryRef.current);
     }
-    const first = TEXT_FIELDS.find((field) => state.errors[field]);
-    if (first) {
-      formRef.current?.querySelector<HTMLElement>(`[name="${first}"]`)?.focus();
-    } else {
-      summaryRef.current?.focus();
+  }, [focusRequest]);
+
+  function markFixed(field: SuggestField): void {
+    if (check.errors[field] && !check.fixed.includes(field)) {
+      setCheck((current) => ({ ...current, fixed: [...current.fixed, field] }));
     }
-  }, [state]);
+  }
 
   function update<K extends keyof Draft>(key: K, value: Draft[K]): void {
     setDraft((current) => ({ ...current, [key]: value }));
-    if (
-      (TEXT_FIELDS as readonly string[]).includes(key) &&
-      serverErrors[key as SuggestField]
-    ) {
-      setFixedFields((current) => ({
-        state,
-        fields: [...(current.state === state ? current.fields : []), key as SuggestField],
-      }));
+    if ((TEXT_FIELDS as readonly string[]).includes(key)) {
+      markFixed(key as SuggestField);
     }
+  }
+
+  function changePhotoRights(checked: boolean): void {
+    setPhotoRightsOk(checked);
+    markFixed("photoRights");
   }
 
   function startOver(): void {
     setDraft(emptyDraft(presetKind));
     setRestored(false);
     setHints({ name: "", query: "", items: [] });
+    photos.clear();
+    setPhotoRightsOk(false);
+    setCheck({ errors: {}, fixed: [] });
   }
 
   function dismissHints(): void {
@@ -285,7 +379,31 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>): void {
     event.preventDefault();
+    if (photosProcessing) {
+      return; // кнопка и так неактивна, пока фото сжимаются
+    }
     const formData = new FormData(event.currentTarget);
+    const readyPhotos = photos.items.filter(
+      (item): item is ReadyPhoto => item.status === "ready",
+    );
+    // та же проверка, что на сервере, — ещё до отправки
+    const raw: RawSuggestion = {};
+    for (const [key, value] of formData.entries()) {
+      if (typeof value === "string") {
+        raw[key] = value;
+      }
+    }
+    const local = validateSuggestion(raw, readyPhotos.length);
+    if (!local.ok) {
+      setCheck({ errors: local.errors, fixed: [] });
+      setFocusRequest({ errors: local.errors });
+      return;
+    }
+    // в форму — уже сжатые фото (у самого поля выбора файлов нет name)
+    formData.delete("photos");
+    readyPhotos.forEach((item, index) => {
+      formData.append("photos", item.blob, `photo-${index + 1}.jpg`);
+    });
     // в админку — только то, что форма показывала в момент отправки
     const shown = dismissed
       ? dismissedLabels.map((label) => `${label} — ${t.similar.markedDifferent}`)
@@ -294,12 +412,19 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
           ...(pendingHint ? [t.similar.pendingAdmin] : []),
         ];
     formData.set("shownMatches", shown.join("\n"));
+    // старая плашка («пропал интернет» и т.п.) не висит, пока идёт новая
+    // отправка и после успеха, пока грузится «Спасибо»
+    setCheck({ errors: {}, fixed: [] });
     startTransition(() => formAction(formData));
   }
 
   const errorText = (field: SuggestField): string | null => {
     const error = errors[field];
-    return error ? t.errors[error] : null;
+    if (!error) {
+      return null;
+    }
+    // у галочки своё объяснение: «заполните» к ней не подходит
+    return field === "photoRights" ? t.photos.rightsRequired : t.errors[error];
   };
 
   // ошибка — первой: скринридер читает её раньше длинной подсказки поля
@@ -339,7 +464,10 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
 
       {restored ? (
         <p className="suggest-restored">
-          {t.draftRestored}{" "}
+          {t.draftRestored}
+          {initial.photosLost && photoCount === 0
+            ? ` ${t.photos.lostOnRestore}`
+            : ""}{" "}
           <button type="button" className="suggest-text-button" onClick={startOver}>
             {t.draftStartOver}
           </button>
@@ -348,7 +476,11 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
 
       {errorCount > 0 || formError ? (
         <div className="suggest-alert" role="alert" tabIndex={-1} ref={summaryRef}>
-          {formError ? t.formErrors[formError] : t.errorSummary}
+          {formError
+            ? t.formErrors[formError]
+            : errorCount === 1 && errors.photoRights
+              ? t.photos.rightsRequired
+              : t.errorSummary}
         </div>
       ) : null}
 
@@ -551,6 +683,14 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
         </div>
       ) : null}
 
+      <SuggestPhotos
+        photos={photos}
+        idPrefix={baseId}
+        rightsChecked={photoRightsOk}
+        onRightsChange={changePhotoRights}
+        rightsError={errorText("photoRights")}
+      />
+
       <div className="suggest-field">
         <label className="suggest-label" htmlFor={fieldId("tip")}>
           {t.tipLabel[draft.kind]}{" "}
@@ -652,12 +792,12 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
         <button
           type="submit"
           className="suggest-submit"
-          disabled={isPending || state.status === "sent"}
+          disabled={isPending || state.status === "sent" || photosProcessing}
         >
-          {isPending || state.status === "sent" ? (
+          {isPending || state.status === "sent" || photosProcessing ? (
             <>
               <span className="button-spinner" aria-hidden="true" />
-              {t.submitting}
+              {photosProcessing && !isPending ? t.photos.preparing : t.submitting}
             </>
           ) : (
             t.submit

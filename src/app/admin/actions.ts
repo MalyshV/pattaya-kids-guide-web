@@ -13,7 +13,7 @@ import {
   revokeAdminCookie,
   verifyPassword,
 } from "@/lib/admin/auth";
-import { UploadError, uploadImage } from "@/lib/admin/upload";
+import { UploadError, removeStoredImage, uploadImage } from "@/lib/admin/upload";
 import { slugify } from "@/lib/admin/slug";
 import { DEFAULT_CITY_SLUG } from "@/lib/geo/base-path";
 import { parseSubmissionStatus } from "@/lib/admin/submission-labels";
@@ -676,4 +676,43 @@ export async function saveSubmissionNotesAction(formData: FormData): Promise<voi
   // счётчик «Предложения (N)» в шапке админки — пересчитать
   revalidatePath("/admin", "layout");
   redirect(`/admin/suggestions/${id}?done=updated`);
+}
+
+/**
+ * Убрать одно фото из предложения (чужие дети в кадре, не то место, плохое
+ * качество). Сначала файл, потом запись: удаляют ради приватности, поэтому
+ * «удалено» говорим, только когда файла в хранилище правда больше нет. Не
+ * вышло — ссылка остаётся на месте, баннер честно объясняет почему.
+ */
+export async function deleteSubmissionPhotoAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = text(formData, "id");
+  const url = text(formData, "url");
+  if (!id || !url) {
+    redirect("/admin/suggestions");
+  }
+  const item = await prisma.submission.findUnique({
+    where: { id },
+    select: { photoUrls: true },
+  });
+  if (!item) {
+    redirect("/admin/suggestions");
+  }
+  // удаляем только то, что действительно лежит в этом предложении
+  if (!item.photoUrls.includes(url)) {
+    redirect(`/admin/suggestions/${id}`);
+  }
+  try {
+    await removeStoredImage(url);
+  } catch (error) {
+    console.error("admin: submission photo not deleted", error);
+    redirect(`/admin/suggestions/${id}?error=photoNotDeleted`);
+  }
+  // повторное удаление уже удалённого файла безопасно — при сбое базы
+  // достаточно нажать ещё раз
+  await prisma.submission.update({
+    where: { id },
+    data: { photoUrls: item.photoUrls.filter((photo) => photo !== url) },
+  });
+  redirect(`/admin/suggestions/${id}?done=photoDeleted`);
 }
