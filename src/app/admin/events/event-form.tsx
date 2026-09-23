@@ -5,6 +5,7 @@ import type { Event } from "@prisma/client";
 import { deleteEventAction, saveEventAction } from "@/app/admin/actions";
 import { OcrZone } from "@/app/admin/ocr-zone";
 import { parseEventFlyer, type FlyerDraft } from "@/lib/import/event-flyer";
+import { PhotoField } from "@/app/admin/photo-field";
 import { SubmitButton } from "@/app/admin/submit-button";
 
 /**
@@ -268,12 +269,10 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
           </label>
         </div>
 
-        <label className="admin-field">
-          <span>
-            Афиша/обложка {event?.imageUrl ? "(файл заменит текущую)" : "(файл)"}
-          </span>
-          <input type="file" name="coverFile" accept="image/*" />
-        </label>
+        <PhotoField
+          name="coverFile"
+          label={`Афиша/обложка ${event?.imageUrl ? "(файл заменит текущую)" : "(файл)"}`}
+        />
 
         <div className="admin-row">
           <label className="admin-field admin-field-inline">
