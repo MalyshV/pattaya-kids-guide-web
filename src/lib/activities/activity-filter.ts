@@ -1,16 +1,7 @@
 /**
- * Фильтрация ленты «Занятия». Возрастная логика стала сквозной для всего сайта
- * и живёт в src/lib/age/age-buckets.ts (реэкспорт — для существующих импортов);
- * здесь остаётся только фильтр по категории занятия.
+ * Фильтрация ленты «Занятия» по категории. Возрастная логика — сквозная для
+ * всего сайта и живёт в src/lib/age/age-buckets.ts.
  */
-
-export {
-  AGE_BUCKETS,
-  matchesAgeBucket,
-  matchesAnyAgeBucket,
-  parseAgeBuckets,
-  type AgeBucket,
-} from "@/lib/age/age-buckets";
 
 type Categorized = {
   categories: { slug: string }[];
