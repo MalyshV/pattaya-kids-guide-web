@@ -3,6 +3,7 @@ import "server-only";
 import type { PlaceStatus, SubmissionStatus } from "@prisma/client";
 import { prisma } from "@/db/prisma";
 import { copyStoredImage } from "@/lib/admin/copy-photo";
+import { removeStoredImage } from "@/lib/admin/upload";
 
 /**
  * Связка «предложение ↔ карточка»: что создали из присланного и в каком оно
@@ -195,6 +196,72 @@ export async function addSubmissionPhotosToPlace(
     },
   });
   return { state: "added", photosCopied: copied.length, photosFailed };
+}
+
+export type SetCoverResult =
+  | { state: "set"; oldCoverKept: boolean }
+  /** не дополнение к событию/занятию, нет такой карточки или фото */
+  | { state: "nothing" };
+
+/**
+ * Дополнение к событию или занятию: выбранное фото — в обложку карточки.
+ * У них одна картинка (галереи нет), поэтому старая обложка заменяется и её
+ * файл убирается из хранилища. Фото копируем, оригинал остаётся у
+ * предложения. Полей прав на изображение у события и занятия в схеме нет —
+ * пометку о правах писать некуда. Статус и связь предложения не трогаем:
+ * фото в дополнении может быть несколько, и обложку можно выбрать заново.
+ */
+export async function setSubmissionPhotoAsCover(
+  submissionId: string,
+  photoUrl: string,
+): Promise<SetCoverResult> {
+  const submission = await prisma.submission.findUnique({
+    where: { id: submissionId },
+    select: { photoUrls: true, targetKind: true, targetId: true },
+  });
+  if (
+    !submission ||
+    !submission.targetId ||
+    (submission.targetKind !== "EVENT" && submission.targetKind !== "ACTIVITY") ||
+    !submission.photoUrls.includes(photoUrl)
+  ) {
+    return { state: "nothing" };
+  }
+  const targetId = submission.targetId;
+  const isEvent = submission.targetKind === "EVENT";
+  const current = isEvent
+    ? await prisma.event.findUnique({
+        where: { id: targetId },
+        select: { imageUrl: true },
+      })
+    : await prisma.placeProgram.findUnique({
+        where: { id: targetId },
+        select: { imageUrl: true },
+      });
+  if (!current) {
+    return { state: "nothing" };
+  }
+
+  const cover = await copyStoredImage(photoUrl, isEvent ? "events" : "activities");
+  if (isEvent) {
+    await prisma.event.update({ where: { id: targetId }, data: { imageUrl: cover } });
+  } else {
+    await prisma.placeProgram.update({
+      where: { id: targetId },
+      data: { imageUrl: cover },
+    });
+  }
+
+  // старую обложку убираем после записи новой; сбой хранилища не откатывает
+  // замену — лишний файл безвреден (removeStoredImage трогает только наши)
+  let oldCoverKept = false;
+  if (current.imageUrl) {
+    await removeStoredImage(current.imageUrl).catch((error: unknown) => {
+      oldCoverKept = true;
+      console.error("admin: старая обложка не удалилась", current.imageUrl, error);
+    });
+  }
+  return { state: "set", oldCoverKept };
 }
 
 /**
