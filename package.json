@@ -17,6 +17,7 @@
     "apply-thai": "tsx --env-file=.env prisma/apply-thai.ts",
     "check": "npm run lint && npm run typecheck && npm run test",
     "fix": "npm run format && npm run lint:fix",
+    "postinstall": "prisma generate",
     "prepare": "husky",
     "telegram:webhook": "tsx --env-file=.env scripts/telegram/set-webhook.ts",
     "telegram:test-post": "tsx --env-file=.env scripts/telegram/test-post.ts",
