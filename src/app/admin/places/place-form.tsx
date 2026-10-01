@@ -1,6 +1,12 @@
 import { TipsFields } from "@/app/admin/tips-fields";
 import Link from "next/link";
-import type { Category, Place, PlacePhoto, PlaceSchedule } from "@prisma/client";
+import type {
+  Category,
+  Place,
+  PlaceBirthdayInfo,
+  PlacePhoto,
+  PlaceSchedule,
+} from "@prisma/client";
 import {
   addPlacePhotoAction,
   deletePlaceAction,
@@ -33,6 +39,7 @@ type PlaceFormProps = {
     | (Place & {
         photos: PlacePhoto[];
         schedules: PlaceSchedule[];
+        birthdayInfo?: PlaceBirthdayInfo | null;
         categories: Array<{ categoryId: string }>;
         tips: Array<{ text: string; textEn: string | null }>;
       })
@@ -106,6 +113,7 @@ export function PlaceForm({
   const hasMultiIntervalDay =
     (place?.schedules ?? []).length >
     new Set((place?.schedules ?? []).map((r) => r.day)).size;
+  const birthday = place?.birthdayInfo ?? null;
   const checkedCategories = new Set(
     (place?.categories ?? []).map((link) => link.categoryId),
   );
@@ -123,6 +131,11 @@ export function PlaceForm({
         <p className="admin-error">
           В часах работы есть день, где заполнено только открытие или только закрытие —
           допишите второе время или отметьте «закрыто».
+        </p>
+      ) : null}
+      {error === "birthdayGuests" ? (
+        <p className="admin-error">
+          В дне рождения «гостей от» больше, чем «гостей до» — поправьте числа.
         </p>
       ) : null}
       {error === "coords" ? (
@@ -272,6 +285,79 @@ export function PlaceForm({
               name="leaveChildFromMonths"
               min={0}
               defaultValue={place?.leaveChildFromMonths ?? ""}
+            />
+          </label>
+        </fieldset>
+
+        <fieldset className="admin-fieldset">
+          <legend>День рождения</legend>
+          <label className="admin-check">
+            <input
+              type="checkbox"
+              name="birthdayEnabled"
+              defaultChecked={birthday !== null}
+            />
+            <span>Здесь проводят дни рождения</span>
+          </label>
+          <p className="admin-muted">
+            Снять галочку и сохранить — данные о дне рождения у этого места удалятся.
+          </p>
+          <label className="admin-check">
+            <input
+              type="checkbox"
+              name="birthdayHasPackages"
+              defaultChecked={birthday?.hasPackages ?? false}
+            />
+            <span>Есть готовые пакеты</span>
+          </label>
+          <div className="admin-row">
+            <label className="admin-field admin-field-inline">
+              <span>Гостей от</span>
+              <input
+                type="number"
+                name="birthdayMinGuests"
+                min={1}
+                defaultValue={birthday?.minGuests ?? ""}
+              />
+            </label>
+            <label className="admin-field admin-field-inline">
+              <span>Гостей до</span>
+              <input
+                type="number"
+                name="birthdayMaxGuests"
+                min={1}
+                defaultValue={birthday?.maxGuests ?? ""}
+              />
+            </label>
+          </div>
+          <TriStateSelect
+            name="birthdayDepositRequired"
+            label="Залог"
+            value={birthday?.depositRequired}
+          />
+          <label className="admin-field admin-field-inline">
+            <span>Бронировать за (дней)</span>
+            <input
+              type="number"
+              name="birthdayPreBookingDays"
+              min={0}
+              defaultValue={birthday?.preBookingDays ?? ""}
+            />
+          </label>
+          <label className="admin-field">
+            <span>Заметки о дне рождении (рус)</span>
+            <textarea
+              name="birthdayNotes"
+              rows={3}
+              defaultValue={birthday?.notes ?? ""}
+            />
+          </label>
+          <label className="admin-field">
+            <span>Notes (en) — пусто = показываем русские</span>
+            <textarea
+              name="birthdayNotesEn"
+              rows={3}
+              defaultValue={birthday?.notesEn ?? ""}
             />
           </label>
         </fieldset>

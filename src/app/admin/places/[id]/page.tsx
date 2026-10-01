@@ -27,6 +27,7 @@ export default async function AdminPlaceEditPage({
       include: {
         photos: { orderBy: { order: "asc" } },
         schedules: true,
+        birthdayInfo: true,
         categories: { select: { categoryId: true } },
         tips: { orderBy: { order: "asc" }, select: { text: true, textEn: true } },
       },
