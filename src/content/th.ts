@@ -52,6 +52,7 @@ export const th: Dictionary = {
     opensInNewTab: "(เปิดในแท็บใหม่)",
     zoomPhoto: "ขยายรูป",
     closePhoto: "ปิดรูป",
+    close: "ปิด",
     prevPhoto: "รูปก่อนหน้า",
     nextPhoto: "รูปถัดไป",
     photoCounter: (current: number, total: number) => `${current} จาก ${total}`,
@@ -575,6 +576,8 @@ export const th: Dictionary = {
       alt: (n: number): string => `รูปที่ ${n}`,
       processing: "กำลังเตรียม…",
       preparing: "กำลังเตรียมรูป…",
+      unreadableTitle: "เปิดรูปไม่ได้",
+      tooManyTitle: "เพิ่มรูปได้ไม่ครบ",
       tooMany: (max: number): string =>
         `เพิ่มได้สูงสุด ${max} รูป รูปที่เกินมาเราไม่ได้เพิ่มให้`,
       unreadable: (names: readonly string[]): string =>
@@ -588,6 +591,12 @@ export const th: Dictionary = {
       required: "กรุณากรอกช่องนี้",
       tooShort: "สั้นเกินไป",
       tooLong: "ยาวเกินไป กรุณาย่อให้สั้นลง",
+    },
+    formErrorTitle: {
+      rateLimited: "ส่งบ่อยเกินไป",
+      failed: "ส่งไม่สำเร็จ",
+      network: "ส่งไม่สำเร็จ",
+      photos: "ส่งไม่สำเร็จ",
     },
     formErrors: {
       rateLimited:
@@ -627,7 +636,6 @@ export const th: Dictionary = {
       thanksTitle: "ขอบคุณ! เราได้รับข้อมูลของคุณแล้ว",
       thanksText:
         "เราจะตรวจสอบและอัปเดตหน้านี้ บางครั้งอาจใช้เวลาสองสามวัน เพราะต้องเช็กรายละเอียดให้ถูกต้อง",
-      thanksBack: "กลับไปที่หน้านี้",
       linesLabel: "เพิ่มข้อมูลในหน้านี้",
       parentAction: "แชร์รูปหรือคำแนะนำให้ผู้ปกครองคนอื่น ๆ",
       ownerAction: "ส่งรูปหรือแก้ไขรายละเอียดได้ฟรี",

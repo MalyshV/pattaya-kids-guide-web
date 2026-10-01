@@ -21,7 +21,7 @@ import {
   type SuggestErrors,
   type SuggestKind,
 } from "@/lib/suggest/submission";
-import { aboutCardPath, formatAbout, parseAbout } from "@/lib/suggest/about";
+import { aboutCardPath, aboutThanksPath, parseAbout } from "@/lib/suggest/about";
 import { locationInfo } from "@/services/suggest-similar.service";
 import { getSuggestTarget } from "@/services/suggest-target.service";
 
@@ -130,8 +130,12 @@ export async function submitSuggestionAction(
   // дополнение: название в админке — по-русски, на каком бы языке ни писали
   const aboutRef = raw.about ? parseAbout(raw.about) : null;
   const target = aboutRef ? await getSuggestTarget(aboutRef, city.id, "ru") : null;
-  const thanksQuery = (kind: SuggestKind): string =>
-    `?type=${kind}${aboutRef && target ? `&about=${formatAbout(aboutRef)}` : ""}`;
+  // новое предложение — на страницу «Спасибо»; дополнение — обратно на
+  // карточку, «Спасибо» там покажет попап
+  const thanksPath = (kind?: SuggestKind): string =>
+    aboutRef && target
+      ? `${basePath}${aboutThanksPath(aboutRef)}`
+      : `${basePath}/suggest/thanks${kind ? `?type=${kind}` : ""}`;
 
   const checked = validateSuggestion(
     raw,
@@ -144,7 +148,7 @@ export async function submitSuggestionAction(
   if (looksLikeBot(raw)) {
     return {
       status: "sent",
-      redirectTo: `${basePath}/suggest/thanks${checked.ok ? thanksQuery(checked.value.kind) : ""}`,
+      redirectTo: thanksPath(checked.ok ? checked.value.kind : undefined),
     };
   }
 
@@ -270,6 +274,6 @@ export async function submitSuggestionAction(
 
   return {
     status: "sent",
-    redirectTo: `${basePath}/suggest/thanks${thanksQuery(value.kind)}`,
+    redirectTo: thanksPath(value.kind),
   };
 }

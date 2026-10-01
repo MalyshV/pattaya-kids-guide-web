@@ -4,7 +4,23 @@ import {
   SUGGEST_PHOTOS,
   checkPhotoFiles,
   fitWithin,
+  looksLikeHeic,
 } from "@/lib/suggest/photos";
+
+describe("looksLikeHeic — айфонный формат, который браузер переводит в JPEG сам", () => {
+  it("по типу или по имени файла (тип у HEIC часто пустой)", () => {
+    expect(looksLikeHeic({ name: "IMG_3117.HEIC", type: "" })).toBe(true);
+    expect(looksLikeHeic({ name: "photo.heif", type: "" })).toBe(true);
+    expect(looksLikeHeic({ name: "photo", type: "image/heic" })).toBe(true);
+    expect(looksLikeHeic({ name: "photo", type: "image/heif-sequence" })).toBe(true);
+  });
+
+  it("обычные фото и чужие файлы — нет", () => {
+    expect(looksLikeHeic({ name: "photo.jpg", type: "image/jpeg" })).toBe(false);
+    expect(looksLikeHeic({ name: "heic.png", type: "image/png" })).toBe(false);
+    expect(looksLikeHeic({ name: "notes.pdf", type: "application/pdf" })).toBe(false);
+  });
+});
 
 describe("fitWithin — размер после сжатия", () => {
   it("длинная сторона — не больше лимита, пропорции сохраняются", () => {

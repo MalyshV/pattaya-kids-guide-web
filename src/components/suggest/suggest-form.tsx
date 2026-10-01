@@ -27,6 +27,7 @@ import {
   type SuggestField,
   type SuggestKind,
 } from "@/lib/suggest/submission";
+import { ActionBanner } from "@/components/common/action-banner";
 import { ExternalArrow } from "@/components/common/external-arrow";
 import {
   SuggestPhotos,
@@ -351,12 +352,19 @@ export function SuggestForm({
   const [focusRequest, setFocusRequest] = useState<{ errors: SuggestErrors } | null>(
     null,
   );
+  const [formErrorOpen, setFormErrorOpen] = useState(false);
   const [seenState, setSeenState] = useState(state);
   if (seenState !== state) {
     setSeenState(state);
     if (state.status === "error") {
       setCheck({ errors: state.errors, formError: state.formError, fixed: [] });
-      setFocusRequest({ errors: state.errors });
+      // общая ошибка отправки — попапом (он сам берёт фокус); ошибки полей —
+      // у полей, фокус на первое
+      if (state.formError) {
+        setFormErrorOpen(true);
+      } else {
+        setFocusRequest({ errors: state.errors });
+      }
     }
   }
   const errors: SuggestErrors = Object.fromEntries(
@@ -523,6 +531,20 @@ export function SuggestForm({
           />
         </label>
       </div>
+
+      {formError && formErrorOpen ? (
+        <ActionBanner
+          variant="error"
+          title={t.formErrorTitle[formError]}
+          message={t.formErrors[formError]}
+          closeLabel={dict.common.close}
+          onClose={() => {
+            setFormErrorOpen(false);
+            // после попапа — к плашке с тем же текстом: она остаётся в форме
+            summaryRef.current?.focus();
+          }}
+        />
+      ) : null}
 
       {restored ? (
         <p className="suggest-restored">

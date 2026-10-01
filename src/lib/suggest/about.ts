@@ -53,6 +53,14 @@ export function aboutCardPath(ref: AboutRef): string {
   return `${ABOUT_PATH[ref.kind]}/${ref.slug}`;
 }
 
+/** флаг в адресе карточки: дополнение только что отправили — показать «Спасибо» */
+export const ADDITION_THANKS_PARAM = "thanks";
+
+/** куда вернуть человека после дополнения: на карточку, с попапом «Спасибо» */
+export function aboutThanksPath(ref: AboutRef): string {
+  return `${aboutCardPath(ref)}?${ADDITION_THANKS_PARAM}=1`;
+}
+
 /** адрес формы «Дополнить карточку»; owner — галочка «я представляю» уже стоит */
 export function aboutFormPath(ref: AboutRef, owner = false): string {
   return `/suggest?about=${formatAbout(ref)}${owner ? "&owner=1" : ""}`;

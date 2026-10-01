@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   aboutCardPath,
   aboutFormPath,
+  aboutThanksPath,
   formatAbout,
   parseAbout,
   suggestDraftKey,
@@ -42,6 +43,7 @@ describe("адреса и ключ черновика", () => {
     expect(aboutCardPath(ref)).toBe("/activities/swimming");
     expect(aboutFormPath(ref)).toBe("/suggest?about=activity:swimming");
     expect(aboutFormPath(ref, true)).toBe("/suggest?about=activity:swimming&owner=1");
+    expect(aboutThanksPath(ref)).toBe("/activities/swimming?thanks=1");
   });
 
   it("у дополнения свой черновик на каждую карточку", () => {

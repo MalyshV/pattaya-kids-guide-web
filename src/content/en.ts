@@ -49,6 +49,7 @@ export const en: Dictionary = {
     // lightbox: click a photo to zoom, the balloon button closes it
     zoomPhoto: "Zoom photo",
     closePhoto: "Close photo",
+    close: "Close",
     prevPhoto: "Previous photo",
     nextPhoto: "Next photo",
     photoCounter: (current: number, total: number) => `${current} of ${total}`,
@@ -584,6 +585,8 @@ export const en: Dictionary = {
       alt: (n: number): string => `Photo ${n}`,
       processing: "Preparing…",
       preparing: "Preparing photos…",
+      unreadableTitle: "Couldn't open the photo",
+      tooManyTitle: "Not all photos were added",
       tooMany: (max: number): string =>
         `You can add up to ${max} photos — we left out the rest.`,
       unreadable: (names: readonly string[]): string =>
@@ -597,6 +600,12 @@ export const en: Dictionary = {
       required: "Please fill this in",
       tooShort: "Too short",
       tooLong: "Too long — please shorten it",
+    },
+    formErrorTitle: {
+      rateLimited: "Too many submissions",
+      failed: "Couldn't send",
+      network: "Couldn't send",
+      photos: "Couldn't send",
     },
     formErrors: {
       rateLimited:
@@ -637,7 +646,6 @@ export const en: Dictionary = {
       thanksTitle: "Thank you! We've got your note",
       thanksText:
         "We'll check it and update the page. Sometimes this takes a few days — we confirm the details.",
-      thanksBack: "Back to the page",
       linesLabel: "Add to this page",
       parentAction: "Share a photo or a tip for other parents",
       ownerAction: "Send photos or fix the description — it's free",
