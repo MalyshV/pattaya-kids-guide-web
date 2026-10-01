@@ -47,6 +47,7 @@ export default async function AdminSuggestionsPage({
         createdAt: true,
         shownMatches: true,
         photoUrls: true,
+        targetId: true,
       },
     }))().catch(() => null);
 
@@ -88,6 +89,7 @@ export default async function AdminSuggestionsPage({
                   {SUBMISSION_KIND_LABEL[item.kind]} ·{" "}
                   {SUBMISSION_STATUS_LABEL[item.status]} ·{" "}
                   {DATE_FORMAT.format(item.createdAt)} · {item.lang.toUpperCase()}
+                  {item.targetId ? " · дополнение к карточке" : ""}
                   {item.isOwner ? " · от владельца" : ""}
                   {item.photoUrls.length > 0 ? ` · фото: ${item.photoUrls.length}` : ""}
                   {item.shownMatches.length > 0 ? " · видел(а) подсказку «похоже»" : ""}

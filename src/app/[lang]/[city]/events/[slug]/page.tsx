@@ -1,3 +1,4 @@
+import { ContributeLines } from "@/components/suggest/contribute-lines";
 import Link from "next/link";
 import { ExternalArrow } from "@/components/common/external-arrow";
 import { notFound } from "next/navigation";
@@ -258,6 +259,8 @@ export default async function EventDetailsPage({
           <p className="empty-text">{dict.eventDetails.noPlace}</p>
         )}
       </section>
+
+      <ContributeLines basePath={basePath} about={{ kind: "event", slug }} dict={dict} />
     </main>
   );
 }

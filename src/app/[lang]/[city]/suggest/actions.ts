@@ -21,7 +21,9 @@ import {
   type SuggestErrors,
   type SuggestKind,
 } from "@/lib/suggest/submission";
+import { aboutCardPath, formatAbout, parseAbout } from "@/lib/suggest/about";
 import { locationInfo } from "@/services/suggest-similar.service";
+import { getSuggestTarget } from "@/services/suggest-target.service";
 
 /**
  * Отправка формы «Предложить своё». Файл 'use server' — каждый экспорт
@@ -38,6 +40,9 @@ import { locationInfo } from "@/services/suggest-similar.service";
  * сохраняем и предложение: человек увидит, что фото не дошли, а не решит, что
  * всё отправлено. Сбои пишем в лог (Vercel → Logs): иначе сломанная загрузка
  * фото выглядела бы просто как «люди шлют без фото».
+ *
+ * Дополнение к существующей карточке (поле about, см. lib/suggest/about):
+ * карточку находим сами — тип и название берём у неё, а не из браузера.
  */
 
 export type SubmitState =
@@ -122,15 +127,31 @@ export async function submitSuggestionAction(
   }
   const basePath = cityBasePath(lang, city.slug);
 
-  const checked = validateSuggestion(raw, photos.length);
+  // дополнение: название в админке — по-русски, на каком бы языке ни писали
+  const aboutRef = raw.about ? parseAbout(raw.about) : null;
+  const target = aboutRef ? await getSuggestTarget(aboutRef, city.id, "ru") : null;
+  const thanksQuery = (kind: SuggestKind): string =>
+    `?type=${kind}${aboutRef && target ? `&about=${formatAbout(aboutRef)}` : ""}`;
+
+  const checked = validateSuggestion(
+    raw,
+    photos.length,
+    target ? { kind: target.kind, name: target.name } : null,
+  );
 
   // бот (заполнил скрытое поле): тихое «спасибо», ничего не сохраняя —
   // не подсказываем, что поймали
   if (looksLikeBot(raw)) {
     return {
       status: "sent",
-      redirectTo: `${basePath}/suggest/thanks${checked.ok ? `?type=${checked.value.kind}` : ""}`,
+      redirectTo: `${basePath}/suggest/thanks${checked.ok ? thanksQuery(checked.value.kind) : ""}`,
     };
+  }
+
+  // карточку, которую хотели дополнить, не нашли (сняли с сайта, адрес с
+  // ошибкой) — не сохраняем под видом нового предложения
+  if (raw.about && !target) {
+    return { status: "error", errors: {}, formError: "failed" };
   }
 
   if (!checked.ok) {
@@ -156,7 +177,11 @@ export async function submitSuggestionAction(
     }
   }
 
-  const { link, fullUrl } = await locationInfo(value.location);
+  // у дополнения «где» — адрес самой карточки на сайте, Карты не нужны
+  const { link, fullUrl } =
+    aboutRef && target
+      ? { link: null, fullUrl: null }
+      : await locationInfo(value.location);
 
   // Запись — сразу, ещё без фото: так она занимает место в лимите до
   // долгой работы с фото, и одновременные запросы с одного адреса видят друг
@@ -168,7 +193,8 @@ export async function submitSuggestionAction(
         kind: KIND_TO_DB[value.kind],
         presetKind: value.presetKind ? KIND_TO_DB[value.presetKind] : null,
         name: value.name,
-        location: value.location,
+        location:
+          aboutRef && target ? `${basePath}${aboutCardPath(aboutRef)}` : value.location,
         mapsUrl: fullUrl,
         // только точный пин: центр окна карты для точки места слишком неточен
         latitude: link?.pin?.latitude ?? null,
@@ -184,6 +210,9 @@ export async function submitSuggestionAction(
         photoRightsOk: value.photoRightsOk,
         ipHash,
         cityId: city.id,
+        // только у дополнений: обычное предложение не трогает эти колонки и
+        // сохраняется, даже если db push после обновления ещё не сделан
+        ...(target ? { targetKind: KIND_TO_DB[target.kind], targetId: target.id } : {}),
       },
       select: { id: true, createdAt: true },
     });
@@ -239,5 +268,8 @@ export async function submitSuggestionAction(
     }
   }
 
-  return { status: "sent", redirectTo: `${basePath}/suggest/thanks?type=${value.kind}` };
+  return {
+    status: "sent",
+    redirectTo: `${basePath}/suggest/thanks${thanksQuery(value.kind)}`,
+  };
 }

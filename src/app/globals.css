@@ -4552,6 +4552,50 @@ html[data-theme="dark"] .theme-label-to-light {
   line-height: 1;
 }
 
+/* «Были здесь?» / «Это ваше место?» — внизу карточки места, события,
+   занятия. Тихо, после всего контента: приглашение, а не баннер. */
+.contribute-lines {
+  display: grid;
+  gap: 6px;
+  margin-top: 40px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.contribute-line {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.contribute-line a {
+  color: var(--accent-text);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.contribute-line a:hover {
+  text-decoration: underline;
+}
+
+.contribute-line a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* форма «Дополнить карточку»: название карточки вместо полей «что» и «где» */
+.suggest-about-card {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--surface-muted);
+  color: var(--foreground);
+  font-size: 16px;
+  font-weight: 600;
+}
+
 /* строка «Список | Карта» + кнопка на «Днях рождения» (там нет шапки списка) */
 .list-toolbar {
   display: flex;

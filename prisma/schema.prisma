@@ -726,9 +726,14 @@ model Submission {
   /// Привязка — по ОТДЕЛЬНОМУ случайному токену (crypto.randomBytes), не по id:
   /// id не секрет, по нему чужой мог бы привязать свой чат
   telegramChatId   String?
-  /// во что превратилось при публикации (без FK, как TelegramPost)
+  /// во что превратилось при публикации (без FK, как TelegramPost); у
+  /// дополнения — карточка, в галерею которой уже перенесли его фото
   resultType       String?
   resultId         String?
+  /// дополнение к уже существующей карточке («Это ваше место?», «Были здесь?»):
+  /// к чему оно относится (без FK, как resultId). null — предлагают новое
+  targetKind       SubmissionKind?
+  targetId         String?
   reviewNotes      String?
   reviewedAt       DateTime?
   /// HMAC от IP — только для лимита отправок, сам IP не храним

@@ -77,6 +77,13 @@ export type SuggestionValue = {
 
 export type RawSuggestion = Record<string, string | undefined>;
 
+/**
+ * Дополнение к уже существующей карточке (lib/suggest/about): тип и название
+ * берём у карточки, «где» не спрашиваем. Нужно хоть что-то одно — текст или
+ * фото.
+ */
+export type SuggestAddition = { kind: SuggestKind; name: string };
+
 // управляющие символы (кроме перевода строки в многострочных полях) — мусор
 // копипаста и ботов; в админке их всё равно не видно
 const CONTROL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
@@ -98,30 +105,35 @@ export function validateSuggestion(
   raw: RawSuggestion,
   /** сколько фото пришло вместе с формой (сами файлы проверяются отдельно) */
   photoCount = 0,
+  /** дополнение к существующей карточке — её тип и название (сервер находит сам) */
+  addition: SuggestAddition | null = null,
 ): { ok: true; value: SuggestionValue } | { ok: false; errors: SuggestErrors } {
   const errors: SuggestErrors = {};
 
-  const kind = parseSuggestKind(raw.kind);
+  const kind = addition ? addition.kind : parseSuggestKind(raw.kind);
   if (!kind) {
     errors.kind = "required";
   }
 
-  const name = singleLine(raw.name);
-  if (!name) {
-    errors.name = "required";
-  } else if (name.length < MIN_NAME_LENGTH) {
-    errors.name = "tooShort";
-  } else if (name.length > SUGGEST_LIMITS.name) {
-    errors.name = "tooLong";
-  }
+  // у дополнения название — от карточки, а «где» известно и так
+  const name = addition ? addition.name : singleLine(raw.name);
+  const location = addition ? "" : singleLine(raw.location);
+  if (!addition) {
+    if (!name) {
+      errors.name = "required";
+    } else if (name.length < MIN_NAME_LENGTH) {
+      errors.name = "tooShort";
+    } else if (name.length > SUGGEST_LIMITS.name) {
+      errors.name = "tooLong";
+    }
 
-  const location = singleLine(raw.location);
-  if (!location) {
-    errors.location = "required";
-  } else if (location.length < MIN_LOCATION_LENGTH) {
-    errors.location = "tooShort";
-  } else if (location.length > SUGGEST_LIMITS.location) {
-    errors.location = "tooLong";
+    if (!location) {
+      errors.location = "required";
+    } else if (location.length < MIN_LOCATION_LENGTH) {
+      errors.location = "tooShort";
+    } else if (location.length > SUGGEST_LIMITS.location) {
+      errors.location = "tooLong";
+    }
   }
 
   const optional = (field: SuggestField, value: string, limit: number): string | null => {
@@ -138,6 +150,10 @@ export function validateSuggestion(
   // поле с текстом на экране и после смены типа — написанное не пропадает
   const whenText = optional("when", singleLine(raw.when), SUGGEST_LIMITS.when);
   const tip = optional("tip", multiLine(raw.tip), SUGGEST_LIMITS.tip);
+  // пустое дополнение проверять нечего: нужен текст или хотя бы фото
+  if (addition && !tip && photoCount === 0) {
+    errors.tip = "required";
+  }
   const birthdayIncludes = optional(
     "birthday",
     multiLine(raw.birthday),
@@ -171,7 +187,7 @@ export function validateSuggestion(
     ok: true,
     value: {
       kind,
-      presetKind: parseSuggestKind(raw.presetKind),
+      presetKind: addition ? null : parseSuggestKind(raw.presetKind),
       name,
       location,
       whenText,

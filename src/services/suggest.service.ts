@@ -154,6 +154,8 @@ export async function getDupCandidates(
           // из предложения уже сделали карточку — она и так в каталоге выше,
           // иначе одно и то же место подсказывалось бы человеку дважды
           resultId: null,
+          // дополнение к карточке — не «уже предложили»: карточка и так в каталоге
+          targetId: null,
         },
         select: { id: true, name: true },
         orderBy: { createdAt: "desc" },

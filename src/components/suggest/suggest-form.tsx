@@ -16,9 +16,9 @@ import {
 import type { SimilarHint } from "@/services/suggest-similar.service";
 import { formatDistance } from "@/lib/geo/distance";
 import { useDictionary, useLang } from "@/lib/i18n/use-dictionary";
+import { formatAbout, suggestDraftKey, type AboutRef } from "@/lib/suggest/about";
 import {
   HONEYPOT_FIELD,
-  SUGGEST_DRAFT_KEY,
   SUGGEST_KINDS,
   SUGGEST_LIMITS,
   validateSuggestion,
@@ -49,6 +49,11 @@ import {
  * черновик читается сразу, без мигания и расхождения с серверной разметкой.
  * Фото в черновик не попадают (слишком тяжёлые для localStorage) — после
  * перезагрузки форма честно просит добавить их заново.
+ *
+ * Режим «Дополнить карточку» (about): форму открыли со страницы уже
+ * существующего места, события или занятия. Тип, название и «где» известны —
+ * остаются текст, фото, ссылка и «я представляю»; подсказка «похоже, уже
+ * есть» молчит. Черновик у каждой карточки свой.
  */
 
 type Draft = {
@@ -86,6 +91,13 @@ const FOCUS_ORDER: readonly SuggestField[] = [
   "link",
   "contact",
 ];
+/** в дополнении текст стоит выше фото */
+const ABOUT_FOCUS_ORDER: readonly SuggestField[] = [
+  "tip",
+  "photoRights",
+  "link",
+  "contact",
+];
 /** имя input у поля, если оно не совпадает с названием поля */
 const FIELD_INPUT_NAME: Partial<Record<SuggestField, string>> = {
   photoRights: "photoRightsOk",
@@ -99,8 +111,9 @@ function focusFirstError(
   form: HTMLFormElement | null,
   errors: SuggestErrors,
   fallback: HTMLElement | null,
+  order: readonly SuggestField[],
 ): void {
-  for (const field of FOCUS_ORDER) {
+  for (const field of order) {
     if (!errors[field]) {
       continue;
     }
@@ -150,11 +163,16 @@ type RestoredDraft = {
 };
 
 /** Черновик из localStorage — каждое поле проверяем: старый формат или мусор не роняет форму. */
-function readDraft(presetKind: SuggestKind): RestoredDraft {
-  const fresh = emptyDraft(presetKind);
+function readDraft(
+  presetKind: SuggestKind,
+  draftKey: string,
+  /** дополнение: тип — от карточки; owner — пришли по «Это ваше место?» */
+  about: { owner: boolean } | null,
+): RestoredDraft {
+  const fresh = { ...emptyDraft(presetKind), isOwner: about?.owner ?? false };
   const nothing = { draft: fresh, restored: false, photosLost: false };
   try {
-    const raw = window.localStorage.getItem(SUGGEST_DRAFT_KEY);
+    const raw = window.localStorage.getItem(draftKey);
     if (!raw) {
       return nothing;
     }
@@ -170,13 +188,16 @@ function readDraft(presetKind: SuggestKind): RestoredDraft {
         draft[field] = value.slice(0, SUGGEST_LIMITS[field]);
       }
     }
-    draft.isOwner = record.isOwner === true;
+    // пришли по «Это ваше место?» — галочка стоит и поверх черновика
+    draft.isOwner = record.isOwner === true || fresh.isOwner;
     if (!hasText(draft)) {
       // пустой черновик не спорит со страницей: тип — тот, откуда пришли
       return nothing;
     }
-    draft.kind = isKind(record.kind) ? record.kind : presetKind;
-    draft.presetKind = isKind(record.presetKind) ? record.presetKind : draft.kind;
+    if (!about) {
+      draft.kind = isKind(record.kind) ? record.kind : presetKind;
+      draft.presetKind = isKind(record.presetKind) ? record.presetKind : draft.kind;
+    }
     const photosLost = typeof record.photoCount === "number" && record.photoCount > 0;
     return { draft, restored: true, photosLost };
   } catch {
@@ -192,12 +213,21 @@ const SAME_SPOT_M = 30;
 
 type HintState = { name: string; query: string; items: SimilarHint[] };
 
-type SuggestFormProps = {
+export type SuggestFormProps = {
   city: string;
   presetKind: SuggestKind;
+  /** дополнение к существующей карточке: какой и как она называется */
+  about?: (AboutRef & { name: string }) | null;
+  /** пришли по строке для владельцев — «я представляю» отмечено заранее */
+  owner?: boolean;
 };
 
-export function SuggestForm({ city, presetKind }: SuggestFormProps): React.ReactElement {
+export function SuggestForm({
+  city,
+  presetKind,
+  about = null,
+  owner = false,
+}: SuggestFormProps): React.ReactElement {
   const dict = useDictionary();
   const lang = useLang();
   const router = useRouter();
@@ -205,7 +235,11 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
   const baseId = useId();
   const fieldId = (name: string): string => `${baseId}-${name}`;
 
-  const [initial] = useState(() => readDraft(presetKind));
+  const draftKey = suggestDraftKey(about);
+  const formKind = about ? about.kind : presetKind;
+  const [initial] = useState(() =>
+    readDraft(formKind, draftKey, about ? { owner } : null),
+  );
   const [draft, setDraft] = useState<Draft>(initial.draft);
   const [restored, setRestored] = useState(initial.restored);
   const photos = useSuggestPhotos();
@@ -246,20 +280,18 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
   // от фото — только их число: после перезагрузки попросим добавить заново
   useEffect(() => {
     try {
-      window.localStorage.setItem(
-        SUGGEST_DRAFT_KEY,
-        JSON.stringify({ ...draft, photoCount }),
-      );
+      window.localStorage.setItem(draftKey, JSON.stringify({ ...draft, photoCount }));
     } catch {
       // приватный режим / хранилище недоступно — форма работает и без черновика
     }
-  }, [draft, photoCount]);
+  }, [draft, photoCount, draftKey]);
 
   // ── живая подсказка «похоже, уже есть» ────────────────────────────────
   const name = draft.name.trim();
   const location = draft.location.trim();
   const hintQuery = `${name}|${location}`;
-  const wantsHint = name.length >= MIN_NAME_FOR_HINT || location.length > 10;
+  // у дополнения карточка известна — искать «похожее» незачем
+  const wantsHint = !about && (name.length >= MIN_NAME_FOR_HINT || location.length > 10);
   const [hints, setHints] = useState<HintState>({ name: "", query: "", items: [] });
   // «Это другое» — для какого набора подсказок человек это нажал
   const [dismissedQuery, setDismissedQuery] = useState<string | null>(null);
@@ -336,14 +368,20 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
     ),
   );
   const formError = check.formError;
+  const isAbout = about !== null;
   const formRef = useRef<HTMLFormElement | null>(null);
   const summaryRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (focusRequest) {
-      focusFirstError(formRef.current, focusRequest.errors, summaryRef.current);
+      focusFirstError(
+        formRef.current,
+        focusRequest.errors,
+        summaryRef.current,
+        isAbout ? ABOUT_FOCUS_ORDER : FOCUS_ORDER,
+      );
     }
-  }, [focusRequest]);
+  }, [focusRequest, isAbout]);
 
   function markFixed(field: SuggestField): void {
     if (check.errors[field] && !check.fixed.includes(field)) {
@@ -364,7 +402,7 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
   }
 
   function startOver(): void {
-    setDraft(emptyDraft(presetKind));
+    setDraft(emptyDraft(formKind));
     setRestored(false);
     setHints({ name: "", query: "", items: [] });
     photos.clear();
@@ -393,7 +431,11 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
         raw[key] = value;
       }
     }
-    const local = validateSuggestion(raw, readyPhotos.length);
+    const local = validateSuggestion(
+      raw,
+      readyPhotos.length,
+      about ? { kind: about.kind, name: about.name } : null,
+    );
     if (!local.ok) {
       setCheck({ errors: local.errors, fixed: [] });
       setFocusRequest({ errors: local.errors });
@@ -424,7 +466,14 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
       return null;
     }
     // у галочки своё объяснение: «заполните» к ней не подходит
-    return field === "photoRights" ? t.photos.rightsRequired : t.errors[error];
+    if (field === "photoRights") {
+      return t.photos.rightsRequired;
+    }
+    // пустое дополнение: подойдёт и текст, и фото
+    if (about && field === "tip" && error === "required") {
+      return t.about.empty;
+    }
+    return t.errors[error];
   };
 
   // ошибка — первой: скринридер читает её раньше длинной подсказки поля
@@ -438,15 +487,28 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
   const hintKindLabel = (kind: SimilarHint["kind"]): string =>
     kind === "submission" ? "" : t.similar.kinds[kind];
 
-  const showWhen = draft.kind === "event" || draft.when.trim() !== "";
-  const showBirthday = draft.kind === "birthday" || draft.birthday.trim() !== "";
+  const showWhen = !about && (draft.kind === "event" || draft.when.trim() !== "");
+  const showBirthday =
+    !about && (draft.kind === "birthday" || draft.birthday.trim() !== "");
   const errorCount = Object.keys(errors).length;
+
+  // в дополнении фото идут после текста: сначала «что поправить», потом снимки
+  const photosBlock = (
+    <SuggestPhotos
+      photos={photos}
+      idPrefix={baseId}
+      rightsChecked={photoRightsOk}
+      onRightsChange={changePhotoRights}
+      rightsError={errorText("photoRights")}
+    />
+  );
 
   return (
     <form ref={formRef} className="suggest-form" onSubmit={onSubmit} noValidate>
       <input type="hidden" name="lang" value={lang} />
       <input type="hidden" name="city" value={city} />
       <input type="hidden" name="presetKind" value={draft.presetKind} />
+      {about ? <input type="hidden" name="about" value={formatAbout(about)} /> : null}
 
       {/* ловушка для ботов: людям не видна и не фокусируется */}
       <div className="suggest-hp" aria-hidden="true">
@@ -480,155 +542,172 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
             ? t.formErrors[formError]
             : errorCount === 1 && errors.photoRights
               ? t.photos.rightsRequired
-              : t.errorSummary}
+              : errorCount === 1 && errorText("tip") === t.about.empty
+                ? t.about.empty
+                : t.errorSummary}
         </div>
       ) : null}
 
-      <fieldset className="suggest-kinds">
-        <legend className="suggest-label">{t.kindLegend}</legend>
-        <div className="suggest-kind-options">
-          {SUGGEST_KINDS.map((kind) => (
-            <label
-              key={kind}
-              className={`suggest-kind${draft.kind === kind ? " suggest-kind-active" : ""}`}
-            >
-              <input
-                type="radio"
-                name="kind"
-                value={kind}
-                checked={draft.kind === kind}
-                onChange={() => update("kind", kind)}
-              />
-              {t.kinds[kind]}
-            </label>
-          ))}
-        </div>
-      </fieldset>
-
-      <div className="suggest-field">
-        <label className="suggest-label" htmlFor={fieldId("name")}>
-          {t.nameLabel}
-        </label>
-        <input
-          id={fieldId("name")}
-          className="suggest-input"
-          name="name"
-          type="text"
-          value={draft.name}
-          maxLength={SUGGEST_LIMITS.name}
-          autoComplete="off"
-          placeholder={t.namePlaceholder[draft.kind]}
-          aria-invalid={errors.name ? true : undefined}
-          aria-describedby={describedBy("name", fieldId("similar"))}
-          onChange={(event) => update("name", event.target.value)}
-          required
-        />
-        {errorText("name") ? (
-          <p id={fieldId("name-error")} className="suggest-error">
-            {errorText("name")}
-          </p>
-        ) : null}
-
-        {/* живая подсказка: регион есть всегда (live-регион, появившийся
-            вместе с текстом, скринридеры часто не озвучивают) */}
-        <div id={fieldId("similar")} className="suggest-similar-wrap" aria-live="polite">
-          {catalogHints.length > 0 || pendingHint ? (
-            <div className="suggest-similar">
-              {catalogHints.length > 0 ? (
-                <>
-                  <p className="suggest-similar-title">{t.similar.title}</p>
-                  <ul className="suggest-similar-list">
-                    {catalogHints.map((hint) => (
-                      <li key={hint.key} className="suggest-similar-item">
-                        <span className="suggest-similar-kind">
-                          {hintKindLabel(hint.kind)}
-                        </span>{" "}
-                        <strong>{hint.label}</strong>
-                        {hint.past ? (
-                          <span className="suggest-similar-meta">
-                            {" "}
-                            · {t.similar.pastEvent}
-                          </span>
-                        ) : null}
-                        {hint.distanceM !== null && hint.reason !== "name" ? (
-                          <span className="suggest-similar-meta">
-                            {" · "}
-                            {hint.distanceM < SAME_SPOT_M
-                              ? t.similar.sameSpot
-                              : t.similar.nearby(formatDistance(hint.distanceM, lang))}
-                          </span>
-                        ) : null}{" "}
-                        {hint.href ? (
-                          <a
-                            href={hint.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="suggest-similar-link"
-                          >
-                            {t.similar.open} <ExternalArrow />
-                            <span className="sr-only"> {dict.common.opensInNewTab}</span>
-                          </a>
-                        ) : (
-                          <span className="suggest-similar-meta">
-                            — {t.similar.draft}
-                          </span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : null}
-              {pendingHint ? (
-                <p className="suggest-similar-pending">{t.similar.pending}</p>
-              ) : null}
-              <p className="suggest-similar-otherwise">
-                {t.similar.otherwise}{" "}
-                {catalogHints.length > 0 ? (
-                  <button
-                    type="button"
-                    className="suggest-text-button"
-                    onClick={dismissHints}
-                  >
-                    {t.similar.dismiss}
-                  </button>
-                ) : null}
-              </p>
+      {about ? (
+        <p className="suggest-about-card">{about.name}</p>
+      ) : (
+        <>
+          <fieldset className="suggest-kinds">
+            <legend className="suggest-label">{t.kindLegend}</legend>
+            <div className="suggest-kind-options">
+              {SUGGEST_KINDS.map((kind) => (
+                <label
+                  key={kind}
+                  className={`suggest-kind${draft.kind === kind ? " suggest-kind-active" : ""}`}
+                >
+                  <input
+                    type="radio"
+                    name="kind"
+                    value={kind}
+                    checked={draft.kind === kind}
+                    onChange={() => update("kind", kind)}
+                  />
+                  {t.kinds[kind]}
+                </label>
+              ))}
             </div>
-          ) : null}
-          {dismissed && dismissedLabels.length > 0 ? (
-            <p className="suggest-similar-dismissed">{t.similar.dismissed}</p>
-          ) : null}
-        </div>
-      </div>
+          </fieldset>
 
-      <div className="suggest-field">
-        <label className="suggest-label" htmlFor={fieldId("location")}>
-          {t.locationLabel}
-        </label>
-        <p id={fieldId("location-hint")} className="suggest-hint">
-          {t.locationHint}
-        </p>
-        {/* обычная клавиатура: поле принимает и адрес (на iOS у url-клавиатуры нет пробела) */}
-        <input
-          id={fieldId("location")}
-          className="suggest-input"
-          name="location"
-          type="text"
-          value={draft.location}
-          maxLength={SUGGEST_LIMITS.location}
-          autoComplete="off"
-          placeholder={t.locationPlaceholder}
-          aria-invalid={errors.location ? true : undefined}
-          aria-describedby={describedBy("location", fieldId("location-hint"))}
-          onChange={(event) => update("location", event.target.value)}
-          required
-        />
-        {errorText("location") ? (
-          <p id={fieldId("location-error")} className="suggest-error">
-            {errorText("location")}
-          </p>
-        ) : null}
-      </div>
+          <div className="suggest-field">
+            <label className="suggest-label" htmlFor={fieldId("name")}>
+              {t.nameLabel}
+            </label>
+            <input
+              id={fieldId("name")}
+              className="suggest-input"
+              name="name"
+              type="text"
+              value={draft.name}
+              maxLength={SUGGEST_LIMITS.name}
+              autoComplete="off"
+              placeholder={t.namePlaceholder[draft.kind]}
+              aria-invalid={errors.name ? true : undefined}
+              aria-describedby={describedBy("name", fieldId("similar"))}
+              onChange={(event) => update("name", event.target.value)}
+              required
+            />
+            {errorText("name") ? (
+              <p id={fieldId("name-error")} className="suggest-error">
+                {errorText("name")}
+              </p>
+            ) : null}
+
+            {/* живая подсказка: регион есть всегда (live-регион, появившийся
+            вместе с текстом, скринридеры часто не озвучивают) */}
+            <div
+              id={fieldId("similar")}
+              className="suggest-similar-wrap"
+              aria-live="polite"
+            >
+              {catalogHints.length > 0 || pendingHint ? (
+                <div className="suggest-similar">
+                  {catalogHints.length > 0 ? (
+                    <>
+                      <p className="suggest-similar-title">{t.similar.title}</p>
+                      <ul className="suggest-similar-list">
+                        {catalogHints.map((hint) => (
+                          <li key={hint.key} className="suggest-similar-item">
+                            <span className="suggest-similar-kind">
+                              {hintKindLabel(hint.kind)}
+                            </span>{" "}
+                            <strong>{hint.label}</strong>
+                            {hint.past ? (
+                              <span className="suggest-similar-meta">
+                                {" "}
+                                · {t.similar.pastEvent}
+                              </span>
+                            ) : null}
+                            {hint.distanceM !== null && hint.reason !== "name" ? (
+                              <span className="suggest-similar-meta">
+                                {" · "}
+                                {hint.distanceM < SAME_SPOT_M
+                                  ? t.similar.sameSpot
+                                  : t.similar.nearby(
+                                      formatDistance(hint.distanceM, lang),
+                                    )}
+                              </span>
+                            ) : null}{" "}
+                            {hint.href ? (
+                              <a
+                                href={hint.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="suggest-similar-link"
+                              >
+                                {t.similar.open} <ExternalArrow />
+                                <span className="sr-only">
+                                  {" "}
+                                  {dict.common.opensInNewTab}
+                                </span>
+                              </a>
+                            ) : (
+                              <span className="suggest-similar-meta">
+                                — {t.similar.draft}
+                              </span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  ) : null}
+                  {pendingHint ? (
+                    <p className="suggest-similar-pending">{t.similar.pending}</p>
+                  ) : null}
+                  <p className="suggest-similar-otherwise">
+                    {t.similar.otherwise}{" "}
+                    {catalogHints.length > 0 ? (
+                      <button
+                        type="button"
+                        className="suggest-text-button"
+                        onClick={dismissHints}
+                      >
+                        {t.similar.dismiss}
+                      </button>
+                    ) : null}
+                  </p>
+                </div>
+              ) : null}
+              {dismissed && dismissedLabels.length > 0 ? (
+                <p className="suggest-similar-dismissed">{t.similar.dismissed}</p>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="suggest-field">
+            <label className="suggest-label" htmlFor={fieldId("location")}>
+              {t.locationLabel}
+            </label>
+            <p id={fieldId("location-hint")} className="suggest-hint">
+              {t.locationHint}
+            </p>
+            {/* обычная клавиатура: поле принимает и адрес (на iOS у url-клавиатуры нет пробела) */}
+            <input
+              id={fieldId("location")}
+              className="suggest-input"
+              name="location"
+              type="text"
+              value={draft.location}
+              maxLength={SUGGEST_LIMITS.location}
+              autoComplete="off"
+              placeholder={t.locationPlaceholder}
+              aria-invalid={errors.location ? true : undefined}
+              aria-describedby={describedBy("location", fieldId("location-hint"))}
+              onChange={(event) => update("location", event.target.value)}
+              required
+            />
+            {errorText("location") ? (
+              <p id={fieldId("location-error")} className="suggest-error">
+                {errorText("location")}
+              </p>
+            ) : null}
+          </div>
+        </>
+      )}
 
       {/* поле с уже набранным текстом остаётся и после смены типа — написанное не пропадает */}
       {showWhen ? (
@@ -683,21 +762,21 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
         </div>
       ) : null}
 
-      <SuggestPhotos
-        photos={photos}
-        idPrefix={baseId}
-        rightsChecked={photoRightsOk}
-        onRightsChange={changePhotoRights}
-        rightsError={errorText("photoRights")}
-      />
+      {about ? null : photosBlock}
 
       <div className="suggest-field">
         <label className="suggest-label" htmlFor={fieldId("tip")}>
-          {t.tipLabel[draft.kind]}{" "}
-          <span className="suggest-optional">({t.optional})</span>
+          {about ? (
+            t.about.tipLabel
+          ) : (
+            <>
+              {t.tipLabel[draft.kind]}{" "}
+              <span className="suggest-optional">({t.optional})</span>
+            </>
+          )}
         </label>
         <p id={fieldId("tip-hint")} className="suggest-hint">
-          {t.tipHint}
+          {about ? t.about.tipHint : t.tipHint}
         </p>
         <textarea
           id={fieldId("tip")}
@@ -716,6 +795,8 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
           </p>
         ) : null}
       </div>
+
+      {about ? photosBlock : null}
 
       <div className="suggest-field">
         <label className="suggest-label" htmlFor={fieldId("link")}>
@@ -756,7 +837,7 @@ export function SuggestForm({ city, presetKind }: SuggestFormProps): React.React
         {/* сразу рядом с галочкой — чтобы владелец не решил, что сейчас
             потребуют денег (Вероника, 22.09) */}
         <p id={fieldId("owner-free")} className="suggest-free">
-          {t.ownerFree}
+          {about ? t.about.ownerFree : t.ownerFree}
         </p>
 
         {draft.isOwner ? (

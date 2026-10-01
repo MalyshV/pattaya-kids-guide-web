@@ -1,16 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
-import { SUGGEST_DRAFT_KEY } from "@/lib/suggest/submission";
 
-/** «Спасибо» = предложение дошло: черновик больше не нужен. */
-export function ClearSuggestDraft(): null {
+/** «Спасибо» = предложение дошло: черновик (свой у каждой формы) больше не нужен. */
+export function ClearSuggestDraft({ draftKey }: { draftKey: string }): null {
   useEffect(() => {
     try {
-      window.localStorage.removeItem(SUGGEST_DRAFT_KEY);
+      window.localStorage.removeItem(draftKey);
     } catch {
       // хранилище недоступно — и черновика там нет
     }
-  }, []);
+  }, [draftKey]);
   return null;
 }

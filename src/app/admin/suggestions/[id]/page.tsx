@@ -12,6 +12,7 @@ import { CARD_TARGET, cardHref } from "@/lib/admin/submission-card";
 import { cityBasePath, DEFAULT_LANG } from "@/lib/geo/base-path";
 import { isSupportedLang } from "@/content/dictionary";
 import {
+  addSubmissionPhotosAction,
   deleteSubmissionPhotoAction,
   saveSubmissionNotesAction,
   setSubmissionStatusAction,
@@ -79,6 +80,75 @@ async function linkedCard(item: {
   };
 }
 
+/** Карточка, которую предлагают дополнить («Были здесь?», «Это ваше место?»). */
+type TargetCard = {
+  name: string;
+  adminHref: string;
+  siteHref: string;
+};
+
+const TARGET_NOUN = { PLACE: "места", EVENT: "события", ACTIVITY: "занятия" } as const;
+
+async function targetCard(item: {
+  targetKind: string | null;
+  targetId: string | null;
+  lang: string;
+}): Promise<TargetCard | null> {
+  if (!item.targetId) {
+    return null;
+  }
+  const id = item.targetId;
+  const lang = isSupportedLang(item.lang) ? item.lang : DEFAULT_LANG;
+  const site = (citySlug: string, path: string): string =>
+    `${cityBasePath(lang, citySlug)}${path}`;
+  const city = { select: { slug: true } };
+  try {
+    if (item.targetKind === "PLACE") {
+      const place = await prisma.place.findUnique({
+        where: { id },
+        select: { name: true, slug: true, city },
+      });
+      return place
+        ? {
+            name: place.name,
+            adminHref: `/admin/places/${id}`,
+            siteHref: site(place.city.slug, `/places/${place.slug}`),
+          }
+        : null;
+    }
+    if (item.targetKind === "EVENT") {
+      const event = await prisma.event.findUnique({
+        where: { id },
+        select: { title: true, slug: true, city },
+      });
+      return event?.city
+        ? {
+            name: event.title,
+            adminHref: `/admin/events/${id}`,
+            siteHref: site(event.city.slug, `/events/${event.slug}`),
+          }
+        : null;
+    }
+    if (item.targetKind === "ACTIVITY") {
+      const program = await prisma.placeProgram.findUnique({
+        where: { id },
+        select: { name: true, slug: true, city, place: { select: { city } } },
+      });
+      const citySlug = program?.place?.city.slug ?? program?.city?.slug;
+      return program && citySlug && program.slug
+        ? {
+            name: program.name,
+            adminHref: `/admin/activities/${id}`,
+            siteHref: site(citySlug, `/activities/${program.slug}`),
+          }
+        : null;
+    }
+  } catch {
+    // база споткнулась — страница предложения всё равно откроется
+  }
+  return null;
+}
+
 /** Одно предложение: всё, что прислали, + статус и заметки Вероники. */
 export default async function AdminSuggestionPage({
   params,
@@ -103,7 +173,11 @@ export default async function AdminSuggestionPage({
     notFound();
   }
 
-  const card = await linkedCard(item);
+  // дополнение к существующей карточке — своя ветка «Что дальше»
+  const isAddition = Boolean(item.targetId);
+  const addTo = await targetCard(item);
+  const photosAdded = isAddition && Boolean(item.resultId);
+  const card = isAddition ? null : await linkedCard(item);
   const target = CARD_TARGET[item.kind];
   const cardState = {
     live: "на сайте",
@@ -141,42 +215,63 @@ export default async function AdminSuggestionPage({
           ? ` · тип поменяли (открыли как «${SUBMISSION_KIND_LABEL[item.presetKind]}»)`
           : ""}
       </p>
-
-      <dl className="admin-details">
-        <dt>Где</dt>
-        <dd>
-          <span className="admin-prewrap">{item.location}</span>
-          <br />
-          {mapsHref ? (
-            <a href={mapsHref} target="_blank" rel="noopener noreferrer">
-              Открыть в Google Картах ↗
-            </a>
-          ) : otherHref ? (
-            <a href={otherHref} target="_blank" rel="noopener noreferrer">
-              Открыть ссылку: {new URL(otherHref).hostname} ↗
-            </a>
-          ) : (
-            <a
-              href={mapsSearchHref(item.location)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Найти в Google Картах ↗
-            </a>
-          )}
-          {item.latitude != null && item.longitude != null ? (
+      {isAddition ? (
+        <p>
+          <strong>Дополнение к карточке</strong>
+          {addTo ? (
             <>
+              {": "}
+              <Link href={addTo.adminHref}>{addTo.name}</Link>
               {" · "}
-              <a
-                href={`https://www.google.com/maps?q=${item.latitude},${item.longitude}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                точка {item.latitude.toFixed(6)}, {item.longitude.toFixed(6)} ↗
+              <a href={addTo.siteHref} target="_blank" rel="noopener noreferrer">
+                на сайте ↗
               </a>
             </>
-          ) : null}
-        </dd>
+          ) : (
+            " — самой карточки уже нет (удалена)."
+          )}
+        </p>
+      ) : null}
+
+      <dl className="admin-details">
+        {isAddition ? null : (
+          <>
+            <dt>Где</dt>
+            <dd>
+              <span className="admin-prewrap">{item.location}</span>
+              <br />
+              {mapsHref ? (
+                <a href={mapsHref} target="_blank" rel="noopener noreferrer">
+                  Открыть в Google Картах ↗
+                </a>
+              ) : otherHref ? (
+                <a href={otherHref} target="_blank" rel="noopener noreferrer">
+                  Открыть ссылку: {new URL(otherHref).hostname} ↗
+                </a>
+              ) : (
+                <a
+                  href={mapsSearchHref(item.location)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Найти в Google Картах ↗
+                </a>
+              )}
+              {item.latitude != null && item.longitude != null ? (
+                <>
+                  {" · "}
+                  <a
+                    href={`https://www.google.com/maps?q=${item.latitude},${item.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    точка {item.latitude.toFixed(6)}, {item.longitude.toFixed(6)} ↗
+                  </a>
+                </>
+              ) : null}
+            </dd>
+          </>
+        )}
 
         {item.whenText ? (
           <>
@@ -187,7 +282,9 @@ export default async function AdminSuggestionPage({
 
         {item.tip ? (
           <>
-            <dt>Чем хорошо / подсказка</dt>
+            <dt>
+              {isAddition ? "Что добавить или поправить" : "Чем хорошо / подсказка"}
+            </dt>
             <dd className="admin-prewrap">{item.tip}</dd>
           </>
         ) : null}
@@ -240,7 +337,7 @@ export default async function AdminSuggestionPage({
             {item.photoRightsOk
               ? "Автор подтвердил: фото его или он вправе ими делиться."
               : "Подтверждения прав на фото нет."}{" "}
-            {card
+            {card || photosAdded
               ? "Фото уже перенесены в карточку копиями: удаление здесь не убирает их с сайта — удалите и в карточке."
               : "Фото видно только здесь, пока вы не перенесёте их в карточку. Чужие дети в кадре — лучше удалить."}
           </p>
@@ -265,7 +362,55 @@ export default async function AdminSuggestionPage({
       ) : null}
 
       <h2>Что дальше</h2>
-      {card ? (
+      {isAddition ? (
+        <div className="admin-next">
+          {addTo ? (
+            <>
+              <ol className="admin-steps">
+                <li>
+                  Проверить присланное и внести подходящее в карточку: совет — в «Полезно
+                  знать», цену и часы — в свои поля.
+                </li>
+                {item.photoUrls.length > 0 ? (
+                  <li>
+                    {item.targetKind === "PLACE"
+                      ? photosAdded
+                        ? "Фото уже в галерее карточки."
+                        : "Лишние фото удалить выше, остальные добавить в галерею кнопкой ниже — обложка карточки не изменится."
+                      : `У ${
+                          TARGET_NOUN[item.targetKind as keyof typeof TARGET_NOUN] ??
+                          "карточки"
+                        } одна картинка: подходящее фото сохраните и загрузите в форме карточки.`}
+                  </li>
+                ) : null}
+                <li>
+                  Отметить ниже статус «Опубликовано» — дополнение уйдёт из очереди.
+                </li>
+              </ol>
+              <p>
+                <Link className="admin-button" href={addTo.adminHref}>
+                  Открыть карточку
+                </Link>
+              </p>
+              {item.targetKind === "PLACE" &&
+              item.photoUrls.length > 0 &&
+              !photosAdded ? (
+                <form action={addSubmissionPhotosAction}>
+                  <input type="hidden" name="id" value={item.id} />
+                  <SubmitButton className="admin-link-button" pendingLabel="Переношу…">
+                    Добавить фото ({item.photoUrls.length}) в галерею места
+                  </SubmitButton>
+                </form>
+              ) : null}
+            </>
+          ) : (
+            <p className="admin-muted">
+              Карточки, к которой это относилось, уже нет. Отметьте ниже «Отклонено» —
+              дополнение уйдёт из очереди.
+            </p>
+          )}
+        </div>
+      ) : card ? (
         <div className="admin-next">
           <p>
             Карточка создана: <Link href={card.adminHref}>{card.name}</Link> —{" "}

@@ -6,7 +6,9 @@ import { getDictionary, isSupportedLang } from "@/content/dictionary";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { localizedCityName } from "@/lib/i18n/localize";
 import { getSingleSearchParam } from "@/lib/params/search-params";
+import { aboutCardPath, parseAbout } from "@/lib/suggest/about";
 import { KIND_LIST_PATH, parseSuggestKind } from "@/lib/suggest/submission";
+import { getSuggestTarget } from "@/services/suggest-target.service";
 
 type PageProps = {
   params: Promise<{ lang: string; city: string }>;
@@ -19,11 +21,15 @@ type PageProps = {
 export const maxDuration = 60;
 
 // служебная страница — из поиска прячем (и в sitemap её нет)
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: PageProps): Promise<Metadata> {
   const { lang } = await params;
   const dict = getDictionary(isSupportedLang(lang) ? lang : "ru");
+  const about = parseAbout(getSingleSearchParam(((await searchParams) ?? {}).about));
   return {
-    title: dict.suggest.metaTitle,
+    title: about ? dict.suggest.about.metaTitle : dict.suggest.metaTitle,
     robots: { index: false, follow: false },
   };
 }
@@ -42,6 +48,33 @@ export default async function SuggestPage({
   const resolved = (await searchParams) ?? {};
   // тип — лишь предвыбор: в форме его видно и можно поменять
   const presetKind = parseSuggestKind(getSingleSearchParam(resolved.type)) ?? "place";
+
+  // «Дополнить карточку»: пришли со страницы места, события или занятия.
+  // Карточки нет (сняли с сайта, адрес с ошибкой) — обычная форма
+  const aboutRef = parseAbout(getSingleSearchParam(resolved.about));
+  const target = aboutRef ? await getSuggestTarget(aboutRef, city.id, lang) : null;
+  if (aboutRef && target) {
+    return (
+      <main className="page-shell suggest-page">
+        <Link href={`${basePath}${aboutCardPath(aboutRef)}`} className="back-link">
+          {dict.suggest.back}
+        </Link>
+
+        <section className="hero">
+          <p className="eyebrow">{localizedCityName(city, lang)}</p>
+          <h1 className="hero-title">{dict.suggest.about.heroTitle}</h1>
+          <p className="hero-description">{dict.suggest.about.heroDescription}</p>
+        </section>
+
+        <SuggestFormLoader
+          city={city.slug}
+          presetKind={target.kind}
+          about={{ ...aboutRef, name: target.name }}
+          owner={getSingleSearchParam(resolved.owner) === "1"}
+        />
+      </main>
+    );
+  }
 
   return (
     <main className="page-shell suggest-page">
