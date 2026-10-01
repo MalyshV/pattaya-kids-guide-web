@@ -8,14 +8,20 @@
  *
  * Здесь только чистые функции над массивом — без localStorage и без Date.now()
  * (время передаётся снаружи ради тестируемости). Записи идентифицируются
- * тройкой (kind, entity, slug).
+ * четвёркой (kind, city, entity, slug): slug уникален только внутри города,
+ * а закладки — общие для всех городов (семья ездит по стране).
  */
+
+import { DEFAULT_CITY_SLUG } from "@/lib/geo/base-path";
 
 export type MemoryKind = "saved" | "visited";
 export type MemoryEntity = "place" | "activity" | "event";
 
 export type MemoryItem = {
   entity: MemoryEntity;
+  /// slug города: ссылка из «Избранного» ведёт в ЕГО город. Записи до
+  /// мультигорода города не знали — при чтении им достаётся город по умолчанию
+  city: string;
   slug: string;
   kind: MemoryKind;
   /// снимок для страницы «Избранное» (данные могли устареть — ссылка ведёт
@@ -30,13 +36,18 @@ export type MemoryItem = {
 /// 300 закладок на семью — заведомо с запасом
 export const MAX_ITEMS = 300;
 
-/** Ключ записи — тройка (kind, entity, slug); slug уникален внутри entity. */
-export function itemKey(entity: MemoryEntity, slug: string, kind: MemoryKind): string {
-  return `${kind}:${entity}:${slug}`;
+/** Ключ записи — (kind, city, entity, slug); slug уникален внутри города и entity. */
+export function itemKey(
+  entity: MemoryEntity,
+  slug: string,
+  kind: MemoryKind,
+  city: string,
+): string {
+  return `${kind}:${city}:${entity}:${slug}`;
 }
 
 function keyOf(item: MemoryItem): string {
-  return itemKey(item.entity, item.slug, item.kind);
+  return itemKey(item.entity, item.slug, item.kind, item.city);
 }
 
 export function hasItem(
@@ -44,13 +55,14 @@ export function hasItem(
   entity: MemoryEntity,
   slug: string,
   kind: MemoryKind,
+  city: string,
 ): boolean {
-  const key = itemKey(entity, slug, kind);
+  const key = itemKey(entity, slug, kind, city);
   return items.some((item) => keyOf(item) === key);
 }
 
 /**
- * Переключить закладку: если такой (kind, entity, slug) уже есть — убрать,
+ * Переключить закладку: если такая (kind, city, entity, slug) уже есть — убрать,
  * иначе добавить в начало (свежее сверху) с обрезкой до MAX_ITEMS.
  * Обновление снимка (name/imageUrl) для существующей записи не делаем —
  * toggle либо ставит, либо снимает; повторное сохранение освежит снимок.
@@ -69,8 +81,9 @@ export function removeItem(
   entity: MemoryEntity,
   slug: string,
   kind: MemoryKind,
+  city: string,
 ): MemoryItem[] {
-  const key = itemKey(entity, slug, kind);
+  const key = itemKey(entity, slug, kind, city);
   return items.filter((item) => keyOf(item) !== key);
 }
 
@@ -108,8 +121,15 @@ function parseItem(raw: unknown): MemoryItem | null {
     typeof value.imageUrl === "string" && value.imageUrl.length > 0
       ? value.imageUrl
       : null;
+  // записи до мультигорода — без city: все они были поставлены в городе по
+  // умолчанию, так что отметки родителей не теряются
+  const city =
+    typeof value.city === "string" && value.city.length > 0
+      ? value.city
+      : DEFAULT_CITY_SLUG;
   return {
     entity: value.entity,
+    city,
     kind: value.kind,
     slug: value.slug,
     name: value.name,

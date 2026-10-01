@@ -9,6 +9,7 @@ import {
 function memoryItem(overrides: Partial<MemoryItem>): MemoryItem {
   return {
     entity: "place",
+    city: "pattaya",
     slug: "gaya",
     kind: "visited",
     name: "Gaya",
@@ -34,12 +35,24 @@ describe("parseVisitedParam", () => {
 
 describe("visitedPlaceSlugs", () => {
   it("берёт только ✓-отметки мест: сохранённые и другие сущности не в счёт", () => {
-    const slugs = visitedPlaceSlugs([
-      memoryItem({ slug: "gaya" }),
-      memoryItem({ slug: "skippy", kind: "saved" }),
-      memoryItem({ slug: "pilates", entity: "event" }),
-    ]);
+    const slugs = visitedPlaceSlugs(
+      [
+        memoryItem({ slug: "gaya" }),
+        memoryItem({ slug: "skippy", kind: "saved" }),
+        memoryItem({ slug: "pilates", entity: "event" }),
+      ],
+      "pattaya",
+    );
     expect(slugs).toEqual(new Set(["gaya"]));
+  });
+
+  it("только отметки текущего города: такой же slug в другом городе не в счёт", () => {
+    const items = [
+      memoryItem({ slug: "play-barn", city: "pattaya" }),
+      memoryItem({ slug: "kids-club", city: "phuket" }),
+    ];
+    expect(visitedPlaceSlugs(items, "pattaya")).toEqual(new Set(["play-barn"]));
+    expect(visitedPlaceSlugs(items, "phuket")).toEqual(new Set(["kids-club"]));
   });
 });
 

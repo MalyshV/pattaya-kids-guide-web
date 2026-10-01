@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SavedList } from "@/components/memory/saved-list";
 import { getDictionary, isSupportedLang } from "@/content/dictionary";
+import { getCityNames } from "@/lib/geo/city";
 import { getSingleSearchParam } from "@/lib/params/search-params";
 
 type PageProps = {
@@ -21,8 +22,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function SavedPage({
+  params,
   searchParams,
 }: PageProps): Promise<React.ReactElement> {
+  const { lang } = await params;
+  const cityNames = await getCityNames(lang);
   // возраст — сквозной контекст: страница его не применяет, но обязана донести
   // обратно в каталог через «← К местам», чтобы выбор родителя не слетал
   const resolved = (await searchParams) ?? {};
@@ -30,7 +34,7 @@ export default async function SavedPage({
   // ориентир <main> для скринридера (раньше текст прилипал к краю экрана)
   return (
     <main className="page-shell">
-      <SavedList age={getSingleSearchParam(resolved.age) ?? null} />
+      <SavedList age={getSingleSearchParam(resolved.age) ?? null} cityNames={cityNames} />
     </main>
   );
 }
