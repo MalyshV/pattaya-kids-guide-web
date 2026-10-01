@@ -1,3 +1,4 @@
+import { ContributeLines } from "@/components/suggest/contribute-lines";
 import Link from "next/link";
 import { ExternalArrow } from "@/components/common/external-arrow";
 import { notFound } from "next/navigation";
@@ -322,6 +323,12 @@ export default async function ActivityDetailsPage({
           )}
         </section>
       ) : null}
+
+      <ContributeLines
+        basePath={basePath}
+        about={{ kind: "activity", slug }}
+        dict={dict}
+      />
     </main>
   );
 }

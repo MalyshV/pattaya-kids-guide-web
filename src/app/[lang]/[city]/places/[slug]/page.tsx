@@ -1,3 +1,4 @@
+import { ContributeLines } from "@/components/suggest/contribute-lines";
 import Link from "next/link";
 import { ExternalArrow } from "@/components/common/external-arrow";
 import { notFound } from "next/navigation";
@@ -688,6 +689,8 @@ export default async function PlaceDetailsPage({
           </div>
         </section>
       )}
+
+      <ContributeLines basePath={basePath} about={{ kind: "place", slug }} dict={dict} />
     </main>
   );
 }

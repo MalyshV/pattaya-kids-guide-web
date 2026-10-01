@@ -107,6 +107,51 @@ describe("фото — только с галочкой «вправе дели�
   });
 });
 
+describe("дополнение к существующей карточке", () => {
+  const CARD = { kind: "event", name: "Kids Fair" } as const;
+
+  it("тип и название — от карточки, «где» не нужно", () => {
+    const result = validateSuggestion(
+      { kind: "place", name: "чужое", tip: "Вход подорожал до 300 бат" },
+      0,
+      CARD,
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.kind).toBe("event");
+      expect(result.value.name).toBe("Kids Fair");
+      expect(result.value.location).toBe("");
+      expect(result.value.tip).toBe("Вход подорожал до 300 бат");
+      expect(result.value.presetKind).toBeNull();
+    }
+  });
+
+  it("ни текста, ни фото — ошибка у текста", () => {
+    expect(validateSuggestion({}, 0, CARD)).toEqual({
+      ok: false,
+      errors: { tip: "required" },
+    });
+  });
+
+  it("одних фото достаточно — но галочка прав нужна и тут", () => {
+    expect(validateSuggestion({ photoRightsOk: "on" }, 2, CARD).ok).toBe(true);
+    expect(validateSuggestion({}, 2, CARD)).toEqual({
+      ok: false,
+      errors: { photoRights: "required" },
+    });
+  });
+
+  it("владелец и контакт сохраняются", () => {
+    const result = validateSuggestion(
+      { tip: "Новые часы работы", isOwner: "on", contact: "LINE @fair" },
+      0,
+      CARD,
+    );
+    expect(result.ok && result.value.isOwner).toBe(true);
+    expect(result.ok && result.value.contact).toBe("LINE @fair");
+  });
+});
+
 describe("looksLikeBot / parseSuggestKind", () => {
   it("ловушка заполнена — бот; быстрый человек с черновиком — не бот", () => {
     expect(looksLikeBot({ [HONEYPOT_FIELD]: "http://spam" })).toBe(true);

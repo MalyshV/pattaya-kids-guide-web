@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import type { SuggestKind } from "@/lib/suggest/submission";
+import type { SuggestFormProps } from "@/components/suggest/suggest-form";
 
 /**
  * Форма — только в браузере: черновик из localStorage читается сразу при
@@ -19,9 +19,6 @@ const SuggestForm = dynamic(
   },
 );
 
-export function SuggestFormLoader(props: {
-  city: string;
-  presetKind: SuggestKind;
-}): React.ReactElement {
+export function SuggestFormLoader(props: SuggestFormProps): React.ReactElement {
   return <SuggestForm {...props} />;
 }

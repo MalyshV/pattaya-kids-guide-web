@@ -7,6 +7,7 @@ import { TELEGRAM_WEB } from "@/lib/contacts/contact-link";
 import { getDictionary, isSupportedLang } from "@/content/dictionary";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { getSingleSearchParam } from "@/lib/params/search-params";
+import { aboutCardPath, parseAbout, suggestDraftKey } from "@/lib/suggest/about";
 import { KIND_LIST_PATH, parseSuggestKind } from "@/lib/suggest/submission";
 
 type PageProps = {
@@ -39,19 +40,23 @@ export default async function SuggestThanksPage({
   const dict = getDictionary(lang);
   const t = dict.suggest.thanks;
   const basePath = cityBasePath(lang, citySlug);
-  const kind =
-    parseSuggestKind(getSingleSearchParam(((await searchParams) ?? {}).type)) ?? "place";
+  const resolved = (await searchParams) ?? {};
+  const kind = parseSuggestKind(getSingleSearchParam(resolved.type)) ?? "place";
+  // дополнение к карточке: свои слова и дорога обратно — на саму карточку
+  const about = parseAbout(getSingleSearchParam(resolved.about));
 
   return (
     <main className="page-shell">
-      <ClearSuggestDraft />
+      <ClearSuggestDraft draftKey={suggestDraftKey(about)} />
       {/* role=status: после отправки скринридер сразу озвучит «Спасибо» */}
       <section className="empty-state suggest-thanks" role="status">
         <p className="suggest-thanks-mark" aria-hidden="true">
           ✓
         </p>
-        <h1 className="suggest-thanks-title">{t.title}</h1>
-        <p>{t.text}</p>
+        <h1 className="suggest-thanks-title">
+          {about ? dict.suggest.about.thanksTitle : t.title}
+        </h1>
+        <p>{about ? dict.suggest.about.thanksText : t.text}</p>
         <p className="suggest-thanks-telegram">
           {t.telegramText}{" "}
           <a href={TELEGRAM_CHANNEL_URL} target="_blank" rel="noopener noreferrer">
@@ -59,17 +64,25 @@ export default async function SuggestThanksPage({
             <span className="sr-only"> {dict.common.opensInNewTab}</span>
           </a>
         </p>
-        <div className="suggest-thanks-actions">
-          <Link href={`${basePath}/suggest?type=${kind}`} className="empty-state-cta">
-            {t.again}
-          </Link>
-          <Link
-            href={`${basePath}${KIND_LIST_PATH[kind]}`}
-            className="suggest-thanks-back"
-          >
-            {t.back}
-          </Link>
-        </div>
+        {about ? (
+          <div className="suggest-thanks-actions">
+            <Link href={`${basePath}${aboutCardPath(about)}`} className="empty-state-cta">
+              {dict.suggest.about.thanksBack}
+            </Link>
+          </div>
+        ) : (
+          <div className="suggest-thanks-actions">
+            <Link href={`${basePath}/suggest?type=${kind}`} className="empty-state-cta">
+              {t.again}
+            </Link>
+            <Link
+              href={`${basePath}${KIND_LIST_PATH[kind]}`}
+              className="suggest-thanks-back"
+            >
+              {t.back}
+            </Link>
+          </div>
+        )}
       </section>
     </main>
   );

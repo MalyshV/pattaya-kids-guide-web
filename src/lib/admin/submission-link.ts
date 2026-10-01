@@ -110,6 +110,93 @@ export async function attachSubmissionToPlace(args: {
   return { photosCopied: copied.length, photosFailed, alreadyLinked: false };
 }
 
+export type AddPhotosResult =
+  | { state: "added"; photosCopied: number; photosFailed: number }
+  /** не дополнение к месту, фото нет или места уже нет */
+  | { state: "nothing" }
+  /** фото из этого дополнения уже переносили */
+  | { state: "already" };
+
+/**
+ * Дополнение к существующему месту («Были здесь?», «Это ваше место?»):
+ * перенести присланные фото в галерею места — копиями, в конец, с пометкой
+ * прав. Обложку не трогаем: у карточки она уже выбрана. Связь resultId
+ * ставим как у «предложение → карточка»: по ней видно, что фото уже
+ * перенесены, и второй раз они не скопируются.
+ */
+export async function addSubmissionPhotosToPlace(
+  submissionId: string,
+): Promise<AddPhotosResult> {
+  const submission = await prisma.submission.findUnique({
+    where: { id: submissionId },
+    select: {
+      photoUrls: true,
+      isOwner: true,
+      photoRightsOk: true,
+      resultId: true,
+      targetKind: true,
+      targetId: true,
+    },
+  });
+  if (
+    !submission ||
+    submission.targetKind !== "PLACE" ||
+    !submission.targetId ||
+    submission.photoUrls.length === 0
+  ) {
+    return { state: "nothing" };
+  }
+  if (submission.resultId) {
+    return { state: "already" };
+  }
+  const placeId = submission.targetId;
+  const place = await prisma.place.findUnique({
+    where: { id: placeId },
+    select: {
+      status: true,
+      photos: { orderBy: { order: "desc" }, take: 1, select: { order: true } },
+    },
+  });
+  if (!place) {
+    return { state: "nothing" };
+  }
+
+  const copied: string[] = [];
+  let photosFailed = 0;
+  for (const url of submission.photoUrls) {
+    try {
+      copied.push(await copyStoredImage(url, PLACE_PHOTO_FOLDER));
+    } catch (error) {
+      photosFailed += 1;
+      console.error("admin: фото дополнения не скопировалось", url, error);
+    }
+  }
+  if (copied.length === 0) {
+    return { state: "added", photosCopied: 0, photosFailed };
+  }
+
+  const lastOrder = place.photos[0]?.order ?? 0;
+  await prisma.placePhoto.createMany({
+    data: copied.map((url, index) => ({
+      placeId,
+      url,
+      order: lastOrder + index + 1,
+      source: submission.isOwner ? "PLACE_OWNER" : "CONTRIBUTOR",
+      rightsNote: rightsNote(submissionId, submission.photoRightsOk),
+    })),
+  });
+  await prisma.submission.update({
+    where: { id: submissionId },
+    data: {
+      resultType: "PLACE",
+      resultId: placeId,
+      status: submissionStatusFor(place.status),
+      reviewedAt: new Date(),
+    },
+  });
+  return { state: "added", photosCopied: copied.length, photosFailed };
+}
+
 /**
  * Карточку правили: предложения, сделанные из неё, идут за её видимостью.
  * Вручную помеченные «дубль» и «отклонено» не трогаем — это решение Вероники,

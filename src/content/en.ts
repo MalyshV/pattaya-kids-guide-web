@@ -624,6 +624,34 @@ export const en: Dictionary = {
       pendingAdmin: "looks like an already submitted suggestion",
       kinds: { place: "place", event: "event", activity: "activity" },
     },
+    about: {
+      metaTitle: "Add to this page",
+      heroTitle: "Add to this page",
+      heroDescription:
+        "Something changed, or you have a useful detail or good photos? Tell us — we'll check and update the page.",
+      tipLabel: "What should we add or fix?",
+      tipHint:
+        "For example: the price changed, socks are required, weekdays are cheaper, the café has great pancakes. In your own words, short is fine.",
+      empty: "Write a few words or add a photo.",
+      ownerFree: "It's free for owners and organisers.",
+      thanksTitle: "Thank you! We've got your note",
+      thanksText:
+        "We'll check it and update the page. Sometimes this takes a few days — we confirm the details.",
+      thanksBack: "Back to the page",
+      linesLabel: "Add to this page",
+      parentAction: "Share a photo or a tip for other parents",
+      ownerAction: "Send photos or fix the description — it's free",
+      parentQuestion: {
+        place: "Been here?",
+        event: "Know more details?",
+        activity: "Been to this class?",
+      },
+      ownerQuestion: {
+        place: "Is this your place?",
+        event: "Are you organising this event?",
+        activity: "Do you run this class?",
+      },
+    },
     thanks: {
       metaTitle: "Thank you!",
       title: "Thank you! We've got your suggestion",

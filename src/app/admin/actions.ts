@@ -15,6 +15,7 @@ import {
 } from "@/lib/admin/auth";
 import { UploadError, removeStoredImage, uploadImage } from "@/lib/admin/upload";
 import {
+  addSubmissionPhotosToPlace,
   attachSubmissionToPlace,
   syncSubmissionsForPlace,
   unlinkSubmissionsForPlace,
@@ -744,6 +745,35 @@ export async function setSubmissionStatusAction(formData: FormData): Promise<voi
   // счётчик «Предложения (N)» в шапке админки — пересчитать
   revalidatePath("/admin", "layout");
   redirect(`/admin/suggestions/${id}?done=status`);
+}
+
+/** Дополнение к месту: присланные фото — в галерею карточки (копиями). */
+export async function addSubmissionPhotosAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = text(formData, "id");
+  if (!id) {
+    redirect("/admin/suggestions");
+  }
+  const result = await addSubmissionPhotosToPlace(id).catch((error: unknown) => {
+    console.error("admin: фото дополнения не перенеслись", error);
+    return null;
+  });
+  if (!result || result.state === "nothing") {
+    redirect(`/admin/suggestions/${id}?error=additionPhotos`);
+  }
+  if (result.state === "already") {
+    redirect(`/admin/suggestions/${id}?error=additionPhotosAlready`);
+  }
+  if (result.photosCopied > 0) {
+    // фото теперь на странице места
+    revalidateSite();
+    revalidatePath("/admin", "layout");
+  }
+  redirect(
+    `/admin/suggestions/${id}?${
+      result.photosFailed > 0 ? "error=additionPhotos" : "done=additionPhotos"
+    }`,
+  );
 }
 
 export async function saveSubmissionNotesAction(formData: FormData): Promise<void> {
