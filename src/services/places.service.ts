@@ -58,7 +58,7 @@ type PlaceDetailsResult = Prisma.PlaceGetPayload<{
     };
     tips: true;
     contacts: true;
-    programs: true;
+    programs: { include: { tips: true } };
   };
 }>;
 
@@ -218,6 +218,8 @@ export const getApprovedPlaceBySlug = cache(
             orderBy: {
               order: "asc",
             },
+            // советы занятий показываем и на странице места
+            include: { tips: { orderBy: { order: "asc" } } },
           },
         },
       });

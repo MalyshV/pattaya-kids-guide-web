@@ -90,6 +90,8 @@ export type PlaceProgramDto = {
   priceUnit: string | null;
   startDate: Date | null;
   endDate: Date | null;
+  /** «Полезно знать» самого занятия — на странице места показываем с его названием */
+  tips: TipDto[];
 };
 
 export type PlaceDetailsDto = PlaceDto & {

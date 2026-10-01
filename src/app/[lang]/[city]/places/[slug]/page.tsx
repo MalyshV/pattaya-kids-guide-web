@@ -1,3 +1,4 @@
+import { mapTipsToDto } from "@/mappers/tip.mapper";
 import { TipsSection } from "@/components/common/tips-section";
 import { Suspense } from "react";
 import { AdditionThanks } from "@/components/suggest/addition-thanks";
@@ -198,7 +199,29 @@ export default async function PlaceDetailsPage({
 
   const events = await getUpcomingApprovedEventsByPlaceId(place.id);
   const eventDtos = events.map((event) => mapEventToDto(event, lang));
+
   const dto: PlaceDetailsDto = mapPlaceDetailsToDto(place, lang);
+
+  // «Полезно знать»: сначала советы самого места, затем — его ближайших
+  // событий и занятий, с названием-ссылкой (прошедшие события не берём)
+  const tips = [
+    ...dto.tips,
+    ...events.flatMap((event, index) =>
+      mapTipsToDto(event.tips, lang, {
+        label: eventDtos[index].title,
+        href: `${basePath}/events/${event.slug}`,
+      }),
+    ),
+    ...dto.programs.flatMap((program) =>
+      program.tips.map((tip) => ({
+        ...tip,
+        source: {
+          label: program.name,
+          href: program.slug ? `${basePath}/activities/${program.slug}` : null,
+        },
+      })),
+    ),
+  ];
   const openStatus = computeOpenStatus(dto.schedules, city.timezone);
   const todayEnum = nowInCity(city.timezone).day;
   // вечером после закрытия чип «сегодня до 19:00» противоречил бы бейджу
@@ -431,7 +454,7 @@ export default async function PlaceDetailsPage({
         </section>
       )}
 
-      <TipsSection tips={dto.tips} dict={dict} lang={lang} />
+      <TipsSection tips={tips} dict={dict} lang={lang} />
 
       {activityPrograms.length > 0 && (
         <section className="details-section">

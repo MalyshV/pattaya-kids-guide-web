@@ -37,7 +37,7 @@ type PlaceWithDetails = Prisma.PlaceGetPayload<{
     };
     tips: true;
     contacts: true;
-    programs: true;
+    programs: { include: { tips: true } };
   };
 }>;
 
@@ -166,6 +166,7 @@ export function mapPlaceDetailsToDto(
         lang,
       ),
       // с кэш-хита (data-cache) даты приходят строками — возвращаем им Date
+      tips: mapTipsToDto(program.tips, lang),
       startDate: program.startDate ? new Date(program.startDate) : null,
       endDate: program.endDate ? new Date(program.endDate) : null,
     })),

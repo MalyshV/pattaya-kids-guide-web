@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { TipDto } from "@/dto/tip.dto";
 import { dateLocale, type Dictionary } from "@/content/dictionary";
 
@@ -11,6 +12,10 @@ type TipsSectionProps = {
  * «Полезно знать» — практические советы (носки, залог, «в будни дешевле») с
  * подписью «проверено: месяц год». Один блок для места, события и занятия;
  * без советов не рисуется.
+ *
+ * На странице места сюда же попадают советы его событий и занятий — с
+ * названием-ссылкой впереди («Kids Pilates: …»): родитель ищет совет там, где
+ * оказался, а не вспоминает, к чему он относился (решение Вероники 01.10).
  */
 export function TipsSection({
   tips,
@@ -26,6 +31,18 @@ export function TipsSection({
       <div className="tips-list">
         {tips.map((tip) => (
           <p key={tip.id} className="tip-item">
+            {tip.source ? (
+              <>
+                {tip.source.href ? (
+                  <Link href={tip.source.href} className="tip-source">
+                    {tip.source.label}
+                  </Link>
+                ) : (
+                  <span className="tip-source">{tip.source.label}</span>
+                )}
+                {": "}
+              </>
+            ) : null}
             {tip.text}
             {tip.verifiedAt ? (
               <span className="tip-verified">
