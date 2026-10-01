@@ -1289,10 +1289,14 @@ a.admin-button {
   /* тёплая темнота, мягче лайтбокса — тут не фото */
   background: rgba(43, 36, 27, 0.55);
   animation: lightbox-fade 0.2s ease-out;
+  /* клик по затемнению закрывает — курсор это показывает; заодно iOS Safari
+     без него не считает затемнение кликабельным */
+  cursor: pointer;
 }
 
 .action-banner {
   position: relative;
+  cursor: auto;
   width: min(400px, 100%);
   padding: 32px 28px 28px;
   border-radius: 22px;

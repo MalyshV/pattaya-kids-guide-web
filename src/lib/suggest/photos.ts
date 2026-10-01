@@ -35,6 +35,18 @@ export const SHRINK_STEPS: ReadonlyArray<{ dimension: number; quality: number }>
   { dimension: 1024, quality: 0.65 },
 ];
 
+/**
+ * Похоже на HEIC/HEIF — формат айфонных снимков, который Chrome и Firefox не
+ * открывают. Такой файл браузер сам переводит в JPEG (lib/suggest/shrink-photo).
+ * Тип у HEIC на Windows и в Chrome часто пустой — поэтому смотрим и на имя.
+ */
+export function looksLikeHeic(file: { name: string; type: string }): boolean {
+  return (
+    /^image\/hei[cf](-sequence)?$/i.test(file.type) ||
+    /\.hei[cf]$/i.test(file.name.trim())
+  );
+}
+
 /** Размер после сжатия: длинная сторона — не больше limit, картинку не увеличиваем. */
 export function fitWithin(
   width: number,

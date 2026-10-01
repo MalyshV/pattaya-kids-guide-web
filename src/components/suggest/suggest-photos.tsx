@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ActionBanner } from "@/components/common/action-banner";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
 import { SUGGEST_PHOTOS } from "@/lib/suggest/photos";
 import { shrinkPhoto } from "@/lib/suggest/shrink-photo";
@@ -9,6 +10,11 @@ import { shrinkPhoto } from "@/lib/suggest/shrink-photo";
  * Фото в форме «Предложить своё»: выбрать, посмотреть превью, убрать лишнее.
  * Каждое фото сразу сжимается в браузере (lib/suggest/shrink-photo) — в форму
  * уходят уже лёгкие JPEG, и отправка не упирается в лимит запроса Vercel.
+ *
+ * Фото не открылось или выбрали больше, чем можно, — об этом говорит попап
+ * (решение Вероники 01.10: тихую строку под кнопкой легко не заметить и
+ * искать глазами, куда делось фото); строка под кнопкой остаётся как память
+ * после закрытия.
  *
  * Галочка «вправе делиться» появляется вместе с первым фото и не стоит заранее
  * (решение Вероники 22.09); рядом — подсказка «лучше без чужих детей в кадре».
@@ -152,6 +158,15 @@ export function SuggestPhotos({
   const dict = useDictionary();
   const t = dict.suggest.photos;
   const { items, notice } = photos;
+  const hasNotice = notice.tooMany || notice.unreadable.length > 0;
+  // попап закрыли — для этого сообщения больше не показываем; новое откроет снова
+  const [closedNotice, setClosedNotice] = useState<PhotoNotice | null>(null);
+  const noticeText = [
+    notice.unreadable.length > 0 ? t.unreadable(notice.unreadable) : null,
+    notice.tooMany ? t.tooMany(SUGGEST_PHOTOS.maxCount) : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
   const hintId = `${idPrefix}-photos-hint`;
   const rightsErrorId = `${idPrefix}-photoRights-error`;
 
@@ -175,6 +190,12 @@ export function SuggestPhotos({
           : removeRefs.current.get(target.removeId);
     (element ?? labelRef.current)?.focus();
   });
+
+  function closeNotice(): void {
+    setClosedNotice(notice);
+    // фокус — туда, где человек продолжит: к «Добавить фото» (или к подписи)
+    focusNext.current = "add";
+  }
 
   function onPick(event: React.ChangeEvent<HTMLInputElement>): void {
     const files = Array.from(event.target.files ?? []);
@@ -255,7 +276,7 @@ export function SuggestPhotos({
           <input
             className="suggest-photo-input"
             type="file"
-            accept="image/*"
+            accept="image/*,.heic,.heif"
             multiple
             ref={addRef}
             aria-describedby={hintId}
@@ -263,6 +284,16 @@ export function SuggestPhotos({
           />
           <span>{items.length > 0 ? t.addMore : t.add}</span>
         </label>
+      ) : null}
+
+      {hasNotice && closedNotice !== notice ? (
+        <ActionBanner
+          variant="error"
+          title={notice.unreadable.length > 0 ? t.unreadableTitle : t.tooManyTitle}
+          message={noticeText}
+          closeLabel={dict.common.close}
+          onClose={closeNotice}
+        />
       ) : null}
 
       <div aria-live="polite">

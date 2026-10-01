@@ -1,17 +1,34 @@
-import { SHRINK_STEPS, SUGGEST_PHOTOS, fitWithin } from "@/lib/suggest/photos";
+import {
+  SHRINK_STEPS,
+  SUGGEST_PHOTOS,
+  fitWithin,
+  looksLikeHeic,
+} from "@/lib/suggest/photos";
 
 /**
  * Сжатие фото в браузере перед отправкой (зачем — см. lib/suggest/photos).
  *
  * Картинку открываем через <img>, а не createImageBitmap: так все браузеры
  * одинаково поворачивают снимок по EXIF (айфонное фото не ляжет на бок), и
- * Safari заодно откроет HEIC. Файл, который браузер открыть не может (HEIC в
- * Chrome, битый файл, не картинка), — ошибка: форма спокойно об этом скажет.
+ * Safari заодно откроет HEIC. В Chrome и Firefox HEIC не открывается — такой
+ * файл сначала переводим в JPEG сами (heic-to; библиотека тяжёлая, ~3 МБ,
+ * поэтому грузится только в этот момент). Файл, который открыть не удалось
+ * (битый, не картинка), — ошибка: форма спокойно об этом скажет.
  */
 
 export class PhotoReadError extends Error {}
 
-async function loadImage(file: File): Promise<HTMLImageElement> {
+/** HEIC → JPEG в браузере; качество высокое — сжимать будем потом, на холсте. */
+async function heicToJpeg(file: File): Promise<Blob> {
+  try {
+    const { heicTo } = await import("heic-to/next");
+    return await heicTo({ blob: file, type: "image/jpeg", quality: 0.92 });
+  } catch {
+    throw new PhotoReadError("cannot convert heic");
+  }
+}
+
+async function loadImage(file: Blob): Promise<HTMLImageElement> {
   const url = URL.createObjectURL(file);
   try {
     const image = new Image();
@@ -35,7 +52,12 @@ function toJpeg(canvas: HTMLCanvasElement, quality: number): Promise<Blob | null
 }
 
 export async function shrinkPhoto(file: File): Promise<Blob> {
-  const image = await loadImage(file);
+  const image = await loadImage(file).catch(async (error: unknown) => {
+    if (!looksLikeHeic(file)) {
+      throw error;
+    }
+    return loadImage(await heicToJpeg(file));
+  });
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
   if (!context) {
