@@ -646,7 +646,6 @@ export const en: Dictionary = {
       thanksTitle: "Thank you! We've got your note",
       thanksText:
         "We'll check it and update the page. Sometimes this takes a few days — we confirm the details.",
-      thanksBack: "Back to the page",
       linesLabel: "Add to this page",
       parentAction: "Share a photo or a tip for other parents",
       ownerAction: "Send photos or fix the description — it's free",

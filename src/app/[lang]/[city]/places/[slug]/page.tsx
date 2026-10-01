@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { AdditionThanks } from "@/components/suggest/addition-thanks";
 import { ContributeLines } from "@/components/suggest/contribute-lines";
 import Link from "next/link";
 import { ExternalArrow } from "@/components/common/external-arrow";
@@ -691,6 +693,10 @@ export default async function PlaceDetailsPage({
       )}
 
       <ContributeLines basePath={basePath} about={{ kind: "place", slug }} dict={dict} />
+      {/* «Спасибо» после дополнения — попапом поверх карточки */}
+      <Suspense fallback={null}>
+        <AdditionThanks about={{ kind: "place", slug }} />
+      </Suspense>
     </main>
   );
 }
