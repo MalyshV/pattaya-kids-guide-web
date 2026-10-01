@@ -6,6 +6,7 @@ import {
   isWeekendDay,
   landingSlot,
   MIN_SCENARIO_PLACES,
+  SCENARIO_MIN_PLACES,
   scenarioPriority,
   visibleScenarios,
   yearsToAgeBucket,
@@ -73,6 +74,17 @@ describe("eligibleScenarios", () => {
       shelter: MIN_SCENARIO_PLACES,
     });
     expect(pool).toEqual(["shelter", "age", "events"]);
+  });
+
+  it("«открыто с утра» остаётся и с одним местом — ранние места редки и ценны", () => {
+    expect(SCENARIO_MIN_PLACES.openMorning).toBe(1);
+    expect(eligibleScenarios(["openMorning", "age"], { openMorning: 1 })).toEqual([
+      "openMorning",
+      "age",
+    ]);
+    expect(eligibleScenarios(["openMorning", "age"], { openMorning: 0 })).toEqual([
+      "age",
+    ]);
   });
 
   it("без счётчиков пул не меняется", () => {

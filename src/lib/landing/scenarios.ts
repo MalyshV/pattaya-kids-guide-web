@@ -6,6 +6,7 @@
  *  - приоритет сценариев на слот (будни/выходные различаются);
  *  - порог честности: сценарий мест попадает в ротацию, только если под ним
  *    достаточно карточек (красивый ответ с пустой выдачей — худшее обещание);
+ *    у редких, но ценных сценариев порог свой — даже одно место уже ответ;
  *  - кольцевая тройка для кнопки «показать другие».
  *
  * Набор СТАБИЛЕН внутри слота (решение: предсказуемость при повторном заходе,
@@ -26,6 +27,12 @@ export type LandingSlot = "morning" | "day" | "evening" | "night";
 
 /** Порог честности: меньше карточек — сценарий выбывает из ротации. */
 export const MIN_SCENARIO_PLACES = 3;
+
+/** Свои пороги для редких, но ценных сценариев. Ранних мест в городе может
+ *  быть всего одно-два — именно поэтому их и надо показывать, а не прятать. */
+export const SCENARIO_MIN_PLACES: Partial<Record<ScenarioKey, number>> = {
+  openMorning: 1,
+};
 
 /** Порог разделов (события/ДР/развивашки): раздел честен и с одной записью,
  *  но пустым обещать нечего. */
@@ -140,7 +147,8 @@ export function scenarioPriority(slot: LandingSlot, isWeekend: boolean): Scenari
 }
 
 /**
- * Пул после порога честности. counts — сценарии мест (порог 3+ карточек),
+ * Пул после порога честности. counts — сценарии мест (порог 3+ карточек,
+ * у редких — свой из SCENARIO_MIN_PLACES),
  * sectionCounts — разделы: события/ДР/развивашки (порог 1+ — раздел честен
  * и с одной записью, но пустая афиша — то самое «красивое обещание без
  * выдачи»). Сценарий без записи в обоих словарях не режется (near —
@@ -154,7 +162,7 @@ export function eligibleScenarios(
   return priority.filter((key) => {
     const count = counts[key];
     if (count !== undefined) {
-      return count >= MIN_SCENARIO_PLACES;
+      return count >= (SCENARIO_MIN_PLACES[key] ?? MIN_SCENARIO_PLACES);
     }
     const sectionCount = sectionCounts[key];
     return sectionCount === undefined || sectionCount >= MIN_SECTION_ITEMS;
