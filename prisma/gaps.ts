@@ -100,7 +100,12 @@ function withCount(label: string, count: number): string {
  * Пробелы переводов программы вместе с её классами. Классы сворачиваем в
  * счётчики («классы: расписание ×8») — перечислять каждый было бы простынёй.
  */
-function programTranslationGaps(program: PlaceProgram & { classes: PlaceClass[] }): {
+function programTranslationGaps(
+  program: PlaceProgram & {
+    classes: PlaceClass[];
+    tips: Array<{ text: string; textEn: string | null; textTh: string | null }>;
+  },
+): {
   parts: string[];
   enCount: number;
   softTh: number;
@@ -138,7 +143,28 @@ function programTranslationGaps(program: PlaceProgram & { classes: PlaceClass[] 
   }
   enCount += ageGaps + scheduleGaps;
 
+  const tips = tipTranslationGaps(program.tips);
+  softTh += tips.softTh;
+  if (tips.missingEn > 0) {
+    parts.push(withCount("совет", tips.missingEn));
+    enCount += tips.missingEn;
+  }
+
   return { parts, enCount, softTh };
+}
+
+/** Советы «Полезно знать»: сколько без EN (жёстко) и без TH при готовом EN (мягко). */
+function tipTranslationGaps(
+  tips: ReadonlyArray<{ text: string; textEn: string | null; textTh: string | null }>,
+): { missingEn: number; softTh: number } {
+  let missingEn = 0;
+  let softTh = 0;
+  for (const tip of tips) {
+    const checked = checkTranslations([["совет", tip.text, tip.textEn, tip.textTh]]);
+    missingEn += checked.missingEn.length;
+    softTh += checked.softTh;
+  }
+  return { missingEn, softTh };
 }
 
 async function main(): Promise<void> {
@@ -151,7 +177,7 @@ async function main(): Promise<void> {
     include: {
       programs: {
         orderBy: { order: "asc" },
-        include: { classes: { orderBy: { order: "asc" } } },
+        include: { classes: { orderBy: { order: "asc" } }, tips: true },
       },
       birthdayInfo: true,
       photos: true,
@@ -383,6 +409,7 @@ async function main(): Promise<void> {
       locationName: true,
       locationNameEn: true,
       locationNameTh: true,
+      tips: { select: { text: true, textEn: true, textTh: true } },
     },
   });
   for (const event of eventsForTranslations) {
@@ -392,6 +419,12 @@ async function main(): Promise<void> {
       ["площадка", event.locationName, event.locationNameEn, event.locationNameTh],
     ]);
     softThGaps += eventChecked.softTh;
+    const eventTips = tipTranslationGaps(event.tips);
+    softThGaps += eventTips.softTh;
+    if (eventTips.missingEn > 0) {
+      eventChecked.missingEn.push(withCount("совет", eventTips.missingEn));
+      translationGaps += eventTips.missingEn - 1;
+    }
     if (eventChecked.missingEn.length > 0) {
       console.log(
         `▸ Событие ${event.title} — без EN: ${eventChecked.missingEn.join("; ")}`,
@@ -404,7 +437,7 @@ async function main(): Promise<void> {
   const standalonePrograms = await prisma.placeProgram.findMany({
     where: { placeId: null, isDemo: false },
     orderBy: { name: "asc" },
-    include: { classes: { orderBy: { order: "asc" } } },
+    include: { classes: { orderBy: { order: "asc" } }, tips: true },
   });
   for (const program of standalonePrograms) {
     const programChecked = programTranslationGaps(program);
@@ -475,6 +508,9 @@ async function main(): Promise<void> {
   if (translationGaps === 0) {
     console.log("✓ Пробелов EN нет.");
   }
+  console.log(
+    "\n  Советы «Полезно знать» переводятся пачкой: npm run tips:export → перевод → npm run tips:apply.",
+  );
   totalGaps += translationGaps;
 
   if (softThGaps > 0) {
