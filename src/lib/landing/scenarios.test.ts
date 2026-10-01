@@ -76,15 +76,13 @@ describe("eligibleScenarios", () => {
     expect(pool).toEqual(["shelter", "age", "events"]);
   });
 
-  it("«открыто с утра» остаётся и с одним местом — ранние места редки и ценны", () => {
-    expect(SCENARIO_MIN_PLACES.openMorning).toBe(1);
-    expect(eligibleScenarios(["openMorning", "age"], { openMorning: 1 })).toEqual([
-      "openMorning",
-      "age",
-    ]);
-    expect(eligibleScenarios(["openMorning", "age"], { openMorning: 0 })).toEqual([
-      "age",
-    ]);
+  it("редкие ценные сценарии остаются и с одним местом, без мест — выбывают", () => {
+    const rare: ScenarioKey[] = ["openMorning", "workFriendly", "shelter"];
+    for (const key of rare) {
+      expect(SCENARIO_MIN_PLACES[key]).toBe(1);
+      expect(eligibleScenarios([key, "age"], { [key]: 1 })).toEqual([key, "age"]);
+      expect(eligibleScenarios([key, "age"], { [key]: 0 })).toEqual(["age"]);
+    }
   });
 
   it("без счётчиков пул не меняется", () => {
