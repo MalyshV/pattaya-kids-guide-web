@@ -2,6 +2,7 @@ import { cache } from "react";
 import { prisma } from "@/db/prisma";
 import { cachedQuery } from "@/lib/cache/data-cache";
 import type { City } from "@prisma/client";
+import { pickLocalized } from "@/lib/i18n/localize";
 
 // Чистые константы/хелперы путей живут в base-path.ts (клиенто-безопасно);
 // реэкспорт сохраняет существующие серверные импорты из этого модуля.
@@ -17,6 +18,28 @@ export const getCityBySlug = cache(
   cachedQuery("city-by-slug", ["cities"], async (slug: string): Promise<City | null> => {
     return prisma.city.findFirst({ where: { slug } });
   }),
+);
+
+/**
+ * Названия всех городов на языке страницы: slug → имя. Для «Избранного», где
+ * закладки из разных городов подписываются городом.
+ */
+const getAllCityNames = cachedQuery("city-names", ["cities"], async () =>
+  prisma.city.findMany({
+    select: { slug: true, name: true, nameEn: true, nameTh: true },
+  }),
+);
+
+export const getCityNames = cache(
+  async (lang: string): Promise<Record<string, string>> => {
+    const cities = await getAllCityNames();
+    return Object.fromEntries(
+      cities.map((city) => [
+        city.slug,
+        pickLocalized(city.name, city.nameEn, city.nameTh, lang),
+      ]),
+    );
+  },
 );
 
 /**

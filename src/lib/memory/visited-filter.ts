@@ -13,11 +13,18 @@ export function parseVisitedParam(value: string | undefined): VisitedFilterMode 
   return value === "hidden" || value === "only" ? value : null;
 }
 
-/** Слаги мест с отметкой ✓ (занятия/события каталог мест не фильтруют). */
-export function visitedPlaceSlugs(items: readonly MemoryItem[]): Set<string> {
+/** Слаги мест ЭТОГО города с отметкой ✓ (slug уникален только внутри города;
+ *  занятия/события каталог мест не фильтруют). */
+export function visitedPlaceSlugs(
+  items: readonly MemoryItem[],
+  city: string,
+): Set<string> {
   return new Set(
     items
-      .filter((item) => item.kind === "visited" && item.entity === "place")
+      .filter(
+        (item) =>
+          item.kind === "visited" && item.entity === "place" && item.city === city,
+      )
       .map((item) => item.slug),
   );
 }

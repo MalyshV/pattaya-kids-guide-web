@@ -1,5 +1,6 @@
 "use client";
 
+import { useCitySlug } from "@/lib/geo/use-city-slug";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
 import { useParentMemory } from "@/lib/memory/use-parent-memory";
 import type { MemoryEntity } from "@/lib/memory/parent-memory";
@@ -35,10 +36,11 @@ export function MemoryButtons({
 }: MemoryButtonsProps): React.ReactElement {
   const dict = useDictionary();
   const { has, toggle, hydrated } = useParentMemory();
+  const city = useCitySlug();
 
-  const snapshot = { entity, slug, name, imageUrl };
-  const saved = hydrated && has(entity, slug, "saved");
-  const visited = hydrated && has(entity, slug, "visited");
+  const snapshot = { entity, city, slug, name, imageUrl };
+  const saved = hydrated && has(entity, slug, "saved", city);
+  const visited = hydrated && has(entity, slug, "visited", city);
 
   return (
     <div className={`memory-buttons${compact ? " memory-buttons-compact" : ""}`}>

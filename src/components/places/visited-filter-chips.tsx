@@ -2,6 +2,7 @@
 
 import { useOptimistic, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useCitySlug } from "@/lib/geo/use-city-slug";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
 import { useParentMemory } from "@/lib/memory/use-parent-memory";
 import { visitedPlaceSlugs, type VisitedFilterMode } from "@/lib/memory/visited-filter";
@@ -47,10 +48,11 @@ export function VisitedFilterChips({
   const router = useRouter();
   const dict = useDictionary();
   const { items, hydrated } = useParentMemory();
+  const city = useCitySlug();
   const [isPending, startTransition] = useTransition();
   const [shownActive, setShownActive] = useOptimistic(active);
 
-  const hasMarks = visitedPlaceSlugs(items).size > 0;
+  const hasMarks = visitedPlaceSlugs(items, city).size > 0;
   if (!hydrated || (!hasMarks && active === null)) {
     return null;
   }

@@ -27,8 +27,18 @@ const ENTITY_PATH: Record<MemoryEntity, string> = {
  * актуальную страницу, где данные свежие. До гидрации показываем только
  * заголовок и вступление: разделы появляются, когда память прочитана, —
  * иначе после перезагрузки мигало «Пока пусто», будто всё пропало.
+ *
+ * Закладки общие для всех городов: ссылка ведёт в город записи, а подпись
+ * города появляется, только когда в списке больше одного города.
  */
-export function SavedList({ age }: { age?: string | null }): React.ReactElement {
+export function SavedList({
+  age,
+  cityNames,
+}: {
+  age?: string | null;
+  /** slug города → название на языке страницы */
+  cityNames: Record<string, string>;
+}): React.ReactElement {
   const params = useParams<{ lang?: string; city?: string }>();
   const lang = params.lang ?? DEFAULT_LANG;
   const city = params.city ?? DEFAULT_CITY_SLUG;
@@ -54,7 +64,13 @@ export function SavedList({ age }: { age?: string | null }): React.ReactElement 
 
   const removeWithUndo = (item: MemoryItem, kind: MemoryKind): void => {
     toggle(
-      { entity: item.entity, slug: item.slug, name: item.name, imageUrl: item.imageUrl },
+      {
+        entity: item.entity,
+        city: item.city,
+        slug: item.slug,
+        name: item.name,
+        imageUrl: item.imageUrl,
+      },
       kind,
     );
     setRemoved(item);
@@ -71,6 +87,7 @@ export function SavedList({ age }: { age?: string | null }): React.ReactElement 
     toggle(
       {
         entity: removed.entity,
+        city: removed.city,
         slug: removed.slug,
         name: removed.name,
         imageUrl: removed.imageUrl,
@@ -96,10 +113,15 @@ export function SavedList({ age }: { age?: string | null }): React.ReactElement 
   const saved = listByKind(items, "saved");
   const visited = listByKind(items, "visited");
   const isEmpty = hydrated && saved.length === 0 && visited.length === 0;
-  const visitedKeys = new Set(visited.map((item) => `${item.entity}:${item.slug}`));
+  // «то же самое» = тот же город + сущность + slug (slug уникален в городе)
+  const sameThing = (item: MemoryItem): string =>
+    `${item.city}:${item.entity}:${item.slug}`;
+  const visitedKeys = new Set(visited.map(sameThing));
   const likedVisitedCount = saved.filter((item) =>
-    visitedKeys.has(`${item.entity}:${item.slug}`),
+    visitedKeys.has(sameThing(item)),
   ).length;
+  // подпись города нужна, только когда закладки из разных городов
+  const multiCity = new Set(items.map((item) => item.city)).size > 1;
 
   // switch без default: добавят сущность в MemoryEntity — TS потребует новую
   // ветку (как исчерпывающий ENTITY_PATH), молчаливого «Событие» не случится
@@ -137,7 +159,7 @@ export function SavedList({ age }: { age?: string | null }): React.ReactElement 
     const canHide = kind === "saved" && likedVisitedCount > 0;
     const shown =
       canHide && hideVisited
-        ? list.filter((item) => !visitedKeys.has(`${item.entity}:${item.slug}`))
+        ? list.filter((item) => !visitedKeys.has(sameThing(item)))
         : list;
     return (
       // id — якорь для пунктов меню шапки (♡ → #saved, ✓ → #visited)
@@ -166,15 +188,18 @@ export function SavedList({ age }: { age?: string | null }): React.ReactElement 
           <ul className="saved-grid">
             {shown.map((item) => (
               <li
-                key={itemKey(item.entity, item.slug, item.kind)}
+                key={itemKey(item.entity, item.slug, item.kind, item.city)}
                 className="saved-item interactive-surface"
               >
                 <Link
-                  href={`${basePath}/${ENTITY_PATH[item.entity]}/${item.slug}`}
+                  href={`${cityBasePath(lang, item.city)}/${ENTITY_PATH[item.entity]}/${item.slug}`}
                   className="saved-item-link"
                 >
                   <PlaceImage url={item.imageUrl} alt={item.name} />
-                  <span className="saved-item-type">{entityLabel(item.entity)}</span>
+                  <span className="saved-item-type">
+                    {entityLabel(item.entity)}
+                    {multiCity ? ` · ${cityNames[item.city] ?? item.city}` : null}
+                  </span>
                   <span className="saved-item-name">{item.name}</span>
                 </Link>
                 <button

@@ -10,6 +10,7 @@ import { ViewToggle } from "@/components/common/view-toggle";
 import { formatDistance, sortByDistance, type GeoPoint } from "@/lib/geo/distance";
 import { useDictionary, useLang } from "@/lib/i18n/use-dictionary";
 import { useParentMemory } from "@/lib/memory/use-parent-memory";
+import { useCitySlug } from "@/lib/geo/use-city-slug";
 import {
   filterByVisited,
   visitedPlaceSlugs,
@@ -90,7 +91,11 @@ export function PlacesResults({
   // ПОЛНЫМ каталогом, который тут же схлопывается), после — честно фильтруем
   // и пересчитываем пагинацию по видимому списку
   const memory = useParentMemory();
-  const visitedSlugs = useMemo(() => visitedPlaceSlugs(memory.items), [memory.items]);
+  const city = useCitySlug();
+  const visitedSlugs = useMemo(
+    () => visitedPlaceSlugs(memory.items, city),
+    [memory.items, city],
+  );
   const filterActive = visitedFilter !== null && memory.hydrated;
   const items = filterActive
     ? filterByVisited(serverItems, visitedFilter, ({ place }) => place.slug, visitedSlugs)

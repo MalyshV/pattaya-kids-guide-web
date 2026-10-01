@@ -23,6 +23,7 @@ const EMPTY: readonly MemoryItem[] = [];
 /// снимок сущности для закладки (что нужно нарисовать на «Избранном»)
 export type MemorySnapshot = {
   entity: MemoryEntity;
+  city: string;
   slug: string;
   name: string;
   imageUrl: string | null;
@@ -79,7 +80,7 @@ function write(items: readonly MemoryItem[]): void {
 export type ParentMemory = {
   items: readonly MemoryItem[];
   hydrated: boolean;
-  has: (entity: MemoryEntity, slug: string, kind: MemoryKind) => boolean;
+  has: (entity: MemoryEntity, slug: string, kind: MemoryKind, city: string) => boolean;
   toggle: (snapshot: MemorySnapshot, kind: MemoryKind) => void;
 };
 
@@ -99,8 +100,8 @@ export function useParentMemory(): ParentMemory {
   }, []);
 
   const has = useCallback(
-    (entity: MemoryEntity, slug: string, kind: MemoryKind): boolean =>
-      hasItem(items, entity, slug, kind),
+    (entity: MemoryEntity, slug: string, kind: MemoryKind, city: string): boolean =>
+      hasItem(items, entity, slug, kind, city),
     [items],
   );
 

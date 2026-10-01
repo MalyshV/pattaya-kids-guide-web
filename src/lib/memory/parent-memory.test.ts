@@ -13,6 +13,7 @@ import {
 function item(overrides: Partial<MemoryItem> = {}): MemoryItem {
   return {
     entity: "place",
+    city: "pattaya",
     slug: "laridea",
     kind: "saved",
     name: "LariDea",
@@ -41,8 +42,18 @@ describe("toggleItem", () => {
     const saved = toggleItem([], item({ kind: "saved" }));
     const both = toggleItem(saved, item({ kind: "visited" }));
     expect(both).toHaveLength(2);
-    expect(hasItem(both, "place", "laridea", "saved")).toBe(true);
-    expect(hasItem(both, "place", "laridea", "visited")).toBe(true);
+    expect(hasItem(both, "place", "laridea", "saved", "pattaya")).toBe(true);
+    expect(hasItem(both, "place", "laridea", "visited", "pattaya")).toBe(true);
+  });
+
+  it("одинаковый slug в разных городах — разные записи (slug уникален в городе)", () => {
+    const a = toggleItem([], item({ city: "pattaya", slug: "play-barn" }));
+    const b = toggleItem(a, item({ city: "phuket", slug: "play-barn" }));
+    expect(b).toHaveLength(2);
+    // снятие в одном городе не трогает другой
+    const c = toggleItem(b, item({ city: "phuket", slug: "play-barn" }));
+    expect(c).toHaveLength(1);
+    expect(c[0]?.city).toBe("pattaya");
   });
 
   it("одинаковый slug у place и event — разные записи (разный entity)", () => {
@@ -58,22 +69,23 @@ describe("toggleItem", () => {
     }
     expect(items).toHaveLength(MAX_ITEMS);
     // последний добавленный — на месте, самые ранние вытеснены
-    expect(hasItem(items, "place", `p-${MAX_ITEMS + 19}`, "saved")).toBe(true);
-    expect(hasItem(items, "place", "p-0", "saved")).toBe(false);
+    expect(hasItem(items, "place", `p-${MAX_ITEMS + 19}`, "saved", "pattaya")).toBe(true);
+    expect(hasItem(items, "place", "p-0", "saved", "pattaya")).toBe(false);
   });
 });
 
 describe("hasItem / removeItem", () => {
-  it("hasItem различает по тройке (kind, entity, slug)", () => {
+  it("hasItem различает по (kind, city, entity, slug)", () => {
     const items = [item({ kind: "saved" })];
-    expect(hasItem(items, "place", "laridea", "saved")).toBe(true);
-    expect(hasItem(items, "place", "laridea", "visited")).toBe(false);
-    expect(hasItem(items, "activity", "laridea", "saved")).toBe(false);
+    expect(hasItem(items, "place", "laridea", "saved", "pattaya")).toBe(true);
+    expect(hasItem(items, "place", "laridea", "visited", "pattaya")).toBe(false);
+    expect(hasItem(items, "activity", "laridea", "saved", "pattaya")).toBe(false);
+    expect(hasItem(items, "place", "laridea", "saved", "phuket")).toBe(false);
   });
 
   it("removeItem убирает только совпавшую тройку", () => {
     const items = [item({ kind: "saved" }), item({ kind: "visited" })];
-    const after = removeItem(items, "place", "laridea", "saved");
+    const after = removeItem(items, "place", "laridea", "saved", "pattaya");
     expect(after).toHaveLength(1);
     expect(after[0]?.kind).toBe("visited");
   });
@@ -120,6 +132,27 @@ describe("parseStored — терпимость к мусору", () => {
     const parsed = parseStored(raw);
     expect(parsed).toHaveLength(1);
     expect(parsed[0]?.name).toBe("Первый");
+  });
+
+  it("старые записи без города (до мультигорода) — Паттайя, отметки не теряются", () => {
+    const old = {
+      entity: "place",
+      slug: "laridea",
+      kind: "visited",
+      name: "LariDea",
+      imageUrl: null,
+      savedAt: 5,
+    };
+    const parsed = parseStored(JSON.stringify([old, { ...old, city: "" }]));
+    expect(parsed).toHaveLength(1); // пустой город = тот же город по умолчанию → дубль
+    expect(parsed[0]?.city).toBe("pattaya");
+    expect(hasItem(parsed, "place", "laridea", "visited", "pattaya")).toBe(true);
+  });
+
+  it("город записи сохраняется при чтении", () => {
+    expect(parseStored(JSON.stringify([item({ city: "phuket" })]))[0]?.city).toBe(
+      "phuket",
+    );
   });
 
   it("пустой imageUrl нормализуется в null", () => {
