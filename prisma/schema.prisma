@@ -269,6 +269,7 @@ model PlaceProgram {
   place         Place?                    @relation(fields: [placeId], references: [id])
   categories    ProgramActivityCategory[]
   classes       PlaceClass[]
+  tips          ProgramTip[]
   /// текстовое место проведения (когда нет каталожного place — напр. сад)
   venueName     String?
   venueNameEn   String?
@@ -344,6 +345,36 @@ model PlaceTip {
   place      Place     @relation(fields: [placeId], references: [id])
 
   @@index([placeId])
+}
+
+/// «Полезно знать» у события — те же поля, что у PlaceTip.
+model EventTip {
+  id         String    @id @default(cuid())
+  eventId    String
+  text       String
+  textEn     String?
+  textTh     String?
+  topic      String?
+  order      Int       @default(0)
+  verifiedAt DateTime?
+  event      Event     @relation(fields: [eventId], references: [id])
+
+  @@index([eventId])
+}
+
+/// «Полезно знать» у занятия (PlaceProgram) — те же поля, что у PlaceTip.
+model ProgramTip {
+  id         String       @id @default(cuid())
+  programId  String
+  text       String
+  textEn     String?
+  textTh     String?
+  topic      String?
+  order      Int          @default(0)
+  verifiedAt DateTime?
+  program    PlaceProgram @relation(fields: [programId], references: [id])
+
+  @@index([programId])
 }
 
 model PlaceBirthdayInfo {
@@ -540,6 +571,7 @@ model Event {
   updatedAt          DateTime            @updatedAt
   place              Place?              @relation(fields: [placeId], references: [id])
   categories         EventCategoryLink[]
+  tips               EventTip[]
   userFavoriteEvents UserFavoriteEvent[]
   userVisits         UserVisit[]
   /// ГЕО (Сессия 2): город события nullable — событие может быть онлайн/без города

@@ -1,5 +1,6 @@
 "use client";
 
+import { TipsFields } from "@/app/admin/tips-fields";
 import { useCallback, useState } from "react";
 import type { Event } from "@prisma/client";
 import { deleteEventAction, saveEventAction } from "@/app/admin/actions";
@@ -22,7 +23,7 @@ import { SubmitButton } from "@/app/admin/submit-button";
 type PlaceOption = { id: string; name: string };
 
 type EventFormProps = {
-  event: Event | null;
+  event: (Event & { tips?: Array<{ text: string; textEn: string | null }> }) | null;
   places: PlaceOption[];
   error?: string;
 };
@@ -200,6 +201,8 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
             defaultValue={event?.descriptionEn ?? ""}
           />
         </label>
+
+        <TipsFields tips={event?.tips ?? []} />
 
         <div className="admin-row">
           <label className="admin-field">

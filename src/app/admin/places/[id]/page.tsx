@@ -28,6 +28,7 @@ export default async function AdminPlaceEditPage({
         photos: { orderBy: { order: "asc" } },
         schedules: true,
         categories: { select: { categoryId: true } },
+        tips: { orderBy: { order: "asc" }, select: { text: true, textEn: true } },
       },
     }),
     prisma.category.findMany({ orderBy: { order: "asc" } }),

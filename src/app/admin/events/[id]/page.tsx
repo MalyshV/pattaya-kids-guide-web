@@ -22,7 +22,12 @@ export default async function AdminEventEditPage({
     typeof resolvedSearch.error === "string" ? resolvedSearch.error : undefined;
 
   const [event, places] = await Promise.all([
-    prisma.event.findUnique({ where: { id } }),
+    prisma.event.findUnique({
+      where: { id },
+      include: {
+        tips: { orderBy: { order: "asc" }, select: { text: true, textEn: true } },
+      },
+    }),
     prisma.place.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
 

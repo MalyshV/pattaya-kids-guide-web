@@ -1,3 +1,5 @@
+import { TipsSection } from "@/components/common/tips-section";
+import { mapTipsToDto } from "@/mappers/tip.mapper";
 import { Suspense } from "react";
 import { AdditionThanks } from "@/components/suggest/addition-thanks";
 import { ContributeLines } from "@/components/suggest/contribute-lines";
@@ -106,6 +108,7 @@ export default async function ActivityDetailsPage({
   }
 
   const dto = mapActivityToListItem(activity, lang);
+  const tips = mapTipsToDto(activity.tips, lang);
   const typeLabel =
     (dict.placeDetails.programTypes as Record<string, string>)[dto.type] ?? dto.type;
 
@@ -290,6 +293,8 @@ export default async function ActivityDetailsPage({
           ) : null}
         </section>
       ) : null}
+
+      <TipsSection tips={tips} dict={dict} lang={lang} />
 
       {dto.place || dto.venueName ? (
         <section className="details-section">

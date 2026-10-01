@@ -1,3 +1,4 @@
+import { TipsSection } from "@/components/common/tips-section";
 import { Suspense } from "react";
 import { AdditionThanks } from "@/components/suggest/addition-thanks";
 import { ContributeLines } from "@/components/suggest/contribute-lines";
@@ -430,29 +431,7 @@ export default async function PlaceDetailsPage({
         </section>
       )}
 
-      {dto.tips.length > 0 && (
-        <section className="details-section">
-          <h2 className="section-title">{dict.placeDetails.tipsTitle}</h2>
-          <div className="tips-list">
-            {dto.tips.map((tip) => (
-              <p key={tip.id} className="tip-item">
-                {tip.text}
-                {tip.verifiedAt ? (
-                  <span className="tip-verified">
-                    {" · "}
-                    {dict.placeDetails.tipVerified(
-                      tip.verifiedAt.toLocaleDateString(dateLocale(lang), {
-                        month: "long",
-                        year: "numeric",
-                      }),
-                    )}
-                  </span>
-                ) : null}
-              </p>
-            ))}
-          </div>
-        </section>
-      )}
+      <TipsSection tips={dto.tips} dict={dict} lang={lang} />
 
       {activityPrograms.length > 0 && (
         <section className="details-section">
