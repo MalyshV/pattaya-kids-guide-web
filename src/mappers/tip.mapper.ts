@@ -12,8 +12,13 @@ type TipRow = {
 };
 
 /** Советы «Полезно знать» места, события или занятия → DTO на языке страницы. */
-export function mapTipsToDto(tips: readonly TipRow[], lang: string): TipDto[] {
+export function mapTipsToDto(
+  tips: readonly TipRow[],
+  lang: string,
+  source?: TipDto["source"],
+): TipDto[] {
   return tips.map((tip) => ({
+    ...(source ? { source } : {}),
     id: tip.id,
     text: pickLocalized(tip.text, tip.textEn, tip.textTh, lang),
     topic: tip.topic,

@@ -6,7 +6,7 @@ import type { EventType } from "@/lib/constants/event-types";
 import { demoFilter } from "@/lib/demo/show-demo";
 import { buildEventLifecycleWhere } from "@/lib/events/event-lifecycle";
 import { resolvePagination } from "@/lib/pagination";
-import type { Event, Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
 export type EventsFilter = {
   type?: EventType;
@@ -30,6 +30,8 @@ export type PaginatedEventsResult = {
   page: number;
   limit: number;
 };
+
+export type EventWithTips = Prisma.EventGetPayload<{ include: { tips: true } }>;
 
 export type EventDetailsResult = Prisma.EventGetPayload<{
   include: {
@@ -194,13 +196,15 @@ export const getApprovedEventBySlug = cache(
 const getApprovedEventsByPlaceIdCached = cachedQuery(
   "events-by-place",
   ["events"],
-  async (placeId: string): Promise<Event[]> => {
+  async (placeId: string): Promise<EventWithTips[]> => {
     return prisma.event.findMany({
       where: {
         placeId,
         status: "APPROVED",
         ...demoFilter(),
       },
+      // советы события показываем и на странице его места
+      include: { tips: { orderBy: { order: "asc" } } },
       orderBy: {
         startDate: "asc",
       },
@@ -211,7 +215,7 @@ const getApprovedEventsByPlaceIdCached = cachedQuery(
 /** Ближайшие 5 будущих событий места (блок «скоро здесь» на детальной). */
 export async function getUpcomingApprovedEventsByPlaceId(
   placeId: string,
-): Promise<Event[]> {
+): Promise<EventWithTips[]> {
   const events = await getApprovedEventsByPlaceIdCached(placeId);
   const now = new Date();
 

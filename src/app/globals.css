@@ -3009,6 +3009,21 @@ html[data-theme="dark"] .theme-toggle-moon {
   opacity: 0.55;
 }
 
+/* чей совет (событие или занятие места) — названием-ссылкой перед текстом */
+.tip-source {
+  color: var(--foreground);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+a.tip-source {
+  color: var(--accent-text);
+}
+
+a.tip-source:hover {
+  text-decoration: underline;
+}
+
 .tip-verified {
   font-size: 0.85em;
   /* было opacity 0.75 → 3.37:1; чистый --muted читается «тише» и проходит */
