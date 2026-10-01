@@ -49,3 +49,6 @@ next-env.d.ts
 # фото из формы «Предложить своё» при локальной разработке — чужие снимки
 # (бывают и с детьми) в git не кладём
 /public/images/uploads/suggestions/
+
+# рабочий файл переводов советов (npm run tips:export) — привязан к id в базе
+/scripts/tips/translations.json
