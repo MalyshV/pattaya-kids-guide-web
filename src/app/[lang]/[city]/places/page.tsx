@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { AgeQuestion } from "@/components/common/age-question";
 import { PlaceFilters } from "@/components/places/place-filters";
 import { ScenarioBar } from "@/components/places/scenario-bar";
+import { PlacesCount } from "@/components/places/places-count";
 import { PlacesResults } from "@/components/places/places-results";
 import { VisitedFilterChips } from "@/components/places/visited-filter-chips";
 import { parseVisitedParam } from "@/lib/memory/visited-filter";
@@ -305,8 +306,11 @@ export default async function CityPlacesPage({
       <section className="results-header results-header-with-action" id="results">
         <div>
           <h2>{dict.places.sectionTitle}</h2>
-          {/* role=status: после фильтрации скринридер озвучит «Найдено N» */}
-          <p role="status">{dict.places.count(total)}</p>
+          {/* с фильтром ✓ число считается в браузере — совпадает со списком */}
+          <PlacesCount
+            slugs={visiblePlaces.map(({ place }) => place.slug)}
+            visitedFilter={visitedFilter}
+          />
         </div>
         <SuggestLink basePath={basePath} kind="place" label={dict.suggest.cta} />
       </section>
