@@ -1,3 +1,4 @@
+import { TipsSection } from "@/components/common/tips-section";
 import { Suspense } from "react";
 import { AdditionThanks } from "@/components/suggest/addition-thanks";
 import { ContributeLines } from "@/components/suggest/contribute-lines";
@@ -248,6 +249,8 @@ export default async function EventDetailsPage({
           </div>
         </div>
       </section>
+
+      <TipsSection tips={dto.tips} dict={dict} lang={lang} />
 
       <section className="details-section">
         <h2 className="section-title">{dict.eventDetails.placeTitle}</h2>

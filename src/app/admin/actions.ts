@@ -22,6 +22,7 @@ import {
 } from "@/lib/admin/submission-link";
 import { slugify } from "@/lib/admin/slug";
 import { DEFAULT_CITY_SLUG } from "@/lib/geo/base-path";
+import { saveTipsFromForm } from "@/lib/admin/tips-store";
 import { parseSubmissionStatus } from "@/lib/admin/submission-labels";
 
 /**
@@ -335,6 +336,15 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
     throw error;
   }
 
+  // «Полезно знать»: карточка уже сохранена — сбой советов её не отменяет
+  const tipsFailed = await saveTipsFromForm("place", placeId, formData).then(
+    () => false,
+    (error: unknown) => {
+      console.error("admin: советы места не сохранились", error);
+      return true;
+    },
+  );
+
   // предложение, из которого создали карточку: перенести фото и пометить
   // очередь. Карточка уже сохранена — сбой связки её не отменяет
   let linkResult: "ok" | "withPhotos" | "photos" | "duplicate" | "failed" | null = null;
@@ -380,6 +390,9 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
   if (uploadFailed) {
     redirect(`/admin/places/${placeId}?error=upload`);
   }
+  if (tipsFailed) {
+    redirect(`/admin/places/${placeId}?error=tips`);
+  }
   if (fromSubmission && linkResult) {
     // назад к предложению: оттуда пришли, там же видно, что получилось
     const flag =
@@ -418,6 +431,7 @@ export async function deletePlaceAction(formData: FormData): Promise<void> {
     const programIds = programs.map((program) => program.id);
 
     await tx.placeClass.deleteMany({ where: { programId: { in: programIds } } });
+    await tx.programTip.deleteMany({ where: { programId: { in: programIds } } });
     await tx.programActivityCategory.deleteMany({
       where: { programId: { in: programIds } },
     });
@@ -587,11 +601,21 @@ export async function saveEventAction(formData: FormData): Promise<void> {
     throw error;
   }
 
+  const tipsFailed = await saveTipsFromForm("event", eventId, formData).then(
+    () => false,
+    (error: unknown) => {
+      console.error("admin: советы события не сохранились", error);
+      return true;
+    },
+  );
+
   revalidateSite();
   redirect(
     uploadFailed
       ? `/admin/events/${eventId}?error=upload`
-      : `/admin/events?done=${id ? "updated" : "created"}`,
+      : tipsFailed
+        ? `/admin/events/${eventId}?error=tips`
+        : `/admin/events?done=${id ? "updated" : "created"}`,
   );
 }
 
@@ -600,6 +624,7 @@ export async function deleteEventAction(formData: FormData): Promise<void> {
   const id = text(formData, "id");
   if (id) {
     await prisma.$transaction(async (tx) => {
+      await tx.eventTip.deleteMany({ where: { eventId: id } });
       await tx.eventCategoryLink.deleteMany({ where: { eventId: id } });
       await tx.userFavoriteEvent.deleteMany({ where: { eventId: id } });
       await tx.userVisit.deleteMany({ where: { eventId: id } });
@@ -696,11 +721,21 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
     throw error;
   }
 
+  const tipsFailed = await saveTipsFromForm("program", activityId, formData).then(
+    () => false,
+    (error: unknown) => {
+      console.error("admin: советы занятия не сохранились", error);
+      return true;
+    },
+  );
+
   revalidateSite();
   redirect(
     uploadFailed
       ? `/admin/activities/${activityId}?error=upload`
-      : `/admin/activities?done=${id ? "updated" : "created"}`,
+      : tipsFailed
+        ? `/admin/activities/${activityId}?error=tips`
+        : `/admin/activities?done=${id ? "updated" : "created"}`,
   );
 }
 
@@ -710,6 +745,7 @@ export async function deleteActivityAction(formData: FormData): Promise<void> {
   if (id) {
     await prisma.$transaction(async (tx) => {
       await tx.placeClass.deleteMany({ where: { programId: id } });
+      await tx.programTip.deleteMany({ where: { programId: id } });
       await tx.programActivityCategory.deleteMany({ where: { programId: id } });
       await tx.placeProgram.delete({ where: { id } });
     });

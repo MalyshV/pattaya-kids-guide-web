@@ -1,3 +1,4 @@
+import type { TipDto } from "@/dto/tip.dto";
 import type { PlaceDto } from "@/dto/place.dto";
 
 export type PlaceCategoryDto = {
@@ -69,12 +70,7 @@ export type PlaceLanguageDto = {
   name: string;
 };
 
-export type PlaceTipDto = {
-  id: string;
-  text: string;
-  topic: string | null;
-  verifiedAt: Date | null;
-};
+export type PlaceTipDto = TipDto;
 
 export type PlaceContactDto = {
   id: string;

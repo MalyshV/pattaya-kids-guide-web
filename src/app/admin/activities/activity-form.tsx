@@ -1,3 +1,4 @@
+import { TipsFields } from "@/app/admin/tips-fields";
 import type { PlaceProgram } from "@prisma/client";
 import { deleteActivityAction, saveActivityAction } from "@/app/admin/actions";
 import { OcrScratchpad } from "@/app/admin/ocr-scratchpad";
@@ -13,7 +14,12 @@ import { SubmitButton } from "@/app/admin/submit-button";
 type PlaceOption = { id: string; name: string };
 
 type ActivityFormProps = {
-  activity: (PlaceProgram & { _count?: { classes: number } }) | null;
+  activity:
+    | (PlaceProgram & {
+        _count?: { classes: number };
+        tips?: Array<{ text: string; textEn: string | null }>;
+      })
+    | null;
   places: PlaceOption[];
   error?: string;
 };
@@ -91,6 +97,8 @@ export function ActivityForm({
             defaultValue={activity?.descriptionEn ?? ""}
           />
         </label>
+
+        <TipsFields tips={activity?.tips ?? []} />
 
         <div className="admin-row">
           <label className="admin-field">

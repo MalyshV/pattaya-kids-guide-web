@@ -24,7 +24,10 @@ export default async function AdminActivityEditPage({
   const [activity, places] = await Promise.all([
     prisma.placeProgram.findUnique({
       where: { id },
-      include: { _count: { select: { classes: true } } },
+      include: {
+        _count: { select: { classes: true } },
+        tips: { orderBy: { order: "asc" }, select: { text: true, textEn: true } },
+      },
     }),
     prisma.place.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);

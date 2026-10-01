@@ -1,3 +1,4 @@
+import type { TipDto } from "@/dto/tip.dto";
 import type { EventDto } from "@/dto/event.dto";
 
 export type EventPlacePreviewDto = {
@@ -8,4 +9,6 @@ export type EventPlacePreviewDto = {
 
 export type EventDetailsDto = EventDto & {
   place: EventPlacePreviewDto | null;
+  /** «Полезно знать» — как у места */
+  tips: TipDto[];
 };

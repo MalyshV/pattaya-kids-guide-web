@@ -34,6 +34,7 @@ export type PaginatedEventsResult = {
 export type EventDetailsResult = Prisma.EventGetPayload<{
   include: {
     place: true;
+    tips: true;
   };
 }>;
 
@@ -181,6 +182,7 @@ export const getApprovedEventBySlug = cache(
         },
         include: {
           place: true,
+          tips: { orderBy: { order: "asc" } },
         },
       });
     },

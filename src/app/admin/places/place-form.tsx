@@ -1,3 +1,4 @@
+import { TipsFields } from "@/app/admin/tips-fields";
 import Link from "next/link";
 import type { Category, Place, PlacePhoto, PlaceSchedule } from "@prisma/client";
 import {
@@ -33,6 +34,7 @@ type PlaceFormProps = {
         photos: PlacePhoto[];
         schedules: PlaceSchedule[];
         categories: Array<{ categoryId: string }>;
+        tips: Array<{ text: string; textEn: string | null }>;
       })
     | null;
   allCategories: Category[];
@@ -182,6 +184,8 @@ export function PlaceForm({
             defaultValue={place?.descriptionEn ?? ""}
           />
         </label>
+
+        <TipsFields tips={place?.tips ?? []} />
 
         <label className="admin-field">
           <span>Адрес</span>

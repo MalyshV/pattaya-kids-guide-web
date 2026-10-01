@@ -16,6 +16,10 @@ export type ActivityWithPlace = Prisma.PlaceProgramGetPayload<{
   };
 }>;
 
+/** Страница занятия: то же + «Полезно знать». */
+export type ActivityDetailsResult = ActivityWithPlace &
+  Prisma.PlaceProgramGetPayload<{ include: { tips: true } }>;
+
 /**
  * Сквозная витрина «Занятия» (вторая ось продукта, activity-first): все
  * регулярные занятия (COURSE) и лагеря (CAMP) города — независимо от места,
@@ -68,7 +72,7 @@ export const getActivityBySlug = cache(
     async function getActivityBySlug(
       slug: string,
       cityId: string,
-    ): Promise<ActivityWithPlace | null> {
+    ): Promise<ActivityDetailsResult | null> {
       return prisma.placeProgram.findFirst({
         where: {
           slug,
@@ -88,6 +92,7 @@ export const getActivityBySlug = cache(
             },
           },
           classes: { orderBy: { order: "asc" } },
+          tips: { orderBy: { order: "asc" } },
         },
       });
     },

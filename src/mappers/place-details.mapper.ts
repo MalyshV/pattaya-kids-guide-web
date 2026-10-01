@@ -1,3 +1,4 @@
+import { mapTipsToDto } from "@/mappers/tip.mapper";
 import type { PlaceDetailsDto } from "@/dto/place-details.dto";
 import { mapPlaceToDto } from "@/mappers/place.mapper";
 import { pickLocalized } from "@/lib/i18n/localize";
@@ -138,14 +139,7 @@ export function mapPlaceDetailsToDto(
         lang,
       ),
     })),
-    tips: place.tips.map((tip) => ({
-      id: tip.id,
-      text: pickLocalized(tip.text, tip.textEn, tip.textTh, lang),
-      topic: tip.topic,
-      // с кэш-хита (data-cache) дата приходит строкой — возвращаем ей Date,
-      // страница зовёт toLocaleDateString
-      verifiedAt: tip.verifiedAt ? new Date(tip.verifiedAt) : null,
-    })),
+    tips: mapTipsToDto(place.tips, lang),
     contacts: place.contacts.map((contact) => ({
       id: contact.id,
       type: contact.type,
