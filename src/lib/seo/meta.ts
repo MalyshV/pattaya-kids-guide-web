@@ -9,7 +9,7 @@ const META_DESCRIPTION_MAX = 160;
 /**
  * hreflang-карта раздела: все локали + x-default. x-default — для пользователей
  * с языком вне ru/en/th: указывает на дефолтную локаль, тот же язык, на который
- * их уводит middleware при заходе на «/». Пути относительные — Next
+ * их уводит proxy (src/proxy.ts) при заходе на «/». Пути относительные — Next
  * абсолютизирует их от metadataBase.
  */
 export function hreflangLanguages(

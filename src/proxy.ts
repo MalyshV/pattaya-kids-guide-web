@@ -9,8 +9,10 @@ import { detectPreferredLang, LOCALE_COOKIE } from "@/lib/i18n/detect-lang";
  * выбор (переключатель ставит cookie) всегда уважается.
  *
  * Работает ТОЛЬКО на `/` (см. matcher) — ссылки с языком (`/th/...`) не трогаем.
+ *
+ * Файл называется proxy.ts — так в Next.js 16 переименовали middleware.
  */
-export function middleware(request: NextRequest): NextResponse {
+export function proxy(request: NextRequest): NextResponse {
   const lang = detectPreferredLang(
     request.cookies.get(LOCALE_COOKIE)?.value,
     request.headers.get("accept-language"),
