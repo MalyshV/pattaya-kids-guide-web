@@ -127,23 +127,29 @@ export type SubmissionForEventPrefill = Pick<
 
 /**
  * Поля формы события из предложения. Дату и возраст достаёт parseEventFlyer —
- * тот же разбор, что у «Разобрать афишу» в форме; ищет в «когда», затем в
- * подсказке (там бывает «для детей 4–8 лет»). now — параметром, как в парсере.
+ * тот же разбор, что у «Разобрать афишу» в форме. now — параметром, как в
+ * парсере.
+ *
+ * Дата — ТОЛЬКО из поля «когда»: в подсказке даты случайные («были здесь 5
+ * мая», «открылись в 2024-м») и в форму попадать не должны. Возраст — из
+ * «когда», а если там нет, из подсказки: «для детей 4–8 лет» пишут именно в ней.
  */
 export function eventPrefill(
   submission: SubmissionForEventPrefill,
   now: Date,
 ): EventPrefill {
   const whenText = (submission.whenText ?? "").trim();
-  const draft = parseEventFlyer([whenText, submission.tip ?? ""].join("\n"), now);
+  const when = parseEventFlyer(whenText, now);
+  const hasAge = when.minAgeMonths !== null || when.maxAgeMonths !== null;
+  const age = hasAge ? when : parseEventFlyer(submission.tip ?? "", now);
   return {
     title: clipToField(submission.name, "title"),
     description: clipToField(submission.tip ?? "", "description"),
     locationName: venueText(submission.location, "locationName"),
-    startDate: draft.startDate,
-    endDate: draft.endDate,
-    minAgeMonths: draft.minAgeMonths,
-    maxAgeMonths: draft.maxAgeMonths,
+    startDate: when.startDate,
+    endDate: when.endDate,
+    minAgeMonths: age.minAgeMonths,
+    maxAgeMonths: age.maxAgeMonths,
     whenText,
   };
 }
