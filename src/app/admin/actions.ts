@@ -23,6 +23,7 @@ import {
   unlinkSubmissionsForPlace,
 } from "@/lib/admin/submission-link";
 import { parseBirthdayForm } from "@/lib/admin/birthday-info";
+import { isImageUrlInUse } from "@/lib/admin/image-usage";
 import { slugify } from "@/lib/admin/slug";
 import { DEFAULT_CITY_SLUG } from "@/lib/geo/base-path";
 import { dropOldImage, rotateStoredImage } from "@/lib/admin/rotate-photo";
@@ -549,9 +550,25 @@ export async function deletePlacePhotoAction(formData: FormData): Promise<void> 
   await requireAdmin();
   const id = text(formData, "photoId");
   const placeId = text(formData, "placeId");
-  if (id) {
-    await prisma.placePhoto.delete({ where: { id } });
-    revalidateSite();
+  if (id && placeId) {
+    const photo = await prisma.placePhoto.findFirst({
+      where: { id, placeId },
+      select: { url: true },
+    });
+    if (photo) {
+      await prisma.placePhoto.delete({ where: { id } });
+      revalidateSite();
+      // Файл убираем после записи: сбой здесь не возвращает фото в карточку,
+      // лишний файл в хранилище безвреден. Общий файл (тот же адрес стоит
+      // ещё где-то) не трогаем.
+      try {
+        if (!(await isImageUrlInUse(photo.url))) {
+          await removeStoredImage(photo.url);
+        }
+      } catch (error) {
+        console.error("admin: файл фото галереи не удалён", photo.url, error);
+      }
+    }
   }
   redirect(`/admin/places/${placeId}`);
 }
