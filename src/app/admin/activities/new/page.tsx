@@ -31,11 +31,14 @@ async function submissionPrefill(
         whenText: true,
         photoUrls: true,
         resultId: true,
+        targetId: true,
       },
     })
     // таблицы ещё нет или база споткнулась — форма просто откроется пустой
     .catch(() => null);
-  if (!submission) {
+  // дополнение к существующей карточке — не повод создавать новую: его
+  // вносят в саму карточку (страница предложения такой кнопки и не даёт)
+  if (!submission || submission.targetId) {
     return undefined;
   }
   if (submission.resultId) {
