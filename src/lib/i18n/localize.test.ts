@@ -32,9 +32,9 @@ describe("pickLocalized — каскад th → en → ru", () => {
     expect(pickLocalized(null, "Hello", null, "en")).toBe("Hello");
   });
 
-  // Возможный баг: пустая строка в переводе (не null) выигрывает у соседнего
-  // языка, и пользователь видит пустоту вместо fallback.
-  it.skip("пустая строка перевода считается «нет перевода»", () => {
+  it("пустая строка перевода считается «нет перевода»", () => {
+    expect(pickLocalized("Привет", "  ", "สวัสดี", "en")).toBe("Привет");
+    expect(pickLocalized("Привет", "Hello", " ", "th")).toBe("Hello");
     expect(pickLocalized("Привет", "", "", "th")).toBe("Привет");
     expect(pickLocalized("Привет", "", null, "en")).toBe("Привет");
   });
