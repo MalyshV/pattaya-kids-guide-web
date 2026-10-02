@@ -102,6 +102,8 @@ export function SearchBox({ items, autoFocus }: SearchBoxProps): React.ReactElem
         </svg>
         <input
           type="search"
+          // поиск идёт в браузере, длинная строка вреда не несёт — предел для порядка
+          maxLength={100}
           className="search-input"
           // управляемый autoFocus для панели из лупы; глобально не мешает —
           // на страницах со встроенной строкой проп не передаётся
