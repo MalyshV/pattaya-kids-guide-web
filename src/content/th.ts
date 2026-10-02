@@ -119,7 +119,6 @@ export const th: Dictionary = {
 
   age: {
     question: "ลูกอายุเท่าไร?",
-    hint: "เลือกได้สองช่วงวัย หากมีลูกสองคน",
     all: "ทุกช่วงวัย",
     buckets: {
       "0-1": "ไม่เกิน 1 ขวบ",
@@ -388,14 +387,12 @@ export const th: Dictionary = {
     },
     programOldPrice: (price: string): string => `เดิม ${price}`,
     ageTitle: "เหมาะสำหรับวัย",
-    amenitiesTitle: "สิ่งอำนวยความสะดวก",
     staffLanguagesTitle: "ภาษาที่พนักงานพูดได้",
     birthdayTitle: "วันเกิด",
     birthdayHas: "ที่นี่รับจัดวันเกิดสำหรับเด็ก",
     birthdayAllLink: "ดูสถานที่จัดวันเกิดทั้งหมด",
     categoriesTitle: "หมวดหมู่",
     upcomingTitle: "อีเวนต์ที่จะจัดที่นี่เร็ว ๆ นี้",
-    noUpcoming: "ตอนนี้ยังไม่มีอีเวนต์ที่กำลังจะมาถึง",
   },
 
   events: {
@@ -430,16 +427,8 @@ export const th: Dictionary = {
       `${count} แคมป์ที่จบไปแล้วไม่แสดงบนแผนที่ — แต่ยังดูได้ในรายการ`,
     placeLabel: "สถานที่",
     ageLabel: "อายุ:",
-    filterAgeTitle: "วัยของลูก",
     filterTypeTitle: "ประเภทคลาส",
-    filterAny: "ทั้งหมด",
     filterAll: "ทั้งหมด",
-    ageBuckets: {
-      "0-1": "ไม่เกิน 1 ขวบ",
-      "1-3": "1–3 ขวบ",
-      "3-6": "3–6 ขวบ",
-      "6-12": "6–12 ขวบ",
-    },
   },
 
   activityCard: {
@@ -489,8 +478,6 @@ export const th: Dictionary = {
     eyebrow: "อีเวนต์",
     detailsTitle: "รายละเอียด",
     when: "เมื่อไร",
-    start: "เริ่ม",
-    end: "สิ้นสุด",
     location: "สถานที่จัดงาน",
     address: "ที่อยู่",
     notSpecified: "ไม่ระบุ",

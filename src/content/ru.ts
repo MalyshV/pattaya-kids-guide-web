@@ -142,7 +142,6 @@ export const ru = {
   // для семей с двумя детьми.
   age: {
     question: "Сколько лет ребёнку?",
-    hint: "Можно выбрать два возраста, если детей двое",
     all: "Все возрасты",
     buckets: {
       "0-1": "До 1 года",
@@ -442,14 +441,12 @@ export const ru = {
     },
     programOldPrice: (price: string): string => `было ${price}`,
     ageTitle: "Для какого возраста",
-    amenitiesTitle: "Удобства",
     staffLanguagesTitle: "Язык персонала",
     birthdayTitle: "День рождения",
     birthdayHas: "Здесь проводят детские дни рождения",
     birthdayAllLink: "Все площадки для дня рождения",
     categoriesTitle: "Категории",
     upcomingTitle: "Ближайшие события здесь",
-    noUpcoming: "Пока ближайших событий нет.",
   },
 
   events: {
@@ -499,16 +496,8 @@ export const ru = {
       } в списке`,
     placeLabel: "Место",
     ageLabel: "Возраст:",
-    filterAgeTitle: "Возраст ребёнка",
     filterTypeTitle: "Тип занятий",
-    filterAny: "Любой",
     filterAll: "Все",
-    ageBuckets: {
-      "0-1": "До 1 года",
-      "1-3": "1–3 года",
-      "3-6": "3–6 лет",
-      "6-12": "6–12 лет",
-    },
   },
 
   activityCard: {
@@ -561,8 +550,6 @@ export const ru = {
     eyebrow: "Событие",
     detailsTitle: "Подробности",
     when: "Когда",
-    start: "Начало",
-    end: "Конец",
     location: "Место проведения",
     address: "Адрес",
     notSpecified: "Не указано",
