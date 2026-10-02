@@ -573,6 +573,8 @@ export const th: Dictionary = {
       addMore: "เพิ่มอีก",
       remove: "นำออก",
       removeLabel: (n: number): string => `นำออก รูปที่ ${n}`,
+      rotate: "หมุน",
+      rotateLabel: (n: number): string => `หมุนรูปที่ ${n}`,
       alt: (n: number): string => `รูปที่ ${n}`,
       processing: "กำลังเตรียม…",
       preparing: "กำลังเตรียมรูป…",

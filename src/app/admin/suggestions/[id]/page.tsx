@@ -1,3 +1,4 @@
+import { RotateButton } from "@/app/admin/rotate-button";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/db/prisma";
@@ -358,6 +359,7 @@ export default async function AdminSuggestionPage({
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={url} alt={`Фото ${index + 1}`} loading="lazy" />
                 </a>
+                <RotateButton target="submissionPhoto" id={item.id} url={url} />
                 <form action={deleteSubmissionPhotoAction}>
                   <input type="hidden" name="id" value={item.id} />
                   <input type="hidden" name="url" value={url} />

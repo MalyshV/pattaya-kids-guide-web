@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ActionBanner } from "@/components/common/action-banner";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
 import { SUGGEST_PHOTOS } from "@/lib/suggest/photos";
-import { shrinkPhoto } from "@/lib/suggest/shrink-photo";
+import { rotatePhoto, shrinkPhoto } from "@/lib/suggest/shrink-photo";
 
 /**
  * Фото в форме «Предложить своё»: выбрать, посмотреть превью, убрать лишнее.
@@ -33,6 +33,8 @@ export type SuggestPhotosState = {
   notice: PhotoNotice;
   add: (files: readonly File[]) => void;
   remove: (id: number) => void;
+  /** повернуть на 90° по часовой (снимок лёг на бок) */
+  rotate: (id: number) => void;
   clear: () => void;
 };
 
@@ -113,6 +115,50 @@ export function useSuggestPhotos(): SuggestPhotosState {
     [commit],
   );
 
+  const rotate = useCallback(
+    (id: number): void => {
+      const item = itemsRef.current.find((photo) => photo.id === id);
+      if (item?.status !== "ready") {
+        return;
+      }
+      const { blob: before, previewUrl: beforeUrl } = item;
+      // пока крутится — «Готовим…»: отправка формы ждёт, повторный клик не пройдёт
+      commit(
+        itemsRef.current.map((photo) =>
+          photo.id === id ? { id, status: "processing" as const } : photo,
+        ),
+      );
+      const stillThere = (): boolean =>
+        alive.current && itemsRef.current.some((photo) => photo.id === id);
+      queue.current = queue.current.then(async () => {
+        if (!stillThere()) {
+          URL.revokeObjectURL(beforeUrl);
+          return;
+        }
+        let blob = before;
+        try {
+          blob = await rotatePhoto(before);
+        } catch {
+          // не получилось — оставляем фото как было
+        }
+        if (!stillThere()) {
+          URL.revokeObjectURL(beforeUrl);
+          return;
+        }
+        const previewUrl = blob === before ? beforeUrl : URL.createObjectURL(blob);
+        if (blob !== before) {
+          URL.revokeObjectURL(beforeUrl);
+        }
+        commit(
+          itemsRef.current.map((photo) =>
+            photo.id === id ? { id, status: "ready", blob, previewUrl } : photo,
+          ),
+        );
+      });
+    },
+    [commit],
+  );
+
   const clear = useCallback((): void => {
     for (const item of itemsRef.current) {
       if (item.status === "ready") {
@@ -136,7 +182,7 @@ export function useSuggestPhotos(): SuggestPhotosState {
     };
   }, []);
 
-  return { items, notice, add, remove, clear };
+  return { items, notice, add, remove, rotate, clear };
 }
 
 type SuggestPhotosProps = {
@@ -251,6 +297,17 @@ export function SuggestPhotos({
                   {t.processing}
                 </span>
               )}
+              {/* кнопка есть всегда (пока фото готовится — неактивна): иначе
+                  после нажатия она исчезала бы и фокус падал в начало страницы */}
+              <button
+                type="button"
+                className="suggest-text-button suggest-photo-remove"
+                aria-label={t.rotateLabel(index + 1)}
+                aria-disabled={item.status !== "ready"}
+                onClick={() => photos.rotate(item.id)}
+              >
+                {t.rotate}
+              </button>
               <button
                 type="button"
                 className="suggest-text-button suggest-photo-remove"

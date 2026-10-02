@@ -4915,6 +4915,11 @@ html[data-theme="dark"] .theme-label-to-light {
   font-size: 13px;
 }
 
+/* под превью две кнопки — «Повернуть» и «Убрать»: вторая чуть плотнее к первой */
+.suggest-photo .suggest-photo-remove + .suggest-photo-remove {
+  margin-top: -14px;
+}
+
 .suggest-photo-add {
   position: relative;
   justify-self: start;

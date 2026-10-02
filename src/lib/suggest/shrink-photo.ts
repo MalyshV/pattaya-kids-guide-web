@@ -73,6 +73,40 @@ export async function shrinkPhoto(file: File): Promise<Blob> {
   }
 }
 
+/**
+ * Повернуть уже сжатое фото на 90° по часовой стрелке (кнопка «Повернуть» под
+ * превью): снимок лёг на бок — человек сам ставит его как надо.
+ */
+export async function rotatePhoto(photo: Blob): Promise<Blob> {
+  const image = await loadImage(photo);
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (!context) {
+    throw new PhotoReadError("no canvas");
+  }
+  try {
+    canvas.width = image.naturalHeight;
+    canvas.height = image.naturalWidth;
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.translate(canvas.width, 0);
+    context.rotate(Math.PI / 2);
+    context.drawImage(image, 0, 0);
+    // размер тот же, что был: первая ступень качества почти всегда проходит;
+    // шумный снимок после пережатия мог чуть вырасти — тогда ступень ниже
+    for (const quality of [0.86, 0.75, 0.65]) {
+      const blob = await toJpeg(canvas, quality);
+      if (blob && blob.size <= SUGGEST_PHOTOS.maxBytes) {
+        return blob;
+      }
+    }
+    throw new PhotoReadError("still too large");
+  } finally {
+    canvas.width = 0;
+    canvas.height = 0;
+  }
+}
+
 async function shrinkOnCanvas(
   image: HTMLImageElement,
   canvas: HTMLCanvasElement,

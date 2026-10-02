@@ -22,6 +22,10 @@ const SUCCESS: Record<string, { title: string; message?: string }> = {
   updated: { title: "Изменения сохранены" },
   deleted: { title: "Карточка удалена", message: "Запись удалена навсегда." },
   status: { title: "Статус предложения обновлён" },
+  rotated: {
+    title: "Фото повёрнуто",
+    message: "Если нужно ещё — нажмите «Повернуть» снова.",
+  },
   photoDeleted: {
     title: "Фото удалено",
     message:
@@ -69,6 +73,10 @@ const ERROR: Record<string, { title: string; message?: string }> = {
   additionCover: {
     title: "Обложка не поменялась",
     message: "Фото не скопировалось или карточки уже нет. Попробуйте ещё раз.",
+  },
+  rotate: {
+    title: "Фото не повернулось",
+    message: "Файл не открылся или хранилище не приняло копию. Попробуйте ещё раз.",
   },
   tips: {
     title: "Карточка сохранена, но «Полезно знать» — нет",

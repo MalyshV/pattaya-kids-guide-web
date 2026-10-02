@@ -2,6 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { CONTENT_TAGS } from "@/lib/cache/data-cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/db/prisma";
 import {
@@ -24,6 +25,7 @@ import {
 import { parseBirthdayForm } from "@/lib/admin/birthday-info";
 import { slugify } from "@/lib/admin/slug";
 import { DEFAULT_CITY_SLUG } from "@/lib/geo/base-path";
+import { dropOldImage, rotateStoredImage } from "@/lib/admin/rotate-photo";
 import { saveTipsFromForm } from "@/lib/admin/tips-store";
 import { parseSubmissionStatus } from "@/lib/admin/submission-labels";
 
@@ -552,6 +554,109 @@ export async function deletePlacePhotoAction(formData: FormData): Promise<void> 
     revalidateSite();
   }
   redirect(`/admin/places/${placeId}`);
+}
+
+/**
+ * «Повернуть» у сохранённого фото: галерея и обложка места, обложка события
+ * и занятия, фото в предложении. Кладём повёрнутую копию, меняем адрес в
+ * базе, прежний файл убираем (та же картинка, только боком).
+ */
+export async function rotatePhotoAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const target = text(formData, "target");
+  const id = text(formData, "id");
+  if (!id) {
+    redirect("/admin");
+  }
+  // адрес самого сайта — чтобы прочитать фото из его папки public
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
+  const origin = `${requestHeaders.get("x-forwarded-proto") ?? "https"}://${host}`;
+
+  let back = "/admin";
+  try {
+    if (target === "placePhoto") {
+      const photo = await prisma.placePhoto.findUnique({
+        where: { id },
+        select: { url: true, placeId: true },
+      });
+      if (!photo) {
+        redirect("/admin/places");
+      }
+      back = `/admin/places/${photo.placeId}`;
+      const url = await rotateStoredImage(photo.url, "places", origin);
+      await prisma.placePhoto.update({ where: { id }, data: { url } });
+      await dropOldImage(photo.url);
+    } else if (target === "placeCover") {
+      back = `/admin/places/${id}`;
+      const place = await prisma.place.findUnique({
+        where: { id },
+        select: { imageUrl: true },
+      });
+      if (!place?.imageUrl) {
+        redirect(back);
+      }
+      const imageUrl = await rotateStoredImage(place.imageUrl, "places", origin);
+      await prisma.place.update({ where: { id }, data: { imageUrl } });
+      await dropOldImage(place.imageUrl);
+    } else if (target === "eventCover") {
+      back = `/admin/events/${id}`;
+      const event = await prisma.event.findUnique({
+        where: { id },
+        select: { imageUrl: true },
+      });
+      if (!event?.imageUrl) {
+        redirect(back);
+      }
+      const imageUrl = await rotateStoredImage(event.imageUrl, "events", origin);
+      await prisma.event.update({ where: { id }, data: { imageUrl } });
+      await dropOldImage(event.imageUrl);
+    } else if (target === "activityCover") {
+      back = `/admin/activities/${id}`;
+      const activity = await prisma.placeProgram.findUnique({
+        where: { id },
+        select: { imageUrl: true },
+      });
+      if (!activity?.imageUrl) {
+        redirect(back);
+      }
+      const imageUrl = await rotateStoredImage(activity.imageUrl, "activities", origin);
+      await prisma.placeProgram.update({ where: { id }, data: { imageUrl } });
+      await dropOldImage(activity.imageUrl);
+    } else if (target === "submissionPhoto") {
+      back = `/admin/suggestions/${id}`;
+      const oldUrl = text(formData, "url");
+      const item = await prisma.submission.findUnique({
+        where: { id },
+        select: { photoUrls: true },
+      });
+      // поворачиваем только то, что действительно лежит в этом предложении
+      if (!item || !item.photoUrls.includes(oldUrl)) {
+        redirect(back);
+      }
+      const url = await rotateStoredImage(oldUrl, "suggestions", origin);
+      await prisma.submission.update({
+        where: { id },
+        data: {
+          photoUrls: item.photoUrls.map((photo) => (photo === oldUrl ? url : photo)),
+        },
+      });
+      await dropOldImage(oldUrl);
+    } else {
+      redirect("/admin");
+    }
+  } catch (error) {
+    if (!(error instanceof UploadError)) {
+      throw error;
+    }
+    console.error("admin: фото не повернулось", error);
+    redirect(`${back}?error=rotate`);
+  }
+
+  if (target !== "submissionPhoto") {
+    revalidateSite();
+  }
+  redirect(`${back}?done=rotated`);
 }
 
 // ── события ─────────────────────────────────────────────────────────────────
