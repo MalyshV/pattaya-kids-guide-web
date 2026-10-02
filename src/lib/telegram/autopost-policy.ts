@@ -48,3 +48,57 @@ export function compareActivitiesForPost(
   }
   return a.order - b.order || a.name.localeCompare(b.name, "ru");
 }
+
+export type AutopostEntityType = "EVENT" | "PLACE" | "ACTIVITY";
+
+const RESET_TYPE_BY_NAME: Record<string, AutopostEntityType> = {
+  events: "EVENT",
+  places: "PLACE",
+  activities: "ACTIVITY",
+};
+
+const ALL_RESET_TYPES: AutopostEntityType[] = ["EVENT", "PLACE", "ACTIVITY"];
+
+export type ParsedResetTypes =
+  | { ok: true; types: AutopostEntityType[] }
+  | { ok: false; error: string };
+
+/**
+ * Разбор `--type=events,places` для сброса журнала. Без `--type` — все типы.
+ * Можно повторять флаг и/или перечислять через запятую; дубли схлопываются,
+ * порядок результата всегда один и тот же. Неизвестное значение — ошибка:
+ * лучше остановиться, чем сбросить не то.
+ */
+export function parseResetTypes(args: string[]): ParsedResetTypes {
+  const typeArgs = args.filter((arg) => arg === "--type" || arg.startsWith("--type="));
+  if (typeArgs.length === 0) {
+    return { ok: true, types: [...ALL_RESET_TYPES] };
+  }
+
+  const found = new Set<AutopostEntityType>();
+  for (const arg of typeArgs) {
+    const raw = arg.includes("=") ? arg.slice(arg.indexOf("=") + 1) : "";
+    const names = raw.split(",").map((name) => name.trim().toLowerCase());
+    if (names.every((name) => name === "")) {
+      return {
+        ok: false,
+        error: "Флаг --type пуст. Допустимо: events, places, activities (через запятую).",
+      };
+    }
+    for (const name of names) {
+      if (name === "") {
+        continue;
+      }
+      const type = RESET_TYPE_BY_NAME[name];
+      if (!type) {
+        return {
+          ok: false,
+          error: `Неизвестный тип «${name}» в --type. Допустимо: events, places, activities.`,
+        };
+      }
+      found.add(type);
+    }
+  }
+
+  return { ok: true, types: ALL_RESET_TYPES.filter((type) => found.has(type)) };
+}

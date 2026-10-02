@@ -6,12 +6,18 @@
  *   npm run telegram:autopost:dry     — показать, ЧТО ушло бы, без отправки
  *   npm run telegram:baseline         — первый запуск: пометить весь текущий
  *                                       каталог как «уже опубликовано» (без постов)
+ *   npm run telegram:reset            — показать, сколько записей журнала сбросилось бы
+ *                                       (ничего не удаляет)
+ *   npm run telegram:reset -- --yes   — по-настоящему сбросить журнал; можно
+ *                                       сузить: --type=events,places,activities
  *   npx tsx --env-file=.env scripts/telegram/autopost.ts --limit=3
  */
 
 import { prisma } from "../../src/db/prisma";
+import { parseResetTypes } from "../../src/lib/telegram/autopost-policy";
 import {
   baselineExistingContent,
+  resetAutopostJournal,
   runAutopost,
 } from "../../src/services/telegram-autopost.service";
 
@@ -24,6 +30,47 @@ function parseLimit(args: string[]): number | undefined {
   return Number.isInteger(value) && value > 0 ? value : undefined;
 }
 
+async function runReset(args: string[]): Promise<void> {
+  const parsed = parseResetTypes(args);
+  if (!parsed.ok) {
+    console.error(parsed.error);
+    console.error("Ничего не сделано.");
+    process.exitCode = 1;
+    return;
+  }
+
+  const confirmed = args.includes("--yes");
+  const result = await resetAutopostJournal({ types: parsed.types, dryRun: !confirmed });
+  const names = {
+    EVENT: "событий",
+    PLACE: "мест",
+    ACTIVITY: "занятий",
+  } as const;
+
+  console.log(
+    confirmed ? "Журнал автопостинга сброшен:" : "Было бы сброшено (ничего не удалено):",
+  );
+  for (const type of parsed.types) {
+    console.log(`  ${names[type]}: ${result.journal[type]} записей журнала`);
+  }
+  const queuedTotal = parsed.types.reduce((sum, type) => sum + result.queued[type], 0);
+  console.log(
+    `После сброса в очереди на публикацию (по выбранным типам): ${queuedTotal} постов.`,
+  );
+
+  if (!confirmed) {
+    console.log("Для настоящего сброса добавьте флаг --yes:");
+    console.log("  npm run telegram:reset -- --yes");
+    return;
+  }
+
+  console.log("");
+  console.log(
+    "ВАЖНО: старые посты в канале нужно удалить руками в Telegram, иначе будут дубли.",
+  );
+  console.log("Автопостинг пойдёт по 5 постов за прогон (крон раз в день или вручную).");
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
 
@@ -33,6 +80,11 @@ async function main(): Promise<void> {
       `Готово: помечено как «уже опубликовано» ${result.events} событий, ${result.places} мест и ${result.activities} занятий.`,
     );
     console.log("Теперь автопостинг будет публиковать только НОВЫЙ контент.");
+    return;
+  }
+
+  if (args.includes("--reset")) {
+    await runReset(args);
     return;
   }
 

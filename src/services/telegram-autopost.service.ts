@@ -13,6 +13,7 @@ import {
   compareActivitiesForPost,
   isActivityPostable,
   shouldReleaseClaim,
+  type AutopostEntityType,
 } from "@/lib/telegram/autopost-policy";
 import {
   buildActivityPost,
@@ -395,4 +396,95 @@ export async function baselineExistingContent(): Promise<{
     places: placesResult.count,
     activities: activitiesResult.count,
   };
+}
+
+export type AutopostResetResult = {
+  /// сколько записей журнала сброшено (или было бы сброшено при dryRun)
+  journal: Record<AutopostEntityType, number>;
+  /// сколько постов окажется в очереди после сброса (всего, а не за один прогон)
+  queued: Record<AutopostEntityType, number>;
+  dryRun: boolean;
+};
+
+/**
+ * Сброс журнала автопостинга: удаляет записи TelegramPost выбранных типов, и
+ * автопостинг снова считает этот контент новым. Нужен, когда канал чистят
+ * руками и начинают заново. dryRun (по умолчанию) ничего не удаляет, только
+ * считает. Сами посты в канале сервис не трогает — их удаляют вручную.
+ *
+ * Условия «что постится» здесь продублированы с findCandidates только для
+ * подсчёта очереди — при изменении правил автопостинга поправить и здесь.
+ */
+export async function resetAutopostJournal(options: {
+  types: AutopostEntityType[];
+  dryRun?: boolean;
+}): Promise<AutopostResetResult> {
+  const { types, dryRun = true } = options;
+  const now = new Date();
+  const resetting = new Set(types);
+
+  const journalRows = await prisma.telegramPost.findMany({
+    select: { entityType: true, entityId: true },
+  });
+  const journal: Record<AutopostEntityType, number> = { EVENT: 0, PLACE: 0, ACTIVITY: 0 };
+  const stillPosted: Record<AutopostEntityType, Set<string>> = {
+    EVENT: new Set(),
+    PLACE: new Set(),
+    ACTIVITY: new Set(),
+  };
+  for (const row of journalRows) {
+    if (resetting.has(row.entityType)) {
+      journal[row.entityType] += 1;
+    } else {
+      stillPosted[row.entityType].add(row.entityId);
+    }
+  }
+
+  const [events, places, activities] = await Promise.all([
+    prisma.event.findMany({
+      where: {
+        status: "APPROVED",
+        isDemo: false,
+        city: { slug: POST_CITY_SLUG },
+        OR: [
+          buildEventLifecycleWhere("upcoming", now),
+          buildEventLifecycleWhere("ongoing", now),
+        ],
+      },
+      select: { id: true },
+    }),
+    prisma.place.findMany({
+      where: { status: "APPROVED", isDemo: false, city: { slug: POST_CITY_SLUG } },
+      select: { id: true },
+    }),
+    prisma.placeProgram.findMany({
+      where: {
+        type: { in: ["COURSE", "CAMP"] },
+        slug: { not: null },
+        status: "APPROVED",
+        isDemo: false,
+        OR: [
+          {
+            place: { status: "APPROVED", isDemo: false, city: { slug: POST_CITY_SLUG } },
+          },
+          { placeId: null, city: { slug: POST_CITY_SLUG } },
+        ],
+      },
+      select: { id: true, type: true, startDate: true, endDate: true },
+    }),
+  ]);
+
+  const queued: Record<AutopostEntityType, number> = {
+    EVENT: events.filter((item) => !stillPosted.EVENT.has(item.id)).length,
+    PLACE: places.filter((item) => !stillPosted.PLACE.has(item.id)).length,
+    ACTIVITY: activities.filter(
+      (item) => !stillPosted.ACTIVITY.has(item.id) && isActivityPostable(item, now),
+    ).length,
+  };
+
+  if (!dryRun && types.length > 0) {
+    await prisma.telegramPost.deleteMany({ where: { entityType: { in: types } } });
+  }
+
+  return { journal, queued, dryRun };
 }

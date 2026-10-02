@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   compareActivitiesForPost,
   isActivityPostable,
+  parseResetTypes,
   shouldReleaseClaim,
 } from "./autopost-policy";
 import { TelegramApiError } from "./client";
@@ -108,5 +109,49 @@ describe("compareActivitiesForPost — очередь занятий", () => {
       "Плавание",
       "Лагерь без дат",
     ]);
+  });
+});
+
+describe("parseResetTypes", () => {
+  it("без --type берёт все типы", () => {
+    expect(parseResetTypes(["--reset"])).toEqual({
+      ok: true,
+      types: ["EVENT", "PLACE", "ACTIVITY"],
+    });
+  });
+
+  it("разбирает один тип и список через запятую", () => {
+    expect(parseResetTypes(["--type=places"])).toEqual({ ok: true, types: ["PLACE"] });
+    expect(parseResetTypes(["--type=activities,events"])).toEqual({
+      ok: true,
+      types: ["EVENT", "ACTIVITY"],
+    });
+  });
+
+  it("склеивает повторы флага и убирает дубли", () => {
+    expect(parseResetTypes(["--type=events", "--type=events,places"])).toEqual({
+      ok: true,
+      types: ["EVENT", "PLACE"],
+    });
+  });
+
+  it("не чувствителен к регистру и пробелам", () => {
+    expect(parseResetTypes(["--type=Events, PLACES"])).toEqual({
+      ok: true,
+      types: ["EVENT", "PLACE"],
+    });
+  });
+
+  it("неизвестное значение — ошибка", () => {
+    const result = parseResetTypes(["--type=events,camps"]);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toContain("camps");
+    }
+  });
+
+  it("пустой --type — ошибка", () => {
+    expect(parseResetTypes(["--type="]).ok).toBe(false);
+    expect(parseResetTypes(["--type"]).ok).toBe(false);
   });
 });
