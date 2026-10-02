@@ -59,6 +59,10 @@ export function buildPlaceUrl(slug: string): string {
   return `${getSiteBaseUrl()}/${POST_LANG}/${POST_CITY_SLUG}/places/${slug}`;
 }
 
+export function buildActivityUrl(slug: string): string {
+  return `${getSiteBaseUrl()}/${POST_LANG}/${POST_CITY_SLUG}/activities/${slug}`;
+}
+
 /** imageUrl в БД — путь в public (напр. /images/places/x.jpg) → абсолютный URL. */
 export function buildImageUrl(imageUrl: string): string {
   if (/^https?:\/\//.test(imageUrl)) {
@@ -191,6 +195,88 @@ export function buildPlacePost(place: PlaceForPost): ChannelPost {
     photoUrl: place.imageUrl ? buildImageUrl(place.imageUrl) : null,
     linkUrl: buildPlaceUrl(place.slug),
     linkLabel: "Открыть на сайте",
+  };
+}
+
+/** Узкий тип занятия или лагеря для поста (без Prisma-модели). */
+export type ActivityForPost = {
+  name: string;
+  slug: string;
+  /** CAMP — лагерь (с датами), COURSE — регулярное занятие */
+  type: "COURSE" | "CAMP";
+  description: string | null;
+  imageUrl: string | null;
+  price: number | null;
+  currency: string;
+  /** подпись к цене: «/ неделя», «за ребёнка» */
+  priceUnit: string | null;
+  minAgeMonths: number | null;
+  maxAgeMonths: number | null;
+  startDate: string | null;
+  endDate: string | null;
+  /** место из каталога или название площадки текстом */
+  locationName: string | null;
+};
+
+const priceFormat = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 });
+
+function formatPostPrice(price: number, currency: string, unit: string | null): string {
+  const amount = `${priceFormat.format(price)} ${currency === "THB" ? "฿" : currency}`;
+  return unit ? `${amount} ${unit}` : amount;
+}
+
+export function buildActivityPost(activity: ActivityForPost): ChannelPost {
+  const isCamp = activity.type === "CAMP";
+  const lines: string[] = [
+    isCamp ? "Лагерь в гиде" : "Новое занятие в гиде",
+    "",
+    `<b>${escapeHtml(truncateAtWord(activity.name, TITLE_MAX_LENGTH))}</b>`,
+    "",
+  ];
+
+  // даты — только у лагеря: у регулярного занятия их нет
+  if (isCamp && activity.startDate) {
+    lines.push(
+      `📅 ${escapeHtml(formatEventDates(activity.startDate, activity.endDate))}`,
+    );
+  }
+
+  const ageRange = formatAgeRange(activity.minAgeMonths, activity.maxAgeMonths, "ru");
+  if (ageRange) {
+    lines.push(`👶 ${escapeHtml(ageRange)}`);
+  }
+
+  if (activity.locationName) {
+    lines.push(
+      `📍 ${escapeHtml(truncateAtWord(activity.locationName, LOCATION_MAX_LENGTH))}`,
+    );
+  }
+
+  if (activity.price !== null) {
+    lines.push(
+      `💰 ${escapeHtml(
+        truncateAtWord(
+          formatPostPrice(activity.price, activity.currency, activity.priceUnit),
+          LOCATION_MAX_LENGTH,
+        ),
+      )}`,
+    );
+  }
+
+  if (activity.description) {
+    lines.push(
+      "",
+      escapeHtml(truncateAtWord(activity.description, DESCRIPTION_PREVIEW_LENGTH)),
+    );
+  }
+
+  lines.push("", isCamp ? "#лагерь" : "#занятия");
+
+  return {
+    text: clampPostText(lines.join("\n")),
+    photoUrl: activity.imageUrl ? buildImageUrl(activity.imageUrl) : null,
+    linkUrl: buildActivityUrl(activity.slug),
+    linkLabel: "Подробнее на сайте",
   };
 }
 

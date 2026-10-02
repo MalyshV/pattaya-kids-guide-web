@@ -30,7 +30,7 @@ async function main(): Promise<void> {
   if (args.includes("--baseline")) {
     const result = await baselineExistingContent();
     console.log(
-      `Готово: помечено как «уже опубликовано» ${result.events} событий и ${result.places} мест.`,
+      `Готово: помечено как «уже опубликовано» ${result.events} событий, ${result.places} мест и ${result.activities} занятий.`,
     );
     console.log("Теперь автопостинг будет публиковать только НОВЫЙ контент.");
     return;
@@ -45,7 +45,8 @@ async function main(): Promise<void> {
   }
 
   for (const item of summary.posted) {
-    const label = item.type === "EVENT" ? "событие" : "место";
+    const label =
+      item.type === "EVENT" ? "событие" : item.type === "PLACE" ? "место" : "занятие";
     console.log(`${dryRun ? "[черновик] " : "✓ "}${label}: ${item.title}`);
     if (item.preview) {
       console.log("---");

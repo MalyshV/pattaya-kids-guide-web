@@ -14,3 +14,37 @@ import { TelegramApiError } from "@/lib/telegram/client";
 export function shouldReleaseClaim(error: unknown): boolean {
   return error instanceof TelegramApiError;
 }
+
+/**
+ * Стоит ли публиковать занятие. Регулярное занятие — всегда. Лагерь — только
+ * пока он не закончился: пост «Лагерь в гиде» про июльскую смену в октябре
+ * был бы шумом. Лагерь без дат публикуем (даты ещё не объявили).
+ */
+export function isActivityPostable(
+  activity: { type: string; startDate: Date | null; endDate: Date | null },
+  now: Date,
+): boolean {
+  if (activity.type !== "CAMP") {
+    return true;
+  }
+  const lastDay = activity.endDate ?? activity.startDate;
+  return lastDay === null || lastDay.getTime() >= now.getTime();
+}
+
+/**
+ * Очередь занятий: сперва лагеря с ближайшим началом (у них срок), потом
+ * остальные в порядке каталога.
+ */
+export function compareActivitiesForPost(
+  a: { type: string; startDate: Date | null; order: number; name: string },
+  b: { type: string; startDate: Date | null; order: number; name: string },
+): number {
+  const aStart = a.type === "CAMP" && a.startDate ? a.startDate.getTime() : null;
+  const bStart = b.type === "CAMP" && b.startDate ? b.startDate.getTime() : null;
+  if (aStart !== null || bStart !== null) {
+    if (aStart === null) return 1;
+    if (bStart === null) return -1;
+    if (aStart !== bStart) return aStart - bStart;
+  }
+  return a.order - b.order || a.name.localeCompare(b.name, "ru");
+}

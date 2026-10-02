@@ -715,6 +715,8 @@ model TelegramPost {
 enum TelegramPostEntity {
   EVENT
   PLACE
+  /// занятие или лагерь (PlaceProgram со своей страницей)
+  ACTIVITY
 }
 
 /// Предложение из формы «Предложить своё» (родитель или владелец места).

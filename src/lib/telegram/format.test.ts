@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import type { EventListItemDto } from "@/dto/event-list-item.dto";
 import {
+  buildActivityPost,
   buildEventPost,
   buildListReply,
   buildPlacePost,
@@ -164,5 +165,70 @@ describe("buildListReply", () => {
       '<a href="https://example.test/ru/pattaya/events/kids-fair">Ярмарка &lt;детям&gt;</a>',
     );
     expect(reply).toContain("12 июля · Play Barn");
+  });
+});
+
+describe("buildActivityPost", () => {
+  const base = {
+    name: "Плавание для малышей",
+    slug: "baby-swim",
+    type: "COURSE" as const,
+    description: "Занятия в тёплом бассейне с инструктором.",
+    imageUrl: "/images/activities/swim.jpg",
+    price: 1500,
+    currency: "THB",
+    priceUnit: "/ месяц",
+    minAgeMonths: 6,
+    maxAgeMonths: 36,
+    startDate: null,
+    endDate: null,
+    locationName: "The Play Barn",
+  };
+
+  it("регулярное занятие: возраст, место, цена, хештег и ссылка", () => {
+    const post = buildActivityPost(base);
+    expect(post.text).toContain("Новое занятие в гиде");
+    expect(post.text).toContain("<b>Плавание для малышей</b>");
+    expect(post.text).toContain("👶 ");
+    expect(post.text).toContain("📍 The Play Barn");
+    expect(post.text).toContain("💰 1");
+    expect(post.text).toContain("฿ / месяц");
+    expect(post.text).toContain("#занятия");
+    expect(post.text).not.toContain("📅");
+    expect(post.linkUrl).toBe("https://example.test/ru/pattaya/activities/baby-swim");
+    expect(post.photoUrl).toBe("https://example.test/images/activities/swim.jpg");
+  });
+
+  it("лагерь: свой заголовок, даты и хештег", () => {
+    const post = buildActivityPost({
+      ...base,
+      type: "CAMP",
+      startDate: "2026-10-12T02:00:00.000Z",
+      endDate: "2026-10-16T09:00:00.000Z",
+    });
+    expect(post.text).toContain("Лагерь в гиде");
+    expect(post.text).toContain("📅 12 октября – 16 октября");
+    expect(post.text).toContain("#лагерь");
+  });
+
+  it("без цены, возраста, места и фото — этих строк просто нет", () => {
+    const post = buildActivityPost({
+      ...base,
+      price: null,
+      minAgeMonths: null,
+      maxAgeMonths: null,
+      locationName: null,
+      imageUrl: null,
+    });
+    expect(post.text).not.toContain("💰");
+    expect(post.text).not.toContain("👶");
+    expect(post.text).not.toContain("📍");
+    expect(post.photoUrl).toBeNull();
+  });
+
+  it("экранирует название и подпись цены", () => {
+    const post = buildActivityPost({ ...base, name: "Art & <Craft>", priceUnit: "<b>" });
+    expect(post.text).toContain("<b>Art &amp; &lt;Craft&gt;</b>");
+    expect(post.text).toContain("&lt;b&gt;");
   });
 });
