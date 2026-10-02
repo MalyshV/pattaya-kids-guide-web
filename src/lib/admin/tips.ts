@@ -8,6 +8,10 @@
  * русским текстом остаётся как был (меняются порядок и английский), новая
  * строка создаётся, пропавшая — удаляется. Переписали русский текст — это
  * новый совет: старый перевод к нему уже не подходит.
+ *
+ * Исключение — исправленная опечатка: поменяли пару букв, а цифры остались
+ * прежними, — это тот же совет, перевод и дата проверки остаются. Цифры
+ * важны: «50 бат» → «60 бат» — одна буква, но перевод уже врёт.
  */
 
 export const TIP_LIMITS = {
@@ -27,7 +31,8 @@ export type ExistingTip = {
 
 export type TipPlan = {
   create: Array<TipLine & { order: number }>;
-  update: Array<{ id: string; textEn: string | null; order: number }>;
+  /** text — только когда в русском тексте исправили опечатку */
+  update: Array<{ id: string; text?: string; textEn: string | null; order: number }>;
   deleteIds: string[];
 };
 
@@ -55,6 +60,47 @@ export function parseTipLines(ru: string, en: string): TipLine[] {
   return lines;
 }
 
+/** Расстояние Левенштейна: сколько букв вставить, убрать или заменить. */
+function editDistance(a: string, b: string): number {
+  let previous = Array.from({ length: b.length + 1 }, (_, index) => index);
+  for (let i = 1; i <= a.length; i += 1) {
+    const current = [i];
+    for (let j = 1; j <= b.length; j += 1) {
+      current[j] = Math.min(
+        previous[j] + 1,
+        current[j - 1] + 1,
+        previous[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1),
+      );
+    }
+    previous = current;
+  }
+  return previous[b.length];
+}
+
+function digitsOf(value: string): string {
+  return value.replace(/\D+/g, " ").trim();
+}
+
+/** сколько букв можно поменять, чтобы это ещё считалось опечаткой */
+function typoBudget(length: number): number {
+  return Math.min(6, Math.max(2, Math.floor(length / 20)));
+}
+
+/**
+ * Та же строка с исправленной опечаткой? Несколько букв разницы и ровно те же
+ * цифры (цены, часы, возраст — смысл, а не опечатка).
+ */
+export function isTypoFix(before: string, after: string): boolean {
+  if (before === after || digitsOf(before) !== digitsOf(after)) {
+    return false;
+  }
+  const longest = Math.max(before.length, after.length);
+  if (Math.abs(before.length - after.length) > typoBudget(longest)) {
+    return false;
+  }
+  return editDistance(before, after) <= typoBudget(longest);
+}
+
 export function planTips(
   existing: readonly ExistingTip[],
   lines: readonly TipLine[],
@@ -69,11 +115,13 @@ export function planTips(
 
   const plan: TipPlan = { create: [], update: [], deleteIds: [] };
   const kept = new Set<string>();
+  // сначала точные совпадения — чтобы «почти такой же» совет не увёл чужой
+  const unmatched: Array<{ line: TipLine; order: number }> = [];
   lines.forEach((line, index) => {
     const order = index + 1;
     const same = byText.get(line.text);
-    if (!same) {
-      plan.create.push({ ...line, order });
+    if (!same || kept.has(same.id)) {
+      unmatched.push({ line, order });
       return;
     }
     kept.add(same.id);
@@ -81,6 +129,19 @@ export function planTips(
       plan.update.push({ id: same.id, textEn: line.textEn, order });
     }
   });
+  // затем — исправленные опечатки: тот же совет, перевод и дата проверки целы
+  for (const { line, order } of unmatched) {
+    const fixed = existing.find(
+      (tip) => !kept.has(tip.id) && isTypoFix(clean(tip.text), line.text),
+    );
+    if (fixed) {
+      kept.add(fixed.id);
+      plan.update.push({ id: fixed.id, text: line.text, textEn: line.textEn, order });
+    } else {
+      plan.create.push({ ...line, order });
+    }
+  }
+  plan.create.sort((a, b) => a.order - b.order);
   plan.deleteIds = existing.filter((tip) => !kept.has(tip.id)).map((tip) => tip.id);
   return plan;
 }

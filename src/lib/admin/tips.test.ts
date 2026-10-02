@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { TIP_LIMITS, parseTipLines, planTips, tipsToFields } from "@/lib/admin/tips";
+import {
+  TIP_LIMITS,
+  isTypoFix,
+  parseTipLines,
+  planTips,
+  tipsToFields,
+} from "@/lib/admin/tips";
 
 describe("parseTipLines — два поля формы, строка в строку", () => {
   it("перевод — из строки с тем же номером; пустые русские строки пропускаем с парой", () => {
@@ -76,6 +82,78 @@ describe("planTips — что создать, поправить и удалит
 
   it("очистили поле — удаляются все", () => {
     expect(planTips(existing, parseTipLines("", "")).deleteIds).toEqual(["a", "b"]);
+  });
+});
+
+describe("isTypoFix — опечатка или новый смысл", () => {
+  it("пара букв при тех же цифрах — опечатка", () => {
+    expect(isTypoFix("Нужны носки для дитей", "Нужны носки для детей")).toBe(true);
+    expect(isTypoFix("Залог 100 бат возвращают", "Залог 100 бат возвращают.")).toBe(true);
+    expect(
+      isTypoFix("Вход с 3 лет, носки обязательны", "Вход с 3 лет — носки обязательны"),
+    ).toBe(true);
+  });
+
+  it("поменялись цифры — это уже другой факт, даже если буква одна", () => {
+    expect(isTypoFix("Носки 50 бат", "Носки 60 бат")).toBe(false);
+    expect(isTypoFix("Касса до 17:00", "Касса до 18:00")).toBe(false);
+    expect(isTypoFix("Вход с 3 лет", "Вход с трёх лет")).toBe(false);
+  });
+
+  it("переписали по смыслу или тот же текст — нет", () => {
+    expect(isTypoFix("Нужны носки", "Носки не нужны")).toBe(false);
+    expect(isTypoFix("Нужны носки", "В будни дешевле")).toBe(false);
+    expect(isTypoFix("Нужны носки", "Нужны носки")).toBe(false);
+    expect(isTypoFix("Да", "Нет")).toBe(false);
+  });
+});
+
+describe("planTips — исправленная опечатка остаётся тем же советом", () => {
+  const existing = [
+    { id: "a", text: "Нужны носки для дитей", textEn: "Socks required", order: 1 },
+    { id: "b", text: "Залог 100 бат", textEn: null, order: 2 },
+  ];
+
+  it("опечатку поправили — совет обновляется, не пересоздаётся", () => {
+    expect(
+      planTips(
+        existing,
+        parseTipLines("Нужны носки для детей\nЗалог 100 бат", "Socks required"),
+      ),
+    ).toEqual({
+      create: [],
+      update: [
+        { id: "a", text: "Нужны носки для детей", textEn: "Socks required", order: 1 },
+      ],
+      deleteIds: [],
+    });
+  });
+
+  it("поменяли цифру — новый совет, старый уходит", () => {
+    const plan = planTips(
+      existing,
+      parseTipLines("Нужны носки для дитей\nЗалог 200 бат", "Socks required"),
+    );
+    expect(plan.create).toEqual([{ text: "Залог 200 бат", textEn: null, order: 2 }]);
+    expect(plan.update).toEqual([]);
+    expect(plan.deleteIds).toEqual(["b"]);
+  });
+
+  it("точное совпадение важнее похожего: совет не уводится у своей строки", () => {
+    const close = [
+      { id: "a", text: "Нужны носки детям", textEn: null, order: 1 },
+      { id: "b", text: "Нужны носки детям.", textEn: null, order: 2 },
+    ];
+    expect(
+      planTips(close, parseTipLines("Нужны носки детям.\nНужны носки детям", "")),
+    ).toEqual({
+      create: [],
+      update: [
+        { id: "b", textEn: null, order: 1 },
+        { id: "a", textEn: null, order: 2 },
+      ],
+      deleteIds: [],
+    });
   });
 });
 
