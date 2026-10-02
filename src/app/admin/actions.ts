@@ -20,6 +20,7 @@ import {
   syncSubmissionsForPlace,
   unlinkSubmissionsForPlace,
 } from "@/lib/admin/submission-link";
+import { parseBirthdayForm } from "@/lib/admin/birthday-info";
 import { slugify } from "@/lib/admin/slug";
 import { DEFAULT_CITY_SLUG } from "@/lib/geo/base-path";
 import { saveTipsFromForm } from "@/lib/admin/tips-store";
@@ -250,6 +251,26 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
     redirect(id ? `/admin/places/${id}?error=schedule` : newPlaceHref("schedule"));
   }
 
+  // «День рождения»: нечисловое и отрицательное → null, min > max — ошибка
+  const birthday = parseBirthdayForm({
+    enabled: checkbox(formData, "birthdayEnabled"),
+    hasPackages: checkbox(formData, "birthdayHasPackages"),
+    minGuests: text(formData, "birthdayMinGuests"),
+    maxGuests: text(formData, "birthdayMaxGuests"),
+    depositRequired: text(formData, "birthdayDepositRequired"),
+    preBookingDays: text(formData, "birthdayPreBookingDays"),
+    notes: text(formData, "birthdayNotes"),
+    notesEn: text(formData, "birthdayNotesEn"),
+  });
+  // блока в форме не было (вкладка, открытая до обновления сайта) — данные о
+  // ДР не трогаем: иначе отсутствующая галочка читалась бы как «снята»
+  const birthdayInForm = formData.has("birthdayPresent");
+  if (!birthday.ok) {
+    redirect(
+      id ? `/admin/places/${id}?error=birthdayGuests` : newPlaceHref("birthdayGuests"),
+    );
+  }
+
   const data = {
     name,
     description: textOrNull(formData, "description"),
@@ -316,6 +337,20 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
       if (categoryIds.length > 0) {
         await tx.placeCategory.createMany({
           data: categoryIds.map((categoryId) => ({ placeId: pid, categoryId })),
+        });
+      }
+
+      // день рождения: снят чекбокс — запись удаляется; иначе создаём/обновляем.
+      // notesTh в форме нет — при обновлении его не трогаем
+      if (!birthdayInForm) {
+        // блока в форме не было — оставляем как есть
+      } else if (birthday.info === null) {
+        await tx.placeBirthdayInfo.deleteMany({ where: { placeId: pid } });
+      } else {
+        await tx.placeBirthdayInfo.upsert({
+          where: { placeId: pid },
+          create: { placeId: pid, ...birthday.info },
+          update: birthday.info,
         });
       }
 
