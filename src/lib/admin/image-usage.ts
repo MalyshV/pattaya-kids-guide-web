@@ -1,6 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/db/prisma";
+import { removeStoredImage } from "@/lib/admin/upload";
 
 /**
  * Используется ли адрес картинки где-то ещё: в галереях мест, обложках
@@ -19,4 +20,26 @@ export async function isImageUrlInUse(url: string): Promise<boolean> {
     prisma.submission.count({ where: { photoUrls: { has: url } } }),
   ]);
   return photos + places + events + programs + submissions > 0;
+}
+
+/**
+ * Убрать файл картинки после удаления записи, которая на него ссылалась
+ * (фото галереи, событие, занятие). Общий файл — адрес стоит ещё где-то —
+ * не трогаем. Сбой не роняет действие: запись уже удалена, лишний файл
+ * безвреден — только пишем в лог.
+ */
+export async function removeImageIfUnused(
+  url: string | null | undefined,
+  what: string,
+): Promise<void> {
+  if (!url) {
+    return;
+  }
+  try {
+    if (!(await isImageUrlInUse(url))) {
+      await removeStoredImage(url);
+    }
+  } catch (error) {
+    console.error(`admin: файл не удалён (${what})`, url, error);
+  }
 }
