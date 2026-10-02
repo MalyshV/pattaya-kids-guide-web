@@ -28,6 +28,13 @@ import {
 } from "@/lib/admin/submission-link";
 import { parseBirthdayForm } from "@/lib/admin/birthday-info";
 import {
+  classFieldName,
+  classRowError,
+  parseClassRows,
+  type ClassRow,
+} from "@/lib/admin/class-rows";
+import { saveClassRows } from "@/lib/admin/class-rows-store";
+import {
   ACTIVITY_FIELDS,
   EVENT_FIELDS,
   PLACE_FIELDS,
@@ -979,6 +986,25 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
     );
   }
 
+  // таблица классов: блока в форме не было (старая вкладка) — классы не
+  // трогаем; ошибка в строке — возвращаем форму, пока ничего не сохранено
+  let classRows: ClassRow[] | null = null;
+  if (formData.has("classRowCount")) {
+    const parsedClasses = parseClassRows(
+      (index, field) => text(formData, classFieldName(index, field)),
+      intOrNull(formData, "classRowCount") ?? 0,
+    );
+    if (!parsedClasses.ok) {
+      const problem = classRowError(parsedClasses.row, parsedClasses.problem);
+      redirect(
+        id
+          ? `/admin/activities/${id}?error=${problem}`
+          : newCardHref("/admin/activities/new", problem, fromSubmission),
+      );
+    }
+    classRows = parsedClasses.rows;
+  }
+
   const type = text(formData, "type");
   const coverResult = await coverFromForm(formData, "activities");
   const uploadFailed = coverResult === "upload-error";
@@ -1064,6 +1090,17 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
     throw error;
   }
 
+  // таблица классов: уже проверена выше; сбой записи карточку не отменяет
+  const classesFailed = classRows
+    ? await saveClassRows(activityId, classRows).then(
+        () => false,
+        (error: unknown) => {
+          console.error("admin: классы занятия не сохранились", error);
+          return true;
+        },
+      )
+    : false;
+
   const tipsFailed = await saveTipsFromForm("program", activityId, formData).then(
     () => false,
     (error: unknown) => {
@@ -1105,6 +1142,9 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
   }
   if (tipsFailed) {
     redirect(`${cardPath}?error=tips`);
+  }
+  if (classesFailed) {
+    redirect(`${cardPath}?error=classes`);
   }
   if (fromSubmission && linkResult) {
     redirect(afterCardLinkHref(cardPath, fromSubmission, linkResult));

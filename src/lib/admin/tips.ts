@@ -36,8 +36,12 @@ export type TipPlan = {
   deleteIds: string[];
 };
 
+/** неразрывные пробелы не трогаем: ими склеены цены («50 ฿»), чтобы не рвались */
 function clean(value: string): string {
-  return value.replace(/\s+/g, " ").trim().slice(0, TIP_LIMITS.maxLength);
+  return value
+    .replace(/[ \t\r\n]+/g, " ")
+    .replace(/^ +| +$/g, "")
+    .slice(0, TIP_LIMITS.maxLength);
 }
 
 /**

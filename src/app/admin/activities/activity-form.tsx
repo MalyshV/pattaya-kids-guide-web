@@ -1,4 +1,6 @@
 import { ADMIN_FIELDS, tooLongMessage } from "@/lib/admin/field-limits";
+import { classRowMessage } from "@/lib/admin/class-rows";
+import { ClassFields, type ClassFieldsItem } from "@/app/admin/class-fields";
 import { CoverPreview } from "@/app/admin/rotate-button";
 import { TipsFields } from "@/app/admin/tips-fields";
 import type { PlaceProgram } from "@prisma/client";
@@ -29,6 +31,7 @@ type ActivityFormProps = {
   activity:
     | (PlaceProgram & {
         _count?: { classes: number };
+        classes?: ClassFieldsItem[];
         tips?: Array<{ text: string; textEn: string | null }>;
       })
     | null;
@@ -67,6 +70,9 @@ export function ActivityForm({
 
       {tooLongMessage(error) ? (
         <p className="admin-error">{tooLongMessage(error)}</p>
+      ) : null}
+      {classRowMessage(error) ? (
+        <p className="admin-error">{classRowMessage(error)}</p>
       ) : null}
       {error === "name" ? <p className="admin-error">Название обязательно.</p> : null}
       {error === "upload" ? (
@@ -147,6 +153,8 @@ export function ActivityForm({
         </label>
 
         <TipsFields tips={activity?.tips ?? []} />
+
+        <ClassFields classes={activity?.classes ?? []} />
 
         <div className="admin-row">
           <label className="admin-field">
