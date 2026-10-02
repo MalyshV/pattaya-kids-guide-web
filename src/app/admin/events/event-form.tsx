@@ -346,6 +346,7 @@ export function EventForm({
 
         <PhotoField
           name="coverFile"
+          coverKind="event"
           label={`Афиша/обложка ${event?.imageUrl ? "(файл заменит текущую)" : "(файл)"}`}
         />
 
