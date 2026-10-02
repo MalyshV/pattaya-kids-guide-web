@@ -18,7 +18,10 @@ import {
  */
 
 const SUCCESS: Record<string, { title: string; message?: string }> = {
-  created: { title: "Карточка добавлена", message: "Запись сохранена и уже на сайте." },
+  created: {
+    title: "Карточка добавлена",
+    message: "Запись сохранена. Родители видят её, если она не скрыта и не демо.",
+  },
   updated: { title: "Изменения сохранены" },
   deleted: { title: "Карточка удалена", message: "Запись удалена навсегда." },
   status: { title: "Статус предложения обновлён" },
