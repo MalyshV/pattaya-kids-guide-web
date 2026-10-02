@@ -108,6 +108,31 @@ describe("eventPrefill — чем заполняется форма событи
     expect(prefill.description).toBe("");
   });
 
+  it("дата в подсказке в форму не попадает — только из поля «когда»", () => {
+    const tip = "Были здесь 5 мая, очень понравилось. В 15:00 начинается шоу.";
+    const noWhen = eventPrefill({ ...base, tip, whenText: null }, NOW);
+    expect(noWhen.startDate).toBeNull();
+    expect(noWhen.endDate).toBeNull();
+
+    const vagueWhen = eventPrefill({ ...base, tip, whenText: "по выходным" }, NOW);
+    expect(vagueWhen.startDate).toBeNull();
+
+    // дата из «когда» остаётся своей, подсказка её не перебивает
+    const both = eventPrefill({ ...base, tip }, NOW);
+    expect(both.startDate?.toISOString()).toBe("2026-10-18T08:00:00.000Z");
+  });
+
+  it("возраст: сначала из «когда», если там нет — из подсказки", () => {
+    const fromWhen = eventPrefill(
+      { ...base, tip: "Для детей 4-8 лет", whenText: "18 октября, 15:00, дети 2-3 лет" },
+      NOW,
+    );
+    expect([fromWhen.minAgeMonths, fromWhen.maxAgeMonths]).toEqual([24, 36]);
+
+    const fromTip = eventPrefill({ ...base, whenText: null }, NOW);
+    expect([fromTip.minAgeMonths, fromTip.maxAgeMonths]).toEqual([48, 96]);
+  });
+
   it("без «когда» не падает", () => {
     const prefill = eventPrefill({ ...base, whenText: null }, NOW);
     expect(prefill.startDate).toBeNull();
