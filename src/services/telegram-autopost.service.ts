@@ -9,8 +9,13 @@ import { prisma } from "@/db/prisma";
 import { buildEventLifecycleWhere, eventWindowDate } from "@/lib/events/event-lifecycle";
 import { mapEventListItemToDto } from "@/mappers/event.mapper";
 import { sendMessage, sendPhoto, TelegramApiError } from "@/lib/telegram/client";
-import { shouldReleaseClaim } from "@/lib/telegram/autopost-policy";
 import {
+  compareActivitiesForPost,
+  isActivityPostable,
+  shouldReleaseClaim,
+} from "@/lib/telegram/autopost-policy";
+import {
+  buildActivityPost,
   buildEventPost,
   buildPlacePost,
   linkButtonKeyboard,
@@ -56,7 +61,7 @@ type PostCandidate = {
 /**
  * Кандидаты на публикацию: сперва одобренные события, которые ещё идут или ещё
  * не начались (ближайшие по окну показа первыми), затем — новые одобренные
- * места. Журнал читаем целиком в память: каталог маленький (сотни записей),
+ * места, затем — занятия и лагеря. Журнал читаем целиком в память: каталог маленький (сотни записей),
  * это осознанное упрощение.
  */
 async function findCandidates(limit: number): Promise<PostCandidate[]> {
@@ -70,6 +75,9 @@ async function findCandidates(limit: number): Promise<PostCandidate[]> {
     .map((row) => row.entityId);
   const postedPlaceIds = postedRows
     .filter((row) => row.entityType === "PLACE")
+    .map((row) => row.entityId);
+  const postedActivityIds = postedRows
+    .filter((row) => row.entityType === "ACTIVITY")
     .map((row) => row.entityId);
 
   const events = await prisma.event.findMany({
@@ -137,6 +145,59 @@ async function findCandidates(limit: number): Promise<PostCandidate[]> {
           description: place.description,
           imageUrl: place.imageUrl,
           address: place.address,
+        }),
+      });
+    }
+  }
+
+  const activitySlots = limit - candidates.length;
+  if (activitySlots > 0) {
+    // те же условия, что у ленты «Занятия» на сайте: своя страница (slug),
+    // не скрыто, не демо, место одобрено и не демо
+    const activities = await prisma.placeProgram.findMany({
+      where: {
+        type: { in: ["COURSE", "CAMP"] },
+        slug: { not: null },
+        status: "APPROVED",
+        isDemo: false,
+        OR: [
+          {
+            place: { status: "APPROVED", isDemo: false, city: { slug: POST_CITY_SLUG } },
+          },
+          { placeId: null, city: { slug: POST_CITY_SLUG } },
+        ],
+        id: { notIn: postedActivityIds },
+      },
+      include: { place: { select: { name: true } } },
+    });
+
+    const queue = activities
+      .filter((activity) => isActivityPostable(activity, now))
+      .sort(compareActivitiesForPost)
+      .slice(0, activitySlots);
+
+    for (const activity of queue) {
+      if (!activity.slug || (activity.type !== "COURSE" && activity.type !== "CAMP")) {
+        continue;
+      }
+      candidates.push({
+        entityType: "ACTIVITY",
+        entityId: activity.id,
+        title: activity.name,
+        post: buildActivityPost({
+          name: activity.name,
+          slug: activity.slug,
+          type: activity.type,
+          description: activity.description,
+          imageUrl: activity.imageUrl,
+          price: activity.price,
+          currency: activity.currency,
+          priceUnit: activity.priceUnit,
+          minAgeMonths: activity.minAgeMonths,
+          maxAgeMonths: activity.maxAgeMonths,
+          startDate: activity.startDate ? activity.startDate.toISOString() : null,
+          endDate: activity.endDate ? activity.endDate.toISOString() : null,
+          locationName: activity.place?.name ?? activity.venueName,
         }),
       });
     }
@@ -278,12 +339,13 @@ export async function runAutopost(
 export async function baselineExistingContent(): Promise<{
   events: number;
   places: number;
+  activities: number;
 }> {
   const channelId = getChannelId();
 
   // isDemo не помечаем: если демо-запись когда-то станет настоящей,
   // автопостинг честно опубликует её как новую
-  const [events, places] = await Promise.all([
+  const [events, places, activities] = await Promise.all([
     prisma.event.findMany({
       where: { status: "APPROVED", isDemo: false, city: { slug: POST_CITY_SLUG } },
       select: { id: true },
@@ -292,9 +354,13 @@ export async function baselineExistingContent(): Promise<{
       where: { status: "APPROVED", isDemo: false, city: { slug: POST_CITY_SLUG } },
       select: { id: true },
     }),
+    prisma.placeProgram.findMany({
+      where: { type: { in: ["COURSE", "CAMP"] }, slug: { not: null }, isDemo: false },
+      select: { id: true },
+    }),
   ]);
 
-  const [eventsResult, placesResult] = await Promise.all([
+  const [eventsResult, placesResult, activitiesResult] = await Promise.all([
     prisma.telegramPost.createMany({
       data: events.map((event) => ({
         entityType: "EVENT" as const,
@@ -313,7 +379,20 @@ export async function baselineExistingContent(): Promise<{
       })),
       skipDuplicates: true,
     }),
+    prisma.telegramPost.createMany({
+      data: activities.map((activity) => ({
+        entityType: "ACTIVITY" as const,
+        entityId: activity.id,
+        messageId: null,
+        channelId,
+      })),
+      skipDuplicates: true,
+    }),
   ]);
 
-  return { events: eventsResult.count, places: placesResult.count };
+  return {
+    events: eventsResult.count,
+    places: placesResult.count,
+    activities: activitiesResult.count,
+  };
 }

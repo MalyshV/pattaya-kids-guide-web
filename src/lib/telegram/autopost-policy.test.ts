@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { shouldReleaseClaim } from "./autopost-policy";
+import {
+  compareActivitiesForPost,
+  isActivityPostable,
+  shouldReleaseClaim,
+} from "./autopost-policy";
 import { TelegramApiError } from "./client";
 
 // Инвариант канала: дубль страшнее потери. Бронь журнала снимаем ТОЛЬКО когда
@@ -28,5 +32,81 @@ describe("shouldReleaseClaim", () => {
     expect(shouldReleaseClaim("строковая ошибка")).toBe(false);
     expect(shouldReleaseClaim(null)).toBe(false);
     expect(shouldReleaseClaim(undefined)).toBe(false);
+  });
+});
+
+describe("isActivityPostable — что из занятий публиковать", () => {
+  const now = new Date("2026-10-02T03:00:00.000Z");
+  const day = (iso: string): Date => new Date(iso);
+
+  it("регулярное занятие — всегда, даже со старыми датами", () => {
+    expect(
+      isActivityPostable(
+        { type: "COURSE", startDate: day("2025-01-01"), endDate: day("2025-02-01") },
+        now,
+      ),
+    ).toBe(true);
+  });
+
+  it("лагерь: будущий и идущий — да, закончившийся — нет", () => {
+    expect(
+      isActivityPostable(
+        { type: "CAMP", startDate: day("2026-10-12"), endDate: day("2026-10-16") },
+        now,
+      ),
+    ).toBe(true);
+    expect(
+      isActivityPostable(
+        { type: "CAMP", startDate: day("2026-09-28"), endDate: day("2026-10-09") },
+        now,
+      ),
+    ).toBe(true);
+    expect(
+      isActivityPostable(
+        { type: "CAMP", startDate: day("2026-07-01"), endDate: day("2026-07-31") },
+        now,
+      ),
+    ).toBe(false);
+  });
+
+  it("лагерь без конца — по дате начала; без дат вовсе — публикуем", () => {
+    expect(
+      isActivityPostable(
+        { type: "CAMP", startDate: day("2026-07-01"), endDate: null },
+        now,
+      ),
+    ).toBe(false);
+    expect(
+      isActivityPostable({ type: "CAMP", startDate: null, endDate: null }, now),
+    ).toBe(true);
+  });
+});
+
+describe("compareActivitiesForPost — очередь занятий", () => {
+  it("лагеря с ближайшим началом — первыми, остальное в порядке каталога", () => {
+    const items = [
+      { type: "COURSE", startDate: null, order: 1, name: "Плавание" },
+      {
+        type: "CAMP",
+        startDate: new Date("2026-12-20"),
+        order: 5,
+        name: "Зимний лагерь",
+      },
+      {
+        type: "CAMP",
+        startDate: new Date("2026-10-12"),
+        order: 9,
+        name: "Осенний лагерь",
+      },
+      { type: "COURSE", startDate: null, order: 0, name: "Гимнастика" },
+      { type: "CAMP", startDate: null, order: 2, name: "Лагерь без дат" },
+    ];
+    expect(items.sort(compareActivitiesForPost).map((item) => item.name)).toEqual([
+      "Осенний лагерь",
+      "Зимний лагерь",
+      "Гимнастика",
+      "Плавание",
+      "Лагерь без дат",
+    ]);
   });
 });
