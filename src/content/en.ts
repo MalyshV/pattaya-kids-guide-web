@@ -114,7 +114,6 @@ export const en: Dictionary = {
 
   age: {
     question: "How old is your child?",
-    hint: "Pick two ages if you have two kids",
     all: "All ages",
     buckets: {
       "0-1": "Under 1",
@@ -389,14 +388,12 @@ export const en: Dictionary = {
     },
     programOldPrice: (price: string): string => `was ${price}`,
     ageTitle: "Ages",
-    amenitiesTitle: "Amenities",
     staffLanguagesTitle: "Staff languages",
     birthdayTitle: "Birthday",
     birthdayHas: "They host kids' birthday parties here",
     birthdayAllLink: "All birthday venues",
     categoriesTitle: "Categories",
     upcomingTitle: "Upcoming events here",
-    noUpcoming: "No upcoming events yet.",
   },
 
   events: {
@@ -440,16 +437,8 @@ export const en: Dictionary = {
         : `${count} past camps aren't shown on the map — find them in the list`,
     placeLabel: "Place",
     ageLabel: "Ages:",
-    filterAgeTitle: "Child's age",
     filterTypeTitle: "Activity type",
-    filterAny: "Any",
     filterAll: "All",
-    ageBuckets: {
-      "0-1": "Under 1",
-      "1-3": "1–3 years",
-      "3-6": "3–6 years",
-      "6-12": "6–12 years",
-    },
   },
 
   activityCard: {
@@ -499,8 +488,6 @@ export const en: Dictionary = {
     eyebrow: "Event",
     detailsTitle: "Details",
     when: "When",
-    start: "Starts",
-    end: "Ends",
     location: "Venue",
     address: "Address",
     notSpecified: "Not specified",
