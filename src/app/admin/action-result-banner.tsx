@@ -41,7 +41,7 @@ const SUCCESS: Record<string, { title: string; message?: string }> = {
   },
   additionCover: {
     title: "Фото поставлено обложкой",
-    message: "Оно уже на сайте, старая обложка удалена. Статус дополнения не менялся.",
+    message: "Оно уже на сайте. Статус дополнения не менялся.",
   },
   cache: {
     title: "Кэш сайта обновлён",
@@ -69,10 +69,6 @@ const ERROR: Record<string, { title: string; message?: string }> = {
   additionCover: {
     title: "Обложка не поменялась",
     message: "Фото не скопировалось или карточки уже нет. Попробуйте ещё раз.",
-  },
-  additionCoverOld: {
-    title: "Обложка заменена, но старый файл остался",
-    message: "На сайте уже новая. Лишний файл в хранилище безвреден.",
   },
   tips: {
     title: "Карточка сохранена, но «Полезно знать» — нет",

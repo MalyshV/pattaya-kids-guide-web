@@ -829,11 +829,7 @@ export async function setSubmissionCoverAction(formData: FormData): Promise<void
     redirect(`/admin/suggestions/${id}?error=additionCover`);
   }
   revalidateSite();
-  redirect(
-    `/admin/suggestions/${id}?${
-      result.oldCoverKept ? "error=additionCoverOld" : "done=additionCover"
-    }`,
-  );
+  redirect(`/admin/suggestions/${id}?done=additionCover`);
 }
 
 export async function saveSubmissionNotesAction(formData: FormData): Promise<void> {
