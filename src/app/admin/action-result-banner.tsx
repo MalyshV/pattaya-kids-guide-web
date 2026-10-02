@@ -96,7 +96,7 @@ const ERROR: Record<string, { title: string; message?: string }> = {
   },
   saveConflict: {
     title: "Карточка уже сохранена",
-    message: "Похоже, сохранение прошло в соседней вкладке. Проверьте каталог мест.",
+    message: "Похоже, сохранение прошло в соседней вкладке. Проверьте каталог.",
   },
   photoNotDeleted: {
     title: "Фото не удалено",

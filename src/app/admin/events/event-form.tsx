@@ -10,6 +10,8 @@ import { parseEventFlyer, type FlyerDraft } from "@/lib/import/event-flyer";
 import { PhotoField } from "@/app/admin/photo-field";
 import { CoverPreview } from "@/app/admin/rotate-button";
 import { SubmitButton } from "@/app/admin/submit-button";
+import type { EventPrefill } from "@/lib/admin/submission-card";
+import Link from "next/link";
 
 /**
  * Форма события (event=null → создание). Даты вводятся по времени Паттайи —
@@ -24,10 +26,19 @@ import { SubmitButton } from "@/app/admin/submit-button";
 
 type PlaceOption = { id: string; name: string };
 
+/** Пришли со страницы предложения: поля заполнены присланным, фото перенесёт action. */
+export type EventFormSubmission = {
+  id: string;
+  name: string;
+  photoCount: number;
+  prefill: EventPrefill;
+};
+
 type EventFormProps = {
   event: (Event & { tips?: Array<{ text: string; textEn: string | null }> }) | null;
   places: PlaceOption[];
   error?: string;
+  fromSubmission?: EventFormSubmission;
 };
 
 /** Date из БД → значение для <input type="datetime-local"> по Паттайе */
@@ -61,7 +72,13 @@ function draftDescription(draft: FlyerDraft): string | null {
   return lines.length > 0 ? lines.join(" ") : null;
 }
 
-export function EventForm({ event, places, error }: EventFormProps): React.ReactElement {
+export function EventForm({
+  event,
+  places,
+  error,
+  fromSubmission,
+}: EventFormProps): React.ReactElement {
+  const prefill = fromSubmission?.prefill;
   const [flyerText, setFlyerText] = useState("");
   const [draft, setDraft] = useState<FlyerDraft | null>(null);
   /// ремаунт формы после разбора: defaultValue подхватываются заново
@@ -165,8 +182,25 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
         </div>
       )}
 
+      {fromSubmission && prefill ? (
+        <p className="admin-from-submission">
+          Заполнено из предложения «{fromSubmission.name}» — проверьте и дополните.
+          {fromSubmission.photoCount > 0
+            ? " Первое фото станет обложкой при сохранении (если не выберете файл ниже); остальные останутся у предложения."
+            : ""}{" "}
+          Сайт и контакт в форму не переносятся —{" "}
+          <Link href={`/admin/suggestions/${fromSubmission.id}`}>
+            они остались в предложении
+          </Link>
+          .
+        </p>
+      ) : null}
+
       <form action={saveEventAction} className="admin-form" key={autofillVersion}>
         {event ? <input type="hidden" name="id" value={event.id} /> : null}
+        {fromSubmission ? (
+          <input type="hidden" name="fromSubmission" value={fromSubmission.id} />
+        ) : null}
         {/* провенанс: черновик собран парсером афиши */}
         {autofilled && !event ? (
           <input type="hidden" name="sourceType" value="IMPORT" />
@@ -178,7 +212,7 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
             type="text"
             name="title"
             maxLength={ADMIN_FIELDS.title.max}
-            defaultValue={event?.title ?? draft?.titleCandidate ?? ""}
+            defaultValue={event?.title ?? draft?.titleCandidate ?? prefill?.title ?? ""}
             required
           />
         </label>
@@ -200,7 +234,10 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
             maxLength={ADMIN_FIELDS.description.max}
             rows={4}
             defaultValue={
-              event?.description ?? (draft ? (draftDescription(draft) ?? "") : "")
+              event?.description ??
+              (draft ? draftDescription(draft) : null) ??
+              prefill?.description ??
+              ""
             }
           />
         </label>
@@ -223,16 +260,28 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
             <input
               type="datetime-local"
               name="startDate"
-              defaultValue={pattayaLocalValue(event?.startDate ?? draft?.startDate)}
+              defaultValue={pattayaLocalValue(
+                event?.startDate ?? draft?.startDate ?? prefill?.startDate,
+              )}
               required
             />
+            {prefill?.whenText ? (
+              <small className="admin-muted">
+                {prefill.startDate
+                  ? "В предложении «когда»: "
+                  : "Дату достать не удалось — введите сами. В предложении «когда»: "}
+                «{prefill.whenText}»
+              </small>
+            ) : null}
           </label>
           <label className="admin-field">
             <span>Конец (пусто = однодневное)</span>
             <input
               type="datetime-local"
               name="endDate"
-              defaultValue={pattayaLocalValue(event?.endDate ?? draft?.endDate)}
+              defaultValue={pattayaLocalValue(
+                event?.endDate ?? draft?.endDate ?? prefill?.endDate,
+              )}
             />
           </label>
         </div>
@@ -244,7 +293,9 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
               type="number"
               name="minAgeMonths"
               min={0}
-              defaultValue={event?.minAgeMonths ?? draft?.minAgeMonths ?? ""}
+              defaultValue={
+                event?.minAgeMonths ?? draft?.minAgeMonths ?? prefill?.minAgeMonths ?? ""
+              }
             />
           </label>
           <label className="admin-field">
@@ -253,7 +304,9 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
               type="number"
               name="maxAgeMonths"
               min={0}
-              defaultValue={event?.maxAgeMonths ?? draft?.maxAgeMonths ?? ""}
+              defaultValue={
+                event?.maxAgeMonths ?? draft?.maxAgeMonths ?? prefill?.maxAgeMonths ?? ""
+              }
             />
           </label>
         </div>
@@ -277,7 +330,7 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
               type="text"
               name="locationName"
               maxLength={ADMIN_FIELDS.locationName.max}
-              defaultValue={event?.locationName ?? ""}
+              defaultValue={event?.locationName ?? prefill?.locationName ?? ""}
             />
           </label>
           <label className="admin-field">
@@ -301,7 +354,9 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
             <span>Видимость</span>
             <select
               name="status"
-              defaultValue={event?.status ?? (autofilled ? "PENDING" : "APPROVED")}
+              defaultValue={
+                event?.status ?? (autofilled || fromSubmission ? "PENDING" : "APPROVED")
+              }
             >
               <option value="APPROVED">на сайте</option>
               <option value="PENDING">скрыто</option>

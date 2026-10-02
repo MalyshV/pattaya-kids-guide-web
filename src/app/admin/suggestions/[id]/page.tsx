@@ -46,7 +46,8 @@ type LinkedCard = {
   /** live — родители её видят; hidden — черновик; demo — демо-запись */
   state: "live" | "hidden" | "demo";
   adminHref: string;
-  siteHref: string;
+  /** у занятия-абонемента своей страницы нет */
+  siteHref: string | null;
 };
 
 async function linkedCard(item: {
@@ -54,32 +55,74 @@ async function linkedCard(item: {
   resultId: string | null;
   lang: string;
 }): Promise<LinkedCard | null> {
-  if (item.resultType !== "PLACE" || !item.resultId) {
+  if (!item.resultId) {
     return null;
   }
-  const place = await prisma.place
-    .findUnique({
-      where: { id: item.resultId },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        status: true,
-        isDemo: true,
-        city: { select: { slug: true } },
-      },
-    })
-    .catch(() => null);
-  if (!place) {
-    return null;
-  }
+  const id = item.resultId;
   const lang = isSupportedLang(item.lang) ? item.lang : DEFAULT_LANG;
-  return {
-    name: place.name,
-    state: place.isDemo ? "demo" : place.status === "APPROVED" ? "live" : "hidden",
-    adminHref: `/admin/places/${place.id}`,
-    siteHref: `${cityBasePath(lang, place.city.slug)}/places/${place.slug}`,
-  };
+  const city = { select: { slug: true } };
+  const stateOf = (card: { status: string; isDemo: boolean }): LinkedCard["state"] =>
+    card.isDemo ? "demo" : card.status === "APPROVED" ? "live" : "hidden";
+  try {
+    if (item.resultType === "PLACE") {
+      const place = await prisma.place.findUnique({
+        where: { id },
+        select: { name: true, slug: true, status: true, isDemo: true, city },
+      });
+      return place
+        ? {
+            name: place.name,
+            state: stateOf(place),
+            adminHref: `/admin/places/${id}`,
+            siteHref: `${cityBasePath(lang, place.city.slug)}/places/${place.slug}`,
+          }
+        : null;
+    }
+    if (item.resultType === "EVENT") {
+      const event = await prisma.event.findUnique({
+        where: { id },
+        select: { title: true, slug: true, status: true, isDemo: true, city },
+      });
+      return event
+        ? {
+            name: event.title,
+            state: stateOf(event),
+            adminHref: `/admin/events/${id}`,
+            siteHref: event.city
+              ? `${cityBasePath(lang, event.city.slug)}/events/${event.slug}`
+              : null,
+          }
+        : null;
+    }
+    if (item.resultType === "ACTIVITY") {
+      const program = await prisma.placeProgram.findUnique({
+        where: { id },
+        select: {
+          name: true,
+          slug: true,
+          status: true,
+          isDemo: true,
+          city,
+          place: { select: { city } },
+        },
+      });
+      const citySlug = program?.place?.city.slug ?? program?.city?.slug;
+      return program
+        ? {
+            name: program.name,
+            state: stateOf(program),
+            adminHref: `/admin/activities/${id}`,
+            siteHref:
+              citySlug && program.slug
+                ? `${cityBasePath(lang, citySlug)}/activities/${program.slug}`
+                : null,
+          }
+        : null;
+    }
+  } catch {
+    // база споткнулась — страница предложения всё равно откроется
+  }
+  return null;
 }
 
 /** Карточка, которую предлагают дополнить («Были здесь?», «Это ваше место?»). */
@@ -195,9 +238,16 @@ export default async function AdminSuggestionPage({
     hidden: "скрыта, это черновик",
     demo: "помечена как демо — родителям не видна",
   };
-  const visibilityStep = `Пока «Видимость» стоит «на сайте», ${
-    item.kind === "EVENT" ? "событие" : item.kind === "ACTIVITY" ? "занятие" : "место"
-  } сразу увидят родители. Нужно доделать позже — поставьте «скрыто».`;
+  const kindNoun =
+    item.kind === "EVENT"
+      ? { accusative: "событие" }
+      : item.kind === "ACTIVITY"
+        ? { accusative: "занятие" }
+        : { accusative: "место" };
+  const visibilityStep =
+    item.kind === "PLACE" || item.kind === "BIRTHDAY"
+      ? `Пока «Видимость» стоит «на сайте», ${kindNoun.accusative} сразу увидят родители. Нужно доделать позже — поставьте «скрыто».`
+      : `Карточка из предложения сохраняется скрытой: когда всё проверено, поставьте «Видимость: на сайте» — ${kindNoun.accusative} увидят родители, а статус предложения обновится сам.`;
 
   // всё, что прислал посторонний человек, выводим как текст; ссылками —
   // только проверенные http(s)
@@ -344,9 +394,11 @@ export default async function AdminSuggestionPage({
             {item.photoRightsOk
               ? "Автор подтвердил: фото его или он вправе ими делиться."
               : "Подтверждения прав на фото нет."}{" "}
-            {card || photosAdded
-              ? "Фото уже перенесены в карточку копиями: удаление здесь не убирает их с сайта — удалите и в карточке."
-              : "Фото видно только здесь, пока вы не перенесёте их в карточку. Чужие дети в кадре — лучше удалить."}
+            {card && (item.kind === "EVENT" || item.kind === "ACTIVITY")
+              ? "Первое фото уже стало обложкой карточки (копией): удаление здесь не убирает её с сайта. Остальные фото лежат только здесь — в карточку они не переносятся."
+              : card || photosAdded
+                ? "Фото уже перенесены в карточку копиями: удаление здесь не убирает их с сайта — удалите и в карточке."
+                : "Фото видно только здесь, пока вы не перенесёте их в карточку. Чужие дети в кадре — лучше удалить."}
           </p>
           <ul className="admin-photo-grid">
             {item.photoUrls.map((url, index) => (
@@ -434,15 +486,18 @@ export default async function AdminSuggestionPage({
             <strong>{cardState[card.state]}</strong>.
           </p>
           {card.state === "live" ? (
-            <p>
-              <a href={card.siteHref} target="_blank" rel="noopener noreferrer">
-                Посмотреть на сайте ↗
-              </a>
-            </p>
+            card.siteHref ? (
+              <p>
+                <a href={card.siteHref} target="_blank" rel="noopener noreferrer">
+                  Посмотреть на сайте ↗
+                </a>
+              </p>
+            ) : null
           ) : (
             <p className="admin-muted">
-              Чтобы место увидели родители, откройте карточку и поставьте «Видимость: на
-              сайте» (и снимите «демо-запись») — статус предложения обновится сам.
+              Чтобы {kindNoun.accusative} увидели родители, откройте карточку и поставьте
+              «Видимость: на сайте» (и снимите «демо-запись») — статус предложения
+              обновится сам.
             </p>
           )}
         </div>
@@ -450,11 +505,15 @@ export default async function AdminSuggestionPage({
         <div className="admin-next">
           <ol className="admin-steps">
             <li>
-              {target.prefilled
-                ? "Открыть форму — название, адрес, точка на карте и описание уже заполнены присланным"
-                : "Открыть форму — поля перенесите из присланного выше"}
-              {target.prefilled && item.photoUrls.length > 0
-                ? `; фото (${item.photoUrls.length}) перенесутся при сохранении, первое станет обложкой`
+              {item.kind === "EVENT"
+                ? "Открыть форму — название, описание, площадка, возраст и дата уже заполнены присланным; если дату достать не удалось, поле пустое, а присланное «когда» показано рядом"
+                : item.kind === "ACTIVITY"
+                  ? "Открыть форму — название, описание и площадка уже заполнены присланным; цену, возраст и тип занятия укажите сами"
+                  : "Открыть форму — название, адрес, точка на карте и описание уже заполнены присланным"}
+              {item.photoUrls.length > 0
+                ? item.kind === "PLACE" || item.kind === "BIRTHDAY"
+                  ? `; фото (${item.photoUrls.length}) перенесутся при сохранении, первое станет обложкой`
+                  : "; первое фото станет обложкой при сохранении (если не выберете файл в форме)"
                 : ""}
               .
             </li>
@@ -466,12 +525,6 @@ export default async function AdminSuggestionPage({
               {target.label}
             </Link>
           </p>
-          {!target.prefilled ? (
-            <p className="admin-muted">
-              Связки с карточкой у этого вида пока нет: когда занесёте, отметьте ниже
-              статус «Опубликовано» — предложение уйдёт из очереди.
-            </p>
-          ) : null}
           {item.kind === "BIRTHDAY" ? (
             <p className="admin-muted">
               Праздник заносится как обычное место; в форме есть блок «День рождения» —
