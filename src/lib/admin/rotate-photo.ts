@@ -7,9 +7,9 @@ import { isSiteImagePath, rotatedFileName } from "@/lib/admin/photo-path";
 import { UploadError, removeStoredImage, storeImageBuffer } from "@/lib/admin/upload";
 
 /**
- * Поворот уже сохранённого фото на 90° по часовой стрелке (кнопка «Повернуть»
- * в админке): снимок легло на бок — нажали, и оно встало как надо. Нажали
- * ещё раз — повернётся дальше.
+ * Поворот уже сохранённого фото на 90° (кнопки ↺ и ↻ в админке): снимок лёг
+ * на бок — нажали, и он встал как надо. Обе стороны — потому что у людей и
+ * программ нет единой привычки, куда крутит «повернуть».
  *
  * Файл не правим на месте: кладём повёрнутую копию под новым именем (в имени
  * — новые размеры, по ним сайт знает форму картинки; новый адрес заодно
@@ -65,6 +65,8 @@ export async function rotateStoredImage(
   url: string,
   folder: string,
   siteOrigin: string,
+  /** по часовой (right) или против (left) */
+  direction: "left" | "right",
 ): Promise<string> {
   const source = await readStoredImage(url, siteOrigin);
   let sharp: typeof import("sharp").default;
@@ -80,7 +82,7 @@ export async function rotateStoredImage(
     // первый rotate() учитывает EXIF-ориентацию, второй — наш поворот
     rotated = await sharp(source)
       .rotate()
-      .rotate(90)
+      .rotate(direction === "left" ? 270 : 90)
       .jpeg({ quality: JPEG_QUALITY })
       .toBuffer();
     ({ width, height } = await sharp(rotated).metadata());

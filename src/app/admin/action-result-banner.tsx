@@ -22,10 +22,6 @@ const SUCCESS: Record<string, { title: string; message?: string }> = {
   updated: { title: "Изменения сохранены" },
   deleted: { title: "Карточка удалена", message: "Запись удалена навсегда." },
   status: { title: "Статус предложения обновлён" },
-  rotated: {
-    title: "Фото повёрнуто",
-    message: "Если нужно ещё — нажмите «Повернуть» снова.",
-  },
   photoDeleted: {
     title: "Фото удалено",
     message:

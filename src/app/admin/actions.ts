@@ -565,6 +565,7 @@ export async function rotatePhotoAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const target = text(formData, "target");
   const id = text(formData, "id");
+  const direction = text(formData, "direction") === "left" ? "left" : "right";
   if (!id) {
     redirect("/admin");
   }
@@ -584,7 +585,7 @@ export async function rotatePhotoAction(formData: FormData): Promise<void> {
         redirect("/admin/places");
       }
       back = `/admin/places/${photo.placeId}`;
-      const url = await rotateStoredImage(photo.url, "places", origin);
+      const url = await rotateStoredImage(photo.url, "places", origin, direction);
       await prisma.placePhoto.update({ where: { id }, data: { url } });
       await dropOldImage(photo.url);
     } else if (target === "placeCover") {
@@ -596,7 +597,12 @@ export async function rotatePhotoAction(formData: FormData): Promise<void> {
       if (!place?.imageUrl) {
         redirect(back);
       }
-      const imageUrl = await rotateStoredImage(place.imageUrl, "places", origin);
+      const imageUrl = await rotateStoredImage(
+        place.imageUrl,
+        "places",
+        origin,
+        direction,
+      );
       await prisma.place.update({ where: { id }, data: { imageUrl } });
       await dropOldImage(place.imageUrl);
     } else if (target === "eventCover") {
@@ -608,7 +614,12 @@ export async function rotatePhotoAction(formData: FormData): Promise<void> {
       if (!event?.imageUrl) {
         redirect(back);
       }
-      const imageUrl = await rotateStoredImage(event.imageUrl, "events", origin);
+      const imageUrl = await rotateStoredImage(
+        event.imageUrl,
+        "events",
+        origin,
+        direction,
+      );
       await prisma.event.update({ where: { id }, data: { imageUrl } });
       await dropOldImage(event.imageUrl);
     } else if (target === "activityCover") {
@@ -620,7 +631,12 @@ export async function rotatePhotoAction(formData: FormData): Promise<void> {
       if (!activity?.imageUrl) {
         redirect(back);
       }
-      const imageUrl = await rotateStoredImage(activity.imageUrl, "activities", origin);
+      const imageUrl = await rotateStoredImage(
+        activity.imageUrl,
+        "activities",
+        origin,
+        direction,
+      );
       await prisma.placeProgram.update({ where: { id }, data: { imageUrl } });
       await dropOldImage(activity.imageUrl);
     } else if (target === "submissionPhoto") {
@@ -634,7 +650,7 @@ export async function rotatePhotoAction(formData: FormData): Promise<void> {
       if (!item || !item.photoUrls.includes(oldUrl)) {
         redirect(back);
       }
-      const url = await rotateStoredImage(oldUrl, "suggestions", origin);
+      const url = await rotateStoredImage(oldUrl, "suggestions", origin, direction);
       await prisma.submission.update({
         where: { id },
         data: {
@@ -656,7 +672,14 @@ export async function rotatePhotoAction(formData: FormData): Promise<void> {
   if (target !== "submissionPhoto") {
     revalidateSite();
   }
-  redirect(`${back}?done=rotated`);
+  // без попапа: результат и так перед глазами — возвращаемся к самому фото
+  const anchor =
+    target === "submissionPhoto"
+      ? "photos"
+      : target === "placePhoto"
+        ? "gallery"
+        : "cover";
+  redirect(`${back}#${anchor}`);
 }
 
 // ── события ─────────────────────────────────────────────────────────────────

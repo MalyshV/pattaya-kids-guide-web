@@ -453,7 +453,7 @@ export function PlaceForm({
 
           <hr className="admin-divider" />
 
-          <h2>Галерея ({place.photos.length})</h2>
+          <h2 id="gallery">Галерея ({place.photos.length})</h2>
           <ul className="admin-photo-grid">
             {place.photos.map((photo) => (
               <li key={photo.id} className="admin-photo">

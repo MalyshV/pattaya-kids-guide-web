@@ -1,5 +1,5 @@
 import { rotatePhotoAction } from "@/app/admin/actions";
-import { SubmitButton } from "@/app/admin/submit-button";
+import { RotateControls } from "@/app/admin/rotate-controls";
 
 export type RotateTarget =
   | "placePhoto"
@@ -17,9 +17,10 @@ type RotateButtonProps = {
 };
 
 /**
- * «Повернуть» — на 90° по часовой стрелке: снимок лёг на бок, нажали — встал
- * как надо (ещё раз — дальше). Отдельная маленькая форма, поэтому ставится
- * рядом с фото, а не внутрь большой формы карточки.
+ * Поворот на 90° в обе стороны: ↺ против часовой, ↻ по часовой — снимок лёг
+ * на бок, нажали — встал как надо. Отдельная маленькая форма, поэтому
+ * ставится рядом с фото, а не внутрь большой формы карточки. После поворота
+ * попапа нет: фото просто меняется на глазах (решение Вероники 02.10).
  */
 export function RotateButton({ target, id, url }: RotateButtonProps): React.ReactElement {
   return (
@@ -27,9 +28,7 @@ export function RotateButton({ target, id, url }: RotateButtonProps): React.Reac
       <input type="hidden" name="target" value={target} />
       <input type="hidden" name="id" value={id} />
       {url ? <input type="hidden" name="url" value={url} /> : null}
-      <SubmitButton className="admin-link-button" pendingLabel="Поворачиваю…">
-        Повернуть ↻
-      </SubmitButton>
+      <RotateControls />
     </form>
   );
 }
@@ -52,7 +51,7 @@ export function CoverPreview({
   return (
     <>
       <hr className="admin-divider" />
-      <h2>Обложка сейчас</h2>
+      <h2 id="cover">Обложка сейчас</h2>
       <ul className="admin-photo-grid">
         <li className="admin-photo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
