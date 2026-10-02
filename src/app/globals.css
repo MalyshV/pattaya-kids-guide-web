@@ -832,6 +832,20 @@ input[type="checkbox"]:focus-visible {
   text-underline-offset: 3px;
 }
 
+/* таблица классов занятия: каждый класс — своя группа полей */
+.admin-classes {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-class-row {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+}
+
 /* «Повернуть: ↺ влево · вправо ↻» под фото */
 .admin-rotate {
   display: flex;

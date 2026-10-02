@@ -26,6 +26,7 @@ export default async function AdminActivityEditPage({
       where: { id },
       include: {
         _count: { select: { classes: true } },
+        classes: { orderBy: { order: "asc" } },
         tips: { orderBy: { order: "asc" }, select: { text: true, textEn: true } },
       },
     }),
