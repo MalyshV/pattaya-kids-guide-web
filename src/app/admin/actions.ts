@@ -262,6 +262,9 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
     notes: text(formData, "birthdayNotes"),
     notesEn: text(formData, "birthdayNotesEn"),
   });
+  // блока в форме не было (вкладка, открытая до обновления сайта) — данные о
+  // ДР не трогаем: иначе отсутствующая галочка читалась бы как «снята»
+  const birthdayInForm = formData.has("birthdayPresent");
   if (!birthday.ok) {
     redirect(
       id ? `/admin/places/${id}?error=birthdayGuests` : newPlaceHref("birthdayGuests"),
@@ -339,7 +342,9 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
 
       // день рождения: снят чекбокс — запись удаляется; иначе создаём/обновляем.
       // notesTh в форме нет — при обновлении его не трогаем
-      if (birthday.info === null) {
+      if (!birthdayInForm) {
+        // блока в форме не было — оставляем как есть
+      } else if (birthday.info === null) {
         await tx.placeBirthdayInfo.deleteMany({ where: { placeId: pid } });
       } else {
         await tx.placeBirthdayInfo.upsert({

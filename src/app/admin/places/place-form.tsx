@@ -291,6 +291,9 @@ export function PlaceForm({
 
         <fieldset className="admin-fieldset">
           <legend>День рождения</legend>
+          {/* метка «блок был в форме»: без неё снятая галочка неотличима от
+              старой вкладки без этого блока — та стёрла бы данные о ДР */}
+          <input type="hidden" name="birthdayPresent" value="1" />
           <label className="admin-check">
             <input
               type="checkbox"
@@ -310,6 +313,9 @@ export function PlaceForm({
             />
             <span>Есть готовые пакеты</span>
           </label>
+          <p className="admin-muted">
+            На странице «Дни рождения» показываются только места с этой галочкой.
+          </p>
           <div className="admin-row">
             <label className="admin-field admin-field-inline">
               <span>Гостей от</span>
@@ -345,7 +351,7 @@ export function PlaceForm({
             />
           </label>
           <label className="admin-field">
-            <span>Заметки о дне рождении (рус)</span>
+            <span>Заметки о дне рождения (рус)</span>
             <textarea
               name="birthdayNotes"
               rows={3}
