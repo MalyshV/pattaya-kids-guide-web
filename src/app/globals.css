@@ -5243,3 +5243,26 @@ html[data-theme="dark"] .theme-label-to-light {
   width: 0.95em;
   height: 0.95em;
 }
+
+/* «Сообщить мне в Telegram»: тихая необязательная ссылка с подсказкой */
+.telegram-notify {
+  margin: 14px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.telegram-notify a {
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.suggest-thanks .telegram-notify-hint,
+.telegram-notify-hint {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.action-banner .telegram-notify {
+  margin-top: 16px;
+}
