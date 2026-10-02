@@ -216,14 +216,23 @@ export function ActivityForm({
           label={`Обложка ${activity?.imageUrl ? "(файл заменит текущую)" : "(файл)"}`}
         />
 
-        <label className="admin-check">
-          <input
-            type="checkbox"
-            name="isDemo"
-            defaultChecked={activity?.isDemo ?? false}
-          />
-          <span>демо-запись</span>
-        </label>
+        <div className="admin-row">
+          <label className="admin-field admin-field-inline">
+            <span>Видимость</span>
+            <select name="status" defaultValue={activity?.status ?? "APPROVED"}>
+              <option value="APPROVED">на сайте</option>
+              <option value="PENDING">скрыто</option>
+            </select>
+          </label>
+          <label className="admin-check">
+            <input
+              type="checkbox"
+              name="isDemo"
+              defaultChecked={activity?.isDemo ?? false}
+            />
+            <span>демо-запись</span>
+          </label>
+        </div>
 
         <SubmitButton>Сохранить</SubmitButton>
       </form>

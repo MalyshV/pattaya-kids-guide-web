@@ -215,6 +215,8 @@ export const getApprovedPlaceBySlug = cache(
             },
           },
           programs: {
+            // скрытые занятия (черновики) на странице места не показываем
+            where: { status: "APPROVED" },
             orderBy: {
               order: "asc",
             },

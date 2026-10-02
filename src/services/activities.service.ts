@@ -35,6 +35,8 @@ export const getCityActivities = cache(
       return prisma.placeProgram.findMany({
         where: {
           type: { in: ["COURSE", "CAMP"] },
+          // скрытые занятия (черновики) на сайт не попадают
+          status: "APPROVED",
           ...demoFilter(),
           // либо занятие одобренного места города, либо безместное того же города.
           // demoFilter и на месте: не-демо занятие демо-места — тоже демо (иначе
@@ -77,6 +79,8 @@ export const getActivityBySlug = cache(
         where: {
           slug,
           type: { in: ["COURSE", "CAMP"] },
+          // скрытые занятия (черновики) на сайт не попадают
+          status: "APPROVED",
           ...demoFilter(),
           // demoFilter и на месте: не-демо занятие демо-места — тоже демо
           OR: [

@@ -21,6 +21,7 @@ export default async function AdminActivitiesPage(): Promise<React.ReactElement>
       name: true,
       type: true,
       isDemo: true,
+      status: true,
       imageUrl: true,
       place: { select: { name: true } },
       venueName: true,
@@ -51,6 +52,7 @@ export default async function AdminActivitiesPage(): Promise<React.ReactElement>
                   ? ` · классов: ${activity._count.classes}`
                   : ""}
                 {!activity.imageUrl ? " · без фото" : ""}
+                {activity.status !== "APPROVED" ? " · скрыто" : ""}
                 {activity.isDemo ? " · демо" : ""}
               </span>
             </Link>

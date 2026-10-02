@@ -281,6 +281,9 @@ model PlaceProgram {
   venueLongitude Float?
   /// Демо-запись (см. Place.isDemo)
   isDemo        Boolean                   @default(false)
+  /// Видимость, как у места и события: APPROVED — на сайте, PENDING — скрыто
+  /// (черновик). По умолчанию «на сайте» — так жили все занятия до этого поля.
+  status        PlaceStatus               @default(APPROVED)
   /// город занятия для scoping БЕЗместных занятий (у place-занятий — из place)
   cityId        String?
   city          City?                     @relation(fields: [cityId], references: [id])
