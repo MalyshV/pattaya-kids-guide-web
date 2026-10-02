@@ -832,6 +832,15 @@ input[type="checkbox"]:focus-visible {
   text-underline-offset: 3px;
 }
 
+/* «Повернуть: ↺ влево · вправо ↻» под фото */
+.admin-rotate {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
 .admin-card {
   background: var(--surface);
   border: 1px solid var(--border-soft);

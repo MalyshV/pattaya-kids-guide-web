@@ -343,7 +343,7 @@ export default async function AdminSuggestionPage({
 
       {item.photoUrls.length > 0 ? (
         <>
-          <h2>Фото ({item.photoUrls.length})</h2>
+          <h2 id="photos">Фото ({item.photoUrls.length})</h2>
           <p className="admin-muted">
             {item.photoRightsOk
               ? "Автор подтвердил: фото его или он вправе ими делиться."
