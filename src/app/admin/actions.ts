@@ -856,6 +856,15 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
     venueName: textOrNull(formData, "venueName"),
     venueNameEn: textOrNull(formData, "venueNameEn"),
     venueAddress: textOrNull(formData, "venueAddress"),
+    // поля нет в форме (вкладка открыта до обновления) — видимость не трогаем
+    ...(formData.has("status")
+      ? {
+          status:
+            text(formData, "status") === "PENDING"
+              ? ("PENDING" as const)
+              : ("APPROVED" as const),
+        }
+      : {}),
     isDemo: checkbox(formData, "isDemo"),
     ...(cover !== undefined ? { imageUrl: cover } : {}),
   } as const;

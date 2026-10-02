@@ -87,6 +87,8 @@ const getSearchRowsCached = cachedQuery(
         where: {
           type: { in: ["COURSE", "CAMP"] },
           slug: { not: null },
+          // скрытые занятия (черновики) на сайт не попадают
+          status: "APPROVED",
           ...demoFilter(),
           // демо-фильтр и на месте: не-демо занятие демо-места — тоже демо
           OR: [

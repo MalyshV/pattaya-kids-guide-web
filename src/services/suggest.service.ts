@@ -51,6 +51,7 @@ type CatalogRows = {
     venueLatitude: number | null;
     venueLongitude: number | null;
     place: { latitude: number; longitude: number } | null;
+    status: string;
   }[];
 };
 
@@ -108,6 +109,8 @@ const getCatalogRows = cachedQuery(
           venueLatitude: true,
           venueLongitude: true,
           place: { select: { latitude: true, longitude: true } },
+          // скрытое занятие (черновик) тоже подсказываем — как «уже готовим»
+          status: true,
         },
       }),
     ]);
@@ -214,7 +217,9 @@ export async function getDupCandidates(
         activity.venueNameTh,
       ),
       label: pickLocalized(activity.name, activity.nameEn, activity.nameTh, lang),
-      href: `${basePath}/activities/${activity.slug}`,
+      // черновик ещё не на сайте — ссылки нет, покажем «уже готовим»
+      href:
+        activity.status === "APPROVED" ? `${basePath}/activities/${activity.slug}` : null,
       point:
         toPoint(activity.place?.latitude, activity.place?.longitude) ??
         toPoint(activity.venueLatitude, activity.venueLongitude),

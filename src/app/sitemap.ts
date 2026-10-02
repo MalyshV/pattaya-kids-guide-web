@@ -39,6 +39,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       where: {
         type: { in: ["COURSE", "CAMP"] },
         slug: { not: null },
+        // скрытые занятия (черновики) на сайт не попадают
+        status: "APPROVED",
         ...demoFilter(),
         OR: [
           { place: { status: "APPROVED", cityId: city.id, ...demoFilter() } },
