@@ -11,6 +11,8 @@
  * th → thValue ?? enValue ?? ruValue; en → enValue ?? ruValue; иначе ruValue.
  * thValue опционален (undefined там, где перевод ещё не занесён или поле не
  * тянется из БД) — тогда честно падаем на английский, затем на русский.
+ * Пустая строка и строка из пробелов — тоже «перевода нет»: иначе вместо
+ * соседнего языка человек увидел бы пустоту.
  */
 export function pickLocalized<T extends string | null>(
   ruValue: T,
@@ -18,13 +20,19 @@ export function pickLocalized<T extends string | null>(
   thValue: string | null | undefined,
   lang: string,
 ): T | string {
+  const th = hasText(thValue) ? thValue : null;
+  const en = hasText(enValue) ? enValue : null;
   if (lang === "th") {
-    return thValue ?? enValue ?? ruValue;
+    return th ?? en ?? ruValue;
   }
   if (lang === "en") {
-    return enValue ?? ruValue;
+    return en ?? ruValue;
   }
   return ruValue;
+}
+
+function hasText(value: string | null | undefined): value is string {
+  return typeof value === "string" && value.trim() !== "";
 }
 
 type NamedCity = {
