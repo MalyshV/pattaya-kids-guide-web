@@ -3,6 +3,8 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ActionBanner } from "@/components/common/action-banner";
+import { TelegramNotify } from "@/components/suggest/telegram-notify";
+import { authorStartUrlFromEnv } from "@/lib/telegram/author-link";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
 import {
   ADDITION_THANKS_PARAM,
@@ -23,6 +25,9 @@ import {
  * Попап рисуется порталом в body — на сервере его нет, поэтому показываем
  * только в браузере (isClient).
  */
+/** токен диплинка в бота (см. lib/telegram/author-link), кладёт отправка формы */
+const TELEGRAM_TOKEN_PARAM = "tg";
+
 const noSubscription = (): (() => void) => () => {};
 
 export function AdditionThanks({
@@ -42,6 +47,8 @@ export function AdditionThanks({
     () => false,
   );
   const draftKey = suggestDraftKey(about);
+  // токен после отправки лежит в адресе рядом с флагом; нет бота — кнопки нет
+  const notifyHref = authorStartUrlFromEnv(params.get(TELEGRAM_TOKEN_PARAM));
 
   useEffect(() => {
     if (!flagged) {
@@ -62,6 +69,7 @@ export function AdditionThanks({
     setClosed(true);
     const next = new URLSearchParams(params);
     next.delete(ADDITION_THANKS_PARAM);
+    next.delete(TELEGRAM_TOKEN_PARAM);
     const query = next.toString();
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   };
@@ -71,6 +79,16 @@ export function AdditionThanks({
       variant="success"
       title={dict.suggest.about.thanksTitle}
       message={dict.suggest.about.thanksText}
+      footer={
+        notifyHref ? (
+          <TelegramNotify
+            href={notifyHref}
+            label={dict.suggest.notify.ctaAddition}
+            hint={dict.suggest.notify.hint}
+            opensInNewTab={dict.common.opensInNewTab}
+          />
+        ) : undefined
+      }
       closeLabel={dict.common.close}
       onClose={close}
     />

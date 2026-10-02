@@ -2,9 +2,11 @@ import Link from "next/link";
 import { ExternalArrow } from "@/components/common/external-arrow";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { TelegramNotify } from "@/components/suggest/telegram-notify";
 import { ClearSuggestDraft } from "@/components/suggest/clear-suggest-draft";
 import { TELEGRAM_WEB } from "@/lib/contacts/contact-link";
 import { getDictionary, isSupportedLang } from "@/content/dictionary";
+import { authorStartUrlFromEnv } from "@/lib/telegram/author-link";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { getSingleSearchParam } from "@/lib/params/search-params";
 import { suggestDraftKey } from "@/lib/suggest/about";
@@ -40,8 +42,10 @@ export default async function SuggestThanksPage({
   const dict = getDictionary(lang);
   const t = dict.suggest.thanks;
   const basePath = cityBasePath(lang, citySlug);
-  const kind =
-    parseSuggestKind(getSingleSearchParam(((await searchParams) ?? {}).type)) ?? "place";
+  const query = (await searchParams) ?? {};
+  const kind = parseSuggestKind(getSingleSearchParam(query.type)) ?? "place";
+  // токен из адреса — только для диплинка в бота; битый или без бота — кнопки нет
+  const notifyHref = authorStartUrlFromEnv(getSingleSearchParam(query.tg));
 
   return (
     <main className="page-shell">
@@ -71,6 +75,14 @@ export default async function SuggestThanksPage({
             {t.back}
           </Link>
         </div>
+        {notifyHref ? (
+          <TelegramNotify
+            href={notifyHref}
+            label={dict.suggest.notify.cta}
+            hint={dict.suggest.notify.hint}
+            opensInNewTab={dict.common.opensInNewTab}
+          />
+        ) : null}
       </section>
     </main>
   );
