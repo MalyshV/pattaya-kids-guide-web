@@ -303,7 +303,7 @@ export const en: Dictionary = {
       `Kids' birthday in ${cityName}: venues, packages and prices`,
     heroTitle: "A kid's birthday party in Pattaya",
     heroDescription:
-      "Venues that host kids’ birthdays: packages, prices, deposits and contacts — collected and checked in person.",
+      "Venues that host kids' birthdays: packages, prices, deposits and contacts — collected and checked in person.",
     askOnBooking: "— ask when booking",
     ageNote: "Age doesn't filter here — showing all birthday venues.",
     guestsLabel: "Guests:",
