@@ -23,7 +23,7 @@ import {
   unlinkSubmissionsForPlace,
 } from "@/lib/admin/submission-link";
 import { parseBirthdayForm } from "@/lib/admin/birthday-info";
-import { isImageUrlInUse } from "@/lib/admin/image-usage";
+import { removeImageIfUnused } from "@/lib/admin/image-usage";
 import { slugify } from "@/lib/admin/slug";
 import { DEFAULT_CITY_SLUG } from "@/lib/geo/base-path";
 import { dropOldImage, rotateStoredImage } from "@/lib/admin/rotate-photo";
@@ -462,11 +462,14 @@ export async function deletePlaceAction(formData: FormData): Promise<void> {
 
   // Полное удаление места со всеми деталями. События места НЕ удаляем —
   // отвязываем (placeId=null): у события своя страница и своя жизнь.
+  // обложки занятий места — их файлы уберём после удаления
+  let programCovers: Array<string | null> = [];
   await prisma.$transaction(async (tx) => {
     const programs = await tx.placeProgram.findMany({
       where: { placeId: id },
-      select: { id: true },
+      select: { id: true, imageUrl: true },
     });
+    programCovers = programs.map((program) => program.imageUrl);
     const programIds = programs.map((program) => program.id);
 
     await tx.placeClass.deleteMany({ where: { programId: { in: programIds } } });
@@ -501,6 +504,10 @@ export async function deletePlaceAction(formData: FormData): Promise<void> {
     await removeStoredImage(url).catch((error: unknown) =>
       console.error("admin: файл фото не удалён", url, error),
     );
+  }
+
+  for (const cover of programCovers) {
+    await removeImageIfUnused(cover, "обложка занятия удалённого места");
   }
 
   // карточку удалили — предложение снова ждёт работы, а не ссылается в пустоту
@@ -561,13 +568,7 @@ export async function deletePlacePhotoAction(formData: FormData): Promise<void> 
       // Файл убираем после записи: сбой здесь не возвращает фото в карточку,
       // лишний файл в хранилище безвреден. Общий файл (тот же адрес стоит
       // ещё где-то) не трогаем.
-      try {
-        if (!(await isImageUrlInUse(photo.url))) {
-          await removeStoredImage(photo.url);
-        }
-      } catch (error) {
-        console.error("admin: файл фото галереи не удалён", photo.url, error);
-      }
+      await removeImageIfUnused(photo.url, "фото галереи");
     }
   }
   redirect(`/admin/places/${placeId}`);
@@ -804,6 +805,11 @@ export async function deleteEventAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const id = text(formData, "id");
   if (id) {
+    // адрес обложки узнаём до удаления — потом его уже не узнать
+    const cover = await prisma.event.findUnique({
+      where: { id },
+      select: { imageUrl: true },
+    });
     await prisma.$transaction(async (tx) => {
       await tx.eventTip.deleteMany({ where: { eventId: id } });
       await tx.eventCategoryLink.deleteMany({ where: { eventId: id } });
@@ -811,6 +817,7 @@ export async function deleteEventAction(formData: FormData): Promise<void> {
       await tx.userVisit.deleteMany({ where: { eventId: id } });
       await tx.event.delete({ where: { id } });
     });
+    await removeImageIfUnused(cover?.imageUrl, "обложка события");
     revalidateSite();
     redirect("/admin/events?done=deleted");
   }
@@ -924,12 +931,17 @@ export async function deleteActivityAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const id = text(formData, "id");
   if (id) {
+    const cover = await prisma.placeProgram.findUnique({
+      where: { id },
+      select: { imageUrl: true },
+    });
     await prisma.$transaction(async (tx) => {
       await tx.placeClass.deleteMany({ where: { programId: id } });
       await tx.programTip.deleteMany({ where: { programId: id } });
       await tx.programActivityCategory.deleteMany({ where: { programId: id } });
       await tx.placeProgram.delete({ where: { id } });
     });
+    await removeImageIfUnused(cover?.imageUrl, "обложка занятия");
     revalidateSite();
     redirect("/admin/activities?done=deleted");
   }
