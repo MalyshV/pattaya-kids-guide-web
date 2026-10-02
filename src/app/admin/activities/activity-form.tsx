@@ -6,6 +6,8 @@ import { deleteActivityAction, saveActivityAction } from "@/app/admin/actions";
 import { OcrScratchpad } from "@/app/admin/ocr-scratchpad";
 import { PhotoField } from "@/app/admin/photo-field";
 import { SubmitButton } from "@/app/admin/submit-button";
+import type { ActivityPrefill } from "@/lib/admin/submission-card";
+import Link from "next/link";
 
 /**
  * Форма занятия (activity=null → создание). Возраст — в месяцах, как в БД
@@ -14,6 +16,14 @@ import { SubmitButton } from "@/app/admin/submit-button";
  */
 
 type PlaceOption = { id: string; name: string };
+
+/** Пришли со страницы предложения: поля заполнены присланным, фото перенесёт action. */
+export type ActivityFormSubmission = {
+  id: string;
+  name: string;
+  photoCount: number;
+  prefill: ActivityPrefill;
+};
 
 type ActivityFormProps = {
   activity:
@@ -24,6 +34,7 @@ type ActivityFormProps = {
     | null;
   places: PlaceOption[];
   error?: string;
+  fromSubmission?: ActivityFormSubmission;
 };
 
 function pattayaLocalValue(date: Date | null | undefined): string {
@@ -46,7 +57,9 @@ export function ActivityForm({
   activity,
   places,
   error,
+  fromSubmission,
 }: ActivityFormProps): React.ReactElement {
+  const prefill = fromSubmission?.prefill;
   return (
     <section className="admin-card">
       <h1>{activity ? `Занятие: ${activity.name}` : "Новое занятие"}</h1>
@@ -63,8 +76,25 @@ export function ActivityForm({
       {/* как у мест: распознанный текст — в черновик для копирования */}
       <OcrScratchpad subject="Скрин расписания или прайса" />
 
+      {fromSubmission ? (
+        <p className="admin-from-submission">
+          Заполнено из предложения «{fromSubmission.name}» — проверьте и дополните.
+          {fromSubmission.photoCount > 0
+            ? " Первое фото станет обложкой при сохранении (если не выберете файл ниже); остальные останутся у предложения."
+            : ""}{" "}
+          Сайт, «когда» и контакт в форму не переносятся —{" "}
+          <Link href={`/admin/suggestions/${fromSubmission.id}`}>
+            они остались в предложении
+          </Link>
+          . Занятие сохранится скрытым — включите показ, когда всё проверено.
+        </p>
+      ) : null}
+
       <form action={saveActivityAction} className="admin-form">
         {activity ? <input type="hidden" name="id" value={activity.id} /> : null}
+        {fromSubmission ? (
+          <input type="hidden" name="fromSubmission" value={fromSubmission.id} />
+        ) : null}
 
         <label className="admin-field">
           <span>Название (рус) *</span>
@@ -72,7 +102,7 @@ export function ActivityForm({
             type="text"
             name="name"
             maxLength={ADMIN_FIELDS.name.max}
-            defaultValue={activity?.name ?? ""}
+            defaultValue={activity?.name ?? prefill?.name ?? ""}
             required
           />
         </label>
@@ -102,7 +132,7 @@ export function ActivityForm({
             name="description"
             maxLength={ADMIN_FIELDS.description.max}
             rows={4}
-            defaultValue={activity?.description ?? ""}
+            defaultValue={activity?.description ?? prefill?.description ?? ""}
           />
         </label>
 
@@ -209,7 +239,7 @@ export function ActivityForm({
               type="text"
               name="venueName"
               maxLength={ADMIN_FIELDS.venueName.max}
-              defaultValue={activity?.venueName ?? ""}
+              defaultValue={activity?.venueName ?? prefill?.venueName ?? ""}
             />
           </label>
           <label className="admin-field">
@@ -241,7 +271,10 @@ export function ActivityForm({
         <div className="admin-row">
           <label className="admin-field admin-field-inline">
             <span>Видимость</span>
-            <select name="status" defaultValue={activity?.status ?? "APPROVED"}>
+            <select
+              name="status"
+              defaultValue={activity?.status ?? (fromSubmission ? "PENDING" : "APPROVED")}
+            >
               <option value="APPROVED">на сайте</option>
               <option value="PENDING">скрыто</option>
             </select>

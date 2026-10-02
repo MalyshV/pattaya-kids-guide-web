@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { PlaceStatus, SubmissionStatus } from "@prisma/client";
+import type { EventStatus, PlaceStatus, SubmissionStatus } from "@prisma/client";
 import { prisma } from "@/db/prisma";
 import { copyStoredImage } from "@/lib/admin/copy-photo";
 
@@ -16,8 +16,8 @@ import { copyStoredImage } from "@/lib/admin/copy-photo";
 
 const PLACE_PHOTO_FOLDER = "places";
 
-function submissionStatusFor(placeStatus: PlaceStatus): SubmissionStatus {
-  return placeStatus === "APPROVED" ? "PUBLISHED" : "IN_REVIEW";
+function submissionStatusFor(cardStatus: PlaceStatus | EventStatus): SubmissionStatus {
+  return cardStatus === "APPROVED" ? "PUBLISHED" : "IN_REVIEW";
 }
 
 /** Медиа-права: откуда фото в карточке (см. PhotoSourceType в схеме). */
@@ -275,6 +275,96 @@ export async function syncSubmissionsForPlace(
 export async function unlinkSubmissionsForPlace(placeId: string): Promise<void> {
   await prisma.submission.updateMany({
     where: { resultType: "PLACE", resultId: placeId },
+    data: { resultType: null, resultId: null, status: "IN_REVIEW" },
+  });
+}
+
+/** Карточки с одной обложкой и без галереи: у них фото предложения — только обложка. */
+export type CoverCardType = "EVENT" | "ACTIVITY";
+
+const COVER_FOLDER = { EVENT: "events", ACTIVITY: "activities" } as const;
+
+/**
+ * Привязать предложение к только что созданному событию или занятию: первое
+ * фото копией — в обложку (если её не выбрали в форме), остальные остаются у
+ * предложения (галереи у этих карточек нет), и пометить очередь. Полей прав
+ * на изображение у события и занятия в схеме нет — пометку писать некуда.
+ */
+export async function attachSubmissionToCoverCard(args: {
+  submissionId: string;
+  type: CoverCardType;
+  cardId: string;
+  cardStatus: EventStatus | PlaceStatus;
+  /** обложку уже загрузили в форме — свою не подставляем */
+  hasCover: boolean;
+}): Promise<AttachResult> {
+  const submission = await prisma.submission.findUnique({
+    where: { id: args.submissionId },
+    select: { photoUrls: true, resultId: true },
+  });
+  if (!submission) {
+    return { photosCopied: 0, photosFailed: 0, alreadyLinked: false };
+  }
+  if (submission.resultId && submission.resultId !== args.cardId) {
+    return { photosCopied: 0, photosFailed: 0, alreadyLinked: true };
+  }
+
+  const firstPhoto = submission.photoUrls[0];
+  let photosCopied = 0;
+  let photosFailed = 0;
+  if (firstPhoto && !args.hasCover) {
+    try {
+      const cover = await copyStoredImage(firstPhoto, COVER_FOLDER[args.type]);
+      if (args.type === "EVENT") {
+        await prisma.event.update({
+          where: { id: args.cardId },
+          data: { imageUrl: cover },
+        });
+      } else {
+        await prisma.placeProgram.update({
+          where: { id: args.cardId },
+          data: { imageUrl: cover },
+        });
+      }
+      photosCopied = 1;
+    } catch (error) {
+      photosFailed = 1;
+      console.error("admin: фото предложения не скопировалось", firstPhoto, error);
+    }
+  }
+
+  await prisma.submission.update({
+    where: { id: args.submissionId },
+    data: {
+      resultType: args.type,
+      resultId: args.cardId,
+      status: submissionStatusFor(args.cardStatus),
+      reviewedAt: new Date(),
+    },
+  });
+
+  return { photosCopied, photosFailed, alreadyLinked: false };
+}
+
+/** Событие или занятие правили: предложения, сделанные из него, идут за видимостью. */
+export async function syncSubmissionsForCoverCard(
+  type: CoverCardType,
+  cardId: string,
+  cardStatus: EventStatus | PlaceStatus,
+): Promise<void> {
+  await prisma.submission.updateMany({
+    where: { resultType: type, resultId: cardId, status: { in: AUTO_STATUSES } },
+    data: { status: submissionStatusFor(cardStatus) },
+  });
+}
+
+/** Событие или занятие удалили: предложение снова ждёт работы. */
+export async function unlinkSubmissionsForCoverCard(
+  type: CoverCardType,
+  cardId: string,
+): Promise<void> {
+  await prisma.submission.updateMany({
+    where: { resultType: type, resultId: cardId },
     data: { resultType: null, resultId: null, status: "IN_REVIEW" },
   });
 }

@@ -1,12 +1,55 @@
+import { redirect } from "next/navigation";
 import { prisma } from "@/db/prisma";
 import { requireAdmin } from "@/lib/admin/auth";
-import { EventForm } from "@/app/admin/events/event-form";
+import { EventForm, type EventFormSubmission } from "@/app/admin/events/event-form";
+import { eventPrefill } from "@/lib/admin/submission-card";
 
 export const dynamic = "force-dynamic";
 
 type PageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
+
+/** ?from=<id предложения> — форма открывается уже заполненной присланным. */
+async function submissionPrefill(
+  id: string | undefined,
+): Promise<EventFormSubmission | undefined> {
+  if (!id) {
+    return undefined;
+  }
+  const submission = await prisma.submission
+    .findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        tip: true,
+        location: true,
+        whenText: true,
+        photoUrls: true,
+        resultId: true,
+        targetId: true,
+      },
+    })
+    // таблицы ещё нет или база споткнулась — форма просто откроется пустой
+    .catch(() => null);
+  // дополнение к существующей карточке — не повод создавать новую: его
+  // вносят в саму карточку (страница предложения такой кнопки и не даёт)
+  if (!submission || submission.targetId) {
+    return undefined;
+  }
+  if (submission.resultId) {
+    // карточку из этого предложения уже делали: вторую форму не открываем —
+    // иначе «назад» и «Сохранить» тихо создавали бы дубль на сайте
+    redirect(`/admin/suggestions/${submission.id}?error=cardExists`);
+  }
+  return {
+    id: submission.id,
+    name: submission.name,
+    photoCount: submission.photoUrls.length,
+    prefill: eventPrefill(submission, new Date()),
+  };
+}
 
 export default async function AdminEventNewPage({
   searchParams,
@@ -16,10 +59,21 @@ export default async function AdminEventNewPage({
   const resolvedSearch = (await searchParams) ?? {};
   const error =
     typeof resolvedSearch.error === "string" ? resolvedSearch.error : undefined;
-  const places = await prisma.place.findMany({
-    orderBy: { name: "asc" },
-    select: { id: true, name: true },
-  });
+  const from = typeof resolvedSearch.from === "string" ? resolvedSearch.from : undefined;
+  const [places, fromSubmission] = await Promise.all([
+    prisma.place.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    }),
+    submissionPrefill(from),
+  ]);
 
-  return <EventForm event={null} places={places} error={error} />;
+  return (
+    <EventForm
+      event={null}
+      places={places}
+      error={error}
+      fromSubmission={fromSubmission}
+    />
+  );
 }

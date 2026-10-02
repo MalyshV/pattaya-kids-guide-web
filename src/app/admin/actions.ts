@@ -17,10 +17,14 @@ import {
 import { UploadError, removeStoredImage, uploadImage } from "@/lib/admin/upload";
 import {
   addSubmissionPhotosToPlace,
+  attachSubmissionToCoverCard,
   attachSubmissionToPlace,
   setSubmissionPhotoAsCover,
+  syncSubmissionsForCoverCard,
   syncSubmissionsForPlace,
+  unlinkSubmissionsForCoverCard,
   unlinkSubmissionsForPlace,
+  type CoverCardType,
 } from "@/lib/admin/submission-link";
 import { parseBirthdayForm } from "@/lib/admin/birthday-info";
 import {
@@ -717,17 +721,81 @@ export async function rotatePhotoAction(formData: FormData): Promise<void> {
   redirect(`${back}#${anchor}`);
 }
 
+// ── связка «предложение → событие / занятие» ─────────────────────────────────
+
+type CardLinkResult = "ok" | "withPhotos" | "photos" | "duplicate" | "failed";
+
+/** Форма создания: ошибка не должна терять заполненное из предложения (?from). */
+function newCardHref(
+  path: string,
+  problem: string,
+  fromSubmission: string | null,
+): string {
+  return `${path}?error=${problem}${
+    fromSubmission ? `&from=${encodeURIComponent(fromSubmission)}` : ""
+  }`;
+}
+
+/**
+ * Карточку события/занятия создали из предложения: перенести обложку и
+ * пометить очередь. Карточка уже сохранена — сбой связки её не отменяет.
+ */
+async function linkSubmissionToCoverCard(args: {
+  submissionId: string;
+  type: CoverCardType;
+  cardId: string;
+  cardStatus: "APPROVED" | "PENDING";
+  hasCover: boolean;
+}): Promise<CardLinkResult> {
+  try {
+    const attached = await attachSubmissionToCoverCard(args);
+    return attached.alreadyLinked
+      ? "duplicate"
+      : attached.photosFailed > 0
+        ? "photos"
+        : attached.photosCopied > 0
+          ? "withPhotos"
+          : "ok";
+  } catch (error) {
+    console.error("admin: предложение не связалось с карточкой", error);
+    return "failed";
+  }
+}
+
+/**
+ * Куда вести после сохранения карточки из предложения: к самой карточке, если
+ * со страницы предложения её не найти (связка не удалась / уже вела к другой),
+ * иначе — назад к предложению с результатом. null — идти обычным путём.
+ */
+function afterCardLinkHref(
+  adminCardPath: string,
+  fromSubmission: string,
+  linkResult: CardLinkResult,
+): string {
+  if (linkResult === "failed" || linkResult === "duplicate") {
+    return `${adminCardPath}?error=${linkResult === "failed" ? "cardLink" : "cardDuplicate"}`;
+  }
+  const flag =
+    linkResult === "photos"
+      ? "error=cardPhotos"
+      : `done=${linkResult === "withPhotos" ? "cardCreatedPhotos" : "cardCreated"}`;
+  return `/admin/suggestions/${fromSubmission}?${flag}`;
+}
+
 // ── события ─────────────────────────────────────────────────────────────────
 
 export async function saveEventAction(formData: FormData): Promise<void> {
   await requireAdmin();
 
   const id = textOrNull(formData, "id");
+  const fromSubmission = textOrNull(formData, "fromSubmission");
   const title = text(formData, "title");
   const startDate = pattayaDateOrNull(formData, "startDate");
   if (!title || !startDate) {
     redirect(
-      id ? `/admin/events/${id}?error=required` : "/admin/events/new?error=required",
+      id
+        ? `/admin/events/${id}?error=required`
+        : newCardHref("/admin/events/new", "required", fromSubmission),
     );
   }
   const eventTooLong = tooLongError((field) => text(formData, field), EVENT_FIELDS);
@@ -735,7 +803,7 @@ export async function saveEventAction(formData: FormData): Promise<void> {
     redirect(
       id
         ? `/admin/events/${id}?error=${eventTooLong}`
-        : `/admin/events/new?error=${eventTooLong}`,
+        : newCardHref("/admin/events/new", eventTooLong, fromSubmission),
     );
   }
 
@@ -748,7 +816,11 @@ export async function saveEventAction(formData: FormData): Promise<void> {
   const ageBroken = (value: number | null): boolean =>
     value !== null && (value < 0 || value > MAX_AGE_MONTHS);
   if (ageBroken(minAgeMonths) || ageBroken(maxAgeMonths)) {
-    redirect(id ? `/admin/events/${id}?error=age` : "/admin/events/new?error=age");
+    redirect(
+      id
+        ? `/admin/events/${id}?error=age`
+        : newCardHref("/admin/events/new", "age", fromSubmission),
+    );
   }
   if (minAgeMonths !== null && maxAgeMonths !== null && minAgeMonths > maxAgeMonths) {
     [minAgeMonths, maxAgeMonths] = [maxAgeMonths, minAgeMonths];
@@ -803,7 +875,11 @@ export async function saveEventAction(formData: FormData): Promise<void> {
   } catch (error) {
     const code = prismaCode(error);
     if (code === "P2025" || code === "P2002") {
-      redirect("/admin/events");
+      redirect(
+        fromSubmission && !id
+          ? `/admin/suggestions/${fromSubmission}?error=saveConflict`
+          : "/admin/events",
+      );
     }
     throw error;
   }
@@ -816,14 +892,40 @@ export async function saveEventAction(formData: FormData): Promise<void> {
     },
   );
 
+  // предложение, из которого создали событие: обложка и очередь; правили
+  // карточку — предложение идёт за её видимостью
+  let linkResult: CardLinkResult | null = null;
+  if (!id && fromSubmission) {
+    linkResult = await linkSubmissionToCoverCard({
+      submissionId: fromSubmission,
+      type: "EVENT",
+      cardId: eventId,
+      cardStatus: data.status,
+      hasCover: cover !== undefined,
+    });
+    revalidatePath("/admin", "layout");
+  } else if (id) {
+    await syncSubmissionsForCoverCard("EVENT", id, data.status).catch((error: unknown) =>
+      console.error("admin: статус предложения не обновился", error),
+    );
+    revalidatePath("/admin", "layout");
+  }
+
   revalidateSite();
-  redirect(
-    uploadFailed
-      ? `/admin/events/${eventId}?error=upload`
-      : tipsFailed
-        ? `/admin/events/${eventId}?error=tips`
-        : `/admin/events?done=${id ? "updated" : "created"}`,
-  );
+  const cardPath = `/admin/events/${eventId}`;
+  if (linkResult === "failed" || linkResult === "duplicate") {
+    redirect(afterCardLinkHref(cardPath, fromSubmission ?? "", linkResult));
+  }
+  if (uploadFailed) {
+    redirect(`${cardPath}?error=upload`);
+  }
+  if (tipsFailed) {
+    redirect(`${cardPath}?error=tips`);
+  }
+  if (fromSubmission && linkResult) {
+    redirect(afterCardLinkHref(cardPath, fromSubmission, linkResult));
+  }
+  redirect(`/admin/events?done=${id ? "updated" : "created"}`);
 }
 
 export async function deleteEventAction(formData: FormData): Promise<void> {
@@ -843,6 +945,10 @@ export async function deleteEventAction(formData: FormData): Promise<void> {
       await tx.event.delete({ where: { id } });
     });
     await removeImageIfUnused(cover?.imageUrl, "обложка события");
+    await unlinkSubmissionsForCoverCard("EVENT", id).catch((error: unknown) =>
+      console.error("admin: предложение не отвязалось от карточки", error),
+    );
+    revalidatePath("/admin", "layout");
     revalidateSite();
     redirect("/admin/events?done=deleted");
   }
@@ -855,10 +961,13 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
   await requireAdmin();
 
   const id = textOrNull(formData, "id");
+  const fromSubmission = textOrNull(formData, "fromSubmission");
   const name = text(formData, "name");
   if (!name) {
     redirect(
-      id ? `/admin/activities/${id}?error=name` : "/admin/activities/new?error=name",
+      id
+        ? `/admin/activities/${id}?error=name`
+        : newCardHref("/admin/activities/new", "name", fromSubmission),
     );
   }
   const activityTooLong = tooLongError((field) => text(formData, field), ACTIVITY_FIELDS);
@@ -866,7 +975,7 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
     redirect(
       id
         ? `/admin/activities/${id}?error=${activityTooLong}`
-        : `/admin/activities/new?error=${activityTooLong}`,
+        : newCardHref("/admin/activities/new", activityTooLong, fromSubmission),
     );
   }
 
@@ -946,7 +1055,11 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
   } catch (error) {
     const code = prismaCode(error);
     if (code === "P2025" || code === "P2002") {
-      redirect("/admin/activities");
+      redirect(
+        fromSubmission && !id
+          ? `/admin/suggestions/${fromSubmission}?error=saveConflict`
+          : "/admin/activities",
+      );
     }
     throw error;
   }
@@ -959,14 +1072,44 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
     },
   );
 
+  // у занятия статус может не прийти (вкладка открыта до обновления) — тогда
+  // видимость не менялась, и связку при правке не трогаем
+  const activityStatus = await prisma.placeProgram
+    .findUnique({ where: { id: activityId }, select: { status: true } })
+    .then((row) => row?.status ?? null)
+    .catch(() => null);
+  let linkResult: CardLinkResult | null = null;
+  if (!id && fromSubmission) {
+    linkResult = await linkSubmissionToCoverCard({
+      submissionId: fromSubmission,
+      type: "ACTIVITY",
+      cardId: activityId,
+      cardStatus: activityStatus === "APPROVED" ? "APPROVED" : "PENDING",
+      hasCover: cover !== undefined,
+    });
+    revalidatePath("/admin", "layout");
+  } else if (id && activityStatus) {
+    await syncSubmissionsForCoverCard("ACTIVITY", id, activityStatus).catch(
+      (error: unknown) => console.error("admin: статус предложения не обновился", error),
+    );
+    revalidatePath("/admin", "layout");
+  }
+
   revalidateSite();
-  redirect(
-    uploadFailed
-      ? `/admin/activities/${activityId}?error=upload`
-      : tipsFailed
-        ? `/admin/activities/${activityId}?error=tips`
-        : `/admin/activities?done=${id ? "updated" : "created"}`,
-  );
+  const cardPath = `/admin/activities/${activityId}`;
+  if (linkResult === "failed" || linkResult === "duplicate") {
+    redirect(afterCardLinkHref(cardPath, fromSubmission ?? "", linkResult));
+  }
+  if (uploadFailed) {
+    redirect(`${cardPath}?error=upload`);
+  }
+  if (tipsFailed) {
+    redirect(`${cardPath}?error=tips`);
+  }
+  if (fromSubmission && linkResult) {
+    redirect(afterCardLinkHref(cardPath, fromSubmission, linkResult));
+  }
+  redirect(`/admin/activities?done=${id ? "updated" : "created"}`);
 }
 
 export async function deleteActivityAction(formData: FormData): Promise<void> {
@@ -984,6 +1127,10 @@ export async function deleteActivityAction(formData: FormData): Promise<void> {
       await tx.placeProgram.delete({ where: { id } });
     });
     await removeImageIfUnused(cover?.imageUrl, "обложка занятия");
+    await unlinkSubmissionsForCoverCard("ACTIVITY", id).catch((error: unknown) =>
+      console.error("admin: предложение не отвязалось от карточки", error),
+    );
+    revalidatePath("/admin", "layout");
     revalidateSite();
     redirect("/admin/activities?done=deleted");
   }
