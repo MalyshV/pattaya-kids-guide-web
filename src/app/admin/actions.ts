@@ -17,6 +17,7 @@ import { UploadError, removeStoredImage, uploadImage } from "@/lib/admin/upload"
 import {
   addSubmissionPhotosToPlace,
   attachSubmissionToPlace,
+  setSubmissionPhotoAsCover,
   syncSubmissionsForPlace,
   unlinkSubmissionsForPlace,
 } from "@/lib/admin/submission-link";
@@ -845,6 +846,25 @@ export async function addSubmissionPhotosAction(formData: FormData): Promise<voi
       result.photosFailed > 0 ? "error=additionPhotos" : "done=additionPhotos"
     }`,
   );
+}
+
+/** Дополнение к событию или занятию: выбранное фото — в обложку карточки. */
+export async function setSubmissionCoverAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = text(formData, "id");
+  const url = text(formData, "url");
+  if (!id) {
+    redirect("/admin/suggestions");
+  }
+  const result = await setSubmissionPhotoAsCover(id, url).catch((error: unknown) => {
+    console.error("admin: обложка из дополнения не поставилась", error);
+    return null;
+  });
+  if (!result || result.state === "nothing") {
+    redirect(`/admin/suggestions/${id}?error=additionCover`);
+  }
+  revalidateSite();
+  redirect(`/admin/suggestions/${id}?done=additionCover`);
 }
 
 export async function saveSubmissionNotesAction(formData: FormData): Promise<void> {

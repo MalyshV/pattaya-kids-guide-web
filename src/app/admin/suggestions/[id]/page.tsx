@@ -15,6 +15,7 @@ import {
   addSubmissionPhotosAction,
   deleteSubmissionPhotoAction,
   saveSubmissionNotesAction,
+  setSubmissionCoverAction,
   setSubmissionStatusAction,
 } from "@/app/admin/actions";
 import { SubmitButton } from "@/app/admin/submit-button";
@@ -177,6 +178,15 @@ export default async function AdminSuggestionPage({
   const isAddition = Boolean(item.targetId);
   const addTo = await targetCard(item);
   const photosAdded = isAddition && Boolean(item.resultId);
+  // у события и занятия одна картинка: фото из дополнения ставится обложкой
+  const coverNoun =
+    isAddition && addTo
+      ? item.targetKind === "EVENT"
+        ? "события"
+        : item.targetKind === "ACTIVITY"
+          ? "занятия"
+          : null
+      : null;
   const card = isAddition ? null : await linkedCard(item);
   const target = CARD_TARGET[item.kind];
   const cardState = {
@@ -355,6 +365,15 @@ export default async function AdminSuggestionPage({
                     Удалить фото
                   </SubmitButton>
                 </form>
+                {coverNoun ? (
+                  <form action={setSubmissionCoverAction}>
+                    <input type="hidden" name="id" value={item.id} />
+                    <input type="hidden" name="url" value={url} />
+                    <SubmitButton className="admin-link-button" pendingLabel="Ставлю…">
+                      Сделать обложкой {coverNoun}
+                    </SubmitButton>
+                  </form>
+                ) : null}
               </li>
             ))}
           </ul>
@@ -380,7 +399,7 @@ export default async function AdminSuggestionPage({
                       : `У ${
                           TARGET_NOUN[item.targetKind as keyof typeof TARGET_NOUN] ??
                           "карточки"
-                        } одна картинка: подходящее фото сохраните и загрузите в форме карточки.`}
+                        } одна картинка: выберите подходящее фото и нажмите «Сделать обложкой» под ним — прежняя обложка заменится, оригинал останется у предложения.`}
                   </li>
                 ) : null}
                 <li>

@@ -197,6 +197,65 @@ export async function addSubmissionPhotosToPlace(
   return { state: "added", photosCopied: copied.length, photosFailed };
 }
 
+export type SetCoverResult =
+  | { state: "set" }
+  /** не дополнение к событию/занятию, нет такой карточки или фото */
+  | { state: "nothing" };
+
+/**
+ * Дополнение к событию или занятию: выбранное фото — в обложку карточки.
+ * У них одна картинка (галереи нет), поэтому старая обложка заменяется.
+ * Файл старой обложки НЕ удаляем — как и формы события и занятия при замене
+ * картинки: нажали не на то фото — прежнюю обложку можно вернуть, а лишний
+ * файл в хранилище безвреден. Фото копируем, оригинал остаётся у
+ * предложения. Полей прав на изображение у события и занятия в схеме нет —
+ * пометку о правах писать некуда. Статус и связь предложения не трогаем:
+ * фото в дополнении может быть несколько, и обложку можно выбрать заново.
+ */
+export async function setSubmissionPhotoAsCover(
+  submissionId: string,
+  photoUrl: string,
+): Promise<SetCoverResult> {
+  const submission = await prisma.submission.findUnique({
+    where: { id: submissionId },
+    select: { photoUrls: true, targetKind: true, targetId: true },
+  });
+  if (
+    !submission ||
+    !submission.targetId ||
+    (submission.targetKind !== "EVENT" && submission.targetKind !== "ACTIVITY") ||
+    !submission.photoUrls.includes(photoUrl)
+  ) {
+    return { state: "nothing" };
+  }
+  const targetId = submission.targetId;
+  const isEvent = submission.targetKind === "EVENT";
+  const current = isEvent
+    ? await prisma.event.findUnique({
+        where: { id: targetId },
+        select: { imageUrl: true },
+      })
+    : await prisma.placeProgram.findUnique({
+        where: { id: targetId },
+        select: { imageUrl: true },
+      });
+  if (!current) {
+    return { state: "nothing" };
+  }
+
+  const cover = await copyStoredImage(photoUrl, isEvent ? "events" : "activities");
+  if (isEvent) {
+    await prisma.event.update({ where: { id: targetId }, data: { imageUrl: cover } });
+  } else {
+    await prisma.placeProgram.update({
+      where: { id: targetId },
+      data: { imageUrl: cover },
+    });
+  }
+
+  return { state: "set" };
+}
+
 /**
  * Карточку правили: предложения, сделанные из неё, идут за её видимостью.
  * Вручную помеченные «дубль» и «отклонено» не трогаем — это решение Вероники,
