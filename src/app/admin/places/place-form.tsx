@@ -244,7 +244,7 @@ export function PlaceForm({
 
         <PhotoField
           name="coverFile"
-          label={`Обложка ${place?.imageUrl ? "(выбери файл — заменит текущую)" : "(файл)"}`}
+          label={`Обложка ${place?.imageUrl ? "(файл заменит текущую)" : "(файл)"}`}
         />
 
         <fieldset className="admin-fieldset">
