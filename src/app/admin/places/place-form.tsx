@@ -1,3 +1,4 @@
+import { ADMIN_FIELDS, tooLongMessage } from "@/lib/admin/field-limits";
 import { CoverPreview, RotateButton } from "@/app/admin/rotate-button";
 import { TipsFields } from "@/app/admin/tips-fields";
 import Link from "next/link";
@@ -124,6 +125,9 @@ export function PlaceForm({
       <h1>{place ? `Место: ${place.name}` : "Новое место"}</h1>
       {place ? <p className="admin-muted">/{place.slug}</p> : null}
 
+      {tooLongMessage(error) ? (
+        <p className="admin-error">{tooLongMessage(error)}</p>
+      ) : null}
       {error === "name" ? <p className="admin-error">Название обязательно.</p> : null}
       {error === "upload" ? (
         <p className="admin-error">Фото не загрузилось — проверьте формат и размер.</p>
@@ -176,6 +180,7 @@ export function PlaceForm({
           <input
             type="text"
             name="name"
+            maxLength={ADMIN_FIELDS.name.max}
             defaultValue={place?.name ?? fromSubmission?.prefill.name ?? ""}
             required
           />
@@ -185,6 +190,7 @@ export function PlaceForm({
           <span>Описание (рус)</span>
           <textarea
             name="description"
+            maxLength={ADMIN_FIELDS.description.max}
             rows={5}
             defaultValue={place?.description ?? fromSubmission?.prefill.description ?? ""}
           />
@@ -194,6 +200,7 @@ export function PlaceForm({
           <span>Description (en) — пусто = показываем русское</span>
           <textarea
             name="descriptionEn"
+            maxLength={ADMIN_FIELDS.descriptionEn.max}
             rows={5}
             defaultValue={place?.descriptionEn ?? ""}
           />
@@ -206,6 +213,7 @@ export function PlaceForm({
           <input
             type="text"
             name="address"
+            maxLength={ADMIN_FIELDS.address.max}
             defaultValue={place?.address ?? fromSubmission?.prefill.address ?? ""}
           />
         </label>
@@ -236,6 +244,7 @@ export function PlaceForm({
           <input
             type="url"
             name="googleMapsUrl"
+            maxLength={ADMIN_FIELDS.googleMapsUrl.max}
             defaultValue={
               place?.googleMapsUrl ?? fromSubmission?.prefill.googleMapsUrl ?? ""
             }
@@ -355,6 +364,7 @@ export function PlaceForm({
             <span>Заметки о дне рождения (рус)</span>
             <textarea
               name="birthdayNotes"
+              maxLength={ADMIN_FIELDS.birthdayNotes.max}
               rows={3}
               defaultValue={birthday?.notes ?? ""}
             />
@@ -363,6 +373,7 @@ export function PlaceForm({
             <span>Notes (en) — пусто = показываем русские</span>
             <textarea
               name="birthdayNotesEn"
+              maxLength={ADMIN_FIELDS.birthdayNotesEn.max}
               rows={3}
               defaultValue={birthday?.notesEn ?? ""}
             />
@@ -476,7 +487,7 @@ export function PlaceForm({
             <PhotoField name="photoFile" label="Добавить фото в галерею" required />
             <label className="admin-field">
               <span>Подпись (необязательно)</span>
-              <input type="text" name="caption" />
+              <input type="text" name="caption" maxLength={ADMIN_FIELDS.caption.max} />
             </label>
             <SubmitButton pendingLabel="Загружаю…">Загрузить</SubmitButton>
           </form>

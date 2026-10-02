@@ -1,5 +1,6 @@
 "use client";
 
+import { ADMIN_FIELDS, tooLongMessage } from "@/lib/admin/field-limits";
 import { TipsFields } from "@/app/admin/tips-fields";
 import { useCallback, useState } from "react";
 import type { Event } from "@prisma/client";
@@ -105,6 +106,9 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
       <h1>{event ? `Событие: ${event.title}` : "Новое событие"}</h1>
       {event ? <p className="admin-muted">/{event.slug}</p> : null}
 
+      {tooLongMessage(error) ? (
+        <p className="admin-error">{tooLongMessage(error)}</p>
+      ) : null}
       {error === "required" ? (
         <p className="admin-error">Название и дата начала обязательны.</p>
       ) : null}
@@ -173,6 +177,7 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
           <input
             type="text"
             name="title"
+            maxLength={ADMIN_FIELDS.title.max}
             defaultValue={event?.title ?? draft?.titleCandidate ?? ""}
             required
           />
@@ -180,13 +185,19 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
 
         <label className="admin-field">
           <span>Title (en)</span>
-          <input type="text" name="titleEn" defaultValue={event?.titleEn ?? ""} />
+          <input
+            type="text"
+            name="titleEn"
+            maxLength={ADMIN_FIELDS.titleEn.max}
+            defaultValue={event?.titleEn ?? ""}
+          />
         </label>
 
         <label className="admin-field">
           <span>Описание (рус)</span>
           <textarea
             name="description"
+            maxLength={ADMIN_FIELDS.description.max}
             rows={4}
             defaultValue={
               event?.description ?? (draft ? (draftDescription(draft) ?? "") : "")
@@ -198,6 +209,7 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
           <span>Description (en)</span>
           <textarea
             name="descriptionEn"
+            maxLength={ADMIN_FIELDS.descriptionEn.max}
             rows={4}
             defaultValue={event?.descriptionEn ?? ""}
           />
@@ -264,12 +276,18 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
             <input
               type="text"
               name="locationName"
+              maxLength={ADMIN_FIELDS.locationName.max}
               defaultValue={event?.locationName ?? ""}
             />
           </label>
           <label className="admin-field">
             <span>Адрес</span>
-            <input type="text" name="address" defaultValue={event?.address ?? ""} />
+            <input
+              type="text"
+              name="address"
+              maxLength={ADMIN_FIELDS.address.max}
+              defaultValue={event?.address ?? ""}
+            />
           </label>
         </div>
 

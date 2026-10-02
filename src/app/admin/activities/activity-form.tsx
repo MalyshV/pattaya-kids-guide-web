@@ -1,3 +1,4 @@
+import { ADMIN_FIELDS, tooLongMessage } from "@/lib/admin/field-limits";
 import { CoverPreview } from "@/app/admin/rotate-button";
 import { TipsFields } from "@/app/admin/tips-fields";
 import type { PlaceProgram } from "@prisma/client";
@@ -51,6 +52,9 @@ export function ActivityForm({
       <h1>{activity ? `Занятие: ${activity.name}` : "Новое занятие"}</h1>
       {activity?.slug ? <p className="admin-muted">/{activity.slug}</p> : null}
 
+      {tooLongMessage(error) ? (
+        <p className="admin-error">{tooLongMessage(error)}</p>
+      ) : null}
       {error === "name" ? <p className="admin-error">Название обязательно.</p> : null}
       {error === "upload" ? (
         <p className="admin-error">Фото не загрузилось — проверьте формат и размер.</p>
@@ -64,12 +68,23 @@ export function ActivityForm({
 
         <label className="admin-field">
           <span>Название (рус) *</span>
-          <input type="text" name="name" defaultValue={activity?.name ?? ""} required />
+          <input
+            type="text"
+            name="name"
+            maxLength={ADMIN_FIELDS.name.max}
+            defaultValue={activity?.name ?? ""}
+            required
+          />
         </label>
 
         <label className="admin-field">
           <span>Name (en)</span>
-          <input type="text" name="nameEn" defaultValue={activity?.nameEn ?? ""} />
+          <input
+            type="text"
+            name="nameEn"
+            maxLength={ADMIN_FIELDS.nameEn.max}
+            defaultValue={activity?.nameEn ?? ""}
+          />
         </label>
 
         <label className="admin-field admin-field-inline">
@@ -85,6 +100,7 @@ export function ActivityForm({
           <span>Описание (рус)</span>
           <textarea
             name="description"
+            maxLength={ADMIN_FIELDS.description.max}
             rows={4}
             defaultValue={activity?.description ?? ""}
           />
@@ -94,6 +110,7 @@ export function ActivityForm({
           <span>Description (en)</span>
           <textarea
             name="descriptionEn"
+            maxLength={ADMIN_FIELDS.descriptionEn.max}
             rows={4}
             defaultValue={activity?.descriptionEn ?? ""}
           />
@@ -118,6 +135,7 @@ export function ActivityForm({
             <input
               type="text"
               name="priceUnit"
+              maxLength={ADMIN_FIELDS.priceUnit.max}
               defaultValue={activity?.priceUnit ?? ""}
             />
           </label>
@@ -126,6 +144,7 @@ export function ActivityForm({
             <input
               type="text"
               name="priceUnitEn"
+              maxLength={ADMIN_FIELDS.priceUnitEn.max}
               defaultValue={activity?.priceUnitEn ?? ""}
             />
           </label>
@@ -189,6 +208,7 @@ export function ActivityForm({
             <input
               type="text"
               name="venueName"
+              maxLength={ADMIN_FIELDS.venueName.max}
               defaultValue={activity?.venueName ?? ""}
             />
           </label>
@@ -197,6 +217,7 @@ export function ActivityForm({
             <input
               type="text"
               name="venueNameEn"
+              maxLength={ADMIN_FIELDS.venueNameEn.max}
               defaultValue={activity?.venueNameEn ?? ""}
             />
           </label>
@@ -207,6 +228,7 @@ export function ActivityForm({
           <input
             type="text"
             name="venueAddress"
+            maxLength={ADMIN_FIELDS.venueAddress.max}
             defaultValue={activity?.venueAddress ?? ""}
           />
         </label>

@@ -23,6 +23,12 @@ import {
   unlinkSubmissionsForPlace,
 } from "@/lib/admin/submission-link";
 import { parseBirthdayForm } from "@/lib/admin/birthday-info";
+import {
+  ACTIVITY_FIELDS,
+  EVENT_FIELDS,
+  PLACE_FIELDS,
+  tooLongError,
+} from "@/lib/admin/field-limits";
 import { removeImageIfUnused } from "@/lib/admin/image-usage";
 import { slugify } from "@/lib/admin/slug";
 import { DEFAULT_CITY_SLUG } from "@/lib/geo/base-path";
@@ -225,6 +231,13 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
   const name = text(formData, "name");
   if (!name) {
     redirect(id ? `/admin/places/${id}?error=name` : newPlaceHref("name"));
+  }
+  // слишком длинный текст — не обрезаем молча, а возвращаем форму с объяснением
+  const placeTooLong = tooLongError((field) => text(formData, field), PLACE_FIELDS);
+  if (placeTooLong) {
+    redirect(
+      id ? `/admin/places/${id}?error=${placeTooLong}` : newPlaceHref(placeTooLong),
+    );
   }
 
   // место физически где-то: без координат оно попало бы в (0,0) — точку
@@ -525,6 +538,10 @@ export async function addPlacePhotoAction(formData: FormData): Promise<void> {
   const placeId = text(formData, "placeId");
   const file = formData.get("photoFile");
 
+  const captionTooLong = tooLongError((field) => text(formData, field), ["caption"]);
+  if (placeId && captionTooLong) {
+    redirect(`/admin/places/${placeId}?error=${captionTooLong}`);
+  }
   if (placeId && file instanceof File && file.size > 0) {
     try {
       const url = await uploadImage(file, "places");
@@ -713,6 +730,14 @@ export async function saveEventAction(formData: FormData): Promise<void> {
       id ? `/admin/events/${id}?error=required` : "/admin/events/new?error=required",
     );
   }
+  const eventTooLong = tooLongError((field) => text(formData, field), EVENT_FIELDS);
+  if (eventTooLong) {
+    redirect(
+      id
+        ? `/admin/events/${id}?error=${eventTooLong}`
+        : `/admin/events/new?error=${eventTooLong}`,
+    );
+  }
 
   // возраст: мусор (отрицательные, за пределами разумного, min>max) не должен
   // ни падать пятисоткой на Int-переполнении, ни тихо прятать событие из всех
@@ -834,6 +859,14 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
   if (!name) {
     redirect(
       id ? `/admin/activities/${id}?error=name` : "/admin/activities/new?error=name",
+    );
+  }
+  const activityTooLong = tooLongError((field) => text(formData, field), ACTIVITY_FIELDS);
+  if (activityTooLong) {
+    redirect(
+      id
+        ? `/admin/activities/${id}?error=${activityTooLong}`
+        : `/admin/activities/new?error=${activityTooLong}`,
     );
   }
 
