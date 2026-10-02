@@ -1,3 +1,4 @@
+import { CoverPreview, RotateButton } from "@/app/admin/rotate-button";
 import { TipsFields } from "@/app/admin/tips-fields";
 import Link from "next/link";
 import type {
@@ -448,6 +449,8 @@ export function PlaceForm({
 
       {place ? (
         <>
+          <CoverPreview target="placeCover" id={place.id} imageUrl={place.imageUrl} />
+
           <hr className="admin-divider" />
 
           <h2>Галерея ({place.photos.length})</h2>
@@ -456,6 +459,7 @@ export function PlaceForm({
               <li key={photo.id} className="admin-photo">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={photo.url} alt={photo.caption ?? ""} loading="lazy" />
+                <RotateButton target="placePhoto" id={photo.id} />
                 <form action={deletePlacePhotoAction}>
                   <input type="hidden" name="photoId" value={photo.id} />
                   <input type="hidden" name="placeId" value={place.id} />

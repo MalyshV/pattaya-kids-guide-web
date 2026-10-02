@@ -1,3 +1,4 @@
+import { CoverPreview } from "@/app/admin/rotate-button";
 import { TipsFields } from "@/app/admin/tips-fields";
 import type { PlaceProgram } from "@prisma/client";
 import { deleteActivityAction, saveActivityAction } from "@/app/admin/actions";
@@ -229,6 +230,11 @@ export function ActivityForm({
 
       {activity ? (
         <>
+          <CoverPreview
+            target="activityCover"
+            id={activity.id}
+            imageUrl={activity.imageUrl}
+          />
           <hr className="admin-divider" />
           <form action={deleteActivityAction}>
             <input type="hidden" name="id" value={activity.id} />

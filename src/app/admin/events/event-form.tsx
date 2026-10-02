@@ -7,6 +7,7 @@ import { deleteEventAction, saveEventAction } from "@/app/admin/actions";
 import { OcrZone } from "@/app/admin/ocr-zone";
 import { parseEventFlyer, type FlyerDraft } from "@/lib/import/event-flyer";
 import { PhotoField } from "@/app/admin/photo-field";
+import { CoverPreview } from "@/app/admin/rotate-button";
 import { SubmitButton } from "@/app/admin/submit-button";
 
 /**
@@ -303,6 +304,7 @@ export function EventForm({ event, places, error }: EventFormProps): React.React
 
       {event ? (
         <>
+          <CoverPreview target="eventCover" id={event.id} imageUrl={event.imageUrl} />
           <hr className="admin-divider" />
           <form action={deleteEventAction}>
             <input type="hidden" name="id" value={event.id} />

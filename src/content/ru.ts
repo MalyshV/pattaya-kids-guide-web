@@ -647,6 +647,8 @@ export const ru = {
       addMore: "Добавить ещё",
       remove: "Убрать",
       removeLabel: (n: number): string => `Убрать фото ${n}`,
+      rotate: "Повернуть",
+      rotateLabel: (n: number): string => `Повернуть фото ${n}`,
       alt: (n: number): string => `Фото ${n}`,
       processing: "Готовим…",
       // на кнопке «Отправить», пока фото ещё сжимаются

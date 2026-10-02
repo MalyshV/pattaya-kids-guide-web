@@ -582,6 +582,8 @@ export const en: Dictionary = {
       addMore: "Add more",
       remove: "Remove",
       removeLabel: (n: number): string => `Remove photo ${n}`,
+      rotate: "Rotate",
+      rotateLabel: (n: number): string => `Rotate photo ${n}`,
       alt: (n: number): string => `Photo ${n}`,
       processing: "Preparing…",
       preparing: "Preparing photos…",
