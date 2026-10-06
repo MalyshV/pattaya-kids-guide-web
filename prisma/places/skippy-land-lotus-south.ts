@@ -47,17 +47,19 @@ const softPlayZone: Zone = {
   name: "Skippy Land · Lotus's South",
   imageUrl: "/images/places/skippy-land-south.jpg",
   description:
-    "Крытая детская игровая в торговом центре Lotus's South Pattaya: 2 этаж, у фудкорта. Закрытая зона Kid's Soft Play: бассейн с шариками и лазалка с горкой, большие мягкие кубики-конструктор, песочница с формочками и домиком, «рыбалка», игрушечный магазин с тележками, кондитерская, салон красоты и столик с конструктором. Обувь оставляют у входа, внутри — кондиционер и персонал. Вдоль ограждения снаружи стоят качалки за монетки. Напротив, через проход, — открытая зона Skippy Land: только автоматы и качалки (10–20 ฿ за игру), персонала там нет, ребёнка одного не оставить. До или после игры можно поесть на фудкорте и закупиться в Lotus's.",
+    "Крытая детская игровая в торговом центре Lotus's South Pattaya: 2 этаж, у фудкорта. Закрытая зона Kid's Soft Play: бассейн с шариками и лазалка с горкой, большие мягкие кубики-конструктор, песочница с пластиковыми гранулами вместо песка, формочками и домиком, «рыбалка», игрушечный магазин с тележками, кондитерская, салон красоты и столик с конструктором. Обувь оставляют у входа, внутри — кондиционер и персонал; ребёнка можно оставить под их присмотром. Вдоль ограждения снаружи стоят качалки за монетки. Напротив, через проход, — открытая зона Skippy Land: только автоматы и качалки (10–20 ฿ за игру), персонала там нет, ребёнка одного не оставить. До или после игры можно поесть на фудкорте и закупиться в Lotus's.",
   descriptionEn:
-    "An indoor kids' play area in Lotus's South Pattaya mall: 2nd floor, by the food court. An enclosed Kid's Soft Play zone: a ball pit and a climbing frame with a slide, big soft building blocks, a sandpit with moulds and a playhouse, a fishing game, a toy shop with trolleys, a cake shop, a beauty salon and a building-blocks table. Shoes come off at the entrance; inside it's air-conditioned, with staff on duty. Coin-op rides stand along the fence outside. Across the aisle is an open Skippy Land zone: arcade machines and rides only (10–20 ฿ a game), with no staff — not a place to leave a child. Before or after playtime you can eat at the food court and shop at Lotus's.",
+    "An indoor kids' play area in Lotus's South Pattaya mall: 2nd floor, by the food court. An enclosed Kid's Soft Play zone: a ball pit and a climbing frame with a slide, big soft building blocks, a sandpit filled with plastic pellets instead of sand, with moulds and a playhouse, a fishing game, a toy shop with trolleys, a cake shop, a beauty salon and a building-blocks table. Shoes come off at the entrance; inside it's air-conditioned, with staff on duty who can look after your child. Coin-op rides stand along the fence outside. Across the aisle is an open Skippy Land zone: arcade machines and rides only (10–20 ฿ a game), with no staff — not a place to leave a child. Before or after playtime you can eat at the food court and shop at Lotus's.",
   descriptionTh:
-    "สนามเด็กเล่นในร่มในห้าง Lotus's South Pattaya ชั้น 2 ติดฟู้ดคอร์ต มีโซน Kid's Soft Play แบบมีรั้วกั้น ภายในมีบ่อบอลและเครื่องเล่นปีนป่ายพร้อมสไลเดอร์ บล็อกโฟมขนาดใหญ่ บ่อทรายพร้อมแม่พิมพ์และบ้านหลังเล็ก เกมตกปลา ร้านค้าจำลองพร้อมรถเข็น ร้านเค้กจำลอง ร้านเสริมสวยจำลอง และโต๊ะตัวต่อ ถอดรองเท้าไว้หน้าทางเข้า ในโซนมีเครื่องปรับอากาศและมีพนักงานดูแล ริมรั้วด้านนอกมีเครื่องเล่นหยอดเหรียญ ฝั่งตรงข้ามทางเดินเป็นโซน Skippy Land แบบเปิด มีแต่ตู้เกมและเครื่องเล่นหยอดเหรียญ (ครั้งละ 10–20 ฿) ไม่มีพนักงานประจำ จึงไม่ควรปล่อยเด็กไว้ตามลำพัง ก่อนหรือหลังเล่นแวะทานอาหารที่ฟู้ดคอร์ตและซื้อของที่ Lotus's ได้",
-  entryPriceNote: `Рост ребёнка — 85–135 см. Сопровождающий (от 18 лет) — один на ребёнка. При травме центр компенсирует лечение до 10${nb}000${nb}฿.`,
-  entryPriceNoteEn: `Child height 85–135 cm. One accompanying adult (18+) per child. In case of injury the venue covers treatment up to 10,000${nb}฿.`,
-  entryPriceNoteTh: `ส่วนสูงเด็ก 85–135 ซม. ผู้ปกครอง (อายุ 18 ปีขึ้นไป) หนึ่งคนต่อเด็กหนึ่งคน หากเกิดอุบัติเหตุบาดเจ็บ ทางศูนย์รับผิดชอบค่ารักษาพยาบาลสูงสุด 10,000${nb}฿`,
-  // со слов Вероники ребёнка можно оставить, табличка просит родителей
-  // присматривать рядом — до сверки «уточняется»
-  canLeaveChild: null,
+    "สนามเด็กเล่นในร่มในห้าง Lotus's South Pattaya ชั้น 2 ติดฟู้ดคอร์ต มีโซน Kid's Soft Play แบบมีรั้วกั้น ภายในมีบ่อบอลและเครื่องเล่นปีนป่ายพร้อมสไลเดอร์ บล็อกโฟมขนาดใหญ่ บ่อทรายเทียมเม็ดพลาสติกพร้อมแม่พิมพ์และบ้านหลังเล็ก เกมตกปลา ร้านค้าจำลองพร้อมรถเข็น ร้านเค้กจำลอง ร้านเสริมสวยจำลอง และโต๊ะตัวต่อ ถอดรองเท้าไว้หน้าทางเข้า ในโซนมีเครื่องปรับอากาศและมีพนักงานดูแล ฝากเด็กไว้ให้พนักงานดูแลได้ ริมรั้วด้านนอกมีเครื่องเล่นหยอดเหรียญ ฝั่งตรงข้ามทางเดินเป็นโซน Skippy Land แบบเปิด มีแต่ตู้เกมและเครื่องเล่นหยอดเหรียญ (ครั้งละ 10–20 ฿) ไม่มีพนักงานประจำ จึงไม่ควรปล่อยเด็กไว้ตามลำพัง ก่อนหรือหลังเล่นแวะทานอาหารที่ฟู้ดคอร์ตและซื้อของที่ Lotus's ได้",
+  entryPriceNote: `Рост ребёнка — 85–135 см. Взрослый (от 18 лет) может зайти вместе с ребёнком — один на ребёнка. При травме центр компенсирует лечение до 10${nb}000${nb}฿.`,
+  entryPriceNoteEn: `Child height 85–135 cm. An adult (18+) can go in with the child — one per child. In case of injury the venue covers treatment up to 10,000${nb}฿.`,
+  entryPriceNoteTh: `ส่วนสูงเด็ก 85–135 ซม. ผู้ปกครอง (อายุ 18 ปีขึ้นไป) เข้าไปพร้อมกับเด็กได้หนึ่งคนต่อเด็กหนึ่งคน หากเกิดอุบัติเหตุบาดเจ็บ ทางศูนย์รับผิดชอบค่ารักษาพยาบาลสูงสุด 10,000${nb}฿`,
+  // Вероника много раз видела, как детей оставляют: уходящий родитель
+  // оставляет сотрудникам номер телефона — позвонят, если ребёнок заплачет.
+  // Табличка («сопровождающий 50 ฿, родители, присматривайте рядом») — про
+  // взрослого, который заходит с ребёнком. С какого возраста — уточняется.
+  canLeaveChild: true,
   price: {
     label: "Сеанс 60 мин",
     labelEn: "60 min session",
@@ -84,10 +86,11 @@ const softPlayZone: Zone = {
     },
     {
       topic: "parents",
-      text: "К концу сеанса будьте рядом: после него за ребёнком не присматривают.",
+      text: "Ребёнка можно оставить под присмотром персонала: сотрудники запишут ваш номер телефона и позвонят, если он заплачет. К концу сеанса возвращайтесь — после него за ребёнком не присматривают.",
       textEn:
-        "Be there by the end of the session: after that, nobody looks after the child.",
-      textTh: "ควรมารอรับให้ทันก่อนหมดรอบ เพราะไม่รับฝากเด็กเมื่อหมดเวลา",
+        "You can leave your child in the staff's care: they'll take your phone number and call if your child gets upset. Be back by the end of the session — after that, nobody looks after the child.",
+      textTh:
+        "ฝากเด็กไว้ให้พนักงานดูแลได้ พนักงานจะขอเบอร์โทรศัพท์ไว้และจะโทรหาหากเด็กร้องไห้ ควรกลับมาให้ทันก่อนหมดรอบ เพราะไม่รับฝากเด็กเมื่อหมดเวลา",
     },
     arcadeHoursTip,
   ],
@@ -96,7 +99,10 @@ const softPlayZone: Zone = {
       url: "/images/places/skippy-land-south-entrance.jpg",
       caption: "Вход в Kid's Soft Play",
     },
-    { url: "/images/places/skippy-land-south-sand.jpg", caption: "Песочница и домик" },
+    {
+      url: "/images/places/skippy-land-south-sand.jpg",
+      caption: "Песочница с гранулами и домик",
+    },
     {
       url: "/images/places/skippy-land-south-fishing.jpg",
       caption: "«Рыбалка» и магазинчик",
