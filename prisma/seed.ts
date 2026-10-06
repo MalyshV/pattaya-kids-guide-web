@@ -5,6 +5,7 @@ import pg from "pg";
 import { applyThaiTranslations } from "./apply-thai";
 import { upsertPhoenixOctoberCamp } from "./programs/phoenix-october-camp";
 import { upsertSkippyLandLotusNorth } from "./places/skippy-land-lotus-north";
+import { upsertSkippyLandLotusSouth } from "./places/skippy-land-lotus-south";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is not defined");
@@ -1485,6 +1486,11 @@ async function main() {
   // add-skippy-split.ts).
   // =========================
   await upsertSkippyLandLotusNorth(prisma, pattaya.id);
+
+  // РЕАЛЬНОЕ МЕСТО: Skippy Land в Lotus's South Pattaya (закрытая зона; открытая
+  // зона автоматов напротив — в описании). Данные — в
+  // prisma/places/skippy-land-lotus-south.ts.
+  await upsertSkippyLandLotusSouth(prisma, pattaya.id);
 
   // =========================
   // РЕАЛЬНОЕ МЕСТО: Winter Wonderland Pattaya (крытый парк снега и льда)
