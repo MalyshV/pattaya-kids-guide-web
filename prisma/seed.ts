@@ -4,6 +4,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 import { applyThaiTranslations } from "./apply-thai";
 import { upsertPhoenixOctoberCamp } from "./programs/phoenix-october-camp";
+import { upsertSkippyLandLotusNorth } from "./places/skippy-land-lotus-north";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is not defined");
@@ -1478,150 +1479,12 @@ async function main() {
   }
 
   // =========================
-  // РЕАЛЬНОЕ МЕСТО: Skippy Land (Lotus's North Pattaya)
-  // Источники (2026-07-15): фото Вероники с места (её собственные — права её) +
-  // карточка Google Maps. Skippy Land — сеть игровых в гипермаркетах Lotus; в
-  // ЭТОМ ТЦ две одинаковые зоны Skippy Land рядом (слева и справа от фудкорта) —
-  // заносим ОДНОЙ карточкой (Вероника уточнит на визите, разные ли это места).
-  // Внутри каждой: мягкая игровая Kid's Soft Play (вход 60฿, рост 90–135 см,
-  // носки) + зал аркадных автоматов и качалок. Уточнить (gaps ведёт): можно ли
-  // оставить ребёнка, Wi-Fi/розетки, точный возраст, контакты, точный адрес ТЦ.
+  // РЕАЛЬНЫЕ МЕСТА: Skippy Land в Lotus's North Pattaya — две зоны, две карточки
+  // (у фудкорта и за эскалатором). Данные и источники — в
+  // prisma/places/skippy-land-lotus-north.ts (один модуль для seed и точечного
+  // add-skippy-split.ts).
   // =========================
-  const skippyLandData = {
-    // name у Place не переводится (нет nameEn) — название и так латиницей
-    name: "Skippy Land (Lotus's North Pattaya)",
-    imageUrl: "/images/places/skippy-land.jpg",
-    imageRightsNote: "Фото Вероники (визит 2026-07)",
-    description:
-      "Крытая детская игровая в торговом центре Lotus's North Pattaya (2 этаж, у фудкорта). Здесь две игровые зоны Skippy Land рядом — слева и справа от фудкорта, с чуть разными условиями (сеанс и рост — в ценах ниже). В каждой: мягкая игровая Kid's Soft Play с бассейном из шариков, горками и лазалками (обязательны носки — можно купить на месте) и зал аркадных автоматов и качалок. Есть кондиционер, работает персонал. Пока ребёнок играет, рядом можно закупиться в Lotus's и поесть на фудкорте; неподалёку — крупный международный детский сад.",
-    descriptionEn:
-      "An indoor kids' play area in Lotus's North Pattaya mall (2nd floor, by the food court). There are two Skippy Land zones side by side — to the left and right of the food court, with slightly different terms (session length and height — in the prices below). Each has a Kid's Soft Play area with a ball pit, slides and climbing frames (socks required — available on site) plus a hall of arcade machines and coin-op rides. Air-conditioned, with staff on site. While your child plays you can shop at Lotus's and grab a bite at the food court nearby; a large international kindergarten is close by.",
-    address:
-      "Lotus's North Pattaya (2nd floor), Muang Pattaya, Bang Lamung District, Chon Buri 20150",
-    latitude: 12.9508423,
-    longitude: 100.8933732,
-    googleMapsUrl:
-      "https://www.google.com/maps/place/Lotus's+North+Pattaya/@12.9508423,100.8918368,528m/data=!3m1!1e3!4m9!1m2!2m1!1ssoft+play!3m5!1s0x3102bfb3a6501d63:0x4dad9ccd9cbf816f!8m2!3d12.9508423!4d100.8933732!16s%2Fg%2F11hd_yk9xg",
-    indoor: true,
-    outdoor: false,
-    hasAirCon: true, // термометр 23°C на фото — помещение кондиционировано
-    hasParking: true, // парковка торгового центра (подтверждено Вероникой)
-    canLeaveChild: false, // с каждым ребёнком нужен сопровождающий (от 18 лет)
-    animalContact: false,
-    // условия по фото Вероники (таблички у автоматов оплаты): рост, сеансы,
-    // сопровождающий, сдача, компенсация. Сами цифры — в placeEntryPrice ниже.
-    entryPriceNote:
-      "В ТЦ две зоны Skippy Land рядом с чуть разными условиями: у фудкорта — сеанс 60 минут (ребёнок 100 ฿, сопровождающий 50 ฿, рост 85–135 см); вторая — сеанс 40 минут (60 ฿, рост 90–135 см). С каждым ребёнком нужен один взрослый (от 18 лет). Автомат оплаты сдачу не даёт. При травме центр компенсирует лечение до 10 000 ฿.",
-    entryPriceNoteEn:
-      "Two Skippy Land zones sit side by side in the mall with slightly different terms: by the food court — a 60-minute session (child 100 ฿, accompanying adult 50 ฿, height 85–135 cm); the other — a 40-minute session (60 ฿, height 90–135 cm). Each child needs one adult (18+). The payment machine gives no change. In case of injury the venue covers treatment up to 10,000 ฿.",
-    status: "APPROVED" as const,
-    cityId: pattaya.id,
-  };
-  const skippyLand = await prisma.place.upsert({
-    where: { cityId_slug: { cityId: pattaya.id, slug: "skippy-land-lotus-north" } },
-    update: skippyLandData,
-    create: { ...skippyLandData, slug: "skippy-land-lotus-north" },
-  });
-
-  // Категория: крытая игровая
-  {
-    const indoorCategory = await prisma.category.findUnique({
-      where: { slug: "indoor-playground" },
-    });
-    if (indoorCategory) {
-      await prisma.placeCategory.upsert({
-        where: {
-          placeId_categoryId: { placeId: skippyLand.id, categoryId: indoorCategory.id },
-        },
-        update: {},
-        create: { placeId: skippyLand.id, categoryId: indoorCategory.id },
-      });
-    }
-  }
-
-  // Часы (таблички Skippy Land): будни 14:00–22:00, выходные 10:00–22:00. На
-  // табличках время зависит от возраста ребёнка (тайский закон об игровых) —
-  // берём максимальный интервал работы места, нюанс возрастов — в описании.
-  await prisma.placeSchedule.deleteMany({ where: { placeId: skippyLand.id } });
-  await prisma.placeSchedule.createMany({
-    data: [
-      ...(["MON", "TUE", "WED", "THU", "FRI"] as const).map((day) => ({
-        placeId: skippyLand.id,
-        day,
-        openTime: "14:00",
-        closeTime: "22:00",
-        isClosed: false,
-      })),
-      ...(["SAT", "SUN"] as const).map((day) => ({
-        placeId: skippyLand.id,
-        day,
-        openTime: "10:00",
-        closeTime: "22:00",
-        isClosed: false,
-      })),
-    ],
-  });
-
-  // Цены входа (таблички у автоматов оплаты, фото Вероники): две зоны с
-  // разными сеансами. Ростовые/сеансовые нюансы — в entryPriceNote выше.
-  await prisma.placeEntryPrice.deleteMany({ where: { placeId: skippyLand.id } });
-  await prisma.placeEntryPrice.createMany({
-    data: [
-      {
-        placeId: skippyLand.id,
-        label: "Зона у фудкорта · сеанс 60 мин",
-        labelEn: "By the food court · 60 min session",
-        childPrice: 100,
-        adultPrice: 50,
-        order: 1,
-      },
-      {
-        placeId: skippyLand.id,
-        label: "Вторая зона · сеанс 40 мин",
-        labelEn: "Second zone · 40 min session",
-        childPrice: 60,
-        // сопровождающий у второй зоны на табличке отдельно не указан
-        adultPrice: null,
-        order: 2,
-      },
-    ],
-  });
-
-  // «Полезно знать»: носки (обязательны в мягкой игровой)
-  await prisma.placeTip.deleteMany({ where: { placeId: skippyLand.id } });
-  await prisma.placeTip.create({
-    data: {
-      placeId: skippyLand.id,
-      topic: "socks",
-      text: "В мягкую игровую Kid's Soft Play пускают только в носках — нужны и детям, и взрослым. Можно купить на месте (антискользящие, разных цветов).",
-      textEn:
-        "The Kid's Soft Play area requires socks — for both kids and adults. They're available on site (non-slip, various colours).",
-      order: 1,
-    },
-  });
-
-  // Мини-галерея (фото Вероники с места)
-  await prisma.placePhoto.deleteMany({ where: { placeId: skippyLand.id } });
-  await prisma.placePhoto.createMany({
-    data: [
-      {
-        placeId: skippyLand.id,
-        url: "/images/places/skippy-land-softplay.jpg",
-        caption: "Мягкая игровая Kid's Soft Play",
-        order: 1,
-        source: "OWN" as const,
-        rightsNote: "Фото Вероники (визит 2026-07)",
-      },
-      {
-        placeId: skippyLand.id,
-        url: "/images/places/skippy-land-play.jpg",
-        caption: "Бассейн с шариками и горки",
-        order: 2,
-        source: "OWN" as const,
-        rightsNote: "Фото Вероники (визит 2026-07)",
-      },
-    ],
-  });
+  await upsertSkippyLandLotusNorth(prisma, pattaya.id);
 
   // =========================
   // РЕАЛЬНОЕ МЕСТО: Winter Wonderland Pattaya (крытый парк снега и льда)
