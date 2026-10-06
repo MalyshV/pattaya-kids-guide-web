@@ -12,6 +12,7 @@ import { sendMessage, sendPhoto, TelegramApiError } from "@/lib/telegram/client"
 import {
   compareActivitiesForPost,
   isActivityPostable,
+  selectPostablePlaces,
   shouldReleaseClaim,
   type AutopostEntityType,
 } from "@/lib/telegram/autopost-policy";
@@ -125,7 +126,9 @@ async function findCandidates(limit: number): Promise<PostCandidate[]> {
 
   const remaining = limit - candidates.length;
   if (remaining > 0) {
-    const places = await prisma.place.findMany({
+    // без take: точки сети рядом с уже опубликованной отсеиваются ниже, и
+    // срез до remaining делаем уже после отсева (каталог мал)
+    const unposted = await prisma.place.findMany({
       where: {
         status: "APPROVED",
         isDemo: false,
@@ -133,8 +136,11 @@ async function findCandidates(limit: number): Promise<PostCandidate[]> {
         id: { notIn: postedPlaceIds },
       },
       orderBy: { createdAt: "asc" },
-      take: remaining,
     });
+    const places = selectPostablePlaces(unposted, await postedChainPoints()).slice(
+      0,
+      remaining,
+    );
 
     for (const place of places) {
       candidates.push({
@@ -217,6 +223,27 @@ async function findCandidates(limit: number): Promise<PostCandidate[]> {
   }
 
   return candidates;
+}
+
+/**
+ * Уже опубликованные точки сетей (координаты + бренд) — для правила «один
+ * пост на торговый центр сети» (selectPostablePlaces). Статус не важен:
+ * пост в канале уже есть, даже если точку потом скрыли.
+ */
+async function postedChainPoints(): Promise<
+  Array<{ brandId: string | null; latitude: number; longitude: number }>
+> {
+  const posted = await prisma.telegramPost.findMany({
+    where: { entityType: "PLACE" },
+    select: { entityId: true },
+  });
+  if (posted.length === 0) {
+    return [];
+  }
+  return prisma.place.findMany({
+    where: { id: { in: posted.map((row) => row.entityId) }, brandId: { not: null } },
+    select: { brandId: true, latitude: true, longitude: true },
+  });
 }
 
 /**
@@ -467,7 +494,8 @@ export async function resetAutopostJournal(options: {
     }),
     prisma.place.findMany({
       where: { status: "APPROVED", isDemo: false, city: { slug: POST_CITY_SLUG } },
-      select: { id: true },
+      select: { id: true, brandId: true, latitude: true, longitude: true },
+      orderBy: { createdAt: "asc" },
     }),
     prisma.placeProgram.findMany({
       where: {
@@ -486,9 +514,16 @@ export async function resetAutopostJournal(options: {
     }),
   ]);
 
+  // места: то же правило «один пост на ТЦ сети», что и в findCandidates —
+  // соседки по сети уже опубликованных (и остающихся в журнале) не в очереди
+  const placesStillPosted = places.filter((item) => stillPosted.PLACE.has(item.id));
+  const placesQueued = selectPostablePlaces(
+    places.filter((item) => !stillPosted.PLACE.has(item.id)),
+    placesStillPosted,
+  );
   const queued: Record<AutopostEntityType, number> = {
     EVENT: events.filter((item) => !stillPosted.EVENT.has(item.id)).length,
-    PLACE: places.filter((item) => !stillPosted.PLACE.has(item.id)).length,
+    PLACE: placesQueued.length,
     ACTIVITY: activities.filter(
       (item) => !stillPosted.ACTIVITY.has(item.id) && isActivityPostable(item, now),
     ).length,

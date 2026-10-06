@@ -1,4 +1,6 @@
 import { TelegramApiError } from "@/lib/telegram/client";
+import { haversineMeters, type GeoPoint } from "@/lib/geo/distance";
+import { SAME_MALL_RADIUS_M } from "@/lib/places/brand-siblings";
 
 /**
  * Отпускать ли бронь журнала, когда отправка поста в канал упала. Только явный
@@ -47,6 +49,41 @@ export function compareActivitiesForPost(
     if (aStart !== bStart) return aStart - bStart;
   }
   return a.order - b.order || a.name.localeCompare(b.name, "ru");
+}
+
+export type ChainPoint = GeoPoint & { brandId: string | null };
+
+/**
+ * Сети мест (docs/CHAINS_PLAN.md): один пост на новый торговый центр сети, а
+ * не на каждую зону. Точка сети не публикуется, если у той же сети уже
+ * опубликована точка ближе SAME_MALL_RADIUS_M (тот же ТЦ) — в том числе
+ * выбранная этим же прогоном раньше по очереди. Место без сети — всегда.
+ * Пропущенная точка в журнал не пишется: она просто не станет постом, пока
+ * рядом есть опубликованная соседка.
+ */
+export function selectPostablePlaces<T extends ChainPoint>(
+  candidates: readonly T[],
+  posted: readonly ChainPoint[],
+): T[] {
+  const taken: ChainPoint[] = posted.filter((point) => point.brandId !== null);
+  const result: T[] = [];
+  for (const candidate of candidates) {
+    if (candidate.brandId === null) {
+      result.push(candidate);
+      continue;
+    }
+    const neighbourPosted = taken.some(
+      (point) =>
+        point.brandId === candidate.brandId &&
+        haversineMeters(point, candidate) <= SAME_MALL_RADIUS_M,
+    );
+    if (neighbourPosted) {
+      continue;
+    }
+    taken.push(candidate);
+    result.push(candidate);
+  }
+  return result;
 }
 
 export type AutopostEntityType = "EVENT" | "PLACE" | "ACTIVITY";

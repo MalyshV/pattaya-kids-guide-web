@@ -59,8 +59,9 @@ export default async function AdminPlaceNewPage({
   const error =
     typeof resolvedSearch.error === "string" ? resolvedSearch.error : undefined;
   const from = typeof resolvedSearch.from === "string" ? resolvedSearch.from : undefined;
-  const [allCategories, fromSubmission] = await Promise.all([
+  const [allCategories, allBrands, fromSubmission] = await Promise.all([
     prisma.category.findMany({ orderBy: { order: "asc" } }),
+    prisma.brand.findMany({ orderBy: { name: "asc" } }),
     submissionPrefill(from),
   ]);
 
@@ -68,6 +69,7 @@ export default async function AdminPlaceNewPage({
     <PlaceForm
       place={null}
       allCategories={allCategories}
+      allBrands={allBrands}
       error={error}
       fromSubmission={fromSubmission}
     />

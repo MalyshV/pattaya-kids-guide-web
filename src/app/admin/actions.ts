@@ -327,6 +327,16 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
     hasFans: triState(formData, "hasFans"),
     status: text(formData, "status") === "APPROVED" ? "APPROVED" : "PENDING",
     isDemo: checkbox(formData, "isDemo"),
+    // сеть (docs/CHAINS_PLAN.md): связь с брендом + метка и фраза точки;
+    // пустой выбор — место не в сети (метки при этом не стираем: вдруг
+    // сняли сеть по ошибке — вернуть можно без перенабора)
+    brandId: textOrNull(formData, "brandId"),
+    branchLabel: textOrNull(formData, "branchLabel"),
+    branchLabelEn: textOrNull(formData, "branchLabelEn"),
+    branchLabelTh: textOrNull(formData, "branchLabelTh"),
+    branchNote: textOrNull(formData, "branchNote"),
+    branchNoteEn: textOrNull(formData, "branchNoteEn"),
+    branchNoteTh: textOrNull(formData, "branchNoteTh"),
     // новая обложка — прежняя пометка о правах (например, «прислано через
     // форму») к ней уже не относится
     ...(cover !== undefined ? { imageUrl: cover, imageRightsNote: null } : {}),

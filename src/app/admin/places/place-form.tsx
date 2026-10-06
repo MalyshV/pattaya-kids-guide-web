@@ -3,6 +3,7 @@ import { CoverPreview, RotateButton } from "@/app/admin/rotate-button";
 import { TipsFields } from "@/app/admin/tips-fields";
 import Link from "next/link";
 import type {
+  Brand,
   Category,
   Place,
   PlaceBirthdayInfo,
@@ -47,6 +48,8 @@ type PlaceFormProps = {
       })
     | null;
   allCategories: Category[];
+  /** сети (бренды заводит скрипт, отдельного CRUD нет) */
+  allBrands: Brand[];
   error?: string;
   fromSubmission?: PlaceFormSubmission;
 };
@@ -104,6 +107,7 @@ function TriStateSelect({
 export function PlaceForm({
   place,
   allCategories,
+  allBrands,
   error,
   fromSubmission,
 }: PlaceFormProps): React.ReactElement {
@@ -207,6 +211,92 @@ export function PlaceForm({
         </label>
 
         <TipsFields tips={place?.tips ?? []} />
+
+        {/* сеть (docs/CHAINS_PLAN.md): точка остаётся отдельным местом; на сайте
+            имя = название · метка, а на странице точки — блок «Другие … в …» */}
+        <fieldset className="admin-fieldset">
+          <legend>Сеть (если место — одна из точек: Skippy Land и т.п.)</legend>
+          <label className="admin-field admin-field-inline">
+            <span>Сеть</span>
+            <select name="brandId" defaultValue={place?.brandId ?? ""}>
+              <option value="">не в сети</option>
+              {allBrands.map((brand) => (
+                <option key={brand.id} value={brand.id}>
+                  {brand.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p className="admin-muted">
+            {
+              "Название выше — как на вывеске («Skippy Land»), метка — где именно точка: на сайте выйдет «Skippy Land · Lotus's North, у фудкорта»."
+            }
+          </p>
+          <div className="admin-row">
+            <label className="admin-field">
+              <span>Метка точки (рус)</span>
+              <input
+                type="text"
+                name="branchLabel"
+                maxLength={ADMIN_FIELDS.branchLabel.max}
+                placeholder="Lotus's North, у фудкорта"
+                defaultValue={place?.branchLabel ?? ""}
+              />
+            </label>
+            <label className="admin-field">
+              <span>Branch label (en)</span>
+              <input
+                type="text"
+                name="branchLabelEn"
+                maxLength={ADMIN_FIELDS.branchLabelEn.max}
+                placeholder="Lotus's North, by the food court"
+                defaultValue={place?.branchLabelEn ?? ""}
+              />
+            </label>
+            <label className="admin-field">
+              <span>Метка точки (th)</span>
+              <input
+                type="text"
+                name="branchLabelTh"
+                maxLength={ADMIN_FIELDS.branchLabelTh.max}
+                placeholder="Lotus's North ติดฟู้ดคอร์ท"
+                defaultValue={place?.branchLabelTh ?? ""}
+              />
+            </label>
+          </div>
+          <div className="admin-row">
+            <label className="admin-field">
+              <span>Чем точка отличается (рус) — одна фраза</span>
+              <input
+                type="text"
+                name="branchNote"
+                maxLength={ADMIN_FIELDS.branchNote.max}
+                placeholder="взрослый ждёт снаружи на лавочках"
+                defaultValue={place?.branchNote ?? ""}
+              />
+            </label>
+            <label className="admin-field">
+              <span>Branch note (en)</span>
+              <input
+                type="text"
+                name="branchNoteEn"
+                maxLength={ADMIN_FIELDS.branchNoteEn.max}
+                placeholder="adults wait outside on the benches"
+                defaultValue={place?.branchNoteEn ?? ""}
+              />
+            </label>
+            <label className="admin-field">
+              <span>Чем точка отличается (th)</span>
+              <input
+                type="text"
+                name="branchNoteTh"
+                maxLength={ADMIN_FIELDS.branchNoteTh.max}
+                placeholder="ผู้ปกครองนั่งรอที่ม้านั่งด้านนอก"
+                defaultValue={place?.branchNoteTh ?? ""}
+              />
+            </label>
+          </div>
+        </fieldset>
 
         <label className="admin-field">
           <span>Адрес</span>

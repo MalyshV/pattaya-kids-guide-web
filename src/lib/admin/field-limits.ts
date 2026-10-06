@@ -27,6 +27,13 @@ export const ADMIN_FIELDS = {
   birthdayNotes: { label: "Заметки о дне рождения (рус)", max: 2000 },
   birthdayNotesEn: { label: "Notes (en)", max: 2000 },
   caption: { label: "Подпись к фото", max: 200 },
+  // сеть: метка точки — короткая («Lotus's North, у фудкорта»), фраза — одна
+  branchLabel: { label: "Метка точки (рус)", max: 80 },
+  branchLabelEn: { label: "Branch label (en)", max: 80 },
+  branchLabelTh: { label: "Метка точки (th)", max: 80 },
+  branchNote: { label: "Чем точка отличается (рус)", max: 200 },
+  branchNoteEn: { label: "Branch note (en)", max: 200 },
+  branchNoteTh: { label: "Чем точка отличается (th)", max: 200 },
 } as const;
 
 export type AdminField = keyof typeof ADMIN_FIELDS;
@@ -40,6 +47,12 @@ export const PLACE_FIELDS = [
   "googleMapsUrl",
   "birthdayNotes",
   "birthdayNotesEn",
+  "branchLabel",
+  "branchLabelEn",
+  "branchLabelTh",
+  "branchNote",
+  "branchNoteEn",
+  "branchNoteTh",
 ] as const satisfies readonly AdminField[];
 
 export const EVENT_FIELDS = [
