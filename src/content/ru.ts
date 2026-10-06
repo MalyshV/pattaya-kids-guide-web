@@ -456,10 +456,11 @@ export const ru = {
     // блок «Другие {сеть} в {городе}» на странице точки сети (docs/CHAINS_PLAN.md)
     chain: {
       title: (brand: string, cityIn: string): string => `Другие ${brand} ${cityIn}`,
-      // другая точка ближе 150 м — расстояние не показываем
-      sameMall: "в этом же ТЦ",
+      // другая точка ближе 150 м — расстояние не показываем (решение 06.10)
+      sameMall: "в этом же здании",
       // свёрнутый хвост списка, когда точек больше трёх
-      more: (count: number): string => `ещё ${count}`,
+      more: (count: number): string =>
+        `ещё ${count} ${plural(count, ["точка", "точки", "точек"])}`,
     },
   },
 

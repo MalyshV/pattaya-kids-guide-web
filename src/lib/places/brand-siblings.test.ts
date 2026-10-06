@@ -87,7 +87,7 @@ describe("buildBrandSiblingRows", () => {
     expect(th.note).toBe("adults wait outside on the benches");
   });
 
-  it("вход от — минимальная детская цена; без цен — null и без подписи сеанса", () => {
+  it("цена и подпись — из первой строки с детской ценой; без цен — null", () => {
     const priced = zone({
       slug: "x",
       entryPrices: [
@@ -120,6 +120,37 @@ describe("buildBrandSiblingRows", () => {
     const [row] = buildBrandSiblingRows(NORTH, [priced], "ru");
     expect(row.entryFrom).toEqual({ amount: 120, currency: "THB" });
     expect(row.sessionLabel).toBe("1 час");
+
+    // первая по порядку дороже — всё равно её пара: цена и подпись не расходятся
+    const [dearFirst] = buildBrandSiblingRows(
+      NORTH,
+      [
+        zone({
+          slug: "z",
+          entryPrices: [
+            {
+              label: "3 часа",
+              labelEn: null,
+              labelTh: null,
+              childPrice: 200,
+              currency: "THB",
+              order: 1,
+            },
+            {
+              label: "1 час",
+              labelEn: null,
+              labelTh: null,
+              childPrice: 120,
+              currency: "THB",
+              order: 2,
+            },
+          ],
+        }),
+      ],
+      "ru",
+    );
+    expect(dearFirst.entryFrom).toEqual({ amount: 200, currency: "THB" });
+    expect(dearFirst.sessionLabel).toBe("3 часа");
 
     const [bare] = buildBrandSiblingRows(NORTH, [zone({ slug: "y" })], "ru");
     expect(bare.entryFrom).toBeNull();

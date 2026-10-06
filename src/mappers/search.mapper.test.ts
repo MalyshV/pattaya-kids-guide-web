@@ -85,17 +85,17 @@ describe("mapSearchIndex", () => {
     const zone = placeRow({
       branchLabel: "Lotus's North, у фудкорта",
       branchLabelEn: "Lotus's North, by the food court",
-      branchLabelTh: "Lotus's North ติดฟู้ดคอร์ต",
+      branchLabelTh: "Lotus's North ติดฟู้ดคอร์ท",
       brand: { name: "Skippy Land", searchAliases: ["สกิ๊ปปี้แลนด์", "Скиппи Ленд"] },
     });
     const [ru] = mapSearchIndex([zone], [], [], BASE, "ru");
     expect(ru.name).toBe("Skippy Land · Lotus's North, у фудкорта");
     const [th] = mapSearchIndex([zone], [], [], BASE, "th");
-    expect(th.name).toBe("Skippy Land · Lotus's North ติดฟู้ดคอร์ต");
+    expect(th.name).toBe("Skippy Land · Lotus's North ติดฟู้ดคอร์ท");
     for (const needle of [
       "у фудкорта",
       "by the food court",
-      "ติดฟู้ดคอร์ต",
+      "ติดฟู้ดคอร์ท",
       "สกิ๊ปปี้แลนด์",
       "Скиппи Ленд",
       "Indoor playground",

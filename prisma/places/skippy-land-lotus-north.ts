@@ -54,7 +54,8 @@ const foodCourtZone: Zone = {
   name: SKIPPY_BRAND.name,
   branchLabel: "Lotus's North, у фудкорта",
   branchLabelEn: "Lotus's North, by the food court",
-  branchLabelTh: "Lotus's North ติดฟู้ดคอร์ต",
+  // «ฟู้ดคอร์ท» — как пишут в ТЦ (решение 06.10); так же в описаниях
+  branchLabelTh: "Lotus's North ติดฟู้ดคอร์ท",
   branchNote: "взрослый заходит вместе с ребёнком",
   branchNoteEn: "an adult goes in with the child",
   // тайский — вычитка носителем 06.10: «ผู้ปกครอง», как на табличках игровых
@@ -65,7 +66,7 @@ const foodCourtZone: Zone = {
   descriptionEn:
     "An indoor kids' play area in Lotus's North Pattaya mall: 2nd floor, between the Lotus's supermarket and the food court. A Kid's Soft Play area with a ball pit, slides and climbing frames, plus a hall of arcade machines and coin-op rides. An adult goes in with the child. Air-conditioned, with staff on site. Before or after playtime you can shop at Lotus's and grab a bite at the food court; a large international kindergarten is close by. There's another Skippy Land zone in the same mall — past the escalator, further from the food court: sessions there are shorter and cheaper, and parents wait outside.",
   descriptionTh:
-    "สนามเด็กเล่นในร่มในห้าง Lotus's North Pattaya ชั้น 2 ระหว่างซูเปอร์มาร์เก็ต Lotus's และฟู้ดคอร์ต มีโซน Kid's Soft Play พร้อมบ่อบอล สไลเดอร์ และเครื่องเล่นปีนป่าย ข้าง ๆ มีโซนตู้เกมและเครื่องเล่นหยอดเหรียญ ผู้ใหญ่เข้าไปพร้อมกับเด็ก มีเครื่องปรับอากาศและพนักงานประจำ ก่อนหรือหลังเล่นสามารถซื้อของที่ Lotus's และทานอาหารที่ฟู้ดคอร์ตได้ บริเวณใกล้เคียงมีโรงเรียนอนุบาลนานาชาติขนาดใหญ่ ในห้างเดียวกันยังมี Skippy Land อีกโซนหนึ่ง อยู่เลยบันไดเลื่อนไป ไกลจากฟู้ดคอร์ตกว่า โซนนั้นรอบเล่นสั้นกว่า ราคาถูกกว่า และผู้ปกครองรอด้านนอก",
+    "สนามเด็กเล่นในร่มในห้าง Lotus's North Pattaya ชั้น 2 ระหว่างซูเปอร์มาร์เก็ต Lotus's และฟู้ดคอร์ท มีโซน Kid's Soft Play พร้อมบ่อบอล สไลเดอร์ และเครื่องเล่นปีนป่าย ข้าง ๆ มีโซนตู้เกมและเครื่องเล่นหยอดเหรียญ ผู้ใหญ่เข้าไปพร้อมกับเด็ก มีเครื่องปรับอากาศและพนักงานประจำ ก่อนหรือหลังเล่นสามารถซื้อของที่ Lotus's และทานอาหารที่ฟู้ดคอร์ทได้ บริเวณใกล้เคียงมีโรงเรียนอนุบาลนานาชาติขนาดใหญ่ ในห้างเดียวกันยังมี Skippy Land อีกโซนหนึ่ง อยู่เลยบันไดเลื่อนไป ไกลจากฟู้ดคอร์ทกว่า โซนนั้นรอบเล่นสั้นกว่า ราคาถูกกว่า และผู้ปกครองรอด้านนอก",
   entryPriceNote: `Рост ребёнка — 85–135 см. С каждым ребёнком нужен один взрослый (от 18 лет). При травме центр компенсирует лечение до 10${nb}000${nb}฿.`,
   entryPriceNoteEn: `Child height 85–135 cm. Each child needs one adult (18+). In case of injury the venue covers treatment up to 10,000${nb}฿.`,
   entryPriceNoteTh: `ส่วนสูงเด็ก 85–135 ซม. เด็กหนึ่งคนต้องมีผู้ใหญ่ (อายุ 18 ปีขึ้นไป) มาด้วยหนึ่งคน หากเกิดอุบัติเหตุบาดเจ็บ ทางศูนย์รับผิดชอบค่ารักษาพยาบาลสูงสุด 10,000${nb}฿`,
@@ -121,7 +122,8 @@ const escalatorZone: Zone = {
   name: SKIPPY_BRAND.name,
   branchLabel: "Lotus's North, за эскалатором",
   branchLabelEn: "Lotus's North, past the escalator",
-  branchLabelTh: "Lotus's North เลยบันไดเลื่อน",
+  // «หลัง…» — по вычитке носителя: «เลย…» без продолжения звучит обрубленно
+  branchLabelTh: "Lotus's North หลังบันไดเลื่อน",
   branchNote: "взрослый ждёт снаружи на лавочках",
   branchNoteEn: "adults wait outside on the benches",
   branchNoteTh: "ผู้ปกครองนั่งรอที่ม้านั่งด้านนอก",
@@ -131,7 +133,7 @@ const escalatorZone: Zone = {
   descriptionEn:
     "A Skippy Land zone in Lotus's North Pattaya mall: 2nd floor, past the escalator, a little further from the food court. A Kid's Soft Play area with a ball pit, a slide, a swing carousel and a building-blocks table, plus a hall of arcade machines and coin-op rides (20 ฿ a ride). Kids play in 40-minute sessions while parents wait outside — there are benches along the zone. Air-conditioned, with staff on duty in the zone. You can shop at Lotus's and grab a bite at the food court nearby. Another Skippy Land zone in this mall is between the Lotus's supermarket and the food court: sessions there are longer (60 minutes), and an adult goes in with the child.",
   descriptionTh:
-    "โซน Skippy Land ในห้าง Lotus's North Pattaya ชั้น 2 เลยบันไดเลื่อนไป ห่างจากฟู้ดคอร์ตออกไปเล็กน้อย มีโซน Kid's Soft Play พร้อมบ่อบอล สไลเดอร์ ชิงช้าหมุน และโต๊ะตัวต่อ ข้าง ๆ มีโซนตู้เกมและเครื่องเล่นหยอดเหรียญ (ครั้งละ 20 ฿) เด็กเล่นรอบละ 40 นาที ส่วนผู้ปกครองรออยู่ด้านนอก มีม้านั่งให้นั่งรอริมโซน มีเครื่องปรับอากาศและมีพนักงานดูแลประจำโซน แวะซื้อของที่ Lotus's และทานอาหารที่ฟู้ดคอร์ตที่อยู่ใกล้ ๆ ได้ ในห้างนี้ยังมี Skippy Land อีกโซนหนึ่ง อยู่ระหว่างซูเปอร์มาร์เก็ต Lotus's และฟู้ดคอร์ต โซนนั้นรอบเล่นยาวกว่า (60 นาที) และผู้ใหญ่เข้าไปพร้อมกับเด็ก",
+    "โซน Skippy Land ในห้าง Lotus's North Pattaya ชั้น 2 เลยบันไดเลื่อนไป ห่างจากฟู้ดคอร์ทออกไปเล็กน้อย มีโซน Kid's Soft Play พร้อมบ่อบอล สไลเดอร์ ชิงช้าหมุน และโต๊ะตัวต่อ ข้าง ๆ มีโซนตู้เกมและเครื่องเล่นหยอดเหรียญ (ครั้งละ 20 ฿) เด็กเล่นรอบละ 40 นาที ส่วนผู้ปกครองรออยู่ด้านนอก มีม้านั่งให้นั่งรอริมโซน มีเครื่องปรับอากาศและมีพนักงานดูแลประจำโซน แวะซื้อของที่ Lotus's และทานอาหารที่ฟู้ดคอร์ทที่อยู่ใกล้ ๆ ได้ ในห้างนี้ยังมี Skippy Land อีกโซนหนึ่ง อยู่ระหว่างซูเปอร์มาร์เก็ต Lotus's และฟู้ดคอร์ท โซนนั้นรอบเล่นยาวกว่า (60 นาที) และผู้ใหญ่เข้าไปพร้อมกับเด็ก",
   entryPriceNote: `Рост ребёнка — 90–135 см. Цена — за ребёнка; родителей просят подождать снаружи. При травме центр компенсирует лечение до 10${nb}000${nb}฿.`,
   entryPriceNoteEn: `Child height 90–135 cm. The price is per child; parents are asked to wait outside. In case of injury the venue covers treatment up to 10,000${nb}฿.`,
   entryPriceNoteTh: `ส่วนสูงเด็ก 90–135 ซม. ราคาคิดต่อเด็ก 1 คน ผู้ปกครองกรุณารอด้านนอก หากเกิดอุบัติเหตุบาดเจ็บ ทางศูนย์รับผิดชอบค่ารักษาพยาบาลสูงสุด 10,000${nb}฿`,

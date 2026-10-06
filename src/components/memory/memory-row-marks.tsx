@@ -6,9 +6,10 @@ import { useParentMemory } from "@/lib/memory/use-parent-memory";
 import type { MemoryEntity } from "@/lib/memory/parent-memory";
 
 /**
- * Тихие пометки «♥ нравится» / «✓ уже были» у строки списка (блок «Другие
- * {сеть} в {городе}»): та же память родителя в браузере, что и у кнопок на
- * карточке, только без переключения — отметку ставят на самой карточке.
+ * Тихие пометки ♥ / ✓ у строки списка (блок «Другие {сеть} в {городе}»): та
+ * же память родителя в браузере, что и у кнопок на карточке, только без
+ * переключения — отметку ставят на самой карточке. Только значки (решение
+ * 06.10); слово — скринридеру и в подсказке при наведении.
  * До гидрации (localStorage ещё не прочитан) ничего не рисуем, чтобы SSR и
  * первый клиентский рендер совпали. Нет отметок — пусто, без лишних узлов.
  */
@@ -33,15 +34,21 @@ export function MemoryRowMarks({
   return (
     <span className="memory-row-marks">
       {visited ? (
-        <span className="memory-row-mark memory-row-mark-visited">
-          <span aria-hidden="true">✓ </span>
-          {dict.memory.rowVisited}
+        <span
+          className="memory-row-mark memory-row-mark-visited"
+          title={dict.memory.rowVisited}
+        >
+          <span aria-hidden="true">✓</span>
+          <span className="sr-only">{dict.memory.rowVisited}</span>
         </span>
       ) : null}
       {saved ? (
-        <span className="memory-row-mark memory-row-mark-saved">
-          <span aria-hidden="true">♥ </span>
-          {dict.memory.rowSaved}
+        <span
+          className="memory-row-mark memory-row-mark-saved"
+          title={dict.memory.rowSaved}
+        >
+          <span aria-hidden="true">♥</span>
+          <span className="sr-only">{dict.memory.rowSaved}</span>
         </span>
       ) : null}
     </span>
