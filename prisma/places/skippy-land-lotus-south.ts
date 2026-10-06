@@ -2,6 +2,8 @@ import type { PrismaClient } from "@prisma/client";
 import {
   arcadeHoursTip,
   nb,
+  SKIPPY_BRAND,
+  upsertSkippyBrand,
   upsertSkippyZone,
   type Mall,
   type Zone,
@@ -43,8 +45,15 @@ const mall: Mall = {
 
 const softPlayZone: Zone = {
   slug: SKIPPY_LOTUS_SOUTH_SLUG,
-  // одна карточка в этом ТЦ — метка зоны в названии не нужна
-  name: "Skippy Land · Lotus's South",
+  name: SKIPPY_BRAND.name,
+  // одна карточка в этом ТЦ — метка только по торговому центру
+  branchLabel: "Lotus's South",
+  branchLabelEn: "Lotus's South",
+  branchLabelTh: "Lotus's South",
+  branchNote: "если уходите, сотрудники возьмут номер телефона",
+  branchNoteEn: "if you step away, staff will take your phone number",
+  // вычитка носителем 06.10: «ออกไปทำธุระ» — отлучиться, а не «выйти на улицу»
+  branchNoteTh: "ถ้าจะออกไปทำธุระ พนักงานจะขอเบอร์โทรไว้",
   imageUrl: "/images/places/skippy-land-south.jpg",
   description:
     "Крытая детская игровая в торговом центре Lotus's South Pattaya: 2 этаж, у фудкорта. Закрытая зона Kid's Soft Play: бассейн с шариками и лазалка с горкой, большие мягкие кубики-конструктор, песочница с пластиковыми гранулами вместо песка, формочками и домиком, «рыбалка», игрушечный магазин с тележками, кондитерская, салон красоты и столик с конструктором. Обувь оставляют у входа, внутри — кондиционер и персонал; ребёнка можно оставить под их присмотром. Вдоль ограждения снаружи стоят качалки за монетки. Напротив, через проход, — открытая зона Skippy Land: только автоматы и качалки (10–20 ฿ за игру), персонала там нет, ребёнка одного не оставить. До или после игры можно поесть на фудкорте и закупиться в Lotus's.",
@@ -124,10 +133,16 @@ const softPlayZone: Zone = {
   ],
 };
 
+/** Зоны этого ТЦ — для точечных скриптов (add-skippy-brand.ts). */
+export const LOTUS_SOUTH_ZONES: readonly Zone[] = [softPlayZone];
+
 /** Skippy Land в Lotus's South. Идемпотентно: повторный запуск безопасен. */
 export async function upsertSkippyLandLotusSouth(
   prisma: PrismaClient,
   cityId: string,
 ): Promise<void> {
-  await upsertSkippyZone(prisma, cityId, mall, softPlayZone);
+  const brandId = await upsertSkippyBrand(prisma);
+  for (const zone of LOTUS_SOUTH_ZONES) {
+    await upsertSkippyZone(prisma, cityId, brandId, mall, zone);
+  }
 }

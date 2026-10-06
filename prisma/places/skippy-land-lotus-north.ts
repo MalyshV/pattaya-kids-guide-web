@@ -2,6 +2,8 @@ import type { PrismaClient } from "@prisma/client";
 import {
   arcadeHoursTip,
   nb,
+  SKIPPY_BRAND,
+  upsertSkippyBrand,
   upsertSkippyZone,
   type Mall,
   type Zone,
@@ -49,8 +51,14 @@ const mall: Mall = {
 
 const foodCourtZone: Zone = {
   slug: SKIPPY_FOOD_COURT_SLUG,
-  // name не переводится (нет nameEn/nameTh) — метка зоны поэтому латиницей
-  name: "Skippy Land · Lotus's North (Food Court)",
+  name: SKIPPY_BRAND.name,
+  branchLabel: "Lotus's North, у фудкорта",
+  branchLabelEn: "Lotus's North, by the food court",
+  branchLabelTh: "Lotus's North ติดฟู้ดคอร์ต",
+  branchNote: "взрослый заходит вместе с ребёнком",
+  branchNoteEn: "an adult goes in with the child",
+  // тайский — вычитка носителем 06.10: «ผู้ปกครอง», как на табличках игровых
+  branchNoteTh: "ผู้ปกครองเข้าไปพร้อมลูก",
   imageUrl: "/images/places/skippy-land.jpg",
   description:
     "Крытая детская игровая в торговом центре Lotus's North Pattaya: 2 этаж, между супермаркетом Lotus's и фудкортом. Мягкая игровая Kid's Soft Play с бассейном из шариков, горками и лазалками, рядом — зал аркадных автоматов и качалок. Взрослый заходит вместе с ребёнком. Есть кондиционер, работает персонал. До или после игры можно закупиться в Lotus's и поесть на фудкорте; неподалёку — крупный международный детский сад. В этом же ТЦ есть ещё одна зона Skippy Land — за эскалатором, дальше от фудкорта: там сеанс короче и дешевле, а родители ждут снаружи.",
@@ -110,7 +118,13 @@ const foodCourtZone: Zone = {
 
 const escalatorZone: Zone = {
   slug: SKIPPY_ESCALATOR_SLUG,
-  name: "Skippy Land · Lotus's North (Escalator)",
+  name: SKIPPY_BRAND.name,
+  branchLabel: "Lotus's North, за эскалатором",
+  branchLabelEn: "Lotus's North, past the escalator",
+  branchLabelTh: "Lotus's North เลยบันไดเลื่อน",
+  branchNote: "взрослый ждёт снаружи на лавочках",
+  branchNoteEn: "adults wait outside on the benches",
+  branchNoteTh: "ผู้ปกครองนั่งรอที่ม้านั่งด้านนอก",
   imageUrl: "/images/places/skippy-land-escalator.jpg",
   description:
     "Зона Skippy Land в торговом центре Lotus's North Pattaya: 2 этаж, за эскалатором, чуть дальше от фудкорта. Мягкая игровая Kid's Soft Play с бассейном из шариков, горкой, качелями-каруселью и столиком с конструктором, рядом — зал аркадных автоматов и качалок (20 ฿ за поездку). Ребёнок играет сеанс 40 минут, а родители ждут снаружи — вдоль зоны стоят лавочки. Есть кондиционер, в зоне дежурит персонал. Рядом можно закупиться в Lotus's и поесть на фудкорте. Ещё одна зона Skippy Land в этом ТЦ — между супермаркетом Lotus's и фудкортом: там сеанс длиннее (60 минут), а взрослый заходит вместе с ребёнком.",
@@ -176,11 +190,16 @@ const escalatorZone: Zone = {
   ],
 };
 
+/** Зоны этого ТЦ — для точечных скриптов (add-skippy-brand.ts). */
+export const LOTUS_NORTH_ZONES: readonly Zone[] = [foodCourtZone, escalatorZone];
+
 /** Обе зоны Skippy Land в Lotus's North. Идемпотентно: повторный запуск безопасен. */
 export async function upsertSkippyLandLotusNorth(
   prisma: PrismaClient,
   cityId: string,
 ): Promise<void> {
-  await upsertSkippyZone(prisma, cityId, mall, foodCourtZone);
-  await upsertSkippyZone(prisma, cityId, mall, escalatorZone);
+  const brandId = await upsertSkippyBrand(prisma);
+  for (const zone of LOTUS_NORTH_ZONES) {
+    await upsertSkippyZone(prisma, cityId, brandId, mall, zone);
+  }
 }
