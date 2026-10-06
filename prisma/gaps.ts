@@ -182,6 +182,7 @@ async function main(): Promise<void> {
       birthdayInfo: true,
       photos: true,
       tips: { orderBy: { order: "asc" } },
+      schedules: { select: { id: true }, take: 1 },
     },
   });
 
@@ -203,6 +204,11 @@ async function main(): Promise<void> {
 
     if (place.googleMapsUrl === null) {
       gaps.push("Ссылка на Google Maps");
+    }
+
+    // Нет часов работы — на сайте «уточняется»
+    if (place.schedules.length === 0) {
+      gaps.push("Часы работы");
     }
 
     // Можно оставить ребёнка, но с какого возраста — не уточнено
