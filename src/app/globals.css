@@ -3221,6 +3221,122 @@ a.tip-source:hover {
   color: var(--muted);
 }
 
+/* «Другие {сеть} в {городе}» на странице точки сети: короткие строки-сравнения
+   (имя-ссылка · расстояние и факты · фраза от руки). Не таблица: на телефоне с
+   тайским текстом она разваливается. Хвост списка — нативный <details> */
+
+.brand-siblings {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 640px;
+}
+
+.brand-sibling {
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--surface-muted);
+}
+
+.brand-sibling-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+
+.brand-sibling-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.brand-sibling-name:hover {
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.brand-sibling-name:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.brand-sibling-facts {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.brand-sibling-note {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* тихие пометки родителя у строки: ✓ уже были / ♥ нравится — те же цвета,
+   что у нажатых кнопок памяти, но текстом, без заливки */
+.memory-row-marks {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.memory-row-mark-visited {
+  color: var(--sage);
+}
+
+.memory-row-mark-saved {
+  color: var(--accent-text);
+}
+
+.brand-siblings-more {
+  margin-top: 10px;
+  max-width: 640px;
+}
+
+.brand-siblings-more-summary {
+  width: fit-content;
+  list-style: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent-text);
+  padding: 4px 0;
+}
+
+.brand-siblings-more-summary::-webkit-details-marker {
+  display: none;
+}
+
+.brand-siblings-more-summary::after {
+  content: " \25BE";
+  font-size: 12px;
+}
+
+.brand-siblings-more[open] > .brand-siblings-more-summary::after {
+  content: " \25B4";
+}
+
+.brand-siblings-more-summary:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.brand-siblings-more-summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
 /* «Где проходит» на странице занятия — ссылка на место: название и адрес
    стопкой (адрес длинный, переносится, поэтому НЕ .event-inline с датой справа) */
 .activity-venue {

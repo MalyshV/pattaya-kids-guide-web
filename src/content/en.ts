@@ -59,6 +59,7 @@ export const en: Dictionary = {
     negative: "No",
     unknown: "to be confirmed",
     backToTop: "Back to top",
+    inCity: (cityName: string): string => `in ${cityName}`,
   },
 
   share: {
@@ -81,6 +82,8 @@ export const en: Dictionary = {
     visitedLabel: "Remove from “Been there”",
     savedSection: "Liked",
     visitedSection: "Been there",
+    rowSaved: "liked",
+    rowVisited: "been there",
     likedHideVisited: "Hide where you've been",
     likedAllVisitedTitle: "You've been to everything you liked",
     likedAllVisitedHint: "Turn off “Hide where you've been” to see them again.",
@@ -394,6 +397,11 @@ export const en: Dictionary = {
     birthdayAllLink: "All birthday venues",
     categoriesTitle: "Categories",
     upcomingTitle: "Upcoming events here",
+    chain: {
+      title: (brand: string, cityIn: string): string => `Other ${brand} ${cityIn}`,
+      sameMall: "same mall",
+      more: (count: number): string => `${count} more`,
+    },
   },
 
   events: {
