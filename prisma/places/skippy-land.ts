@@ -47,10 +47,31 @@ export type Zone = {
   };
   tips: Tip[];
   photos: Array<{ url: string; caption: string }>;
+  /// часы зоны, если отличаются от общих SKIPPY_HOURS
+  hours?: { openTime: string; closeTime: string };
   /// коды языков персонала (справочник Language); не задано = не проверяли,
   /// и заданное через админку не трогаем
   staffLanguages?: string[];
 };
+
+// Часы мягкой игровой — со слов Вероники (06.10): 9:30–19:50 у всех зон,
+// каждый день. Будут уточнены на визите 08.10; если у какой-то зоны другие —
+// параметр `hours` у её Zone.
+export const SKIPPY_HOURS = { openTime: "09:30", closeTime: "19:50" };
+
+const ALL_DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"] as const;
+
+/** Часы зоны: одинаковые каждый день. Идемпотентно (прежние снимаются). */
+export async function setSkippyHours(
+  prisma: PrismaClient,
+  placeId: string,
+  hours: { openTime: string; closeTime: string } = SKIPPY_HOURS,
+): Promise<void> {
+  await prisma.placeSchedule.deleteMany({ where: { placeId } });
+  await prisma.placeSchedule.createMany({
+    data: ALL_DAYS.map((day) => ({ placeId, day, ...hours, isClosed: false })),
+  });
+}
 
 // Стенд «условия игрового зала по закону о кино и видео 2551» — у всех точек:
 // каникулы (1–31.10, 15.03–15.05) идут по расписанию выходных.
@@ -64,9 +85,8 @@ export const arcadeHoursTip: Tip = {
 };
 
 /**
- * Занести одну зону: место + категория, цена, контакт, советы, галерея.
- * Часы НЕ заносим — у всех точек они уточняются (табличка 14:00 — это часы
- * автоматов, не мягкой игровой); прежние снимаем. Идемпотентно.
+ * Занести одну зону: место + категория, часы, цена, контакт, советы, галерея.
+ * Идемпотентно.
  */
 export async function upsertSkippyZone(
   prisma: PrismaClient,
@@ -115,7 +135,7 @@ export async function upsertSkippyZone(
     });
   }
 
-  await prisma.placeSchedule.deleteMany({ where: { placeId: place.id } });
+  await setSkippyHours(prisma, place.id, zone.hours);
 
   await prisma.placeEntryPrice.deleteMany({ where: { placeId: place.id } });
   await prisma.placeEntryPrice.create({
