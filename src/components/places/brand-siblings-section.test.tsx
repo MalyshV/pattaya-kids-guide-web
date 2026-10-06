@@ -47,7 +47,7 @@ describe("BrandSiblingsSection", () => {
   it("заголовок «Другие {сеть} в {городе}» на трёх языках", () => {
     const rows = [row({ slug: "a" })];
     expect(render(rows, "ru")).toContain("Другие Skippy Land в Паттайе");
-    expect(render(rows, "en")).toContain("Other Skippy Land in Pattaya");
+    expect(render(rows, "en")).toContain("More Skippy Land in Pattaya");
     expect(render(rows, "th")).toContain("Skippy Land สาขาอื่นในพัทยา");
   });
 
@@ -65,7 +65,7 @@ describe("BrandSiblingsSection", () => {
     expect(html).toContain("Skippy Land สาขาอื่นใน Pattaya");
   });
 
-  it("строка: имя-ссылка, «в этом же ТЦ» вместо расстояния, факты через «·», фраза", () => {
+  it("строка: имя-ссылка, «в этом же здании» вместо расстояния, факты через «·», фраза", () => {
     const html = render(
       [
         row({
@@ -82,9 +82,19 @@ describe("BrandSiblingsSection", () => {
     );
     expect(html).toContain('href="/ru/pattaya/places/skippy-land-lotus-north-escalator"');
     expect(html).toContain("Skippy Land · Lotus's North, за эскалатором");
-    expect(html).toContain("в этом же ТЦ · вход от 60 ฿ · Сеанс 40 мин");
+    expect(html).toContain("в этом же здании · 60 ฿, сеанс 40 мин");
     expect(html).not.toContain("≈");
     expect(html).toContain("взрослый ждёт снаружи на лавочках");
+  });
+
+  it("только цена без подписи — «вход от 60 ฿»; только подпись — как есть", () => {
+    const priceOnly = render(
+      [row({ slug: "p", entryFrom: { amount: 60, currency: "THB" } })],
+      "ru",
+    );
+    expect(priceOnly).toContain("≈ 5,0 км · вход от 60 ฿");
+    const labelOnly = render([row({ slug: "l", sessionLabel: "Разовый вход" })], "ru");
+    expect(labelOnly).toContain("≈ 5,0 км · Разовый вход");
   });
 
   it("далёкая точка: «≈ 5 км» и «можно оставить ребёнка»", () => {
@@ -101,7 +111,7 @@ describe("BrandSiblingsSection", () => {
       "ru",
     );
     expect(html).toContain("<details");
-    expect(html).toContain("ещё 2");
+    expect(html).toContain("ещё 2 точки");
     expect(html.match(/<li class="brand-sibling"/g)).toHaveLength(5);
 
     const three = render(

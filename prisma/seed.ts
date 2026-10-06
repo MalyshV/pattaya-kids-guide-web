@@ -38,6 +38,7 @@ async function main() {
     update: {
       name: "Паттайя",
       nameEn: "Pattaya",
+      nameTh: "พัทยา",
       seoDescriptionEn:
         "A calm guide to kids' places and events in Pattaya: where to go with your child in the morning, after kindergarten and at weekends — with prices and birthday venues.",
       seoDescription:
@@ -51,6 +52,7 @@ async function main() {
       slug: "pattaya",
       name: "Паттайя",
       nameEn: "Pattaya",
+      nameTh: "พัทยา",
       seoDescriptionEn:
         "A calm guide to kids' places and events in Pattaya: where to go with your child in the morning, after kindergarten and at weekends — with prices and birthday venues.",
       seoDescription:

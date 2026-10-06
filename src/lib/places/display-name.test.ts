@@ -5,7 +5,7 @@ const ZONE = {
   name: "Skippy Land",
   branchLabel: "Lotus's North, у фудкорта",
   branchLabelEn: "Lotus's North, by the food court",
-  branchLabelTh: "Lotus's North ติดฟู้ดคอร์ต",
+  branchLabelTh: "Lotus's North ติดฟู้ดคอร์ท",
 };
 
 describe("placeDisplayName", () => {
@@ -14,7 +14,7 @@ describe("placeDisplayName", () => {
     expect(placeDisplayName(ZONE, "en")).toBe(
       "Skippy Land · Lotus's North, by the food court",
     );
-    expect(placeDisplayName(ZONE, "th")).toBe("Skippy Land · Lotus's North ติดฟู้ดคอร์ต");
+    expect(placeDisplayName(ZONE, "th")).toBe("Skippy Land · Lotus's North ติดฟู้ดคอร์ท");
   });
 
   it("метка каскадом th → en → ru, когда перевода нет", () => {
@@ -41,7 +41,7 @@ describe("placeDisplayName", () => {
     expect(placeDisplayNames(ZONE)).toEqual([
       "Skippy Land · Lotus's North, у фудкорта",
       "Skippy Land · Lotus's North, by the food court",
-      "Skippy Land · Lotus's North ติดฟู้ดคอร์ต",
+      "Skippy Land · Lotus's North ติดฟู้ดคอร์ท",
     ]);
     expect(placeDisplayNames({ name: "LariDea" })).toEqual(["LariDea"]);
   });

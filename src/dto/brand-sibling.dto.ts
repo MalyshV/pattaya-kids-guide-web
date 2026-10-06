@@ -11,9 +11,9 @@ export type BrandSiblingDto = {
   distanceM: number;
   /** ближе 150 м — «в этом же ТЦ» вместо расстояния */
   sameMall: boolean;
-  /** минимальная детская цена входа; null = цены не занесены */
+  /** детская цена первой строки входа; null = цены не занесены */
   entryFrom: { amount: number; currency: string } | null;
-  /** подпись первой строки цены («Сеанс 40 мин»); null = цен нет */
+  /** подпись той же строки («Сеанс 40 мин»); null = цен нет */
   sessionLabel: string | null;
   /** только подтверждённое «да» — «уточняется» и «нет» в строку не идут */
   canLeaveChild: boolean;

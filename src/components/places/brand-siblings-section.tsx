@@ -21,23 +21,30 @@ function currencySymbol(code: string): string {
   return code === "THB" ? "฿" : code;
 }
 
+/** «Сеанс 40 мин» → «сеанс 40 мин»: подпись строки цены внутри фразы. */
+function lowerFirst(value: string, lang: string): string {
+  return value.charAt(0).toLocaleLowerCase(lang) + value.slice(1);
+}
+
 /**
- * Факты строки одной фразой через « · »: расстояние (или «в этом же ТЦ»),
- * «вход от 60 ฿», подпись сеанса, «можно оставить ребёнка». Чего нет —
- * пропускаем молча: «уточняется» в короткой строке только шумит, подробности
- * на странице самой точки.
+ * Факты строки одной фразой через « · »: расстояние (или «в этом же здании»),
+ * «60 ฿, сеанс 40 мин» (цена и подпись одной строки входа), «можно оставить
+ * ребёнка». Чего нет — пропускаем молча: «уточняется» в короткой строке
+ * только шумит, подробности на странице самой точки. Решение 06.10.
  */
 function factsLine(row: BrandSiblingDto, lang: string, dict: Dictionary): string {
   const s = dict.placeDetails.summary;
   const facts: string[] = [
     row.sameMall ? dict.placeDetails.chain.sameMall : formatDistance(row.distanceM, lang),
   ];
-  if (row.entryFrom) {
-    facts.push(
-      s.entryFrom(`${row.entryFrom.amount} ${currencySymbol(row.entryFrom.currency)}`),
-    );
-  }
-  if (row.sessionLabel) {
+  const price = row.entryFrom
+    ? `${row.entryFrom.amount} ${currencySymbol(row.entryFrom.currency)}`
+    : null;
+  if (price && row.sessionLabel) {
+    facts.push(`${price}, ${lowerFirst(row.sessionLabel, lang)}`);
+  } else if (price) {
+    facts.push(s.entryFrom(price));
+  } else if (row.sessionLabel) {
     facts.push(row.sessionLabel);
   }
   if (row.canLeaveChild) {

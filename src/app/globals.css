@@ -3280,14 +3280,13 @@ a.tip-source:hover {
   line-height: 1.5;
 }
 
-/* тихие пометки родителя у строки: ✓ уже были / ♥ нравится — те же цвета,
-   что у нажатых кнопок памяти, но текстом, без заливки */
+/* тихие пометки родителя у строки: ✓ / ♥ — те же цвета, что у нажатых кнопок
+   памяти, но одним значком, без заливки и слов (слово — скринридеру) */
 .memory-row-marks {
   display: inline-flex;
-  flex-wrap: wrap;
-  gap: 4px 10px;
-  font-size: 12px;
-  font-weight: 500;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1;
 }
 
 .memory-row-mark-visited {

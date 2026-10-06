@@ -38,28 +38,34 @@ export type SiblingSource = BranchLabeled & {
   entryPrices: readonly SiblingEntryPrice[];
 };
 
-function minChildPrice(
+/**
+ * Цена и подпись — из ОДНОЙ строки таблицы входа (первой с детской ценой):
+ * строка блока читается «60 ฿, сеанс 40 мин», и склеивать цену одной строки с
+ * подписью другой нельзя. Детской цены нет ни у одной — цены нет, подпись
+ * берём у первой строки.
+ */
+function entryTier(
   prices: readonly SiblingEntryPrice[],
-): { amount: number; currency: string } | null {
-  const known = prices.filter(
-    (tier): tier is SiblingEntryPrice & { childPrice: number } => tier.childPrice != null,
-  );
-  if (known.length === 0) {
-    return null;
-  }
-  const cheapest = known.reduce((best, tier) =>
-    tier.childPrice < best.childPrice ? tier : best,
-  );
-  return { amount: cheapest.childPrice, currency: cheapest.currency };
-}
-
-function firstLabel(prices: readonly SiblingEntryPrice[], lang: string): string | null {
-  const first = [...prices].sort((a, b) => a.order - b.order)[0];
-  if (!first) {
-    return null;
-  }
-  const label = pickLocalized(first.label, first.labelEn, first.labelTh, lang).trim();
-  return label || null;
+  lang: string,
+): Pick<BrandSiblingDto, "entryFrom" | "sessionLabel"> {
+  const sorted = [...prices].sort((a, b) => a.order - b.order);
+  const priced = sorted.find((tier) => tier.childPrice != null) ?? null;
+  const labelSource = priced ?? sorted[0] ?? null;
+  const label = labelSource
+    ? pickLocalized(
+        labelSource.label,
+        labelSource.labelEn,
+        labelSource.labelTh,
+        lang,
+      ).trim()
+    : "";
+  return {
+    entryFrom:
+      priced && priced.childPrice != null
+        ? { amount: priced.childPrice, currency: priced.currency }
+        : null,
+    sessionLabel: label || null,
+  };
 }
 
 /** Строки блока: другие точки сети, отсортированные по расстоянию от текущей. */
@@ -82,8 +88,7 @@ export function buildBrandSiblingRows(
         name: placeDisplayName(sibling, lang),
         distanceM,
         sameMall: distanceM <= SAME_MALL_RADIUS_M,
-        entryFrom: minChildPrice(sibling.entryPrices),
-        sessionLabel: firstLabel(sibling.entryPrices, lang),
+        ...entryTier(sibling.entryPrices, lang),
         canLeaveChild: sibling.canLeaveChild === true,
         note: note?.trim() ? note.trim() : null,
       };

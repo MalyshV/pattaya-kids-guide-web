@@ -398,9 +398,10 @@ export const en: Dictionary = {
     categoriesTitle: "Categories",
     upcomingTitle: "Upcoming events here",
     chain: {
-      title: (brand: string, cityIn: string): string => `Other ${brand} ${cityIn}`,
-      sameMall: "same mall",
-      more: (count: number): string => `${count} more`,
+      title: (brand: string, cityIn: string): string => `More ${brand} ${cityIn}`,
+      sameMall: "same building",
+      more: (count: number): string =>
+        `${count} more ${count === 1 ? "location" : "locations"}`,
     },
   },
 

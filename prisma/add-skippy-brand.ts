@@ -3,7 +3,8 @@
  * - заводит бренд skippy-land (имя + написания для поиска);
  * - у трёх зон (Lotus's North у фудкорта и за эскалатором, Lotus's South)
  *   ставит name «Skippy Land», связь с брендом, метку и фразу точки на трёх
- *   языках. Slug не трогает — ♡/✓ родителей и ссылки в Telegram живут.
+ *   языках и тайское описание (единое написание «ฟู้ดคอร์ท», как в ТЦ).
+ *   Slug не трогает — ♡/✓ родителей и ссылки в Telegram живут.
  * Меняет ТОЛЬКО эти поля: цены, советы, фото, часы и остальное не трогает.
  *
  * ⚠️ Нужны новые колонки: СНАЧАЛА `npx prisma db push`, потом мерж PR, потом
@@ -47,7 +48,7 @@ async function main(): Promise<void> {
     }
     await prisma.place.update({
       where: { id: place.id },
-      data: zoneBrandData(zone, brandId),
+      data: { ...zoneBrandData(zone, brandId), descriptionTh: zone.descriptionTh },
     });
     console.log(`✓ ${zone.name} · ${zone.branchLabel} (${zone.slug})`);
   }
