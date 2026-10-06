@@ -67,6 +67,8 @@ const softPlayZone: Zone = {
     childPrice: 150,
     adultPrice: 50,
   },
+  // со слов Вероники: персонал говорит по-тайски и по-английски
+  staffLanguages: ["th", "en"],
   tips: [
     {
       topic: "socks",

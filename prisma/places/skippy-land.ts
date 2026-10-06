@@ -47,6 +47,9 @@ export type Zone = {
   };
   tips: Tip[];
   photos: Array<{ url: string; caption: string }>;
+  /// коды языков персонала (справочник Language); не задано = не проверяли,
+  /// и заданное через админку не трогаем
+  staffLanguages?: string[];
 };
 
 // Стенд «условия игрового зала по закону о кино и видео 2551» — у всех точек:
@@ -123,6 +126,16 @@ export async function upsertSkippyZone(
   await prisma.placeContact.create({
     data: { placeId: place.id, type: "phone", value: PHONE, order: 1 },
   });
+
+  if (zone.staffLanguages) {
+    const languages = await prisma.language.findMany({
+      where: { code: { in: zone.staffLanguages } },
+    });
+    await prisma.placeStaffLanguage.deleteMany({ where: { placeId: place.id } });
+    await prisma.placeStaffLanguage.createMany({
+      data: languages.map((language) => ({ placeId: place.id, languageId: language.id })),
+    });
+  }
 
   await prisma.placeTip.deleteMany({ where: { placeId: place.id } });
   await prisma.placeTip.createMany({
