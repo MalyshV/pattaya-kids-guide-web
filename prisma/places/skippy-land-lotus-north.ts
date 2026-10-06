@@ -21,8 +21,10 @@ import type { PrismaClient } from "@prisma/client";
  * ЧАСЫ — уточняются (schedules пустые → на сайте «уточняется», gaps
  * напоминает). Табличка «14:00–20:00 / 10:00–20:00» — это часы ИГРОВЫХ
  * АВТОМАТОВ для детей до 15/18 лет (закон об игровых залах 2551), а не
- * мягкой игровой: на фото часы зоны показывают вторник 7.07.2026, 12:36, и на
- * доске сеанс 13:30–14:10. Поэтому правило про автоматы — отдельным советом.
+ * мягкой игровой: на фото часы зоны за эскалатором показывают вторник
+ * 7.07.2026, 12:36, и на доске сеанс 13:30–14:10; на доске зоны у фудкорта —
+ * сеансы 12:30–13:30 и 13:25–14:25. Поэтому правило про автоматы — отдельным
+ * советом, а часы зон спрашиваем на месте.
  *
  * Тайский — прямо здесь (в thai-content.json Skippy больше нет).
  * Один источник для seed.ts и точечного prisma/add-skippy-split.ts.
@@ -59,14 +61,16 @@ const PHONE = "081 496 0779";
 
 type Tip = { topic: string; text: string; textEn: string; textTh: string };
 
-// Табличка в обеих зонах; в зоне у фудкорта рядом ссылка на закон 2551.
+// Табличка в обеих зонах; у зоны у фудкорта — полный стенд «условия игрового
+// зала по закону о кино и видео 2551»: каникулы (1–31.10, 15.03–15.05) идут
+// по расписанию выходных.
 const arcadeHoursTip: Tip = {
   topic: "hours",
-  text: "Игровые автоматы для детей до 15 лет по тайскому закону работают по будням с 14:00 до 20:00, в выходные и праздники — с 10:00 до 20:00. Для подростков до 18 лет — до 22:00.",
+  text: "Игровые автоматы для детей до 15 лет по тайскому закону работают по будням с 14:00 до 20:00, а в выходные, праздники и школьные каникулы (1–31 октября и 15 марта – 15 мая) — с 10:00 до 20:00. Для подростков до 18 лет — до 22:00.",
   textEn:
-    "Under Thai law, arcade machines for children under 15 run on weekdays from 14:00 to 20:00, and on weekends and holidays from 10:00 to 20:00. For teens under 18 — until 22:00.",
+    "Under Thai law, arcade machines for children under 15 run on weekdays from 14:00 to 20:00, and on weekends, holidays and school breaks (1–31 October and 15 March – 15 May) from 10:00 to 20:00. For teens under 18 — until 22:00.",
   textTh:
-    "ตามกฎหมาย ตู้เกมสำหรับเด็กอายุต่ำกว่า 15 ปี เปิดให้บริการวันจันทร์–ศุกร์ 14:00–20:00 น. วันเสาร์–อาทิตย์และวันหยุด 10:00–20:00 น. ส่วนเด็กอายุต่ำกว่า 18 ปี เปิดถึง 22:00 น.",
+    "ตามกฎหมาย ตู้เกมสำหรับเด็กอายุต่ำกว่า 15 ปี เปิดให้บริการวันจันทร์–ศุกร์ 14:00–20:00 น. ส่วนวันเสาร์–อาทิตย์ วันหยุด และช่วงปิดภาคเรียน (1–31 ต.ค. และ 15 มี.ค.–15 พ.ค.) เปิด 10:00–20:00 น. สำหรับเด็กอายุต่ำกว่า 18 ปี เปิดถึง 22:00 น.",
 };
 
 type Zone = {
@@ -102,9 +106,9 @@ const foodCourtZone: Zone = {
     "An indoor kids' play area in Lotus's North Pattaya mall: 2nd floor, between the Lotus's supermarket and the food court. A Kid's Soft Play area with a ball pit, slides and climbing frames, plus a hall of arcade machines and coin-op rides. An adult goes in with the child. Air-conditioned, with staff on site. Before or after playtime you can shop at Lotus's and grab a bite at the food court; a large international kindergarten is close by. There's another Skippy Land zone in the same mall — past the escalator, further from the food court: sessions there are shorter and cheaper, and parents wait outside.",
   descriptionTh:
     "สนามเด็กเล่นในร่มในห้าง Lotus's North Pattaya ชั้น 2 ระหว่างซูเปอร์มาร์เก็ต Lotus's และฟู้ดคอร์ต มีโซน Kid's Soft Play พร้อมบ่อบอล สไลเดอร์ และเครื่องเล่นปีนป่าย ข้าง ๆ มีโซนตู้เกมและเครื่องเล่นหยอดเหรียญ ผู้ใหญ่เข้าไปพร้อมกับเด็ก มีเครื่องปรับอากาศและพนักงานประจำ ก่อนหรือหลังเล่นสามารถซื้อของที่ Lotus's และทานอาหารที่ฟู้ดคอร์ตได้ บริเวณใกล้เคียงมีโรงเรียนอนุบาลนานาชาติขนาดใหญ่ ในห้างเดียวกันยังมี Skippy Land อีกโซนหนึ่ง อยู่เลยบันไดเลื่อนไป ไกลจากฟู้ดคอร์ตกว่า โซนนั้นรอบเล่นสั้นกว่า ราคาถูกกว่า และผู้ปกครองรอด้านนอก",
-  entryPriceNote: `Рост ребёнка — 85–135 см. С каждым ребёнком нужен один взрослый (от 18 лет). Автомат оплаты сдачу не даёт. При травме центр компенсирует лечение до 10${nb}000${nb}฿.`,
-  entryPriceNoteEn: `Child height 85–135 cm. Each child needs one adult (18+). The payment machine gives no change. In case of injury the venue covers treatment up to 10,000${nb}฿.`,
-  entryPriceNoteTh: `ส่วนสูงเด็ก 85–135 ซม. เด็กหนึ่งคนต้องมีผู้ใหญ่ (อายุ 18 ปีขึ้นไป) มาด้วยหนึ่งคน ตู้ชำระเงินไม่มีเงินทอน หากเกิดอุบัติเหตุบาดเจ็บ ทางศูนย์รับผิดชอบค่ารักษาพยาบาลสูงสุด 10,000${nb}฿`,
+  entryPriceNote: `Рост ребёнка — 85–135 см. С каждым ребёнком нужен один взрослый (от 18 лет). При травме центр компенсирует лечение до 10${nb}000${nb}฿.`,
+  entryPriceNoteEn: `Child height 85–135 cm. Each child needs one adult (18+). In case of injury the venue covers treatment up to 10,000${nb}฿.`,
+  entryPriceNoteTh: `ส่วนสูงเด็ก 85–135 ซม. เด็กหนึ่งคนต้องมีผู้ใหญ่ (อายุ 18 ปีขึ้นไป) มาด้วยหนึ่งคน หากเกิดอุบัติเหตุบาดเจ็บ ทางศูนย์รับผิดชอบค่ารักษาพยาบาลสูงสุด 10,000${nb}฿`,
   canLeaveChild: false, // с каждым ребёнком нужен сопровождающий (от 18 лет)
   price: {
     label: "Сеанс 60 мин",
@@ -122,6 +126,15 @@ const foodCourtZone: Zone = {
       textTh:
         "โซน Kid's Soft Play ทั้งเด็กและผู้ใหญ่ต้องใส่ถุงเท้าเท่านั้น มีถุงเท้าขายที่โซน (แบบกันลื่น มีหลายสี)",
     },
+    {
+      // наклейки на автомате у калитки (фото Вероники)
+      topic: "payment",
+      text: "Вход — через автомат у калитки: за ребёнка он принимает купюры 20, 50 и 100 ฿, за взрослого — купюры 20 и 50 ฿ и монеты по 10 ฿. Сдачу автомат не даёт — удобно взять с собой купюры 100 и 50 ฿.",
+      textEn:
+        "Entry is through a machine at the gate: the child slot takes 20, 50 and 100 ฿ notes, the adult slot takes 20 and 50 ฿ notes and 10 ฿ coins. The machine gives no change — a 100 and a 50 note make it easy.",
+      textTh:
+        "เข้าโซนโดยชำระเงินที่ตู้หน้าทางเข้า ช่องสำหรับเด็กรับธนบัตร 20, 50 และ 100 ฿ ช่องสำหรับผู้ใหญ่รับธนบัตร 20 และ 50 ฿ และเหรียญ 10 ฿ ตู้ไม่มีเงินทอน เตรียมแบงก์ 100 และ 50 ไว้จะสะดวก",
+    },
     arcadeHoursTip,
   ],
   photos: [
@@ -129,7 +142,17 @@ const foodCourtZone: Zone = {
       url: "/images/places/skippy-land-softplay.jpg",
       caption: "Мягкая игровая Kid's Soft Play",
     },
-    { url: "/images/places/skippy-land-play.jpg", caption: "Бассейн с шариками и горки" },
+    {
+      url: "/images/places/skippy-land-swing.jpg",
+      caption: "Качели-карусель и бассейн с шариками",
+    },
+    // на фото горки-скалодром и «рыбалка» (шариков в кадре нет — подпись была неточной)
+    {
+      url: "/images/places/skippy-land-play.jpg",
+      caption: "Горки, скалодром и «рыбалка»",
+    },
+    { url: "/images/places/skippy-land-carousel.jpg", caption: "Карусель для малышей" },
+    { url: "/images/places/skippy-land-arcade.jpg", caption: "Автоматы — 20 ฿ за игру" },
   ],
 };
 
