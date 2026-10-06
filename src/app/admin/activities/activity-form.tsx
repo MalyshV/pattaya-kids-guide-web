@@ -273,6 +273,7 @@ export function ActivityForm({
 
         <PhotoField
           name="coverFile"
+          coverKind="activity"
           label={`Обложка ${activity?.imageUrl ? "(файл заменит текущую)" : "(файл)"}`}
         />
 

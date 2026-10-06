@@ -253,6 +253,7 @@ export function PlaceForm({
 
         <PhotoField
           name="coverFile"
+          coverKind="place"
           label={`Обложка ${place?.imageUrl ? "(файл заменит текущую)" : "(файл)"}`}
         />
 
