@@ -94,7 +94,16 @@ export type PlaceProgramDto = {
   tips: TipDto[];
 };
 
+/** Сеть точки (docs/CHAINS_PLAN.md); null = место не в сети. */
+export type PlaceBrandDto = {
+  slug: string;
+  name: string;
+};
+
 export type PlaceDetailsDto = PlaceDto & {
+  brand: PlaceBrandDto | null;
+  /** фраза от руки, чем точка отличается от других в сети; null = не написана */
+  branchNote: string | null;
   categories: PlaceCategoryDto[];
   amenities: PlaceAmenityDto[];
   ageGroups: PlaceAgeGroupDto[];

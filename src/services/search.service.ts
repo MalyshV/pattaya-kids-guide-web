@@ -14,13 +14,22 @@ type SearchCategory = {
   category: { name: string; nameEn: string | null; nameTh: string | null };
 };
 
-// у Place нет nameEn/nameTh: название места — имя собственное, оно не переводится
-export type SearchPlaceRow = {
-  id: string;
+// название места — имя собственное, не переводится; у точки сети к нему
+// добавляется переводимая метка (branchLabel*), а бренд и его написания
+// (searchAliases) попадают в поисковый текст
+export type SearchBranch = {
   name: string;
+  branchLabel: string | null;
+  branchLabelEn: string | null;
+  branchLabelTh: string | null;
+};
+
+export type SearchPlaceRow = SearchBranch & {
+  id: string;
   slug: string;
   address: string;
   categories: SearchCategory[];
+  brand: { name: string; searchAliases: string[] } | null;
 };
 
 export type SearchActivityRow = {
@@ -32,7 +41,7 @@ export type SearchActivityRow = {
   venueName: string | null;
   venueNameEn: string | null;
   venueNameTh: string | null;
-  place: { name: string } | null;
+  place: SearchBranch | null;
   categories: SearchCategory[];
 };
 
@@ -45,12 +54,20 @@ export type SearchEventRow = {
   locationName: string | null;
   locationNameEn: string | null;
   locationNameTh: string | null;
-  place: { name: string } | null;
+  place: SearchBranch | null;
   // окно показа — только для отсечения прошедших ПОСЛЕ кэша (в браузер и
   // в поисковый индекс даты не уходят). На кэш-хите приходят строками.
   startDate: Date | string;
   endDate: Date | string | null;
 };
+
+// имя места + метка точки сети — для подписи «где проходит» у занятий и событий
+const BRANCH_SELECT = {
+  name: true,
+  branchLabel: true,
+  branchLabelEn: true,
+  branchLabelTh: true,
+} as const;
 
 type SearchRowsResult = {
   places: SearchPlaceRow[];
@@ -75,6 +92,10 @@ const getSearchRowsCached = cachedQuery(
           name: true,
           slug: true,
           address: true,
+          branchLabel: true,
+          branchLabelEn: true,
+          branchLabelTh: true,
+          brand: { select: { name: true, searchAliases: true } },
           categories: {
             select: {
               category: { select: { name: true, nameEn: true, nameTh: true } },
@@ -105,7 +126,7 @@ const getSearchRowsCached = cachedQuery(
           venueName: true,
           venueNameEn: true,
           venueNameTh: true,
-          place: { select: { name: true } },
+          place: { select: BRANCH_SELECT },
           categories: {
             select: {
               category: { select: { name: true, nameEn: true, nameTh: true } },
@@ -129,7 +150,7 @@ const getSearchRowsCached = cachedQuery(
           locationName: true,
           locationNameEn: true,
           locationNameTh: true,
-          place: { select: { name: true } },
+          place: { select: BRANCH_SELECT },
           startDate: true,
           endDate: true,
         },

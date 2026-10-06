@@ -1,3 +1,4 @@
+import { placeDisplayName } from "@/lib/places/display-name";
 import Link from "next/link";
 import { prisma } from "@/db/prisma";
 import { requireAdmin } from "@/lib/admin/auth";
@@ -34,7 +35,7 @@ export default async function AdminPlacesPage(): Promise<React.ReactElement> {
         {places.map((place) => (
           <li key={place.id} className="admin-list-item">
             <Link href={`/admin/places/${place.id}`} className="admin-item-link">
-              <span className="admin-item-name">{place.name}</span>
+              <span className="admin-item-name">{placeDisplayName(place, "ru")}</span>
               <span className="admin-item-meta">
                 /{place.slug} · фото: {place._count.photos + (place.imageUrl ? 1 : 0)}
                 {place.status !== "APPROVED" ? " · скрыто с сайта" : ""}

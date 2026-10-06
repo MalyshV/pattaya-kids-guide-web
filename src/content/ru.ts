@@ -1,4 +1,5 @@
 import { plural } from "@/lib/plural";
+import { cityLocativeRu } from "@/lib/i18n/city-locative";
 
 /**
  * Все видимые пользователю тексты интерфейса — на русском, в одном месте.
@@ -67,6 +68,8 @@ export const ru = {
     // третье состояние факта: данные ещё не проверены (не выдаём пробел за «нет»)
     unknown: "уточняется",
     backToTop: "Наверх",
+    // город в заголовках: «в Паттайе» (ru склоняет словарём city-locative)
+    inCity: (cityName: string): string => cityLocativeRu(cityName),
   },
 
   share: {
@@ -99,6 +102,9 @@ export const ru = {
     visitedLabel: "Убрать из «Уже были»",
     savedSection: "Нравится",
     visitedSection: "Уже были",
+    // тихие пометки у строки другой точки сети: отметка родителя из памяти браузера
+    rowSaved: "нравится",
+    rowVisited: "уже были",
     // переключатель в разделе «Нравится»: убрать из него то, где уже были
     likedHideVisited: "Скрыть, где уже были",
     likedAllVisitedTitle: "Всё понравившееся уже отмечено «Уже были»",
@@ -350,7 +356,7 @@ export const ru = {
   // Лендинг «Дни рождения»: все площадки с пакетами и условиями в одном месте.
   birthdays: {
     metaTitle: (cityName: string): string =>
-      `День рождения ребёнка в ${cityName === "Паттайя" ? "Паттайе" : cityName}: площадки, пакеты и цены`,
+      `День рождения ребёнка ${cityLocativeRu(cityName)}: площадки, пакеты и цены`,
     heroTitle: "День рождения ребёнка в Паттайе",
     heroDescription:
       // не обещаем «всё проверено»: часть условий честно «уточняется»
@@ -447,6 +453,14 @@ export const ru = {
     birthdayAllLink: "Все площадки для дня рождения",
     categoriesTitle: "Категории",
     upcomingTitle: "Ближайшие события здесь",
+    // блок «Другие {сеть} в {городе}» на странице точки сети (docs/CHAINS_PLAN.md)
+    chain: {
+      title: (brand: string, cityIn: string): string => `Другие ${brand} ${cityIn}`,
+      // другая точка ближе 150 м — расстояние не показываем
+      sameMall: "в этом же ТЦ",
+      // свёрнутый хвост списка, когда точек больше трёх
+      more: (count: number): string => `ещё ${count}`,
+    },
   },
 
   events: {

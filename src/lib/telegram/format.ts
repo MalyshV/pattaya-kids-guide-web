@@ -165,6 +165,7 @@ export function buildEventPost(event: EventListItemDto): ChannelPost {
 
 /** Узкий тип места для поста — только нужные полю поля (без Prisma-модели). */
 export type PlaceForPost = {
+  /** отображаемое имя (у точки сети — с меткой: placeDisplayName) */
   name: string;
   slug: string;
   description: string | null;

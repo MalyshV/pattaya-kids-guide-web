@@ -1,3 +1,4 @@
+import { placeDisplayName } from "@/lib/places/display-name";
 import "server-only";
 
 import { pickLocalized } from "@/lib/i18n/localize";
@@ -26,9 +27,14 @@ export async function getSuggestTarget(
 ): Promise<SuggestTarget | null> {
   if (ref.kind === "place") {
     const place = await getApprovedPlaceBySlug(ref.slug, cityId);
-    // название места — единое латинское (бренд), не локализуем
+    // имя — бренд + метка точки сети на языке страницы
     return place
-      ? { kind: "place", id: place.id, slug: ref.slug, name: place.name }
+      ? {
+          kind: "place",
+          id: place.id,
+          slug: ref.slug,
+          name: placeDisplayName(place, lang),
+        }
       : null;
   }
   if (ref.kind === "event") {

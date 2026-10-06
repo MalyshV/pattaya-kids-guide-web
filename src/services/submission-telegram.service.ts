@@ -1,3 +1,4 @@
+import { placeDisplayName } from "@/lib/places/display-name";
 import "server-only";
 
 import { prisma } from "@/db/prisma";
@@ -58,9 +59,17 @@ async function visibleCard(
   if (type === "PLACE") {
     const place = await prisma.place.findFirst({
       where: { id, status: "APPROVED", ...demoFilter() },
-      select: { slug: true, name: true },
+      select: {
+        slug: true,
+        name: true,
+        branchLabel: true,
+        branchLabelEn: true,
+        branchLabelTh: true,
+      },
     });
-    return place ? { kind: "place", slug: place.slug, name: place.name } : null;
+    return place
+      ? { kind: "place", slug: place.slug, name: placeDisplayName(place, lang) }
+      : null;
   }
   if (type === "EVENT") {
     const event = await prisma.event.findFirst({

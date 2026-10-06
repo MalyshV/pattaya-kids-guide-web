@@ -2,11 +2,12 @@ import type { PrismaClient } from "@prisma/client";
 
 /**
  * Skippy Land — сеть игровых в гипермаркетах Lotus's (Kid's Soft Play + зал
- * автоматов). Модели сети пока нет (docs/PRODUCT.md): каждая зона — отдельное
- * место. Здесь — общее для всех точек сети (контакт, правило про автоматы,
- * форма данных зоны и её занос); точки — в модулях по торговым центрам
- * (skippy-land-lotus-north.ts, skippy-land-lotus-south.ts). Будущая модель
- * бренда заберёт общее отсюда.
+ * автоматов). Каждая зона — отдельное место со своими фактами; сеть — тонкая
+ * связь через Brand (docs/CHAINS_PLAN.md): на странице зоны появляется блок
+ * «Другие Skippy Land в Паттайе». Здесь — общее для всех точек сети (бренд,
+ * контакт, правило про автоматы, форма данных зоны и её занос); точки — в
+ * модулях по торговым центрам (skippy-land-lotus-north.ts,
+ * skippy-land-lotus-south.ts).
  */
 
 // неразрывный пробел в суммах: «10 000 ฿» не разрывается при переносе
@@ -14,6 +15,27 @@ export const nb = " ";
 
 // контакт сети — одинаковый на табличках всех точек («предложения по сервису»)
 const PHONE = "081 496 0779";
+
+/**
+ * Бренд сети. name — как на вывеске; им же называются все точки (метка точки
+ * — отдельно, в Zone.branchLabel*). searchAliases — другие написания, чтобы
+ * поиск находил точки и по-тайски, и по-русски, и слитно.
+ */
+export const SKIPPY_BRAND = {
+  slug: "skippy-land",
+  name: "Skippy Land",
+  searchAliases: ["สกิ๊ปปี้แลนด์", "สกิปปี้แลนด์", "Skippyland", "Скиппи Ленд"],
+};
+
+/** Завести/обновить бренд. Идемпотентно; возвращает id. */
+export async function upsertSkippyBrand(prisma: PrismaClient): Promise<string> {
+  const brand = await prisma.brand.upsert({
+    where: { slug: SKIPPY_BRAND.slug },
+    update: { name: SKIPPY_BRAND.name, searchAliases: SKIPPY_BRAND.searchAliases },
+    create: SKIPPY_BRAND,
+  });
+  return brand.id;
+}
 
 export type Tip = { topic: string; text: string; textEn: string; textTh: string };
 
@@ -29,7 +51,16 @@ export type Mall = {
 
 export type Zone = {
   slug: string;
+  /// бренд как на вывеске (SKIPPY_BRAND.name); отображаемое имя = name · метка
   name: string;
+  /// метка точки внутри сети на трёх языках («Lotus's North, у фудкорта»)
+  branchLabel: string;
+  branchLabelEn: string;
+  branchLabelTh: string;
+  /// одна фраза от руки, чем точка отличается — строка блока «Другие …»
+  branchNote: string;
+  branchNoteEn: string;
+  branchNoteTh: string;
   imageUrl: string;
   description: string;
   descriptionEn: string;
@@ -84,17 +115,33 @@ export const arcadeHoursTip: Tip = {
     "ตามกฎหมาย ตู้เกมสำหรับเด็กอายุต่ำกว่า 15 ปี เปิดให้บริการวันจันทร์–ศุกร์ 14:00–20:00 น. ส่วนวันเสาร์–อาทิตย์ วันหยุด และช่วงปิดภาคเรียน (1–31 ต.ค. และ 15 มี.ค.–15 พ.ค.) เปิด 10:00–20:00 น. สำหรับเด็กอายุต่ำกว่า 18 ปี เปิดถึง 22:00 น.",
 };
 
+/** Поля связи с сетью — то, что меняет и точечный скрипт add-skippy-brand.ts. */
+export function zoneBrandData(zone: Zone, brandId: string) {
+  return {
+    name: zone.name,
+    brandId,
+    branchLabel: zone.branchLabel,
+    branchLabelEn: zone.branchLabelEn,
+    branchLabelTh: zone.branchLabelTh,
+    branchNote: zone.branchNote,
+    branchNoteEn: zone.branchNoteEn,
+    branchNoteTh: zone.branchNoteTh,
+  };
+}
+
 /**
  * Занести одну зону: место + категория, часы, цена, контакт, советы, галерея.
- * Идемпотентно.
+ * Идемпотентно. brandId — из upsertSkippyBrand.
  */
 export async function upsertSkippyZone(
   prisma: PrismaClient,
   cityId: string,
+  brandId: string,
   mall: Mall,
   zone: Zone,
 ): Promise<void> {
   const data = {
+    ...zoneBrandData(zone, brandId),
     address: mall.address,
     latitude: mall.latitude,
     longitude: mall.longitude,
@@ -107,7 +154,6 @@ export async function upsertSkippyZone(
     hasParking: true,
     animalContact: false,
     status: "APPROVED" as const,
-    name: zone.name,
     imageUrl: zone.imageUrl,
     description: zone.description,
     descriptionEn: zone.descriptionEn,

@@ -5,6 +5,7 @@ import type {
   SearchPlaceRow,
 } from "@/services/search.service";
 import { pickLocalized } from "@/lib/i18n/localize";
+import { placeDisplayName, placeDisplayNames } from "@/lib/places/display-name";
 
 /**
  * Индекс поиска: видимое название локализуется по языку страницы, а ищется
@@ -36,11 +37,18 @@ export function mapSearchIndex(
   const placeItems: SearchItemDto[] = places.map((place) => ({
     id: place.id,
     type: "place",
-    // название места — имя собственное, не переводится
-    name: place.name,
+    // название — имя собственное; у точки сети к нему добавляется метка на языке страницы
+    name: placeDisplayName(place, lang),
     hint: place.address,
     url: `${basePath}/places/${place.slug}`,
-    searchText: `${place.name} ${categoriesText(place.categories)}`,
+    // ищется по всем написаниям: метка на трёх языках, бренд и его другие
+    // написания («สกิ๊ปปี้แลนด์», «Скиппи Ленд») — независимо от языка страницы
+    searchText: [
+      ...placeDisplayNames(place),
+      place.brand?.name ?? "",
+      ...(place.brand?.searchAliases ?? []),
+      categoriesText(place.categories),
+    ].join(" "),
   }));
 
   const activityItems: SearchItemDto[] = activities
@@ -51,7 +59,7 @@ export function mapSearchIndex(
       type: "activity",
       name: pickLocalized(activity.name, activity.nameEn, activity.nameTh, lang),
       hint:
-        activity.place?.name ??
+        (activity.place ? placeDisplayName(activity.place, lang) : null) ??
         (activity.venueName
           ? pickLocalized(
               activity.venueName,
@@ -65,7 +73,7 @@ export function mapSearchIndex(
         activity.name,
         activity.nameEn ?? "",
         activity.nameTh ?? "",
-        activity.place?.name ?? "",
+        ...(activity.place ? placeDisplayNames(activity.place) : []),
         activity.venueName ?? "",
         activity.venueNameEn ?? "",
         activity.venueNameTh ?? "",
@@ -79,7 +87,7 @@ export function mapSearchIndex(
     name: pickLocalized(event.title, event.titleEn, event.titleTh, lang),
     // где проходит: место из каталога или текстовая площадка события
     hint:
-      event.place?.name ??
+      (event.place ? placeDisplayName(event.place, lang) : null) ??
       (event.locationName
         ? pickLocalized(
             event.locationName,
@@ -93,7 +101,7 @@ export function mapSearchIndex(
       event.title,
       event.titleEn ?? "",
       event.titleTh ?? "",
-      event.place?.name ?? "",
+      ...(event.place ? placeDisplayNames(event.place) : []),
       event.locationName ?? "",
       event.locationNameEn ?? "",
       event.locationNameTh ?? "",

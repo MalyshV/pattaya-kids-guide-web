@@ -329,7 +329,7 @@ export default async function CityPlacesPage({
           // слим-DTO вместо сырой Prisma-модели: items сериализуются в браузер,
           // служебные поля (модерация, заметки) туда попадать не должны
           items={visiblePlaces.map(({ place, status }) => ({
-            place: mapPlaceToListItemDto(place),
+            place: mapPlaceToListItemDto(place, lang),
             status,
             // только поля расписания — бейдж статуса пересчитывается в браузере
             schedules: place.schedules.map((schedule) => ({

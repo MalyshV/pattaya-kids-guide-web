@@ -118,6 +118,8 @@ export type PlaceJsonLdInput = {
   prices: number[];
   currency: string;
   inLanguage: string;
+  /** сеть точки («Skippy Land»); null = место не в сети */
+  brandName?: string | null;
 };
 
 export function placeJsonLd(input: PlaceJsonLdInput): JsonLdObject {
@@ -144,6 +146,7 @@ export function placeJsonLd(input: PlaceJsonLdInput): JsonLdObject {
       addressCountry: "TH",
     }),
     geo,
+    brand: input.brandName ? { "@type": "Brand", name: input.brandName } : null,
     telephone: input.telephone,
     openingHoursSpecification: openingHoursSpecification(input.schedules),
     priceRange: priceRange(input.prices, input.currency),

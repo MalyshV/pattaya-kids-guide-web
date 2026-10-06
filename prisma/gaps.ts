@@ -216,6 +216,23 @@ async function main(): Promise<void> {
       gaps.push("Возраст, с которого можно оставить ребёнка");
     }
 
+    // Точка сети без метки на каком-то языке: на этом языке она покажется
+    // голым брендом и сольётся с другими точками (docs/CHAINS_PLAN.md)
+    if (place.brandId !== null) {
+      const missingLabels = (
+        [
+          ["ru", place.branchLabel],
+          ["en", place.branchLabelEn],
+          ["th", place.branchLabelTh],
+        ] as const
+      )
+        .filter(([, value]) => !isFilled(value))
+        .map(([lang]) => lang);
+      if (missingLabels.length > 0) {
+        gaps.push(`Метка точки сети: нет ${missingLabels.join(", ")}`);
+      }
+    }
+
     for (const program of place.programs) {
       if (program.price === null) {
         const typeLabel = PROGRAM_TYPE_LABELS[program.type] ?? program.type;
@@ -355,6 +372,7 @@ async function main(): Promise<void> {
         place.entryPriceNoteEn,
         place.entryPriceNoteTh,
       ],
+      ["фраза точки сети", place.branchNote, place.branchNoteEn, place.branchNoteTh],
     ]);
     items.push(...own.missingEn);
     enCount += own.missingEn.length;

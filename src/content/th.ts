@@ -64,6 +64,8 @@ export const th: Dictionary = {
     negative: "ไม่ได้",
     unknown: "รอยืนยัน",
     backToTop: "กลับขึ้นด้านบน",
+    // по-тайски слитно: «ในพัทยา»
+    inCity: (cityName: string): string => `ใน${cityName}`,
   },
 
   share: {
@@ -86,6 +88,8 @@ export const th: Dictionary = {
     visitedLabel: "นำออกจาก “เคยไปแล้ว”",
     savedSection: "ถูกใจ",
     visitedSection: "เคยไปแล้ว",
+    rowSaved: "ถูกใจ",
+    rowVisited: "เคยไปแล้ว",
     likedHideVisited: "ซ่อนที่เคยไปแล้ว",
     likedAllVisitedTitle: "ทุกอย่างที่ถูกใจ คุณเคยไปมาแล้ว",
     likedAllVisitedHint: "ปิด “ซ่อนที่เคยไปแล้ว” เพื่อดูทั้งหมด",
@@ -394,6 +398,12 @@ export const th: Dictionary = {
     birthdayAllLink: "ดูสถานที่จัดวันเกิดทั้งหมด",
     categoriesTitle: "หมวดหมู่",
     upcomingTitle: "อีเวนต์ที่จะจัดที่นี่เร็ว ๆ นี้",
+    // «สาขา» — привычное слово для точек сети в разных ТЦ (вычитка носителем 06.10)
+    chain: {
+      title: (brand: string, cityIn: string): string => `${brand} สาขาอื่น${cityIn}`,
+      sameMall: "ในห้างเดียวกัน",
+      more: (count: number): string => `อีก ${count} สาขา`,
+    },
   },
 
   events: {

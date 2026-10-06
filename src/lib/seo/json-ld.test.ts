@@ -91,6 +91,15 @@ describe("placeJsonLd", () => {
     expect(ld.geo).toMatchObject({ latitude: 12.97, longitude: 100.9 });
   });
 
+  it("сеть точки — brand; без сети поля нет", () => {
+    expect(placeJsonLd({ ...base, brandName: "Skippy Land" }).brand).toEqual({
+      "@type": "Brand",
+      name: "Skippy Land",
+    });
+    expect(placeJsonLd(base)).not.toHaveProperty("brand");
+    expect(placeJsonLd({ ...base, brandName: null })).not.toHaveProperty("brand");
+  });
+
   it("адрес всегда с городом и страной TH", () => {
     expect(placeJsonLd(base).address).toEqual({
       "@type": "PostalAddress",

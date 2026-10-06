@@ -11,7 +11,10 @@ import type { PlaceDetailsDto } from "@/dto/place-details.dto";
 import { mapEventToDto } from "@/mappers/event.mapper";
 import { mapPlaceDetailsToDto } from "@/mappers/place-details.mapper";
 import { getUpcomingApprovedEventsByPlaceId } from "@/services/events.service";
-import { getApprovedPlaceBySlug } from "@/services/places.service";
+import { getApprovedPlaceBySlug, getBrandSiblings } from "@/services/places.service";
+import { BrandSiblingsSection } from "@/components/places/brand-siblings-section";
+import { buildBrandSiblingRows } from "@/lib/places/brand-siblings";
+import { placeDisplayName } from "@/lib/places/display-name";
 import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
 import {
   computeOpenStatus,
@@ -57,10 +60,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const dict = getDictionary(lang);
-  // название места — единое латинское (бренд), не локализуем; описание — да.
-  // Бренд-суффикс в <title> добавляет template из [lang]/layout; og:title
-  // остаётся коротким (бренд несёт og:site_name)
-  const title = place.name;
+  // название — бренд как на вывеске; у точки сети плюс метка на языке страницы
+  // («Skippy Land · Lotus's North, у фудкорта»). Суффикс гида в <title>
+  // добавляет template из [lang]/layout; og:title остаётся коротким
+  const title = placeDisplayName(place, lang);
   const description = metaDescription(
     pickLocalized(place.description, place.descriptionEn, place.descriptionTh, lang),
     dict.meta.description,
@@ -202,6 +205,15 @@ export default async function PlaceDetailsPage({
 
   const dto: PlaceDetailsDto = mapPlaceDetailsToDto(place, lang);
 
+  // другие точки сети в этом городе — блок «Другие {сеть} в {городе}»
+  const siblingRows = place.brandId
+    ? buildBrandSiblingRows(
+        { latitude: dto.latitude, longitude: dto.longitude },
+        await getBrandSiblings(place.brandId, city.id, place.id),
+        lang,
+      )
+    : [];
+
   // «Полезно знать»: сначала советы самого места, затем — его ближайших
   // событий и занятий, с названием-ссылкой (прошедшие события не берём)
   const tips = [
@@ -263,6 +275,7 @@ export default async function PlaceDetailsPage({
     prices: knownPrices,
     currency: dto.entryPrices[0]?.currency ?? dto.pricing[0]?.currency ?? "THB",
     inLanguage: lang,
+    brandName: dto.brand?.name ?? null,
   });
   const breadcrumbsLd = breadcrumbJsonLd([
     { name: dict.nav.places, url: `${siteUrl}${basePath}/places` },
@@ -455,6 +468,19 @@ export default async function PlaceDetailsPage({
       )}
 
       <TipsSection tips={tips} dict={dict} lang={lang} />
+
+      {/* сеть: сравнение других точек простым языком — сразу после советов,
+          пока родитель ещё «решает» (docs/CHAINS_PLAN.md) */}
+      {dto.brand ? (
+        <BrandSiblingsSection
+          brandName={dto.brand.name}
+          cityName={localizedCityName(city, lang)}
+          rows={siblingRows}
+          basePath={basePath}
+          lang={lang}
+          dict={dict}
+        />
+      ) : null}
 
       {activityPrograms.length > 0 && (
         <section className="details-section">

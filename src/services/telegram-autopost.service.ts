@@ -24,6 +24,7 @@ import {
   type ChannelPost,
 } from "@/lib/telegram/format";
 import type { SentMessage } from "@/lib/telegram/types";
+import { placeDisplayName } from "@/lib/places/display-name";
 import type { TelegramPostEntity } from "@prisma/client";
 
 /// сколько постов максимум за один прогон — чтобы канал не выглядел спамом
@@ -139,9 +140,9 @@ async function findCandidates(limit: number): Promise<PostCandidate[]> {
       candidates.push({
         entityType: "PLACE",
         entityId: place.id,
-        title: place.name,
+        title: placeDisplayName(place, "ru"),
         post: buildPlacePost({
-          name: place.name,
+          name: placeDisplayName(place, "ru"),
           slug: place.slug,
           description: place.description,
           imageUrl: place.imageUrl,
@@ -169,7 +170,16 @@ async function findCandidates(limit: number): Promise<PostCandidate[]> {
         ],
         id: { notIn: postedActivityIds },
       },
-      include: { place: { select: { name: true } } },
+      include: {
+        place: {
+          select: {
+            name: true,
+            branchLabel: true,
+            branchLabelEn: true,
+            branchLabelTh: true,
+          },
+        },
+      },
     });
 
     const queue = activities
@@ -198,7 +208,9 @@ async function findCandidates(limit: number): Promise<PostCandidate[]> {
           maxAgeMonths: activity.maxAgeMonths,
           startDate: activity.startDate ? activity.startDate.toISOString() : null,
           endDate: activity.endDate ? activity.endDate.toISOString() : null,
-          locationName: activity.place?.name ?? activity.venueName,
+          locationName: activity.place
+            ? placeDisplayName(activity.place, "ru")
+            : activity.venueName,
         }),
       });
     }

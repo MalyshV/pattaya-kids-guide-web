@@ -1,3 +1,4 @@
+import { placeDisplayName } from "@/lib/places/display-name";
 import Link from "next/link";
 import { prisma } from "@/db/prisma";
 import { requireAdmin } from "@/lib/admin/auth";
@@ -23,7 +24,14 @@ export default async function AdminActivitiesPage(): Promise<React.ReactElement>
       isDemo: true,
       status: true,
       imageUrl: true,
-      place: { select: { name: true } },
+      place: {
+        select: {
+          name: true,
+          branchLabel: true,
+          branchLabelEn: true,
+          branchLabelTh: true,
+        },
+      },
       venueName: true,
       _count: { select: { classes: true } },
     },
@@ -45,8 +53,12 @@ export default async function AdminActivitiesPage(): Promise<React.ReactElement>
               <span className="admin-item-name">{activity.name}</span>
               <span className="admin-item-meta">
                 {TYPE_LABEL[activity.type] ?? activity.type}
-                {(activity.place?.name ?? activity.venueName)
-                  ? ` · ${activity.place?.name ?? activity.venueName}`
+                {(
+                  activity.place
+                    ? placeDisplayName(activity.place, "ru")
+                    : activity.venueName
+                )
+                  ? ` · ${activity.place ? placeDisplayName(activity.place, "ru") : activity.venueName}`
                   : ""}
                 {activity._count.classes > 0
                   ? ` · классов: ${activity._count.classes}`
