@@ -64,8 +64,10 @@ export const th: Dictionary = {
     negative: "ไม่ได้",
     unknown: "รอยืนยัน",
     backToTop: "กลับขึ้นด้านบน",
-    // по-тайски слитно: «ในพัทยา»
-    inCity: (cityName: string): string => `ใน${cityName}`,
+    // по-тайски слитно: «ในพัทยา»; латинское имя города (нет nameTh) — через
+    // пробел: «ใน Pattaya», иначе читается слипшимся
+    inCity: (cityName: string): string =>
+      /^[ก-๛]/.test(cityName) ? `ใน${cityName}` : `ใน ${cityName}`,
   },
 
   share: {

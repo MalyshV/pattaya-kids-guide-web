@@ -51,6 +51,20 @@ describe("BrandSiblingsSection", () => {
     expect(render(rows, "th")).toContain("Skippy Land สาขาอื่นในพัทยา");
   });
 
+  it("th: латинское имя города (без nameTh) — «ใน Pattaya» через пробел", () => {
+    const html = renderToStaticMarkup(
+      <BrandSiblingsSection
+        brandName="Skippy Land"
+        cityName="Pattaya"
+        rows={[row({ slug: "a" })]}
+        basePath="/th/pattaya"
+        lang="th"
+        dict={getDictionary("th")}
+      />,
+    );
+    expect(html).toContain("Skippy Land สาขาอื่นใน Pattaya");
+  });
+
   it("строка: имя-ссылка, «в этом же ТЦ» вместо расстояния, факты через «·», фраза", () => {
     const html = render(
       [
