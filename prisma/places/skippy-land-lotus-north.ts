@@ -66,7 +66,7 @@ const arcadeHoursTip: Tip = {
   textEn:
     "Under Thai law, arcade machines for children under 15 run on weekdays from 14:00 to 20:00, and on weekends and holidays from 10:00 to 20:00. For teens under 18 — until 22:00.",
   textTh:
-    "ตามกฎหมาย ตู้เกมสำหรับเด็กอายุต่ำกว่า 15 ปี เปิดให้บริการวันจันทร์–ศุกร์ 14:00–20:00 น. วันเสาร์–อาทิตย์และวันหยุด 10:00–20:00 น. สำหรับเด็กอายุต่ำกว่า 18 ปี — ถึง 22:00 น.",
+    "ตามกฎหมาย ตู้เกมสำหรับเด็กอายุต่ำกว่า 15 ปี เปิดให้บริการวันจันทร์–ศุกร์ 14:00–20:00 น. วันเสาร์–อาทิตย์และวันหยุด 10:00–20:00 น. ส่วนเด็กอายุต่ำกว่า 18 ปี เปิดถึง 22:00 น.",
 };
 
 type Zone = {
@@ -101,10 +101,10 @@ const foodCourtZone: Zone = {
   descriptionEn:
     "An indoor kids' play area in Lotus's North Pattaya mall: 2nd floor, between the Lotus's supermarket and the food court. A Kid's Soft Play area with a ball pit, slides and climbing frames, plus a hall of arcade machines and coin-op rides. An adult goes in with the child. Air-conditioned, with staff on site. Before or after playtime you can shop at Lotus's and grab a bite at the food court; a large international kindergarten is close by. There's another Skippy Land zone in the same mall — past the escalator, further from the food court: sessions there are shorter and cheaper, and parents wait outside.",
   descriptionTh:
-    "โซนเล่นในร่มสำหรับเด็กในห้าง Lotus's North Pattaya ชั้น 2 ระหว่างซูเปอร์มาร์เก็ต Lotus's และฟู้ดคอร์ต มีโซนเล่นนุ่ม Kid's Soft Play พร้อมบ่อบอล สไลเดอร์ และเครื่องปีนป่าย และโซนตู้เกมกับเครื่องเล่นหยอดเหรียญ ผู้ใหญ่เข้าไปพร้อมกับเด็ก มีเครื่องปรับอากาศและพนักงานประจำ ก่อนหรือหลังเล่นสามารถซื้อของที่ Lotus's และทานอาหารที่ฟู้ดคอร์ตได้ บริเวณใกล้เคียงมีโรงเรียนอนุบาลนานาชาติขนาดใหญ่ ในห้างเดียวกันยังมี Skippy Land อีกโซนหนึ่ง — เลยบันไดเลื่อนไป ห่างจากฟู้ดคอร์ตออกไป: รอบเล่นสั้นกว่าและราคาถูกกว่า และผู้ปกครองรออยู่ด้านนอก",
+    "สนามเด็กเล่นในร่มในห้าง Lotus's North Pattaya ชั้น 2 ระหว่างซูเปอร์มาร์เก็ต Lotus's และฟู้ดคอร์ต มีโซน Kid's Soft Play พร้อมบ่อบอล สไลเดอร์ และเครื่องเล่นปีนป่าย ข้าง ๆ มีโซนตู้เกมและเครื่องเล่นหยอดเหรียญ ผู้ใหญ่เข้าไปพร้อมกับเด็ก มีเครื่องปรับอากาศและพนักงานประจำ ก่อนหรือหลังเล่นสามารถซื้อของที่ Lotus's และทานอาหารที่ฟู้ดคอร์ตได้ บริเวณใกล้เคียงมีโรงเรียนอนุบาลนานาชาติขนาดใหญ่ ในห้างเดียวกันยังมี Skippy Land อีกโซนหนึ่ง อยู่เลยบันไดเลื่อนไป ไกลจากฟู้ดคอร์ตกว่า โซนนั้นรอบเล่นสั้นกว่า ราคาถูกกว่า และผู้ปกครองรอด้านนอก",
   entryPriceNote: `Рост ребёнка — 85–135 см. С каждым ребёнком нужен один взрослый (от 18 лет). Автомат оплаты сдачу не даёт. При травме центр компенсирует лечение до 10${nb}000${nb}฿.`,
   entryPriceNoteEn: `Child height 85–135 cm. Each child needs one adult (18+). The payment machine gives no change. In case of injury the venue covers treatment up to 10,000${nb}฿.`,
-  entryPriceNoteTh: `ส่วนสูงเด็ก 85–135 ซม. เด็กหนึ่งคนต้องมีผู้ใหญ่ (อายุ 18 ปีขึ้นไป) มาด้วยหนึ่งคน ตู้ชำระเงินไม่มีเงินทอน หากเกิดอุบัติเหตุบาดเจ็บ ทางศูนย์รับผิดชอบค่ารักษาสูงสุด 10${nb}000${nb}฿`,
+  entryPriceNoteTh: `ส่วนสูงเด็ก 85–135 ซม. เด็กหนึ่งคนต้องมีผู้ใหญ่ (อายุ 18 ปีขึ้นไป) มาด้วยหนึ่งคน ตู้ชำระเงินไม่มีเงินทอน หากเกิดอุบัติเหตุบาดเจ็บ ทางศูนย์รับผิดชอบค่ารักษาพยาบาลสูงสุด 10,000${nb}฿`,
   canLeaveChild: false, // с каждым ребёнком нужен сопровождающий (от 18 лет)
   price: {
     label: "Сеанс 60 мин",
@@ -120,7 +120,7 @@ const foodCourtZone: Zone = {
       textEn:
         "The Kid's Soft Play area requires socks — for both kids and adults. They're available on site (non-slip, various colours).",
       textTh:
-        "โซนเล่นนุ่ม Kid's Soft Play ต้องใส่ถุงเท้าเท่านั้น — ทั้งเด็กและผู้ใหญ่ ซื้อได้ที่จุดบริการ (แบบกันลื่น มีหลายสี)",
+        "โซน Kid's Soft Play ทั้งเด็กและผู้ใหญ่ต้องใส่ถุงเท้าเท่านั้น มีถุงเท้าขายที่โซน (แบบกันลื่น มีหลายสี)",
     },
     arcadeHoursTip,
   ],
@@ -142,10 +142,10 @@ const escalatorZone: Zone = {
   descriptionEn:
     "A Skippy Land zone in Lotus's North Pattaya mall: 2nd floor, past the escalator, a little further from the food court. A Kid's Soft Play area with a ball pit, a slide, a swing carousel and a building-blocks table, plus a hall of arcade machines and coin-op rides (20 ฿ a ride). Kids play in 40-minute sessions while parents wait outside — there are benches along the zone. Air-conditioned, with staff on duty in the zone. You can shop at Lotus's and grab a bite at the food court nearby. Another Skippy Land zone in this mall is between the Lotus's supermarket and the food court: sessions there are longer (60 minutes), and an adult goes in with the child.",
   descriptionTh:
-    "โซน Skippy Land ในห้าง Lotus's North Pattaya ชั้น 2 เลยบันไดเลื่อนไป ห่างจากฟู้ดคอร์ตออกไปเล็กน้อย มีโซนเล่นนุ่ม Kid's Soft Play พร้อมบ่อบอล สไลเดอร์ ชิงช้าหมุน และโต๊ะตัวต่อ และโซนตู้เกมกับเครื่องเล่นหยอดเหรียญ (ครั้งละ 20 ฿) เด็กเล่นรอบละ 40 นาที ส่วนผู้ปกครองรออยู่ด้านนอก — มีม้านั่งอยู่ตามแนวโซน มีเครื่องปรับอากาศและมีพนักงานดูแลประจำโซน ใกล้ ๆ สามารถซื้อของที่ Lotus's และทานอาหารที่ฟู้ดคอร์ตได้ ในห้างนี้ยังมี Skippy Land อีกโซนหนึ่ง ระหว่างซูเปอร์มาร์เก็ต Lotus's และฟู้ดคอร์ต: รอบเล่นยาวกว่า (60 นาที) และผู้ใหญ่เข้าไปพร้อมกับเด็ก",
+    "โซน Skippy Land ในห้าง Lotus's North Pattaya ชั้น 2 เลยบันไดเลื่อนไป ห่างจากฟู้ดคอร์ตออกไปเล็กน้อย มีโซน Kid's Soft Play พร้อมบ่อบอล สไลเดอร์ ชิงช้าหมุน และโต๊ะตัวต่อ ข้าง ๆ มีโซนตู้เกมและเครื่องเล่นหยอดเหรียญ (ครั้งละ 20 ฿) เด็กเล่นรอบละ 40 นาที ส่วนผู้ปกครองรออยู่ด้านนอก มีม้านั่งให้นั่งรอริมโซน มีเครื่องปรับอากาศและมีพนักงานดูแลประจำโซน แวะซื้อของที่ Lotus's และทานอาหารที่ฟู้ดคอร์ตที่อยู่ใกล้ ๆ ได้ ในห้างนี้ยังมี Skippy Land อีกโซนหนึ่ง อยู่ระหว่างซูเปอร์มาร์เก็ต Lotus's และฟู้ดคอร์ต โซนนั้นรอบเล่นยาวกว่า (60 นาที) และผู้ใหญ่เข้าไปพร้อมกับเด็ก",
   entryPriceNote: `Рост ребёнка — 90–135 см. Цена — за ребёнка; родителей просят подождать снаружи. При травме центр компенсирует лечение до 10${nb}000${nb}฿.`,
   entryPriceNoteEn: `Child height 90–135 cm. The price is per child; parents are asked to wait outside. In case of injury the venue covers treatment up to 10,000${nb}฿.`,
-  entryPriceNoteTh: `ส่วนสูงเด็ก 90–135 ซม. ราคานี้สำหรับเด็ก ผู้ปกครองกรุณารอด้านนอก หากเกิดอุบัติเหตุบาดเจ็บ ทางศูนย์รับผิดชอบค่ารักษาสูงสุด 10${nb}000${nb}฿`,
+  entryPriceNoteTh: `ส่วนสูงเด็ก 90–135 ซม. ราคาคิดต่อเด็ก 1 คน ผู้ปกครองกรุณารอด้านนอก หากเกิดอุบัติเหตุบาดเจ็บ ทางศูนย์รับผิดชอบค่ารักษาพยาบาลสูงสุด 10,000${nb}฿`,
   // «подождите снаружи» — просьба, а не «можно уйти»: уточняем у сотрудников
   canLeaveChild: null,
   price: {
@@ -162,13 +162,13 @@ const escalatorZone: Zone = {
       textEn:
         "During the session staff are on duty in the zone, and parents are asked to wait outside — there are benches along the zone. Be back by the end of the session: after that, nobody looks after the child.",
       textTh:
-        "ระหว่างรอบเล่นมีพนักงานดูแลอยู่ในโซน ผู้ปกครองกรุณารอด้านนอก — มีม้านั่งอยู่ตามแนวโซน กรุณากลับมาก่อนหมดเวลา เพราะหลังหมดเวลาทางโซนไม่รับฝากเด็ก",
+        "ระหว่างรอบเล่นมีพนักงานดูแลอยู่ในโซน ผู้ปกครองกรุณารอด้านนอก มีม้านั่งให้นั่งรอริมโซน ควรกลับมาให้ทันก่อนหมดรอบ เพราะไม่รับฝากเด็กเมื่อหมดเวลา",
     },
     {
       topic: "socks",
       text: "В мягкую игровую заходят без обуви и только в носках.",
       textEn: "Shoes off in the soft play area, and socks are required.",
-      textTh: "โซนเล่นนุ่มต้องถอดรองเท้าและใส่ถุงเท้าเท่านั้น",
+      textTh: "โซนซอฟต์เพลย์ต้องถอดรองเท้าและใส่ถุงเท้าเท่านั้น",
     },
     {
       topic: "payment",
@@ -176,7 +176,7 @@ const escalatorZone: Zone = {
       textEn:
         "Entry is through a machine at the gate. The machine gives no change, but staff will break a larger note and feed the right amount in for you.",
       textTh:
-        "เข้าโซนผ่านตู้ชำระเงินที่ประตู ตู้ไม่มีเงินทอน แต่พนักงานจะช่วยแลกเงินและหยอดเงินจำนวนที่ถูกต้องให้",
+        "เข้าโซนโดยชำระเงินที่ตู้หน้าทางเข้า ตู้ไม่มีเงินทอน แต่พนักงานจะแลกเงินย่อยและหยอดเงินลงตู้ให้ตามราคา",
     },
     arcadeHoursTip,
   ],
