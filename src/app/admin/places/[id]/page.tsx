@@ -21,7 +21,7 @@ export default async function AdminPlaceEditPage({
   const error =
     typeof resolvedSearch.error === "string" ? resolvedSearch.error : undefined;
 
-  const [place, allCategories] = await Promise.all([
+  const [place, allCategories, allBrands] = await Promise.all([
     prisma.place.findUnique({
       where: { id },
       include: {
@@ -33,11 +33,19 @@ export default async function AdminPlaceEditPage({
       },
     }),
     prisma.category.findMany({ orderBy: { order: "asc" } }),
+    prisma.brand.findMany({ orderBy: { name: "asc" } }),
   ]);
 
   if (!place) {
     notFound();
   }
 
-  return <PlaceForm place={place} allCategories={allCategories} error={error} />;
+  return (
+    <PlaceForm
+      place={place}
+      allCategories={allCategories}
+      allBrands={allBrands}
+      error={error}
+    />
+  );
 }

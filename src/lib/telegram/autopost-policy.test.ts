@@ -3,6 +3,7 @@ import {
   compareActivitiesForPost,
   isActivityPostable,
   parseResetTypes,
+  selectPostablePlaces,
   shouldReleaseClaim,
 } from "./autopost-policy";
 import { TelegramApiError } from "./client";
@@ -153,5 +154,56 @@ describe("parseResetTypes", () => {
   it("пустой --type — ошибка", () => {
     expect(parseResetTypes(["--type="]).ok).toBe(false);
     expect(parseResetTypes(["--type"]).ok).toBe(false);
+  });
+});
+
+// Сети мест: один пост на новый торговый центр сети, а не на каждую зону
+describe("selectPostablePlaces — один пост на ТЦ сети", () => {
+  const NORTH = { latitude: 12.9508423, longitude: 100.8933732 };
+  const SOUTH = { latitude: 12.9065193, longitude: 100.8948078 };
+  const SKIPPY = "brand-skippy";
+
+  it("точка сети рядом с уже опубликованной (тот же ТЦ) — не публикуется", () => {
+    const candidates = [{ id: "escalator", brandId: SKIPPY, ...NORTH }];
+    const posted = [{ brandId: SKIPPY, ...NORTH }];
+    expect(selectPostablePlaces(candidates, posted)).toEqual([]);
+  });
+
+  it("новый ТЦ той же сети — публикуется; чужая сеть рядом не мешает", () => {
+    const candidates = [
+      { id: "south", brandId: SKIPPY, ...SOUTH },
+      { id: "other-chain", brandId: "brand-other", ...NORTH },
+    ];
+    const posted = [{ brandId: SKIPPY, ...NORTH }];
+    expect(selectPostablePlaces(candidates, posted).map((p) => p.id)).toEqual([
+      "south",
+      "other-chain",
+    ]);
+  });
+
+  it("две новые зоны в одном ТЦ за один прогон — уходит только первая по очереди", () => {
+    const candidates = [
+      { id: "food-court", brandId: SKIPPY, ...NORTH },
+      {
+        id: "escalator",
+        brandId: SKIPPY,
+        latitude: NORTH.latitude + 0.0005,
+        longitude: NORTH.longitude,
+      },
+      { id: "south", brandId: SKIPPY, ...SOUTH },
+    ];
+    expect(selectPostablePlaces(candidates, []).map((p) => p.id)).toEqual([
+      "food-court",
+      "south",
+    ]);
+  });
+
+  it("место без сети публикуется всегда, даже рядом с опубликованным", () => {
+    const candidates = [{ id: "solo", brandId: null, ...NORTH }];
+    const posted = [
+      { brandId: SKIPPY, ...NORTH },
+      { brandId: null, ...NORTH },
+    ];
+    expect(selectPostablePlaces(candidates, posted).map((p) => p.id)).toEqual(["solo"]);
   });
 });
