@@ -1,3 +1,4 @@
+import { placeDisplayName } from "@/lib/places/display-name";
 /**
  * Бот-помощник: отвечает в личке на команды и кнопки — «сегодня», «выходные»,
  * «скоро», «куда сходить». Данные берёт из той же базы, что и сайт; ссылки
@@ -215,7 +216,7 @@ async function placesReply(): Promise<BotReply> {
   }
 
   const items: BotListItem[] = places.map((place) => ({
-    title: place.name,
+    title: placeDisplayName(place, "ru"),
     url: buildPlaceUrl(place.slug),
     note: place.address,
   }));

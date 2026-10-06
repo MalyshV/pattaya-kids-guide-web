@@ -59,6 +59,7 @@ type PlaceDetailsResult = Prisma.PlaceGetPayload<{
     tips: true;
     contacts: true;
     programs: { include: { tips: true } };
+    brand: true;
   };
 }>;
 
@@ -222,6 +223,86 @@ export const getApprovedPlaceBySlug = cache(
             },
             // советы занятий показываем и на странице места
             include: { tips: { orderBy: { order: "asc" } } },
+          },
+          // сеть точки — для блока «Другие {сеть} в {городе}» и JSON-LD brand
+          brand: true,
+        },
+      });
+    },
+  ),
+);
+
+// Другие точки сети в том же городе — для блока «Другие {сеть} в {городе}»
+// (docs/CHAINS_PLAN.md). Только то, что нужно строке блока: координаты
+// (расстояние), цены входа (вход от / сеанс), «можно оставить», метка и фраза.
+export type BrandSiblingRow = Prisma.PlaceGetPayload<{
+  select: {
+    id: true;
+    slug: true;
+    name: true;
+    latitude: true;
+    longitude: true;
+    canLeaveChild: true;
+    branchLabel: true;
+    branchLabelEn: true;
+    branchLabelTh: true;
+    branchNote: true;
+    branchNoteEn: true;
+    branchNoteTh: true;
+    entryPrices: {
+      select: {
+        label: true;
+        labelEn: true;
+        labelTh: true;
+        childPrice: true;
+        currency: true;
+        order: true;
+      };
+    };
+  };
+}>;
+
+export const getBrandSiblings = cache(
+  cachedQuery(
+    "brand-siblings",
+    ["places"],
+    async function getBrandSiblings(
+      brandId: string,
+      cityId: string,
+      excludePlaceId: string,
+    ): Promise<BrandSiblingRow[]> {
+      return prisma.place.findMany({
+        where: {
+          brandId,
+          cityId,
+          status: "APPROVED",
+          ...demoFilter(),
+          id: { not: excludePlaceId },
+        },
+        orderBy: { name: "asc" },
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          latitude: true,
+          longitude: true,
+          canLeaveChild: true,
+          branchLabel: true,
+          branchLabelEn: true,
+          branchLabelTh: true,
+          branchNote: true,
+          branchNoteEn: true,
+          branchNoteTh: true,
+          entryPrices: {
+            orderBy: { order: "asc" },
+            select: {
+              label: true,
+              labelEn: true,
+              labelTh: true,
+              childPrice: true,
+              currency: true,
+              order: true,
+            },
           },
         },
       });

@@ -38,6 +38,7 @@ type PlaceWithDetails = Prisma.PlaceGetPayload<{
     tips: true;
     contacts: true;
     programs: { include: { tips: true } };
+    brand: true;
   };
 }>;
 
@@ -47,6 +48,13 @@ export function mapPlaceDetailsToDto(
 ): PlaceDetailsDto {
   return {
     ...mapPlaceToDto(place, lang),
+    brand: place.brand ? { slug: place.brand.slug, name: place.brand.name } : null,
+    branchNote: pickLocalized(
+      place.branchNote,
+      place.branchNoteEn,
+      place.branchNoteTh,
+      lang,
+    ),
     categories: place.categories.map((link) => ({
       id: link.category.id,
       name: pickLocalized(

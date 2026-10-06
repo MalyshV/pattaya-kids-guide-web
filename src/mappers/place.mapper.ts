@@ -1,12 +1,14 @@
 import type { PlaceDto } from "@/dto/place.dto";
 import type { PlaceListItemDto } from "@/dto/place-list-item.dto";
 import { pickLocalized } from "@/lib/i18n/localize";
+import { placeDisplayName } from "@/lib/places/display-name";
 import type { Place } from "@prisma/client";
 
 export function mapPlaceToDto(place: Place, lang: string = "ru"): PlaceDto {
   return {
     id: place.id,
-    name: place.name,
+    // точка сети: «Skippy Land · Lotus's North, у фудкорта» — метка на языке страницы
+    name: placeDisplayName(place, lang),
     slug: place.slug,
     description: pickLocalized(
       place.description,
@@ -35,13 +37,17 @@ export function mapPlaceToDto(place: Place, lang: string = "ru"): PlaceDto {
 
 /**
  * Слим-DTO для списка: карточка локализует описание сама (по basePath),
- * поэтому en/th-поля передаём сырыми. ВАЖНО: список уходит в клиентский
+ * поэтому en/th-поля передаём сырыми. Имя — уже отображаемое (бренд · метка
+ * точки на языке страницы): оно же уходит в ♡/✓-снимок и на карту. ВАЖНО: список уходит в клиентский
  * компонент — сырую Prisma-модель со служебными полями (модерация, заметки)
  * сериализовать в браузер нельзя, только этот отобранный набор.
  */
-export function mapPlaceToListItemDto(place: Place): PlaceListItemDto {
+export function mapPlaceToListItemDto(
+  place: Place,
+  lang: string = "ru",
+): PlaceListItemDto {
   return {
-    ...mapPlaceToDto(place),
+    ...mapPlaceToDto(place, lang),
     description: place.description,
     descriptionEn: place.descriptionEn,
     descriptionTh: place.descriptionTh,

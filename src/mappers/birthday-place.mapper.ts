@@ -1,3 +1,4 @@
+import { placeDisplayName } from "@/lib/places/display-name";
 import type { BirthdayPlaceDto } from "@/dto/birthday-place.dto";
 import type { BirthdayPlace } from "@/services/places.service";
 import { pickLocalized } from "@/lib/i18n/localize";
@@ -9,7 +10,7 @@ export function mapBirthdayPlaceToDto(
   return {
     id: place.id,
     slug: place.slug,
-    name: place.name,
+    name: placeDisplayName(place, lang),
     imageUrl: place.imageUrl,
     address: place.address,
     latitude: place.latitude,

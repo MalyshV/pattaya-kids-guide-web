@@ -1,5 +1,6 @@
 export type PlaceDto = {
   id: string;
+  /** отображаемое имя: у точки сети — «бренд · метка» на языке страницы */
   name: string;
   slug: string;
   description: string | null;

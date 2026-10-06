@@ -1,3 +1,4 @@
+import { placeDisplayName } from "@/lib/places/display-name";
 import { mapTipsToDto } from "@/mappers/tip.mapper";
 import type { EventDetailsDto } from "@/dto/event-details.dto";
 import type { EventDetailsResult } from "@/services/events.service";
@@ -12,7 +13,7 @@ export function mapEventDetailsToDto(
     place: event.place
       ? {
           id: event.place.id,
-          name: event.place.name,
+          name: placeDisplayName(event.place, lang),
           slug: event.place.slug,
         }
       : null,

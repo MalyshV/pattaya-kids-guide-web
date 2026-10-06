@@ -38,6 +38,19 @@ describe("mapPlaceToDto", () => {
   it("служебные поля модели наружу не уходят", () => {
     expect(mapPlaceToDto(PLACE)).not.toHaveProperty("moderationNote");
   });
+
+  it("точка сети: имя с меткой на языке страницы; без метки — как есть", () => {
+    const zone = {
+      ...PLACE,
+      name: "Skippy Land",
+      branchLabel: "Lotus's South",
+      branchLabelEn: "Lotus's South",
+      branchLabelTh: "Lotus's South",
+    } as unknown as Place;
+    expect(mapPlaceToDto(zone, "ru").name).toBe("Skippy Land · Lotus's South");
+    expect(mapPlaceToListItemDto(zone, "en").name).toBe("Skippy Land · Lotus's South");
+    expect(mapPlaceToDto(PLACE, "th").name).toBe("Kids Land");
+  });
 });
 
 describe("mapPlaceToListItemDto", () => {

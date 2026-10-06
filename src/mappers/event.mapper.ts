@@ -2,6 +2,7 @@ import type { EventDto } from "@/dto/event.dto";
 import type { EventListItemDto } from "@/dto/event-list-item.dto";
 import type { Event, Prisma } from "@prisma/client";
 import { pickLocalized } from "@/lib/i18n/localize";
+import { placeDisplayName } from "@/lib/places/display-name";
 
 type EventWithPlace = Prisma.EventGetPayload<{
   include: {
@@ -72,7 +73,7 @@ export function mapEventListItemToDto(
     place: event.place
       ? {
           id: event.place.id,
-          name: event.place.name,
+          name: placeDisplayName(event.place, lang),
           slug: event.place.slug,
         }
       : null,

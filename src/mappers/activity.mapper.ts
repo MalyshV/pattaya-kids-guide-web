@@ -1,6 +1,7 @@
 import type { ActivityListItemDto } from "@/dto/activity-list-item.dto";
 import type { ActivityWithPlace } from "@/services/activities.service";
 import { pickLocalized } from "@/lib/i18n/localize";
+import { placeDisplayName } from "@/lib/places/display-name";
 
 export function mapActivityToListItem(
   activity: ActivityWithPlace,
@@ -36,7 +37,7 @@ export function mapActivityToListItem(
     endDate: activity.endDate ? new Date(activity.endDate) : null,
     place: activity.place
       ? {
-          name: activity.place.name,
+          name: placeDisplayName(activity.place, lang),
           slug: activity.place.slug,
           address: activity.place.address,
         }

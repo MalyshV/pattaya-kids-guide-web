@@ -173,7 +173,7 @@ export default async function CityLandingPage({
     .filter(
       (place) => Number.isFinite(place.latitude) && Number.isFinite(place.longitude),
     )
-    .map((place) => placeToMapPoint(mapPlaceToListItemDto(place), basePath));
+    .map((place) => placeToMapPoint(mapPlaceToListItemDto(place, lang), basePath));
   // прошедшие события и завершённые лагеря на карту не ставим: пин, в отличие
   // от карточки, не несёт бейджа статуса — живой янтарный/шалфейный пин вёл бы
   // на «прошло». COURSE вечнозелёные, места и ongoing/upcoming — остаются.

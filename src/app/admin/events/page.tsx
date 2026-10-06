@@ -1,3 +1,4 @@
+import { placeDisplayName } from "@/lib/places/display-name";
 import Link from "next/link";
 import { prisma } from "@/db/prisma";
 import { requireAdmin } from "@/lib/admin/auth";
@@ -27,7 +28,14 @@ export default async function AdminEventsPage(): Promise<React.ReactElement> {
       status: true,
       isDemo: true,
       imageUrl: true,
-      place: { select: { name: true } },
+      place: {
+        select: {
+          name: true,
+          branchLabel: true,
+          branchLabelEn: true,
+          branchLabelTh: true,
+        },
+      },
       locationName: true,
     },
   });
@@ -48,8 +56,8 @@ export default async function AdminEventsPage(): Promise<React.ReactElement> {
               <span className="admin-item-name">{event.title}</span>
               <span className="admin-item-meta">
                 {pattayaDateLabel(event.startDate)}
-                {(event.place?.name ?? event.locationName)
-                  ? ` · ${event.place?.name ?? event.locationName}`
+                {(event.place ? placeDisplayName(event.place, "ru") : event.locationName)
+                  ? ` · ${event.place ? placeDisplayName(event.place, "ru") : event.locationName}`
                   : ""}
                 {!event.imageUrl ? " · без фото" : ""}
                 {event.status !== "APPROVED" ? " · скрыто" : ""}

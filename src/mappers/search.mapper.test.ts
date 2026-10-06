@@ -8,12 +8,16 @@ import type {
 
 const BASE = "/ru/pattaya";
 
+const NO_BRANCH = { branchLabel: null, branchLabelEn: null, branchLabelTh: null };
+
 function placeRow(overrides: Partial<SearchPlaceRow> = {}): SearchPlaceRow {
   return {
     id: "p1",
     name: "Skippy Land",
     slug: "skippy-land",
     address: "Lotus's North Pattaya",
+    ...NO_BRANCH,
+    brand: null,
     categories: [
       {
         category: {
@@ -77,6 +81,29 @@ describe("mapSearchIndex", () => {
     expect(item.name).toBe("Skippy Land");
   });
 
+  it("точка сети: имя с меткой на языке страницы; ищется по всем меткам, бренду и его написаниям", () => {
+    const zone = placeRow({
+      branchLabel: "Lotus's North, у фудкорта",
+      branchLabelEn: "Lotus's North, by the food court",
+      branchLabelTh: "Lotus's North ติดฟู้ดคอร์ต",
+      brand: { name: "Skippy Land", searchAliases: ["สกิ๊ปปี้แลนด์", "Скиппи Ленд"] },
+    });
+    const [ru] = mapSearchIndex([zone], [], [], BASE, "ru");
+    expect(ru.name).toBe("Skippy Land · Lotus's North, у фудкорта");
+    const [th] = mapSearchIndex([zone], [], [], BASE, "th");
+    expect(th.name).toBe("Skippy Land · Lotus's North ติดฟู้ดคอร์ต");
+    for (const needle of [
+      "у фудкорта",
+      "by the food court",
+      "ติดฟู้ดคอร์ต",
+      "สกิ๊ปปี้แลนด์",
+      "Скиппи Ленд",
+      "Indoor playground",
+    ]) {
+      expect(ru.searchText).toContain(needle);
+    }
+  });
+
   it("занятие → URL activities/slug; hint берёт venueName, когда места нет", () => {
     const [item] = mapSearchIndex([], [activityRow()], [], BASE, "ru");
     expect(item.type).toBe("activity");
@@ -87,7 +114,7 @@ describe("mapSearchIndex", () => {
   it("занятие: hint предпочитает название места каталога, если оно есть", () => {
     const [item] = mapSearchIndex(
       [],
-      [activityRow({ place: { name: "The Little Gym" } })],
+      [activityRow({ place: { name: "The Little Gym", ...NO_BRANCH } })],
       [],
       BASE,
       "ru",
@@ -118,11 +145,25 @@ describe("mapSearchIndex", () => {
     const [item] = mapSearchIndex(
       [],
       [],
-      [eventRow({ place: { name: "LariDea" } })],
+      [eventRow({ place: { name: "LariDea", ...NO_BRANCH } })],
       BASE,
       "ru",
     );
     expect(item.hint).toBe("LariDea");
+  });
+
+  it("место-точка сети у события и занятия: подпись с меткой, в searchText — все метки", () => {
+    const zone = {
+      name: "Skippy Land",
+      branchLabel: "Lotus's South",
+      branchLabelEn: "Lotus's South",
+      branchLabelTh: null,
+    };
+    const [event] = mapSearchIndex([], [], [eventRow({ place: zone })], BASE, "ru");
+    expect(event.hint).toBe("Skippy Land · Lotus's South");
+    expect(event.searchText).toContain("Skippy Land · Lotus's South");
+    const [activity] = mapSearchIndex([], [activityRow({ place: zone })], [], BASE, "en");
+    expect(activity.hint).toBe("Skippy Land · Lotus's South");
   });
 
   it("событие локализуется по языку (EN → titleEn)", () => {

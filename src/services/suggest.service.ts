@@ -1,3 +1,4 @@
+import { placeDisplayName, placeDisplayNames } from "@/lib/places/display-name";
 import "server-only";
 
 import { prisma } from "@/db/prisma";
@@ -172,8 +173,10 @@ export async function getDupCandidates(
     candidates.push({
       key: `place:${place.id}`,
       kind: "place",
-      names: [place.name],
-      label: place.name,
+      // все написания имени точки сети (ru/en/th метки) — «Skippy Land Lotus
+      // North» родителя найдёт точку, а не только голый бренд
+      names: placeDisplayNames(place),
+      label: placeDisplayName(place, lang),
       // черновик ещё не на сайте — ссылки нет, покажем «уже готовим»
       href: place.status === "APPROVED" ? `${basePath}/places/${place.slug}` : null,
       point: toPoint(place.latitude, place.longitude),
