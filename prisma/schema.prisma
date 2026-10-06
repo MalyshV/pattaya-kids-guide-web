@@ -498,9 +498,39 @@ model Place {
   /// ГЕО (Сессия 2): город места обязателен — место всегда физически где-то
   cityId               String
   city                 City                 @relation(fields: [cityId], references: [id])
+  /// СЕТЬ (docs/CHAINS_PLAN.md): тонкая связь точки с брендом. Точка остаётся
+  /// отдельным местом со своими фактами; сеть видна блоком «Другие {сеть} в
+  /// {городе}» на её странице. null = место не в сети
+  brandId              String?
+  brand                Brand?               @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  /// метка точки внутри сети («Lotus's North, у фудкорта»); отображаемое имя =
+  /// name + « · » + метка на языке страницы (src/lib/places/display-name.ts)
+  branchLabel          String?
+  branchLabelEn        String?
+  branchLabelTh        String?
+  /// одна фраза от руки, чем точка отличается от других в сети
+  /// («взрослый ждёт снаружи на лавочках») — строка блока «Другие …»
+  branchNote           String?
+  branchNoteEn         String?
+  branchNoteTh         String?
 
   @@unique([cityId, slug])
   @@index([cityId, status])
+  @@index([brandId])
+}
+
+/// Сеть мест (Skippy Land, The Little Gym). Только связь и поиск: фактов у
+/// сети нет — точки одной сети устроены по-разному (docs/CHAINS_PLAN.md).
+/// slug глобальный: сеть живёт в разных городах.
+model Brand {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  /// как на вывеске, латиницей
+  name          String
+  /// другие написания для поиска: тайское «สกิ๊ปปี้แลนด์», «Скиппи Ленд», «Skippyland»
+  searchAliases String[] @default([])
+  createdAt     DateTime @default(now())
+  places        Place[]
 }
 
 model EventCategory {
