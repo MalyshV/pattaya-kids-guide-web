@@ -26,6 +26,11 @@ import {
   unlinkSubmissionsForPlace,
   type CoverCardType,
 } from "@/lib/admin/submission-link";
+import { withTelegramFlag } from "@/lib/admin/telegram-flag";
+import {
+  notifyAuthorsOfCard,
+  notifySubmissionAuthor,
+} from "@/services/submission-telegram.service";
 import { parseBirthdayForm } from "@/lib/admin/birthday-info";
 import {
   classFieldName,
@@ -440,6 +445,10 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
     revalidatePath("/admin", "layout");
   }
 
+  // карточка стала видимой — написать автору предложения (один раз; сбой
+  // Telegram сохранение не ломает, лишь меняет баннер)
+  const tgFailed = (await notifyAuthorsOfCard("PLACE", placeId)) === "failed";
+
   revalidateSite();
   // связка не удалась или предложение уже вело к другой карточке — вести надо
   // к самой карточке: со страницы предложения её было бы не найти
@@ -462,9 +471,11 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
       linkResult === "photos"
         ? "error=cardPhotos"
         : `done=${linkResult === "withPhotos" ? "cardCreatedPhotos" : "cardCreated"}`;
-    redirect(`/admin/suggestions/${fromSubmission}?${flag}`);
+    redirect(withTelegramFlag(`/admin/suggestions/${fromSubmission}?${flag}`, tgFailed));
   }
-  redirect(`/admin/places?done=${id ? "updated" : "created"}`);
+  redirect(
+    withTelegramFlag(`/admin/places?done=${id ? "updated" : "created"}`, tgFailed),
+  );
 }
 
 export async function deletePlaceAction(formData: FormData): Promise<void> {
@@ -918,6 +929,8 @@ export async function saveEventAction(formData: FormData): Promise<void> {
     revalidatePath("/admin", "layout");
   }
 
+  const tgFailed = (await notifyAuthorsOfCard("EVENT", eventId)) === "failed";
+
   revalidateSite();
   const cardPath = `/admin/events/${eventId}`;
   if (linkResult === "failed" || linkResult === "duplicate") {
@@ -930,9 +943,13 @@ export async function saveEventAction(formData: FormData): Promise<void> {
     redirect(`${cardPath}?error=tips`);
   }
   if (fromSubmission && linkResult) {
-    redirect(afterCardLinkHref(cardPath, fromSubmission, linkResult));
+    redirect(
+      withTelegramFlag(afterCardLinkHref(cardPath, fromSubmission, linkResult), tgFailed),
+    );
   }
-  redirect(`/admin/events?done=${id ? "updated" : "created"}`);
+  redirect(
+    withTelegramFlag(`/admin/events?done=${id ? "updated" : "created"}`, tgFailed),
+  );
 }
 
 export async function deleteEventAction(formData: FormData): Promise<void> {
@@ -1132,6 +1149,8 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
     revalidatePath("/admin", "layout");
   }
 
+  const tgFailed = (await notifyAuthorsOfCard("ACTIVITY", activityId)) === "failed";
+
   revalidateSite();
   const cardPath = `/admin/activities/${activityId}`;
   if (linkResult === "failed" || linkResult === "duplicate") {
@@ -1147,9 +1166,13 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
     redirect(`${cardPath}?error=classes`);
   }
   if (fromSubmission && linkResult) {
-    redirect(afterCardLinkHref(cardPath, fromSubmission, linkResult));
+    redirect(
+      withTelegramFlag(afterCardLinkHref(cardPath, fromSubmission, linkResult), tgFailed),
+    );
   }
-  redirect(`/admin/activities?done=${id ? "updated" : "created"}`);
+  redirect(
+    withTelegramFlag(`/admin/activities?done=${id ? "updated" : "created"}`, tgFailed),
+  );
 }
 
 export async function deleteActivityAction(formData: FormData): Promise<void> {
@@ -1202,7 +1225,10 @@ export async function setSubmissionStatusAction(formData: FormData): Promise<voi
   }
   // счётчик «Предложения (N)» в шапке админки — пересчитать
   revalidatePath("/admin", "layout");
-  redirect(`/admin/suggestions/${id}?done=status`);
+  // «Опубликовано» вручную: автору пишем, если есть карточка, на которую
+  // сослаться (отклонённым и дублям — никогда, это решает shouldNotifyAuthor)
+  const tgFailed = (await notifySubmissionAuthor(id)) === "failed";
+  redirect(withTelegramFlag(`/admin/suggestions/${id}?done=status`, tgFailed));
 }
 
 /** Дополнение к месту: присланные фото — в галерею карточки (копиями). */
@@ -1227,10 +1253,17 @@ export async function addSubmissionPhotosAction(formData: FormData): Promise<voi
     revalidateSite();
     revalidatePath("/admin", "layout");
   }
+  // дополнение принято (хоть одно фото легло) — написать автору
+  const tgFailed =
+    result.photosCopied > 0 &&
+    (await notifySubmissionAuthor(id, { accepted: true })) === "failed";
   redirect(
-    `/admin/suggestions/${id}?${
-      result.photosFailed > 0 ? "error=additionPhotos" : "done=additionPhotos"
-    }`,
+    withTelegramFlag(
+      `/admin/suggestions/${id}?${
+        result.photosFailed > 0 ? "error=additionPhotos" : "done=additionPhotos"
+      }`,
+      tgFailed,
+    ),
   );
 }
 
@@ -1250,7 +1283,8 @@ export async function setSubmissionCoverAction(formData: FormData): Promise<void
     redirect(`/admin/suggestions/${id}?error=additionCover`);
   }
   revalidateSite();
-  redirect(`/admin/suggestions/${id}?done=additionCover`);
+  const tgFailed = (await notifySubmissionAuthor(id, { accepted: true })) === "failed";
+  redirect(withTelegramFlag(`/admin/suggestions/${id}?done=additionCover`, tgFailed));
 }
 
 export async function saveSubmissionNotesAction(formData: FormData): Promise<void> {

@@ -17,6 +17,8 @@ import {
   POST_CITY_SLUG,
   type BotListItem,
 } from "@/lib/telegram/format";
+import { parseStartToken } from "@/lib/telegram/author-link";
+import { linkAuthorChat } from "@/services/submission-telegram.service";
 import type { EventListItemDto } from "@/dto/event-list-item.dto";
 import type { InlineKeyboardMarkup, TelegramUpdate } from "@/lib/telegram/types";
 
@@ -314,6 +316,23 @@ export async function handleTelegramUpdate(update: TelegramUpdate): Promise<void
   // отвечаем только на текст в личке: в группах и каналах бот молчит
   if (!message?.text || message.chat.type !== "private") {
     return;
+  }
+
+  // «/start <токен>» из диплинка на экране «Спасибо»: привязываем чат автора
+  // предложения. Кнопок подборок не добавляем: они русские, а автор мог писать
+  // по-английски или по-тайски. Сбой базы не оставляет человека без ответа
+  const authorToken = parseStartToken(message.text);
+  if (authorToken) {
+    const text = await linkAuthorChat(authorToken, message.chat.id).catch(
+      (error: unknown) => {
+        console.error("telegram: чат автора не привязался", error);
+        return null;
+      },
+    );
+    if (text) {
+      await sendMessage({ chatId: message.chat.id, text, disablePreview: true });
+      return;
+    }
   }
 
   const reply = await buildReply(resolveReplyKey(message.text));

@@ -20,6 +20,8 @@ type ActionBannerProps = {
   variant: ActionBannerVariant;
   title: string;
   message?: string;
+  /** необязательная тихая строка под текстом (например, ссылка); фокус ходит и по ней */
+  footer?: React.ReactNode;
   /** своя иконка вместо дефолтной по variant (эмодзи или узел) */
   icon?: React.ReactNode;
   closeLabel: string;
@@ -55,11 +57,13 @@ export function ActionBanner({
   variant,
   title,
   message,
+  footer,
   icon,
   closeLabel,
   onClose,
 }: ActionBannerProps): React.ReactElement {
   const closeRef = useRef<HTMLButtonElement | null>(null);
+  const boxRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     closeRef.current?.focus();
@@ -70,10 +74,19 @@ export function ActionBanner({
       if (event.key === "Escape") {
         onClose();
       }
-      // единственный фокусируемый контрол — кнопка закрытия: держим фокус
+      // фокус не выходит за баннер: по кругу между кнопкой закрытия и
+      // ссылками внутри (обычно ссылок нет, и фокус остаётся на «×»)
       if (event.key === "Tab") {
         event.preventDefault();
-        closeRef.current?.focus();
+        const items = Array.from(
+          boxRef.current?.querySelectorAll<HTMLElement>("button, a[href]") ?? [],
+        );
+        if (items.length === 0) {
+          return;
+        }
+        const index = items.indexOf(document.activeElement as HTMLElement);
+        const step = event.shiftKey ? -1 : 1;
+        items[(index + step + items.length) % items.length]?.focus();
       }
     }
 
@@ -93,6 +106,7 @@ export function ActionBanner({
       onClick={onClose}
     >
       <div
+        ref={boxRef}
         className={`action-banner action-banner-${variant}`}
         onClick={(event) => event.stopPropagation()}
       >
@@ -114,6 +128,7 @@ export function ActionBanner({
           {title}
         </h2>
         {message ? <p className="action-banner-message">{message}</p> : null}
+        {footer}
       </div>
     </div>,
     document.body,

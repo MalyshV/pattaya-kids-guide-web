@@ -22,6 +22,7 @@ import {
   type SuggestKind,
 } from "@/lib/suggest/submission";
 import { aboutCardPath, aboutThanksPath, parseAbout } from "@/lib/suggest/about";
+import { generateAuthorToken, normalizeBotUsername } from "@/lib/telegram/author-link";
 import { locationInfo } from "@/services/suggest-similar.service";
 import { getSuggestTarget } from "@/services/suggest-target.service";
 
@@ -132,10 +133,20 @@ export async function submitSuggestionAction(
   const target = aboutRef ? await getSuggestTarget(aboutRef, city.id, "ru") : null;
   // новое предложение — на страницу «Спасибо»; дополнение — обратно на
   // карточку, «Спасибо» там покажет попап
-  const thanksPath = (kind?: SuggestKind): string =>
-    aboutRef && target
-      ? `${basePath}${aboutThanksPath(aboutRef)}`
-      : `${basePath}/suggest/thanks${kind ? `?type=${kind}` : ""}`;
+  // «сообщить в Telegram»: токен заводим, только если бот настроен — иначе
+  // кнопки нет, и запись не трогает новые колонки (db push мог не пройти)
+  const telegramToken = normalizeBotUsername(
+    process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME,
+  )
+    ? generateAuthorToken()
+    : null;
+  const thanksPath = (kind?: SuggestKind, token?: string | null): string => {
+    const base =
+      aboutRef && target
+        ? `${basePath}${aboutThanksPath(aboutRef)}`
+        : `${basePath}/suggest/thanks${kind ? `?type=${kind}` : ""}`;
+    return token ? `${base}${base.includes("?") ? "&" : "?"}tg=${token}` : base;
+  };
 
   const checked = validateSuggestion(
     raw,
@@ -213,6 +224,7 @@ export async function submitSuggestionAction(
         shownMatches: value.shownMatches,
         photoRightsOk: value.photoRightsOk,
         ipHash,
+        ...(telegramToken ? { telegramToken } : {}),
         cityId: city.id,
         // только у дополнений: обычное предложение не трогает эти колонки и
         // сохраняется, даже если db push после обновления ещё не сделан
@@ -274,6 +286,6 @@ export async function submitSuggestionAction(
 
   return {
     status: "sent",
-    redirectTo: thanksPath(value.kind),
+    redirectTo: thanksPath(value.kind, telegramToken),
   };
 }

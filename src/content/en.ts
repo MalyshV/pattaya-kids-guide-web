@@ -658,5 +658,11 @@ export const en: Dictionary = {
       again: "Suggest another",
       back: "Back to the list",
     },
+    // optional "tell me on Telegram when it's published" (deep link to the bot)
+    notify: {
+      cta: "Message me on Telegram when it's published",
+      ctaAddition: "Message me on Telegram when the page is updated",
+      hint: "Telegram will open → tap “Start” at the bottom of the screen. Entirely optional: the bot writes once, when it's ready.",
+    },
   },
 };
