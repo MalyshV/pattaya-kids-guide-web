@@ -51,7 +51,7 @@ const softPlayZone: Zone = {
   descriptionEn:
     "An indoor kids' play area in Lotus's South Pattaya mall: 2nd floor, by the food court. An enclosed Kid's Soft Play zone: a ball pit and a climbing frame with a slide, big soft building blocks, a sandpit with moulds and a playhouse, a fishing game, a toy shop with trolleys, a cake shop and a building-blocks table. Shoes come off at the entrance; inside it's air-conditioned, with staff on duty. Coin-op rides stand along the fence outside. Across the aisle is an open Skippy Land zone: arcade machines and rides only (10–20 ฿ a game), with no staff — not a place to leave a child. Before or after playtime you can eat at the food court and shop at Lotus's.",
   descriptionTh:
-    "สนามเด็กเล่นในร่มในห้าง Lotus's South Pattaya ชั้น 2 ติดฟู้ดคอร์ต โซน Kid's Soft Play แบบมีรั้วกั้น มีบ่อบอลและเครื่องเล่นปีนป่ายพร้อมสไลเดอร์ บล็อกตัวต่อนุ่มขนาดใหญ่ บ่อทรายพร้อมแม่พิมพ์และบ้านตุ๊กตา เกมตกปลา ร้านค้าจำลองพร้อมรถเข็น ร้านขนมจำลอง และโต๊ะตัวต่อ ถอดรองเท้าไว้หน้าทางเข้า ภายในมีเครื่องปรับอากาศและมีพนักงานดูแล ริมรั้วด้านนอกมีเครื่องเล่นหยอดเหรียญ ฝั่งตรงข้ามทางเดินเป็นโซน Skippy Land แบบเปิด มีแต่ตู้เกมและเครื่องเล่นหยอดเหรียญ (ครั้งละ 10–20 ฿) ไม่มีพนักงานประจำ จึงไม่ควรปล่อยเด็กไว้ตามลำพัง ก่อนหรือหลังเล่นแวะทานอาหารที่ฟู้ดคอร์ตและซื้อของที่ Lotus's ได้",
+    "สนามเด็กเล่นในร่มในห้าง Lotus's South Pattaya ชั้น 2 ติดฟู้ดคอร์ต มีโซน Kid's Soft Play แบบมีรั้วกั้น ภายในมีบ่อบอลและเครื่องเล่นปีนป่ายพร้อมสไลเดอร์ บล็อกโฟมขนาดใหญ่ บ่อทรายพร้อมแม่พิมพ์และบ้านหลังเล็ก เกมตกปลา ร้านค้าจำลองพร้อมรถเข็น ร้านเค้กจำลอง และโต๊ะตัวต่อ ถอดรองเท้าไว้หน้าทางเข้า ในโซนมีเครื่องปรับอากาศและมีพนักงานดูแล ริมรั้วด้านนอกมีเครื่องเล่นหยอดเหรียญ ฝั่งตรงข้ามทางเดินเป็นโซน Skippy Land แบบเปิด มีแต่ตู้เกมและเครื่องเล่นหยอดเหรียญ (ครั้งละ 10–20 ฿) ไม่มีพนักงานประจำ จึงไม่ควรปล่อยเด็กไว้ตามลำพัง ก่อนหรือหลังเล่นแวะทานอาหารที่ฟู้ดคอร์ตและซื้อของที่ Lotus's ได้",
   entryPriceNote: `Рост ребёнка — 85–135 см. Сопровождающий (от 18 лет) — один на ребёнка. При травме центр компенсирует лечение до 10${nb}000${nb}฿.`,
   entryPriceNoteEn: `Child height 85–135 cm. One accompanying adult (18+) per child. In case of injury the venue covers treatment up to 10,000${nb}฿.`,
   entryPriceNoteTh: `ส่วนสูงเด็ก 85–135 ซม. ผู้ปกครอง (อายุ 18 ปีขึ้นไป) หนึ่งคนต่อเด็กหนึ่งคน หากเกิดอุบัติเหตุบาดเจ็บ ทางศูนย์รับผิดชอบค่ารักษาพยาบาลสูงสุด 10,000${nb}฿`,
@@ -71,7 +71,8 @@ const softPlayZone: Zone = {
       text: "Обувь оставляют на полках у входа, в игровую — только в носках.",
       textEn:
         "Shoes go on the shelves by the entrance; socks are required in the play area.",
-      textTh: "ถอดรองเท้าวางบนชั้นหน้าทางเข้า ในโซนเล่นต้องใส่ถุงเท้าเท่านั้น",
+      textTh:
+        "ถอดรองเท้าวางไว้ที่ชั้นวางรองเท้าหน้าทางเข้า ในโซนเล่นต้องใส่ถุงเท้าเท่านั้น",
     },
     {
       topic: "payment",
@@ -79,14 +80,14 @@ const softPlayZone: Zone = {
       textEn:
         "Entry is through a machine at the gate, and it gives no change. A 100 and a 50 note cover a child's session exactly.",
       textTh:
-        "เข้าโซนโดยชำระเงินที่ตู้หน้าทางเข้า ตู้ไม่มีเงินทอน เตรียมแบงก์ 100 และ 50 ไว้ จะพอดีกับค่าเล่นของเด็กหนึ่งรอบ",
+        "เข้าโซนโดยชำระเงินที่ตู้หน้าทางเข้า ตู้ไม่มีเงินทอน แนะนำให้เตรียมแบงก์ 100 และ 50 ไว้ รวมกันพอดีค่าเล่นเด็กหนึ่งรอบ",
     },
     {
       topic: "parents",
       text: "К концу сеанса будьте рядом: после него за ребёнком не присматривают.",
       textEn:
         "Be there by the end of the session: after that, nobody looks after the child.",
-      textTh: "ควรกลับมาให้ทันก่อนหมดรอบ เพราะไม่รับฝากเด็กเมื่อหมดเวลา",
+      textTh: "ควรมารอรับให้ทันก่อนหมดรอบ เพราะไม่รับฝากเด็กเมื่อหมดเวลา",
     },
     arcadeHoursTip,
   ],
