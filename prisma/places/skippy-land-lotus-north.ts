@@ -1,12 +1,17 @@
 import type { PrismaClient } from "@prisma/client";
+import {
+  arcadeHoursTip,
+  nb,
+  upsertSkippyZone,
+  type Mall,
+  type Zone,
+} from "./skippy-land";
 
 /**
  * Skippy Land в Lotus's North Pattaya — ДВЕ зоны в одном ТЦ, две карточки.
  *
- * Skippy Land — сеть игровых в гипермаркетах Lotus's. Модели сети пока нет
- * (docs/PRODUCT.md): каждая зона — отдельное место, общее (адрес ТЦ, контакт,
- * правило про автоматы) задано здесь один раз. Будущая модель бренда заберёт
- * эти общие куски отсюда.
+ * Общее для всей сети (контакт, правило про автоматы, занос зоны) — в
+ * ./skippy-land.ts; здесь — торговый центр и его две зоны.
  *
  * Источники: визиты и фото Вероники (июль 2026; права её), таблички у входа.
  * - Зона у фудкорта (между супермаркетом и фудкортом, юниты P2037/P2038):
@@ -33,66 +38,16 @@ import type { PrismaClient } from "@prisma/client";
 export const SKIPPY_FOOD_COURT_SLUG = "skippy-land-lotus-north";
 export const SKIPPY_ESCALATOR_SLUG = "skippy-land-lotus-north-escalator";
 
-// неразрывный пробел в суммах: «10 000 ฿» не разрывается при переносе
-const nb = " ";
-
-const RIGHTS_NOTE = "Фото Вероники (визит 2026-07)";
-
-// Общее обеим зонам: один ТЦ, одна точка на карте (карта сама разводит
-// совпадающие метки), одни и те же признаки-факты.
-const mall = {
+// Обе зоны в одном ТЦ — одна точка на карте (карта сама разводит
+// совпадающие метки).
+const mall: Mall = {
   address:
     "Lotus's North Pattaya (2nd floor), Muang Pattaya, Bang Lamung District, Chon Buri 20150",
   latitude: 12.9508423,
   longitude: 100.8933732,
   googleMapsUrl:
     "https://www.google.com/maps/place/Lotus's+North+Pattaya/@12.9508423,100.8918368,528m/data=!3m1!1e3!4m9!1m2!2m1!1ssoft+play!3m5!1s0x3102bfb3a6501d63:0x4dad9ccd9cbf816f!8m2!3d12.9508423!4d100.8933732!16s%2Fg%2F11hd_yk9xg",
-  indoor: true,
-  outdoor: false,
-  hasAirCon: true, // термометр 23 °C на фото обеих зон
-  hasParking: true, // парковка торгового центра
-  animalContact: false,
-  imageRightsNote: RIGHTS_NOTE,
-  status: "APPROVED" as const,
-};
-
-// контакт сети — на табличке у входа («предложения по сервису»)
-const PHONE = "081 496 0779";
-
-type Tip = { topic: string; text: string; textEn: string; textTh: string };
-
-// Табличка в обеих зонах; у зоны у фудкорта — полный стенд «условия игрового
-// зала по закону о кино и видео 2551»: каникулы (1–31.10, 15.03–15.05) идут
-// по расписанию выходных.
-const arcadeHoursTip: Tip = {
-  topic: "hours",
-  text: "Игровые автоматы для детей до 15 лет по тайскому закону работают по будням с 14:00 до 20:00, а в выходные, праздники и школьные каникулы (1–31 октября и 15 марта – 15 мая) — с 10:00 до 20:00. Для подростков до 18 лет — до 22:00.",
-  textEn:
-    "Under Thai law, arcade machines for children under 15 run on weekdays from 14:00 to 20:00, and on weekends, holidays and school breaks (1–31 October and 15 March – 15 May) from 10:00 to 20:00. For teens under 18 — until 22:00.",
-  textTh:
-    "ตามกฎหมาย ตู้เกมสำหรับเด็กอายุต่ำกว่า 15 ปี เปิดให้บริการวันจันทร์–ศุกร์ 14:00–20:00 น. ส่วนวันเสาร์–อาทิตย์ วันหยุด และช่วงปิดภาคเรียน (1–31 ต.ค. และ 15 มี.ค.–15 พ.ค.) เปิด 10:00–20:00 น. สำหรับเด็กอายุต่ำกว่า 18 ปี เปิดถึง 22:00 น.",
-};
-
-type Zone = {
-  slug: string;
-  name: string;
-  imageUrl: string;
-  description: string;
-  descriptionEn: string;
-  descriptionTh: string;
-  entryPriceNote: string;
-  entryPriceNoteEn: string;
-  entryPriceNoteTh: string;
-  canLeaveChild: boolean | null;
-  price: {
-    label: string;
-    labelEn: string;
-    labelTh: string;
-    childPrice: number;
-    adultPrice: number | null;
-  };
-  tips: Tip[];
-  photos: Array<{ url: string; caption: string }>;
+  rightsNote: "Фото Вероники (визит 2026-07)",
 };
 
 const foodCourtZone: Zone = {
@@ -224,82 +179,11 @@ const escalatorZone: Zone = {
   ],
 };
 
-async function upsertZone(
-  prisma: PrismaClient,
-  cityId: string,
-  zone: Zone,
-  indoorCategoryId: string | null,
-): Promise<void> {
-  const data = {
-    ...mall,
-    name: zone.name,
-    imageUrl: zone.imageUrl,
-    description: zone.description,
-    descriptionEn: zone.descriptionEn,
-    descriptionTh: zone.descriptionTh,
-    entryPriceNote: zone.entryPriceNote,
-    entryPriceNoteEn: zone.entryPriceNoteEn,
-    entryPriceNoteTh: zone.entryPriceNoteTh,
-    canLeaveChild: zone.canLeaveChild,
-    cityId,
-  };
-  const place = await prisma.place.upsert({
-    where: { cityId_slug: { cityId, slug: zone.slug } },
-    update: data,
-    create: { ...data, slug: zone.slug },
-  });
-
-  if (indoorCategoryId) {
-    await prisma.placeCategory.upsert({
-      where: { placeId_categoryId: { placeId: place.id, categoryId: indoorCategoryId } },
-      update: {},
-      create: { placeId: place.id, categoryId: indoorCategoryId },
-    });
-  }
-
-  // часы уточняются: снимаем прежние (это были часы автоматов, не зоны)
-  await prisma.placeSchedule.deleteMany({ where: { placeId: place.id } });
-
-  await prisma.placeEntryPrice.deleteMany({ where: { placeId: place.id } });
-  await prisma.placeEntryPrice.create({
-    data: { placeId: place.id, ...zone.price, order: 1 },
-  });
-
-  await prisma.placeContact.deleteMany({ where: { placeId: place.id } });
-  await prisma.placeContact.create({
-    data: { placeId: place.id, type: "phone", value: PHONE, order: 1 },
-  });
-
-  await prisma.placeTip.deleteMany({ where: { placeId: place.id } });
-  await prisma.placeTip.createMany({
-    data: zone.tips.map((tip, index) => ({
-      placeId: place.id,
-      ...tip,
-      order: index + 1,
-    })),
-  });
-
-  await prisma.placePhoto.deleteMany({ where: { placeId: place.id } });
-  await prisma.placePhoto.createMany({
-    data: zone.photos.map((photo, index) => ({
-      placeId: place.id,
-      ...photo,
-      order: index + 1,
-      source: "OWN" as const,
-      rightsNote: RIGHTS_NOTE,
-    })),
-  });
-}
-
 /** Обе зоны Skippy Land в Lotus's North. Идемпотентно: повторный запуск безопасен. */
 export async function upsertSkippyLandLotusNorth(
   prisma: PrismaClient,
   cityId: string,
 ): Promise<void> {
-  const indoorCategory = await prisma.category.findUnique({
-    where: { slug: "indoor-playground" },
-  });
-  const indoorCategoryId = indoorCategory?.id ?? null;
-  await upsertZone(prisma, cityId, foodCourtZone, indoorCategoryId);
-  await upsertZone(prisma, cityId, escalatorZone, indoorCategoryId);
+  await upsertSkippyZone(prisma, cityId, mall, foodCourtZone);
+  await upsertSkippyZone(prisma, cityId, mall, escalatorZone);
 }
