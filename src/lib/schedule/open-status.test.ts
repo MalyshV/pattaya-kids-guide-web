@@ -359,6 +359,11 @@ describe("statusSortRank (сверху то, куда успеете)", () => {
     expect(statusSortRank({ kind: "closedToday" })).toBe(2);
     expect(statusSortRank({ kind: "unknown" })).toBe(3);
   });
+
+  it("закрытые на время — в самый конец, закрывшиеся (архив) — после них", () => {
+    expect(statusSortRank({ kind: "closedTemporarily" })).toBe(4);
+    expect(statusSortRank({ kind: "closedPermanently" })).toBe(5);
+  });
 });
 
 describe("roundClosingMinutes («закроется через N мин»)", () => {

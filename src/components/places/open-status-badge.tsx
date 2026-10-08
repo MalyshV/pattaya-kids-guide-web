@@ -34,6 +34,10 @@ function render(status: OpenStatus, dict: Dictionary): Rendered | null {
       };
     case "closedToday":
       return { className: "open-status-closed", text: dict.openStatus.closedToday };
+    case "closedTemporarily":
+      return { className: "open-status-closed", text: dict.openStatus.closedTemporarily };
+    case "closedPermanently":
+      return { className: "open-status-closed", text: dict.openStatus.closedPermanently };
     case "unknown":
       return null;
   }

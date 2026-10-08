@@ -1,5 +1,9 @@
+import type { ClosureKind } from "@/lib/places/closure";
+
 export type PlaceDto = {
   id: string;
+  /** состояние работы: временно закрыто / закрылось; null = работает */
+  closure: ClosureKind | null;
   /** отображаемое имя: у точки сети — «бренд · метка» на языке страницы */
   name: string;
   slug: string;

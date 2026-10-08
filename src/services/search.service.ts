@@ -28,6 +28,8 @@ export type SearchPlaceRow = SearchBranch & {
   id: string;
   slug: string;
   address: string;
+  /** закрытое место ищется (знакомое название), но подсказка честно говорит об этом */
+  operatingStatus: "OPEN" | "TEMPORARILY_CLOSED" | "CLOSED";
   categories: SearchCategory[];
   brand: { name: string; searchAliases: string[] } | null;
 };
@@ -92,6 +94,7 @@ const getSearchRowsCached = cachedQuery(
           name: true,
           slug: true,
           address: true,
+          operatingStatus: true,
           branchLabel: true,
           branchLabelEn: true,
           branchLabelTh: true,

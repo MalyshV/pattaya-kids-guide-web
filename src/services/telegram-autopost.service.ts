@@ -132,6 +132,8 @@ async function findCandidates(limit: number): Promise<PostCandidate[]> {
       where: {
         status: "APPROVED",
         isDemo: false,
+        // закрытое на время/насовсем «новым местом» не анонсируем
+        operatingStatus: "OPEN",
         city: { slug: POST_CITY_SLUG },
         id: { notIn: postedPlaceIds },
       },
@@ -493,7 +495,12 @@ export async function resetAutopostJournal(options: {
       select: { id: true },
     }),
     prisma.place.findMany({
-      where: { status: "APPROVED", isDemo: false, city: { slug: POST_CITY_SLUG } },
+      where: {
+        status: "APPROVED",
+        isDemo: false,
+        operatingStatus: "OPEN",
+        city: { slug: POST_CITY_SLUG },
+      },
       select: { id: true, brandId: true, latitude: true, longitude: true },
       orderBy: { createdAt: "asc" },
     }),

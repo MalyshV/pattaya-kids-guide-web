@@ -6,6 +6,8 @@ import type {
 } from "@/services/search.service";
 import { pickLocalized } from "@/lib/i18n/localize";
 import { placeDisplayName, placeDisplayNames } from "@/lib/places/display-name";
+import { closureKind } from "@/lib/places/closure";
+import { getDictionary } from "@/content/dictionary";
 
 /**
  * Индекс поиска: видимое название локализуется по языку страницы, а ищется
@@ -34,12 +36,19 @@ export function mapSearchIndex(
   basePath: string,
   lang: string,
 ): SearchItemDto[] {
+  const statusDict = getDictionary(lang).openStatus;
   const placeItems: SearchItemDto[] = places.map((place) => ({
     id: place.id,
     type: "place",
     // название — имя собственное; у точки сети к нему добавляется метка на языке страницы
     name: placeDisplayName(place, lang),
-    hint: place.address,
+    // закрытое место находится по знакомому названию, подсказка — честная
+    hint:
+      closureKind(place) === "temporarily"
+        ? `${statusDict.closedTemporarily} · ${place.address}`
+        : closureKind(place) === "permanently"
+          ? `${statusDict.closedPermanently} · ${place.address}`
+          : place.address,
     url: `${basePath}/places/${place.slug}`,
     // ищется по всем написаниям: метка на трёх языках, бренд и его другие
     // написания («สกิ๊ปปี้แลนด์», «Скиппи Ленд») — независимо от языка страницы

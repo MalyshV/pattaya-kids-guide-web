@@ -7,6 +7,7 @@ import {
   type ScheduleInput,
 } from "@/lib/schedule/open-status";
 import { useMinuteClock } from "@/lib/schedule/use-minute-clock";
+import { isClosureStatus } from "@/lib/places/closure";
 
 type LiveOpenStatusBadgeProps = {
   /** статус, посчитанный сервером, — первый кадр и гидрация */
@@ -28,8 +29,12 @@ export function LiveOpenStatusBadge({
   lang,
 }: LiveOpenStatusBadgeProps): React.ReactElement | null {
   const minute = useMinuteClock();
+  // закрытое на время/насовсем: расписание не пересчитываем — иначе через
+  // минуту ремонтирующееся место «открылось» бы по часам
   const status =
-    minute === null ? initial : computeOpenStatus(schedules, timezone, new Date(minute));
+    minute === null || isClosureStatus(initial)
+      ? initial
+      : computeOpenStatus(schedules, timezone, new Date(minute));
 
   return <OpenStatusBadge status={status} lang={lang} />;
 }

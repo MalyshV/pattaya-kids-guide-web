@@ -143,6 +143,19 @@ function intOrNull(formData: FormData, name: string): number | null {
  * datetime-local из формы → Date. Ввод трактуем как время Паттайи (UTC+7):
  * Вероника вводит местное время события, а не серверное UTC.
  */
+/** <input type="date"> → полночь этого дня по Паттайе; пусто или мусор → null. */
+function pattayaDayOrNull(formData: FormData, name: string): Date | null {
+  const value = text(formData, name);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const date = new Date(`${value}T00:00:00+07:00`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function operatingStatus(formData: FormData): "OPEN" | "TEMPORARILY_CLOSED" | "CLOSED" {
+  const value = text(formData, "operatingStatus");
+  return value === "TEMPORARILY_CLOSED" || value === "CLOSED" ? value : "OPEN";
+}
+
 function pattayaDateOrNull(formData: FormData, name: string): Date | null {
   const value = text(formData, name);
   if (value === "") return null;
@@ -337,6 +350,12 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
     branchNote: textOrNull(formData, "branchNote"),
     branchNoteEn: textOrNull(formData, "branchNoteEn"),
     branchNoteTh: textOrNull(formData, "branchNoteTh"),
+    // состояние работы: временно закрыто / закрылось (src/lib/places/closure.ts)
+    operatingStatus: operatingStatus(formData),
+    closedSince: pattayaDayOrNull(formData, "closedSince"),
+    closedNote: textOrNull(formData, "closedNote"),
+    closedNoteEn: textOrNull(formData, "closedNoteEn"),
+    closedNoteTh: textOrNull(formData, "closedNoteTh"),
     // новая обложка — прежняя пометка о правах (например, «прислано через
     // форму») к ней уже не относится
     ...(cover !== undefined ? { imageUrl: cover, imageRightsNote: null } : {}),
