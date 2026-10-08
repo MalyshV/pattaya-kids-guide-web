@@ -37,7 +37,11 @@ export type OpenStatus =
   | { kind: "closingSoon"; minutesLeft: number }
   | { kind: "opensLater"; opensAt: string; minutesUntilOpen: number }
   | { kind: "closedToday" }
-  | { kind: "unknown" };
+  | { kind: "unknown" }
+  // состояние работы места, а не расписание (src/lib/places/closure.ts):
+  // закрыто на время (ремонт) / закрылось насовсем — расписание не считается
+  | { kind: "closedTemporarily" }
+  | { kind: "closedPermanently" };
 
 /** Один интервал расписания (как в БД). day — enum DayOfWeek. */
 export type ScheduleInput = {
@@ -356,5 +360,10 @@ export function statusSortRank(status: OpenStatus): number {
       return 2;
     case "unknown":
       return 3;
+    // закрытые на время — в самый конец, закрывшиеся (архив) — после них
+    case "closedTemporarily":
+      return 4;
+    case "closedPermanently":
+      return 5;
   }
 }

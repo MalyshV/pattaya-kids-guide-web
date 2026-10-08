@@ -34,6 +34,10 @@ export const ADMIN_FIELDS = {
   branchNote: { label: "Чем точка отличается (рус)", max: 200 },
   branchNoteEn: { label: "Branch note (en)", max: 200 },
   branchNoteTh: { label: "Чем точка отличается (th)", max: 200 },
+  // закрытое место: одна фраза («на ремонте, обещают открыться к сезону»)
+  closedNote: { label: "Почему закрыто (рус)", max: 200 },
+  closedNoteEn: { label: "Closure note (en)", max: 200 },
+  closedNoteTh: { label: "Почему закрыто (th)", max: 200 },
 } as const;
 
 export type AdminField = keyof typeof ADMIN_FIELDS;
@@ -53,6 +57,9 @@ export const PLACE_FIELDS = [
   "branchNote",
   "branchNoteEn",
   "branchNoteTh",
+  "closedNote",
+  "closedNoteEn",
+  "closedNoteTh",
 ] as const satisfies readonly AdminField[];
 
 export const EVENT_FIELDS = [

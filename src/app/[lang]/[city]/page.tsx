@@ -14,12 +14,12 @@ import {
   placeToMapPoint,
 } from "@/mappers/map-point.mapper";
 import { mapPlaceToListItemDto } from "@/mappers/place.mapper";
+import { closureKind, computePlaceStatus } from "@/lib/places/closure";
 import type { MapPointDto, MapPointKind } from "@/dto/map-point.dto";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { isActivityActive } from "@/lib/activities/activity-sort";
 import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
 import {
-  computeOpenStatus,
   isGoNowStatus,
   nowInCity,
   isMorningTomorrow,
@@ -128,15 +128,17 @@ export default async function CityLandingPage({
   // (startDate/endDate — абсолютные, пояс города тут не нужен)
   const nowDate = new Date();
 
+  const workingPlaces = places.filter((place) => closureKind(place) === null);
   const counts: Partial<Record<ScenarioKey, number>> = {
+    // закрытые на время/насовсем в сценарии не считаем (на карте — остаются)
     openNow: places.filter((place) =>
-      isGoNowStatus(computeOpenStatus(place.schedules, city.timezone)),
+      isGoNowStatus(computePlaceStatus(place, place.schedules, city.timezone)),
     ).length,
-    openMorning: places.filter((place) =>
+    openMorning: workingPlaces.filter((place) =>
       opensEarlyNextMorning(place.schedules, city.timezone),
     ).length,
-    workFriendly: places.filter(isWorkFriendlyPlace).length,
-    shelter: places.filter(isShelterPlace).length,
+    workFriendly: workingPlaces.filter(isWorkFriendlyPlace).length,
+    shelter: workingPlaces.filter(isShelterPlace).length,
   };
 
   // разделы: пустая афиша/ДР/занятия не обещаются (порог 1 в ядре)
@@ -173,7 +175,7 @@ export default async function CityLandingPage({
     .filter(
       (place) => Number.isFinite(place.latitude) && Number.isFinite(place.longitude),
     )
-    .map((place) => placeToMapPoint(mapPlaceToListItemDto(place, lang), basePath));
+    .map((place) => placeToMapPoint(mapPlaceToListItemDto(place, lang), basePath, lang));
   // прошедшие события и завершённые лагеря на карту не ставим: пин, в отличие
   // от карточки, не несёт бейджа статуса — живой янтарный/шалфейный пин вёл бы
   // на «прошло». COURSE вечнозелёные, места и ongoing/upcoming — остаются.

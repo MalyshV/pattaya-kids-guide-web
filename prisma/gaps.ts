@@ -216,6 +216,15 @@ async function main(): Promise<void> {
       gaps.push("Возраст, с которого можно оставить ребёнка");
     }
 
+    // Временно закрытое — напоминание сверить, не открылось ли (дата открытия
+    // «уточняется» на сайте — значит, её собирать нам)
+    if (place.operatingStatus === "TEMPORARILY_CLOSED") {
+      const since = place.closedSince
+        ? ` с ${new Date(place.closedSince).toLocaleDateString("ru-RU")}`
+        : "";
+      gaps.push(`Временно закрыто${since}: проверить, не открылось ли`);
+    }
+
     // Точка сети без метки на каком-то языке: на этом языке она покажется
     // голым брендом и сольётся с другими точками (docs/CHAINS_PLAN.md)
     if (place.brandId !== null) {
@@ -373,6 +382,7 @@ async function main(): Promise<void> {
         place.entryPriceNoteTh,
       ],
       ["фраза точки сети", place.branchNote, place.branchNoteEn, place.branchNoteTh],
+      ["почему закрыто", place.closedNote, place.closedNoteEn, place.closedNoteTh],
     ]);
     items.push(...own.missingEn);
     enCount += own.missingEn.length;

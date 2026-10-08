@@ -149,6 +149,9 @@ export const th: Dictionary = {
           : `ปิดในอีก ${minutes} นาที`,
     opensAt: (time: string): string => `จะเปิดเวลา ${time} น.`,
     closedToday: "วันนี้ปิด",
+    // пара к «ปิดชั่วคราว», как в Google Maps (вычитка носителем 08.10)
+    closedTemporarily: "ปิดชั่วคราว",
+    closedPermanently: "ปิดถาวร",
   },
 
   places: {
@@ -400,6 +403,13 @@ export const th: Dictionary = {
     birthdayAllLink: "ดูสถานที่จัดวันเกิดทั้งหมด",
     categoriesTitle: "หมวดหมู่",
     upcomingTitle: "อีเวนต์ที่จะจัดที่นี่เร็ว ๆ นี้",
+    // порядок «статус · с даты · про открытие», без повторов «ปิด» (вычитка 08.10)
+    closure: {
+      since: (date: string): string => `ตั้งแต่ ${date}`,
+      reopenUnknown: "ยังไม่มีกำหนดเปิดอีกครั้ง",
+      nearest: "สาขาอื่นที่ใกล้ที่สุด",
+      other: "อีกสาขา",
+    },
     // «สาขา» — привычное слово для точек сети в разных ТЦ (вычитка носителем 06.10)
     chain: {
       title: (brand: string, cityIn: string): string => `${brand} สาขาอื่น${cityIn}`,

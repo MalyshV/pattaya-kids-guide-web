@@ -528,6 +528,73 @@ export function PlaceForm({
           </div>
         </fieldset>
 
+        {/* состояние работы: закрытое место остаётся на сайте приглушённым, со
+            страницей и плашкой (не «скрыто» — ссылки и ♡/✓ родителей живут) */}
+        <fieldset className="admin-fieldset">
+          <legend>Работает ли место</legend>
+          <div className="admin-row">
+            <label className="admin-field admin-field-inline">
+              <span>Состояние</span>
+              <select
+                name="operatingStatus"
+                defaultValue={place?.operatingStatus ?? "OPEN"}
+              >
+                <option value="OPEN">работает</option>
+                <option value="TEMPORARILY_CLOSED">временно закрыто</option>
+                <option value="CLOSED">закрылось насовсем</option>
+              </select>
+            </label>
+            <label className="admin-field admin-field-inline">
+              <span>Закрыто с</span>
+              <input
+                type="date"
+                name="closedSince"
+                defaultValue={
+                  place?.closedSince
+                    ? new Date(place.closedSince).toISOString().slice(0, 10)
+                    : ""
+                }
+              />
+            </label>
+          </div>
+          <p className="admin-muted">
+            Временно закрытое остаётся в каталоге приглушённым в конце списка и на карте,
+            на странице — плашка «Временно закрыто · с даты · дата открытия уточняется».
+            Закрывшееся — архив: страница живёт с плашкой «Закрылось». Из сценариев и
+            Telegram оба выпадают.
+          </p>
+          <div className="admin-row">
+            <label className="admin-field">
+              <span>Почему закрыто (рус) — одна фраза</span>
+              <input
+                type="text"
+                name="closedNote"
+                maxLength={ADMIN_FIELDS.closedNote.max}
+                placeholder="на ремонте, обещают открыться к сезону"
+                defaultValue={place?.closedNote ?? ""}
+              />
+            </label>
+            <label className="admin-field">
+              <span>Closure note (en)</span>
+              <input
+                type="text"
+                name="closedNoteEn"
+                maxLength={ADMIN_FIELDS.closedNoteEn.max}
+                defaultValue={place?.closedNoteEn ?? ""}
+              />
+            </label>
+            <label className="admin-field">
+              <span>Почему закрыто (th)</span>
+              <input
+                type="text"
+                name="closedNoteTh"
+                maxLength={ADMIN_FIELDS.closedNoteTh.max}
+                defaultValue={place?.closedNoteTh ?? ""}
+              />
+            </label>
+          </div>
+        </fieldset>
+
         <div className="admin-row">
           <label className="admin-field admin-field-inline">
             <span>Видимость</span>

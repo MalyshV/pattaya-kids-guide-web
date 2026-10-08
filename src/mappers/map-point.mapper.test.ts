@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { ActivityWithPlace } from "@/services/activities.service";
 import type { EventWithPlace } from "@/services/events.service";
-import { activityToMapPoint, eventToMapPoint } from "@/mappers/map-point.mapper";
+import {
+  activityToMapPoint,
+  eventToMapPoint,
+  placeToMapPoint,
+} from "@/mappers/map-point.mapper";
+import type { PlaceListItemDto } from "@/dto/place-list-item.dto";
 
 const BASE = "/ru/pattaya";
 
@@ -94,5 +99,41 @@ describe("activityToMapPoint", () => {
   it("абонемент без slug и занятие без координат на карту не попадают", () => {
     expect(activityToMapPoint(activity({ slug: null }), BASE, "ru")).toBeNull();
     expect(activityToMapPoint(activity({}), BASE, "ru")).toBeNull();
+  });
+});
+
+describe("placeToMapPoint — закрытое место", () => {
+  const place = {
+    id: "p1",
+    name: "Harborland",
+    slug: "harborland",
+    latitude: 12.9,
+    longitude: 100.9,
+    imageUrl: null,
+    closure: null,
+  } as unknown as PlaceListItemDto;
+
+  it("работающее — обычный пин без пометки", () => {
+    const point = placeToMapPoint(place, BASE, "ru");
+    expect(point.muted).toBeUndefined();
+    expect(point.note).toBeUndefined();
+    expect(point.href).toBe("/ru/pattaya/places/harborland");
+  });
+
+  it("временно закрытое — тусклый пин с пометкой на языке страницы", () => {
+    const temp = { ...place, closure: "temporarily" } as PlaceListItemDto;
+    expect(placeToMapPoint(temp, BASE, "ru")).toMatchObject({
+      muted: true,
+      note: "Временно закрыто",
+    });
+    expect(placeToMapPoint(temp, BASE, "th").note).toBe("ปิดชั่วคราว");
+  });
+
+  it("закрывшееся — пометка «Закрылось»", () => {
+    const gone = { ...place, closure: "permanently" } as PlaceListItemDto;
+    expect(placeToMapPoint(gone, BASE, "en")).toMatchObject({
+      muted: true,
+      note: "Closed for good",
+    });
   });
 });

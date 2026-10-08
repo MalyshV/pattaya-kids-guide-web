@@ -7,6 +7,7 @@ import { MemoryButtons } from "@/components/memory/memory-buttons";
 import type { OpenStatus, ScheduleInput } from "@/lib/schedule/open-status";
 import { getDictionary, langFromPath } from "@/content/dictionary";
 import { pickLocalized } from "@/lib/i18n/localize";
+import { isClosureStatus } from "@/lib/places/closure";
 
 type PlaceCardProps = {
   place: PlaceListItemDto;
@@ -29,7 +30,9 @@ export function PlaceCard({
 }: PlaceCardProps): React.ReactElement {
   const lang = langFromPath(basePath);
   const dict = getDictionary(lang);
-  const isClosedToday = status?.kind === "closedToday";
+  // приглушаем «сегодня закрыто» и закрытые на время/насовсем — не прячем
+  const isClosedToday =
+    status !== undefined && (status.kind === "closedToday" || isClosureStatus(status));
 
   return (
     <article

@@ -3,6 +3,7 @@ import type { EventWithPlace } from "@/services/events.service";
 import type { ActivityWithPlace } from "@/services/activities.service";
 import type { PlaceListItemDto } from "@/dto/place-list-item.dto";
 import { pickLocalized } from "@/lib/i18n/localize";
+import { getDictionary } from "@/content/dictionary";
 
 /**
  * Сборка единых точек карты из трёх сущностей. Координаты берутся честно:
@@ -12,7 +13,19 @@ import { pickLocalized } from "@/lib/i18n/localize";
  * Точка без координат и без slug (нет страницы) отбрасывается — null.
  */
 
-export function placeToMapPoint(place: PlaceListItemDto, basePath: string): MapPointDto {
+export function placeToMapPoint(
+  place: PlaceListItemDto,
+  basePath: string,
+  lang: string = "ru",
+): MapPointDto {
+  const dict = getDictionary(lang).openStatus;
+  // закрытое место остаётся на карте тусклым пином с пометкой — не прячем
+  const note =
+    place.closure === "temporarily"
+      ? dict.closedTemporarily
+      : place.closure === "permanently"
+        ? dict.closedPermanently
+        : undefined;
   return {
     id: place.id,
     kind: "place",
@@ -21,6 +34,7 @@ export function placeToMapPoint(place: PlaceListItemDto, basePath: string): MapP
     latitude: place.latitude,
     longitude: place.longitude,
     imageUrl: place.imageUrl,
+    ...(note ? { muted: true, note } : {}),
   };
 }
 

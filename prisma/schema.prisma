@@ -513,6 +513,17 @@ model Place {
   branchNote           String?
   branchNoteEn         String?
   branchNoteTh         String?
+  /// СОСТОЯНИЕ РАБОТЫ (docs/CHAINS_PLAN.md, «плашка закрылось»): временно
+  /// закрытое место остаётся в каталоге приглушённым в конце списка (зимовщики
+  /// ищут знакомые места), закрывшееся — в архиве: страница живёт с плашкой,
+  /// ссылки и ♡/✓ родителей не ломаются. Оба — вне сценариев и Telegram
+  operatingStatus      PlaceOperatingStatus @default(OPEN)
+  /// с какого дня закрыто (показываем «закрыто с 1 июля 2026»); null = не знаем
+  closedSince          DateTime?
+  /// одна фраза от руки: «на ремонте, персонал обещает открыться к сезону»
+  closedNote           String?
+  closedNoteEn         String?
+  closedNoteTh         String?
 
   @@unique([cityId, slug])
   @@index([cityId, status])
@@ -690,6 +701,14 @@ enum PlaceStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+/// Работает ли место: OPEN — да; TEMPORARILY_CLOSED — закрыто на время
+/// (ремонт), дата открытия уточняется; CLOSED — закрылось насовсем (архив)
+enum PlaceOperatingStatus {
+  OPEN
+  TEMPORARILY_CLOSED
+  CLOSED
 }
 
 enum ProgramType {

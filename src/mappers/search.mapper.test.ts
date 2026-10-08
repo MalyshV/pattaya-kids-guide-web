@@ -16,6 +16,7 @@ function placeRow(overrides: Partial<SearchPlaceRow> = {}): SearchPlaceRow {
     name: "Skippy Land",
     slug: "skippy-land",
     address: "Lotus's North Pattaya",
+    operatingStatus: "OPEN",
     ...NO_BRANCH,
     brand: null,
     categories: [
@@ -79,6 +80,25 @@ describe("mapSearchIndex", () => {
   it("название места не локализуется (имя собственное), даже на EN-странице", () => {
     const [item] = mapSearchIndex([placeRow()], [], [], BASE, "en");
     expect(item.name).toBe("Skippy Land");
+  });
+
+  it("закрытое место: подсказка начинается со статуса, адрес остаётся", () => {
+    const [temp] = mapSearchIndex(
+      [placeRow({ operatingStatus: "TEMPORARILY_CLOSED" })],
+      [],
+      [],
+      BASE,
+      "ru",
+    );
+    expect(temp.hint).toBe("Временно закрыто · Lotus's North Pattaya");
+    const [gone] = mapSearchIndex(
+      [placeRow({ operatingStatus: "CLOSED" })],
+      [],
+      [],
+      BASE,
+      "en",
+    );
+    expect(gone.hint).toBe("Closed for good · Lotus's North Pattaya");
   });
 
   it("точка сети: имя с меткой на языке страницы; ищется по всем меткам, бренду и его написаниям", () => {

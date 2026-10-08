@@ -13,12 +13,12 @@ import { mapPlaceToListItemDto } from "@/mappers/place.mapper";
 import { parseAgeBuckets, placeAgeGroupsMatch } from "@/lib/age/age-buckets";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import {
-  computeOpenStatus,
   isGoNowStatus,
   isMorningTomorrow,
   opensEarlyNextMorning,
 } from "@/lib/schedule/open-status";
 import { compareCatalogOrder } from "@/lib/places/catalog-order";
+import { computePlaceStatus, isClosureStatus } from "@/lib/places/closure";
 import { getDictionary } from "@/content/dictionary";
 import { localizedCityName } from "@/lib/i18n/localize";
 import { LIST_PAGE_SIZE } from "@/lib/constants/pagination";
@@ -156,7 +156,8 @@ export default async function CityPlacesPage({
   const placesWithStatus = allPlaces
     .map((place) => ({
       place,
-      status: computeOpenStatus(place.schedules, city.timezone),
+      // с учётом состояния работы: закрытое на время/насовсем — в конец списка
+      status: computePlaceStatus(place, place.schedules, city.timezone),
     }))
     .sort((a, b) =>
       compareCatalogOrder(
@@ -173,9 +174,15 @@ export default async function CityPlacesPage({
   }
   if (isOpenMorning) {
     // «Открыто с утра»: открывается рано (к 9:00) — сегодня, а вечером завтра.
-    visiblePlaces = visiblePlaces.filter(({ place }) =>
-      opensEarlyNextMorning(place.schedules, city.timezone),
+    visiblePlaces = visiblePlaces.filter(
+      ({ place, status }) =>
+        !isClosureStatus(status) && opensEarlyNextMorning(place.schedules, city.timezone),
     );
+  }
+  if (isWorkFriendly || isShelter) {
+    // сценарии по фактам места: закрытое на время/насовсем не предлагаем —
+    // в каталоге оно остаётся, но «спрятаться от жары» туда не поедешь
+    visiblePlaces = visiblePlaces.filter(({ status }) => !isClosureStatus(status));
   }
   if (ageBuckets.length > 0) {
     // «Сколько лет ребёнку?»: место подходит хотя бы одному из выбранных

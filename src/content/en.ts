@@ -142,6 +142,8 @@ export const en: Dictionary = {
           : `Closes in ${minutes} min`,
     opensAt: (time: string): string => `Opens at ${time}`,
     closedToday: "Closed today",
+    closedTemporarily: "Temporarily closed",
+    closedPermanently: "Closed for good",
   },
 
   places: {
@@ -397,6 +399,12 @@ export const en: Dictionary = {
     birthdayAllLink: "All birthday venues",
     categoriesTitle: "Categories",
     upcomingTitle: "Upcoming events here",
+    closure: {
+      since: (date: string): string => `since ${date}`,
+      reopenUnknown: "reopening date to be confirmed",
+      nearest: "Nearest other location",
+      other: "Other location",
+    },
     chain: {
       title: (brand: string, cityIn: string): string => `More ${brand} ${cityIn}`,
       sameMall: "same building",

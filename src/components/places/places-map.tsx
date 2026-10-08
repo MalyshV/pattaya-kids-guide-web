@@ -44,6 +44,8 @@ export type PlaceMapMarker = {
   note?: string;
   /** обложка — фото в попапе (null = только название) */
   imageUrl?: string | null;
+  /** закрытое место — тусклый пин */
+  muted?: boolean;
 };
 
 /// Цвет пина по типу точки. Насыщенные тона палитры — читаются и на светлых,
@@ -206,21 +208,25 @@ export function PlacesMap({
 
       // иконка на каждый тип — своя форма (мишка/лампочка/шарик), создаём
       // один раз, переиспользуем
-      const iconByKind = new Map<MapPointKind, ReturnType<typeof L.divIcon>>();
-      const iconFor = (kind: MapPointKind): ReturnType<typeof L.divIcon> => {
-        const cached = iconByKind.get(kind);
+      const iconByKind = new Map<string, ReturnType<typeof L.divIcon>>();
+      const iconFor = (
+        kind: MapPointKind,
+        muted: boolean,
+      ): ReturnType<typeof L.divIcon> => {
+        const cacheKey = `${kind}:${muted ? "muted" : "live"}`;
+        const cached = iconByKind.get(cacheKey);
         if (cached) {
           return cached;
         }
         const shape = PIN_SHAPE[kind];
         const icon = L.divIcon({
-          className: "map-pin",
+          className: muted ? "map-pin map-pin-muted" : "map-pin",
           html: shape.html(PIN_COLOR[kind]),
           iconSize: shape.size,
           iconAnchor: shape.anchor,
           popupAnchor: shape.popup,
         });
-        iconByKind.set(kind, icon);
+        iconByKind.set(cacheKey, icon);
         return icon;
       };
 
@@ -259,7 +265,10 @@ export function PlacesMap({
           popup.appendChild(distance);
         }
 
-        L.marker(position, { icon: iconFor(kind), title: marker.name })
+        L.marker(position, {
+          icon: iconFor(kind, marker.muted === true),
+          title: marker.name,
+        })
           .addTo(map)
           .bindPopup(popup);
       }

@@ -175,6 +175,9 @@ export const ru = {
           : `Закроется через ${minutes} мин`,
     opensAt: (time: string): string => `Откроется в ${time}`,
     closedToday: "Сегодня закрыто",
+    // состояние работы (не расписание): ремонт без даты / архив
+    closedTemporarily: "Временно закрыто",
+    closedPermanently: "Закрылось",
   },
 
   places: {
@@ -453,6 +456,14 @@ export const ru = {
     birthdayAllLink: "Все площадки для дня рождения",
     categoriesTitle: "Категории",
     upcomingTitle: "Ближайшие события здесь",
+    // плашка закрытого места: «Временно закрыто · с 1 июля 2026 · дата открытия уточняется»
+    closure: {
+      since: (date: string): string => `с ${date}`,
+      reopenUnknown: "дата открытия уточняется",
+      // ближайшая точка сети; когда других точек всего одна — «Другая точка»
+      nearest: "Ближайшая другая точка",
+      other: "Другая точка",
+    },
     // блок «Другие {сеть} в {городе}» на странице точки сети (docs/CHAINS_PLAN.md)
     chain: {
       title: (brand: string, cityIn: string): string => `Другие ${brand} ${cityIn}`,

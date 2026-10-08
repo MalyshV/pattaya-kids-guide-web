@@ -15,12 +15,10 @@ import { getApprovedPlaceBySlug, getBrandSiblings } from "@/services/places.serv
 import { BrandSiblingsSection } from "@/components/places/brand-siblings-section";
 import { buildBrandSiblingRows } from "@/lib/places/brand-siblings";
 import { placeDisplayName } from "@/lib/places/display-name";
+import { computePlaceStatus, isClosureStatus } from "@/lib/places/closure";
+import { ClosureNotice } from "@/components/places/closure-notice";
 import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
-import {
-  computeOpenStatus,
-  nowInCity,
-  todayClosingTime,
-} from "@/lib/schedule/open-status";
+import { nowInCity, todayClosingTime } from "@/lib/schedule/open-status";
 import { JsonLd } from "@/components/seo/json-ld";
 import { absoluteUrl, breadcrumbJsonLd, placeJsonLd } from "@/lib/seo/json-ld";
 import { ShareButton } from "@/components/common/share-button";
@@ -234,12 +232,13 @@ export default async function PlaceDetailsPage({
       })),
     ),
   ];
-  const openStatus = computeOpenStatus(dto.schedules, city.timezone);
+  const openStatus = computePlaceStatus(place, dto.schedules, city.timezone);
+  const closed = isClosureStatus(openStatus);
   const todayEnum = nowInCity(city.timezone).day;
   // вечером после закрытия чип «сегодня до 19:00» противоречил бы бейджу
   // «Сегодня закрыто» рядом — в этом случае чип не показываем
   const todayClose =
-    openStatus.kind === "closedToday"
+    openStatus.kind === "closedToday" || closed
       ? null
       : todayClosingTime(dto.schedules, city.timezone);
   const summaryChips = buildSummaryChips(dto, todayClose, lang, dict);
@@ -271,7 +270,8 @@ export default async function PlaceDetailsPage({
     latitude: dto.latitude,
     longitude: dto.longitude,
     telephone: dto.contacts.find((contact) => contact.type === "phone")?.value ?? null,
-    schedules: dto.schedules,
+    // закрытому месту часы в разметку не обещаем
+    schedules: closed ? [] : dto.schedules,
     prices: knownPrices,
     currency: dto.entryPrices[0]?.currency ?? dto.pricing[0]?.currency ?? "THB",
     inLanguage: lang,
@@ -318,7 +318,17 @@ export default async function PlaceDetailsPage({
       <section className="hero">
         <p className="eyebrow">{dict.placeDetails.eyebrow}</p>
         <h1 className="hero-title">{dto.name}</h1>
-        {openStatus.kind !== "unknown" ? (
+        {dto.closureDetails ? (
+          <ClosureNotice
+            closure={dto.closureDetails}
+            nearest={siblingRows[0] ?? null}
+            onlyOne={siblingRows.length === 1}
+            basePath={basePath}
+            lang={lang}
+            dict={dict}
+          />
+        ) : null}
+        {openStatus.kind !== "unknown" && !closed ? (
           <div className="hero-status">
             <LiveOpenStatusBadge
               initial={openStatus}

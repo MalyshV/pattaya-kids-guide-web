@@ -1,5 +1,6 @@
 import type { TipDto } from "@/dto/tip.dto";
 import type { PlaceDto } from "@/dto/place.dto";
+import type { Closure } from "@/lib/places/closure";
 
 export type PlaceCategoryDto = {
   id: string;
@@ -101,6 +102,8 @@ export type PlaceBrandDto = {
 };
 
 export type PlaceDetailsDto = PlaceDto & {
+  /** плашка «временно закрыто / закрылось»: дата и фраза на языке страницы */
+  closureDetails: Closure | null;
   brand: PlaceBrandDto | null;
   /** фраза от руки, чем точка отличается от других в сети; null = не написана */
   branchNote: string | null;

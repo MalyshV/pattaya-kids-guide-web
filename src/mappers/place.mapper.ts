@@ -2,6 +2,7 @@ import type { PlaceDto } from "@/dto/place.dto";
 import type { PlaceListItemDto } from "@/dto/place-list-item.dto";
 import { pickLocalized } from "@/lib/i18n/localize";
 import { placeDisplayName } from "@/lib/places/display-name";
+import { closureKind } from "@/lib/places/closure";
 import type { Place } from "@prisma/client";
 
 export function mapPlaceToDto(place: Place, lang: string = "ru"): PlaceDto {
@@ -9,6 +10,7 @@ export function mapPlaceToDto(place: Place, lang: string = "ru"): PlaceDto {
     id: place.id,
     // точка сети: «Skippy Land · Lotus's North, у фудкорта» — метка на языке страницы
     name: placeDisplayName(place, lang),
+    closure: closureKind(place),
     slug: place.slug,
     description: pickLocalized(
       place.description,

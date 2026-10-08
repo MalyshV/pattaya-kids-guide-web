@@ -2,6 +2,7 @@ import { mapTipsToDto } from "@/mappers/tip.mapper";
 import type { PlaceDetailsDto } from "@/dto/place-details.dto";
 import { mapPlaceToDto } from "@/mappers/place.mapper";
 import { pickLocalized } from "@/lib/i18n/localize";
+import { placeClosure } from "@/lib/places/closure";
 import type { Prisma } from "@prisma/client";
 
 type PlaceWithDetails = Prisma.PlaceGetPayload<{
@@ -48,6 +49,7 @@ export function mapPlaceDetailsToDto(
 ): PlaceDetailsDto {
   return {
     ...mapPlaceToDto(place, lang),
+    closureDetails: placeClosure(place, lang),
     brand: place.brand ? { slug: place.brand.slug, name: place.brand.name } : null,
     branchNote: pickLocalized(
       place.branchNote,

@@ -203,7 +203,12 @@ async function soonReply(): Promise<BotReply> {
 
 async function placesReply(): Promise<BotReply> {
   const places = await prisma.place.findMany({
-    where: { status: "APPROVED", isDemo: false, city: { slug: POST_CITY_SLUG } },
+    where: {
+      status: "APPROVED",
+      isDemo: false,
+      operatingStatus: "OPEN",
+      city: { slug: POST_CITY_SLUG },
+    },
     orderBy: { createdAt: "desc" },
     take: REPLY_LIMIT,
   });

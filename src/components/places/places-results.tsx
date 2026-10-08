@@ -18,6 +18,7 @@ import {
 } from "@/lib/memory/visited-filter";
 import type { PlaceListItemDto } from "@/dto/place-list-item.dto";
 import { viewHref, type ListView } from "@/lib/params/view-href";
+import { isClosureStatus } from "@/lib/places/closure";
 import type { OpenStatus, ScheduleInput } from "@/lib/schedule/open-status";
 
 /**
@@ -413,6 +414,16 @@ export function PlacesResults({
         longitude: item.place.longitude,
         distanceLabel: distanceM !== null ? formatDistance(distanceM, lang) : undefined,
         imageUrl: item.place.imageUrl,
+        // закрытое место — тусклый пин с пометкой
+        ...(isClosureStatus(item.status)
+          ? {
+              muted: true,
+              note:
+                item.status.kind === "closedPermanently"
+                  ? dict.openStatus.closedPermanently
+                  : dict.openStatus.closedTemporarily,
+            }
+          : {}),
       }));
 
     // честность: место без координат на карте не покажешь — говорим об этом
