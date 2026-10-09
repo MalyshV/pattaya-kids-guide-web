@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 /** libvips для sharp: на сервере — linux-x64, локально — своя платформа. */
 const SHARP_LIBVIPS = "./node_modules/@img/sharp-libvips-*/lib/libvips-cpp.*";
+/** Запасной wasm-вариант sharp (9 МБ): при нативном libvips он не нужен. */
+const SHARP_WASM = "./node_modules/@img/sharp-wasm32/**";
 
 const nextConfig: NextConfig = {
   // Формы админки шлют фото файлом внутри server action: дефолтный лимит
@@ -51,6 +53,19 @@ const nextConfig: NextConfig = {
     "/admin/**": [SHARP_LIBVIPS],
     "/og/image": [SHARP_LIBVIPS],
     "/*/*/suggest": [SHARP_LIBVIPS],
+  },
+
+  // Vercel хранит каждую сборку (на Hobby — 10 ГБ на все вместе), поэтому
+  // лишнее из этих же функций убираем: ~22 МБ из ~72 МБ на сборку.
+  // Админка ещё и забирала всю public/images (13 МБ): поворот фото читает
+  // картинку с диска, но если файла нет — берёт её по адресу сайта.
+  // ⚠️ Включение выше (Turbopack ищет шаблон в любом месте дерева) цепляет и
+  // libvips из своей копии sharp у Next (next/node_modules) — исключения
+  // включённое не снимают, поэтому эта копия пока остаётся.
+  outputFileTracingExcludes: {
+    "/admin/**": [SHARP_WASM, "./public/images/**"],
+    "/og/image": [SHARP_WASM],
+    "/*/*/suggest": [SHARP_WASM],
   },
 
   images: {
