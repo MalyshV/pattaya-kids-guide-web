@@ -4,6 +4,11 @@ import { demoFilter } from "@/lib/demo/show-demo";
 import { getSiteUrl } from "@/lib/geo/city";
 import { localizedSitemapEntry } from "@/lib/seo/sitemap-entry";
 
+// Карта строится при запросе, а не при сборке. Иначе сборка зависит от базы
+// (заминка связи с ней роняла деплой), а сама карта замирает до следующего
+// деплоя: новое место или включённый isPublished в неё не попадали.
+export const dynamic = "force-dynamic";
+
 /**
  * Sitemap только по ОПУБЛИКОВАННЫМ городам (SEO-гейт): пустой/ненаполненный
  * город в карту не попадает и не индексируется.
