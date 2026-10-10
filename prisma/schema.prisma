@@ -524,10 +524,16 @@ model Place {
   closedNote           String?
   closedNoteEn         String?
   closedNoteTh         String?
+  /// РАЙОН (docs/BACKLOG.md, «Районы города»): определяется по координатам
+  /// (src/lib/districts) — руками не проставляется. null = вне всех районов
+  /// («без района») или ещё не посчитан; nullable — чтобы db push был безопасен
+  districtId           String?
+  district             District?            @relation(fields: [districtId], references: [id], onDelete: SetNull)
 
   @@unique([cityId, slug])
   @@index([cityId, status])
   @@index([brandId])
+  @@index([districtId])
 }
 
 /// Сеть мест (Skippy Land, The Little Gym). Только связь и поиск: фактов у
@@ -661,9 +667,29 @@ model City {
   events           Event[]
   programs         PlaceProgram[]
   submissions      Submission[]
+  districts        District[]
   createdAt        DateTime       @default(now())
 
   @@unique([countryId, slug])
+}
+
+/// Район города — как его называют родители, а не административное деление.
+/// Границы живут в коде (src/lib/districts/), здесь — справочник для связи
+/// места с районом и показа; slug совпадает со slug границ в коде.
+model District {
+  id        String   @id @default(cuid())
+  slug      String
+  name      String
+  nameEn    String?
+  nameTh    String?
+  /// порядок показа в фильтре и списках (меньше — раньше)
+  order     Int      @default(0)
+  cityId    String
+  city      City     @relation(fields: [cityId], references: [id])
+  places    Place[]
+  createdAt DateTime @default(now())
+
+  @@unique([cityId, slug])
 }
 
 enum PriceType {
