@@ -3,6 +3,9 @@ import { prisma } from "@/db/prisma";
 import { requireAdmin } from "@/lib/admin/auth";
 import { PlaceForm, type PlaceFormSubmission } from "@/app/admin/places/place-form";
 import { placePrefill } from "@/lib/admin/submission-card";
+import { buildDistrictField } from "@/lib/districts/choose-district";
+import { getCityDistrictDefinitions } from "@/lib/districts/city-districts";
+import { DEFAULT_CITY_SLUG } from "@/lib/geo/base-path";
 
 export const dynamic = "force-dynamic";
 
@@ -70,6 +73,11 @@ export default async function AdminPlaceNewPage({
       place={null}
       allCategories={allCategories}
       allBrands={allBrands}
+      districtField={buildDistrictField({
+        // новые места админка заводит в город по умолчанию (savePlaceAction)
+        districts: getCityDistrictDefinitions(DEFAULT_CITY_SLUG),
+        place: null,
+      })}
       error={error}
       fromSubmission={fromSubmission}
     />

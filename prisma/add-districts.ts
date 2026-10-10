@@ -6,7 +6,9 @@
  *  1) районы — upsert по slug (названия, порядок); район, которого больше нет
  *     в коде, удаляется — у его мест район обнуляется (onDelete: SetNull);
  *  2) места города — район пересчитывается по координатам; место вне всех
- *     районов получает null («без района»), это не ошибка.
+ *     районов получает null («без района»), это не ошибка. Район, выбранный
+ *     в админке вручную (место на границе), не трогается — та же логика, что
+ *     при сохранении формы (src/lib/districts/choose-district.ts).
  * Идемпотентен: повторный запуск после правки границ просто пересчитает районы.
  *
  * Порядок: 1) npx prisma db push (новая таблица District и Place.districtId)
@@ -17,7 +19,7 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 import { getCityDistrictDefinitions } from "@/lib/districts/city-districts";
-import { resolveDistrictSlug } from "@/lib/districts/resolve-district";
+import { chooseDistrict } from "@/lib/districts/choose-district";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is not defined");
@@ -62,24 +64,45 @@ async function main() {
 
   const places = await prisma.place.findMany({
     where: { cityId: city.id },
-    select: { id: true, name: true, latitude: true, longitude: true, districtId: true },
+    select: {
+      id: true,
+      name: true,
+      latitude: true,
+      longitude: true,
+      districtId: true,
+      districtManual: true,
+      district: { select: { slug: true } },
+    },
     orderBy: { name: "asc" },
   });
 
   const countBySlug = new Map<string, number>();
   const withoutDistrict: string[] = [];
+  const manualPlaces: string[] = [];
   let changed = 0;
 
   for (const place of places) {
-    const slug = resolveDistrictSlug(place.latitude, place.longitude, definitions);
+    const { slug, manual } = chooseDistrict({
+      manualSlug: place.districtManual ? (place.district?.slug ?? null) : null,
+      latitude: place.latitude,
+      longitude: place.longitude,
+      districts: definitions,
+    });
     const districtId = slug ? (districtIdBySlug.get(slug) ?? null) : null;
+    if (manual) {
+      manualPlaces.push(`${place.name} → ${place.district?.slug}`);
+    }
     if (slug) {
       countBySlug.set(slug, (countBySlug.get(slug) ?? 0) + 1);
     } else {
       withoutDistrict.push(`${place.name} (${place.latitude}, ${place.longitude})`);
     }
-    if (place.districtId !== districtId) {
-      await prisma.place.update({ where: { id: place.id }, data: { districtId } });
+    const districtManual = manual && districtId !== null;
+    if (place.districtId !== districtId || place.districtManual !== districtManual) {
+      await prisma.place.update({
+        where: { id: place.id },
+        data: { districtId, districtManual },
+      });
       changed += 1;
     }
   }
@@ -91,6 +114,12 @@ async function main() {
   console.log(`  Без района: ${withoutDistrict.length}`);
   for (const line of withoutDistrict) {
     console.log(`    · ${line}`);
+  }
+  if (manualPlaces.length > 0) {
+    console.log(`\nРайон выбран вручную (не пересчитывался): ${manualPlaces.length}`);
+    for (const line of manualPlaces) {
+      console.log(`    · ${line}`);
+    }
   }
 
   await prisma.$disconnect();
