@@ -529,6 +529,9 @@ model Place {
   /// («без района») или ещё не посчитан; nullable — чтобы db push был безопасен
   districtId           String?
   district             District?            @relation(fields: [districtId], references: [id], onDelete: SetNull)
+  /// район выбран в админке вручную (место на границе): при сохранении и в
+  /// prisma/add-districts.ts по координатам не пересчитывается. false = по координатам
+  districtManual       Boolean              @default(false)
 
   @@unique([cityId, slug])
   @@index([cityId, status])

@@ -51,6 +51,7 @@ import { parsePattayaDay } from "@/lib/admin/pattaya-day";
 import { DEFAULT_CITY_SLUG } from "@/lib/geo/base-path";
 import { dropOldImage, rotateStoredImage } from "@/lib/admin/rotate-photo";
 import { saveTipsFromForm } from "@/lib/admin/tips-store";
+import { assignPlaceDistrict } from "@/services/districts.service";
 import { parseSubmissionStatus } from "@/lib/admin/submission-labels";
 
 /**
@@ -382,6 +383,13 @@ export async function savePlaceAction(formData: FormData): Promise<void> {
         const created = await tx.place.create({ data: { ...data, slug, cityId } });
         pid = created.id;
       }
+
+      // район: по координатам или ручной выбор (место на границе)
+      await assignPlaceDistrict(
+        tx,
+        pid,
+        formData.has("districtSlug") ? textOrNull(formData, "districtSlug") : undefined,
+      );
 
       // часы работы: 7 строк формы, полная замена (идемпотентно и просто)
       const schedules = scheduleRows

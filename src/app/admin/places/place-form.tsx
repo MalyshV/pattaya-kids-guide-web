@@ -21,6 +21,7 @@ import { PhotoField } from "@/app/admin/photo-field";
 import { SubmitButton } from "@/app/admin/submit-button";
 import type { PlacePrefill } from "@/lib/admin/submission-card";
 import { pattayaDayInputValue } from "@/lib/admin/pattaya-day";
+import type { DistrictFieldDto } from "@/lib/districts/choose-district";
 
 /**
  * Форма места: создание и редактирование (place=null → создание).
@@ -51,6 +52,8 @@ type PlaceFormProps = {
   allCategories: Category[];
   /** сети (бренды заводит скрипт, отдельного CRUD нет) */
   allBrands: Brand[];
+  /** поле «Район»: районы города и что определилось по координатам */
+  districtField: DistrictFieldDto;
   error?: string;
   fromSubmission?: PlaceFormSubmission;
 };
@@ -105,10 +108,49 @@ function TriStateSelect({
   );
 }
 
+/**
+ * Район (docs/BACKLOG.md, «Районы города»): по умолчанию — по координатам,
+ * пересчитывается при каждом сохранении. Ручной выбор — для места на границе;
+ * он держится, пока его не вернут к «по координатам».
+ */
+function DistrictSelect({
+  field,
+  isNew,
+}: {
+  field: DistrictFieldDto;
+  isNew: boolean;
+}): React.ReactElement {
+  const auto = isNew
+    ? "по координатам (определится при сохранении)"
+    : `по координатам — ${field.byCoordinates?.name ?? "без района"}`;
+  return (
+    <fieldset className="admin-fieldset">
+      <legend>Район</legend>
+      <label className="admin-field admin-field-inline">
+        <span>Район</span>
+        <select name="districtSlug" defaultValue={field.manualSlug ?? ""}>
+          <option value="">{auto}</option>
+          {field.options.map((option) => (
+            <option key={option.slug} value={option.slug}>
+              {option.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      <p className="admin-muted">
+        {field.manualSlug
+          ? "Район выбран вручную — по координатам не пересчитывается. Чтобы снова считать по координатам, выберите первый пункт."
+          : "Обычно трогать не нужно: район считается по координатам при каждом сохранении (после правки координат — по новым). Выбирайте вручную, только если место на границе и родители называют его другим районом."}
+      </p>
+    </fieldset>
+  );
+}
+
 export function PlaceForm({
   place,
   allCategories,
   allBrands,
+  districtField,
   error,
   fromSubmission,
 }: PlaceFormProps): React.ReactElement {
@@ -329,6 +371,8 @@ export function PlaceForm({
             />
           </label>
         </div>
+
+        <DistrictSelect field={districtField} isNew={!place} />
 
         <label className="admin-field">
           <span>Ссылка на карточку Google Maps</span>
