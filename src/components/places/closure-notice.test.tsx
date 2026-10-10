@@ -4,6 +4,8 @@ import { ClosureNotice } from "@/components/places/closure-notice";
 import type { BrandSiblingDto } from "@/dto/brand-sibling.dto";
 import { getDictionary } from "@/content/dictionary";
 
+// полночь 1 июля по Паттайе — так день закрытия хранится в базе; по UTC это
+// ещё 30 июня, поэтому плашка обязана считать день по поясу города
 const SINCE = new Date("2026-07-01T00:00:00+07:00");
 
 const NEAREST: BrandSiblingDto = {
@@ -28,6 +30,7 @@ function render(
       onlyOne={false}
       basePath={`/${lang}/pattaya`}
       lang={lang}
+      timezone="Asia/Bangkok"
       dict={getDictionary(lang)}
       {...props}
     />,

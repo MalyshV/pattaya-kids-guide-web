@@ -47,6 +47,7 @@ import {
 } from "@/lib/admin/field-limits";
 import { removeImageIfUnused } from "@/lib/admin/image-usage";
 import { slugify } from "@/lib/admin/slug";
+import { parsePattayaDay } from "@/lib/admin/pattaya-day";
 import { DEFAULT_CITY_SLUG } from "@/lib/geo/base-path";
 import { dropOldImage, rotateStoredImage } from "@/lib/admin/rotate-photo";
 import { saveTipsFromForm } from "@/lib/admin/tips-store";
@@ -145,10 +146,7 @@ function intOrNull(formData: FormData, name: string): number | null {
  */
 /** <input type="date"> → полночь этого дня по Паттайе; пусто или мусор → null. */
 function pattayaDayOrNull(formData: FormData, name: string): Date | null {
-  const value = text(formData, name);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
-  const date = new Date(`${value}T00:00:00+07:00`);
-  return Number.isNaN(date.getTime()) ? null : date;
+  return parsePattayaDay(text(formData, name));
 }
 
 function operatingStatus(formData: FormData): "OPEN" | "TEMPORARILY_CLOSED" | "CLOSED" {

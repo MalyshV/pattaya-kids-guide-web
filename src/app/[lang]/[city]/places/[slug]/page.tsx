@@ -84,7 +84,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-function formatShortDate(value: string | Date | null, lang: string): string {
+function formatShortDate(
+  value: string | Date | null,
+  lang: string,
+  timezone: string,
+): string {
   if (!value) {
     return "";
   }
@@ -92,6 +96,7 @@ function formatShortDate(value: string | Date | null, lang: string): string {
   const date = value instanceof Date ? value : new Date(value);
 
   return date.toLocaleDateString(dateLocale(lang), {
+    timeZone: timezone,
     day: "numeric",
     month: "short",
   });
@@ -325,6 +330,7 @@ export default async function PlaceDetailsPage({
             onlyOne={siblingRows.length === 1}
             basePath={basePath}
             lang={lang}
+            timezone={city.timezone}
             dict={dict}
           />
         ) : null}
@@ -722,7 +728,7 @@ export default async function PlaceDetailsPage({
               >
                 <div className="event-inline-title">{event.title}</div>
                 <div className="event-inline-date">
-                  {formatShortDate(event.startDate, lang)}
+                  {formatShortDate(event.startDate, lang, city.timezone)}
                 </div>
               </Link>
             ))}

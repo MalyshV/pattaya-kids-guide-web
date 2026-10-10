@@ -13,11 +13,14 @@ type ClosureNoticeProps = {
   onlyOne: boolean;
   basePath: string;
   lang: string;
+  /** часовой пояс города: день закрытия считаем по нему, а не по серверу */
+  timezone: string;
   dict: Dictionary;
 };
 
-function formatSince(date: Date, lang: string): string {
+function formatSince(date: Date, lang: string, timezone: string): string {
   return date.toLocaleDateString(dateLocale(lang), {
+    timeZone: timezone,
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -37,13 +40,14 @@ export function ClosureNotice({
   onlyOne,
   basePath,
   lang,
+  timezone,
   dict,
 }: ClosureNoticeProps): React.ReactElement {
   const status = dict.openStatus;
   const texts = dict.placeDetails.closure;
   const parts: string[] = [];
   if (closure.since) {
-    parts.push(texts.since(formatSince(closure.since, lang)));
+    parts.push(texts.since(formatSince(closure.since, lang, timezone)));
   }
   if (closure.kind === "temporarily") {
     parts.push(texts.reopenUnknown);

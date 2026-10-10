@@ -134,7 +134,12 @@ export default async function CityEventsPage({
   const mapMarkers: PlaceMapMarker[] = mapCandidates.flatMap(({ raw, event, status }) => {
     const point = eventToMapPoint(raw, basePath, lang);
     return point
-      ? [{ ...point, note: eventTimingNote(status, event.startDate, dict, lang) }]
+      ? [
+          {
+            ...point,
+            note: eventTimingNote(status, event.startDate, dict, lang, city.timezone),
+          },
+        ]
       : [];
   });
   const mapMissingCount = mapCandidates.length - mapMarkers.length;
@@ -230,6 +235,7 @@ export default async function CityEventsPage({
                 key={event.id}
                 event={event}
                 basePath={basePath}
+                timezone={city.timezone}
                 status={status}
               />
             ))}
