@@ -2,39 +2,74 @@ import type { DistrictDefinition, LatLng } from "@/lib/districts/resolve-distric
 
 /**
  * Районы Паттайи — как их называют родители, а не административное деление
- * (рабочий список — решение 10.10, docs/BACKLOG.md).
+ * (список и названия — решения 10.10, docs/BACKLOG.md).
  *
- * ЧЕРНОВИК ГРАНИЦ: проведены грубо, по главным улицам, и ждут утверждения
- * на карте. Соседние районы делят общие вершины (константы ниже), поэтому
- * между ними нет щелей. Со стороны моря границы уходят далеко в воду
- * (долгота 100.80) — там мест нет, зато береговую линию не надо рисовать.
+ * Границы грубые, но сверены с картой (10.10): опорные точки сняты с линий
+ * железной дороги, Таппрайи и главных улиц. Три правила, по которым они
+ * проведены:
  *
- * Сознательно не покрыто (точка там — «без района»): полоса за Сукхумвитом
- * между трассой и Siam Country Club / Мабпрачаном / Хуай Яй — Кхао Тало,
- * Кхао Ной, Нерн Плаб Ван, Нонг Прю у трассы. Что с ней делать — открытый
- * вопрос, до решения она честно остаётся без района.
+ * 1. Прибрежные районы кончаются у железной дороги, а не у Сукхумвита.
+ *    Дорога идёт в 400–900 м восточнее трассы, поэтому места «на Сукхумвите»
+ *    по обе стороны остаются в своём городском районе, а «Восточная Паттайя»
+ *    начинается там, где её и ищут, — за переездом.
+ * 2. Граница идёт между улицами-тёзками, а не по ним: Северная, Центральная
+ *    и Южная улицы лежат каждая внутри своего района, иначе два места напротив
+ *    друг друга на одной улице оказались бы в разных районах.
+ * 3. Соседние районы делят одни и те же вершины (константы ниже), поэтому
+ *    между ними нет щелей и наложений.
+ *
+ * Со стороны моря границы уходят далеко в воду (долгота 100.80) — там мест
+ * нет, зато береговую линию не надо рисовать. Без района остаются только
+ * окраины: севернее Мабпрачана и восточнее полей Siam Country Club.
  */
 
 /** Западный край — уже в море. */
 const SEA = 100.8;
 
-/** Сукхумвит (трасса 3) с севера на юг — граница прибрежных районов. */
-const SUKHUMVIT_NORTH: LatLng = [13.0, 100.915];
-const SUKHUMVIT_NORTH_ROAD: LatLng = [12.955, 100.906];
-const SUKHUMVIT_CENTRAL_ROAD: LatLng = [12.936, 100.905];
-const SUKHUMVIT_SOUTH_ROAD: LatLng = [12.925, 100.905];
-const SUKHUMVIT_THEPPRASIT: LatLng = [12.905, 100.907];
-const SUKHUMVIT_NA_JOMTIEN: LatLng = [12.87, 100.907];
-const SUKHUMVIT_KM_150: LatLng = [12.83, 100.912];
-const SUKHUMVIT_OCEAN_MARINA: LatLng = [12.8, 100.917];
-const SUKHUMVIT_BANG_SARAY: LatLng = [12.76, 100.922];
-const SUKHUMVIT_SOUTH: LatLng = [12.69, 100.935];
+/** Железная дорога с севера на юг — восточный край прибрежных районов. */
+const RAIL_BANG_LAMUNG: LatLng = [13.0, 100.934];
+const RAIL_NAKLUA: LatLng = [12.975, 100.9246];
+/** севернее Северной улицы: Terminal 21 и Lotus's North остаются в Северной */
+const RAIL_NORTH: LatLng = [12.955, 100.917];
+/** между Северной (12.950) и Центральной (12.935) улицами */
+const RAIL_NORTH_CENTRAL: LatLng = [12.9425, 100.9104];
+/** между Центральной (12.935) и Южной (12.922) улицами */
+const RAIL_CENTRAL_SOUTH: LatLng = [12.929, 100.9046];
+/** чуть южнее Тепразита: улица целиком в Южной */
+const RAIL_THEPPRASIT: LatLng = [12.905, 100.901];
+const RAIL_JOMTIEN_NORTH: LatLng = [12.895, 100.9];
+const RAIL_JOMTIEN_SOUTH: LatLng = [12.885, 100.903];
+/** на широте улицы Чайяпрук — там кончается пляж Джомтьен */
+const RAIL_CHAIYAPRUEK: LatLng = [12.876, 100.9069];
+const RAIL_NA_JOMTIEN: LatLng = [12.85, 100.918];
+const RAIL_OCEAN_MARINA: LatLng = [12.83, 100.921];
+const RAIL_AMBASSADOR: LatLng = [12.8, 100.9225];
+/** между аквапарком Aquaverse (На Джомтьен) и пляжем Банг Сарай */
+const RAIL_BANG_SARAY: LatLng = [12.778, 100.9235];
+const RAIL_NONG_NOOCH: LatLng = [12.76, 100.927];
+const RAIL_KHAO_CHI_CHAN: LatLng = [12.735, 100.951];
 
-/** Холм Пратамнак: Бали Хай → Таппрайя → начало пляжа Джомтьен. */
-const BALI_HAI: LatLng = [12.921, 100.874];
-const THAPPRAYA_NORTH: LatLng = [12.912, 100.879];
-const THAPPRAYA_THEPPRASIT: LatLng = [12.905, 100.876];
-const JOMTIEN_BEACH_NORTH: LatLng = [12.9, 100.874];
+/** Таппрайя — дорога по гребню холма Пратамнак. */
+const THAPPRAYA_NORTH: LatLng = [12.921, 100.8722];
+const THAPPRAYA_THEPPRASIT: LatLng = [12.905, 100.8685];
+const THAPPRAYA_SOUTH: LatLng = [12.899, 100.867];
+
+/** За железной дорогой: где кончается «Восточная» и начинаются названные районы. */
+const EAST_EDGE = 100.935;
+const EAST_NORTH: LatLng = [12.975, EAST_EDGE];
+/** отсюда граница Мабпрачана и Siam Country Club уходит наискосок к озеру */
+const EAST_LAKE_ROAD: LatLng = [12.945, EAST_EDGE];
+const EAST_HUAY_YAI: LatLng = [12.89, EAST_EDGE];
+const EAST_CHAIYAPRUEK: LatLng = [12.876, EAST_EDGE];
+
+/** Южная оконечность озера Мабпрачан: севернее — озеро, южнее — Siam Country Club. */
+const LAKE_SOUTH: LatLng = [12.921, 100.957];
+const LAKE_SOUTH_EAST: LatLng = [12.921, 101.0];
+/** восточнее поля Plantation — край Siam Country Club */
+const SIAM_COUNTRY_EAST: LatLng = [12.89, 101.03];
+/** суша за железной дорогой на юге: Нонг Нуч, Рамаяна, Silverlake — На Джомтьен */
+const INLAND_NORTH_EAST: LatLng = [12.8, 101.0];
+const INLAND_SOUTH_EAST: LatLng = [12.735, 101.0];
 
 export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
   {
@@ -43,47 +78,36 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
     nameEn: "Naklua & Wongamat",
     nameTh: "นาเกลือ-วงศ์อมาตย์",
     order: 10,
-    boundary: [[13.0, SEA], SUKHUMVIT_NORTH, SUKHUMVIT_NORTH_ROAD, [12.955, SEA]],
+    boundary: [[13.0, SEA], RAIL_BANG_LAMUNG, RAIL_NAKLUA, RAIL_NORTH, [12.955, SEA]],
   },
   {
     slug: "north-pattaya",
-    name: "Северная",
+    name: "Северная Паттайя",
     nameEn: "North Pattaya",
     nameTh: "พัทยาเหนือ",
     order: 20,
-    boundary: [
-      [12.955, SEA],
-      SUKHUMVIT_NORTH_ROAD,
-      SUKHUMVIT_CENTRAL_ROAD,
-      [12.936, SEA],
-    ],
+    boundary: [[12.955, SEA], RAIL_NORTH, RAIL_NORTH_CENTRAL, [12.9425, SEA]],
   },
   {
     slug: "central-pattaya",
-    name: "Центральная",
+    name: "Центральная Паттайя",
     nameEn: "Central Pattaya",
     nameTh: "พัทยากลาง",
     order: 30,
-    boundary: [
-      [12.936, SEA],
-      SUKHUMVIT_CENTRAL_ROAD,
-      SUKHUMVIT_SOUTH_ROAD,
-      [12.925, SEA],
-    ],
+    boundary: [[12.9425, SEA], RAIL_NORTH_CENTRAL, RAIL_CENTRAL_SOUTH, [12.929, SEA]],
   },
   {
     slug: "south-pattaya",
-    name: "Южная",
+    name: "Южная Паттайя",
     nameEn: "South Pattaya",
     nameTh: "พัทยาใต้",
     order: 40,
     boundary: [
-      [12.925, SEA],
-      SUKHUMVIT_SOUTH_ROAD,
-      SUKHUMVIT_THEPPRASIT,
+      [12.929, SEA],
+      RAIL_CENTRAL_SOUTH,
+      RAIL_THEPPRASIT,
       THAPPRAYA_THEPPRASIT,
       THAPPRAYA_NORTH,
-      BALI_HAI,
       [12.921, SEA],
     ],
   },
@@ -95,11 +119,10 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
     order: 50,
     boundary: [
       [12.921, SEA],
-      BALI_HAI,
       THAPPRAYA_NORTH,
       THAPPRAYA_THEPPRASIT,
-      JOMTIEN_BEACH_NORTH,
-      [12.896, SEA],
+      THAPPRAYA_SOUTH,
+      [12.899, SEA],
     ],
   },
   {
@@ -110,11 +133,13 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
     order: 60,
     boundary: [
       THAPPRAYA_THEPPRASIT,
-      SUKHUMVIT_THEPPRASIT,
-      SUKHUMVIT_NA_JOMTIEN,
-      [12.87, SEA],
-      [12.896, SEA],
-      JOMTIEN_BEACH_NORTH,
+      RAIL_THEPPRASIT,
+      RAIL_JOMTIEN_NORTH,
+      RAIL_JOMTIEN_SOUTH,
+      RAIL_CHAIYAPRUEK,
+      [12.876, SEA],
+      [12.899, SEA],
+      THAPPRAYA_SOUTH,
     ],
   },
   {
@@ -124,12 +149,17 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
     nameTh: "นาจอมเทียน",
     order: 70,
     boundary: [
-      [12.87, SEA],
-      SUKHUMVIT_NA_JOMTIEN,
-      SUKHUMVIT_KM_150,
-      SUKHUMVIT_OCEAN_MARINA,
-      SUKHUMVIT_BANG_SARAY,
-      [12.76, SEA],
+      [12.876, SEA],
+      RAIL_CHAIYAPRUEK,
+      RAIL_NA_JOMTIEN,
+      RAIL_OCEAN_MARINA,
+      RAIL_AMBASSADOR,
+      INLAND_NORTH_EAST,
+      INLAND_SOUTH_EAST,
+      RAIL_KHAO_CHI_CHAN,
+      RAIL_NONG_NOOCH,
+      RAIL_BANG_SARAY,
+      [12.778, SEA],
     ],
   },
   {
@@ -138,19 +168,34 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
     nameEn: "Bang Saray",
     nameTh: "บางเสร่",
     order: 80,
-    boundary: [[12.76, SEA], SUKHUMVIT_BANG_SARAY, SUKHUMVIT_SOUTH, [12.69, SEA]],
+    boundary: [
+      [12.778, SEA],
+      RAIL_BANG_SARAY,
+      RAIL_NONG_NOOCH,
+      RAIL_KHAO_CHI_CHAN,
+      [12.69, 100.951],
+      [12.69, SEA],
+    ],
   },
   {
-    slug: "mabprachan",
-    name: "Мабпрачан",
-    nameEn: "Mabprachan",
-    nameTh: "มาบประชัน",
+    slug: "east-pattaya",
+    name: "Восточная Паттайя",
+    nameEn: "East Pattaya",
+    nameTh: "พัทยาตะวันออก",
     order: 90,
     boundary: [
-      [12.975, 100.935],
-      [12.975, 101.0],
-      [12.93, 101.0],
-      [12.93, 100.935],
+      RAIL_NAKLUA,
+      EAST_NORTH,
+      EAST_LAKE_ROAD,
+      EAST_HUAY_YAI,
+      EAST_CHAIYAPRUEK,
+      RAIL_CHAIYAPRUEK,
+      RAIL_JOMTIEN_SOUTH,
+      RAIL_JOMTIEN_NORTH,
+      RAIL_THEPPRASIT,
+      RAIL_CENTRAL_SOUTH,
+      RAIL_NORTH_CENTRAL,
+      RAIL_NORTH,
     ],
   },
   {
@@ -160,23 +205,39 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
     nameTh: "สยามคันทรีคลับ",
     order: 100,
     boundary: [
-      [12.93, 100.925],
-      [12.93, 101.0],
-      [12.895, 101.0],
-      [12.895, 100.925],
+      EAST_LAKE_ROAD,
+      LAKE_SOUTH,
+      LAKE_SOUTH_EAST,
+      [12.921, 101.03],
+      SIAM_COUNTRY_EAST,
+      EAST_HUAY_YAI,
     ],
+  },
+  {
+    slug: "mabprachan",
+    name: "Мабпрачан",
+    nameEn: "Mabprachan",
+    nameTh: "มาบประชัน",
+    order: 110,
+    boundary: [EAST_NORTH, [12.975, 101.0], LAKE_SOUTH_EAST, LAKE_SOUTH, EAST_LAKE_ROAD],
   },
   {
     slug: "huay-yai",
     name: "Хуай Яй",
     nameEn: "Huay Yai",
     nameTh: "ห้วยใหญ่",
-    order: 110,
+    order: 120,
     boundary: [
-      [12.895, 100.935],
-      [12.895, 101.05],
-      [12.76, 101.05],
-      [12.76, 100.935],
+      EAST_HUAY_YAI,
+      SIAM_COUNTRY_EAST,
+      [12.89, 101.05],
+      [12.8, 101.05],
+      INLAND_NORTH_EAST,
+      RAIL_AMBASSADOR,
+      RAIL_OCEAN_MARINA,
+      RAIL_NA_JOMTIEN,
+      RAIL_CHAIYAPRUEK,
+      EAST_CHAIYAPRUEK,
     ],
   },
 ];
