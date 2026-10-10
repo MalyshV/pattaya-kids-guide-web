@@ -20,6 +20,7 @@ import { OcrScratchpad } from "@/app/admin/ocr-scratchpad";
 import { PhotoField } from "@/app/admin/photo-field";
 import { SubmitButton } from "@/app/admin/submit-button";
 import type { PlacePrefill } from "@/lib/admin/submission-card";
+import { pattayaDayInputValue } from "@/lib/admin/pattaya-day";
 
 /**
  * Форма места: создание и редактирование (place=null → создание).
@@ -549,11 +550,7 @@ export function PlaceForm({
               <input
                 type="date"
                 name="closedSince"
-                defaultValue={
-                  place?.closedSince
-                    ? new Date(place.closedSince).toISOString().slice(0, 10)
-                    : ""
-                }
+                defaultValue={pattayaDayInputValue(place?.closedSince)}
               />
             </label>
           </div>

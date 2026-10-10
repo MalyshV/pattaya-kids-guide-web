@@ -12,16 +12,24 @@ import { formatAgeRange } from "@/lib/age/format-age";
 type EventCardProps = {
   event: EventListItemDto;
   basePath: string;
+  /** часовой пояс города: день события считаем по нему, а не по серверу */
+  timezone: string;
   status?: EventLifecycle;
 };
 
-function formatDate(value: string | null, dict: Dictionary, lang: string): string {
-  return formatEventDay(value, lang) ?? dict.eventCard.dateTbd;
+function formatDate(
+  value: string | null,
+  dict: Dictionary,
+  lang: string,
+  timezone: string,
+): string {
+  return formatEventDay(value, lang, timezone) ?? dict.eventCard.dateTbd;
 }
 
 export function EventCard({
   event,
   basePath,
+  timezone,
   status,
 }: EventCardProps): React.ReactElement {
   const lang = langFromPath(basePath);
@@ -65,13 +73,13 @@ export function EventCard({
 
       <div className="feature-list">
         <span className="feature-chip">
-          {dict.eventCard.starts} {formatDate(event.startDate, dict, lang)}
+          {dict.eventCard.starts} {formatDate(event.startDate, dict, lang, timezone)}
         </span>
         {/* endDate=null — это разовое событие (конвенция данных), а не
             «организаторы не определились»: чип «Конец» просто не показываем */}
         {event.endDate ? (
           <span className="feature-chip">
-            {dict.eventCard.ends} {formatDate(event.endDate, dict, lang)}
+            {dict.eventCard.ends} {formatDate(event.endDate, dict, lang, timezone)}
           </span>
         ) : null}
         {ageRange ? (
