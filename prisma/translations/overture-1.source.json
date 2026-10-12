@@ -1,0 +1,163 @@
+{
+  "_comment": "Исходные тексты 9 опубликованных мест (выгрузка из админки 12.10.2026) для тайского перевода. Цены, подписи строк и примечания — в prisma/places/overture-prices-1.ts. Тайские поля: descriptionTh, tips (PlaceTip.textTh), labelTh, entryPriceNoteTh.",
+  "places": {
+    "art-in-paradise-pattaya": {
+      "name": "Art In Paradise Pattaya",
+      "description": {
+        "ru": "Музей 3D-картин на Pattaya Sai Song Rd: на картины-иллюзии нужно встать так, чтобы получился необычный кадр. Подходит для фото всей семьёй и в жаркий или дождливый день. Есть несколько тематических зон — динозавры, сафари, подводный мир.",
+        "en": "A 3D art museum on Pattaya Sai Song Rd: you stand in front of the illusion paintings so that the photo comes out looking real. A good family photo stop on a hot or rainy day. There are several themed zones — dinosaurs, safari, the underwater world."
+      },
+      "tips": {
+        "ru": [
+          "Касса закрывается в 20:00, за час до закрытия музея.",
+          "Билет можно купить заранее на онлайн-площадках — по данным Google Maps на 12.10.2026 он там заметно дешевле, чем 400 ฿ на сайте места. Условия (дата, возврат) у площадок разные, сравните перед поездкой."
+        ],
+        "en": [
+          "The ticket office closes at 20:00, an hour before the museum closes.",
+          "You can buy tickets in advance on online booking platforms — as of 12 Oct 2026 Google Maps shows them noticeably cheaper than the 400 ฿ on the venue's own site. Terms (date, refunds) vary by platform, so compare before you go."
+        ]
+      }
+    },
+    "columbia-pictures-aquaverse": {
+      "name": "Columbia Pictures Aquaverse",
+      "description": {
+        "ru": "Аквапарк в стиле кинофраншиз Columbia Pictures в районе Na Chom Thian. Водные горки и бассейны, кафе и рестораны на территории. Хороший вариант на целый день.",
+        "en": "A water park themed around Columbia Pictures films, in the Na Chom Thian area. Water slides and pools, with cafés and restaurants on site. A good full-day option."
+      },
+      "tips": { "ru": [], "en": [] }
+    },
+    "dinopark-petting-zoo": {
+      "name": "Dinopark Petting Zoo",
+      "description": {
+        "ru": "Контактный мини-зоопарк в районе Thap Phraya, в нескольких минутах от смотровой площадки Big Buddha. Три этажа с разными животными: змеи, хамелеоны, черепахи и другие экзотические обитатели, всего больше 40. Животных можно гладить, кормить и брать на руки, сотрудники подсказывают, как с ними обращаться. Корм и фото входят в стоимость билета. На третьем этаже есть небольшой магазин игрушек.",
+        "en": "A petting mini-zoo in the Thap Phraya area, a few minutes from the Big Buddha viewpoint. Three floors with different animals — snakes, chameleons, tortoises and other exotic residents, more than 40 in all. You can pet, feed and hold the animals, and the staff show you how to handle them. Animal food and photos are included in the ticket. There is a small toy shop on the third floor."
+      },
+      "tips": {
+        "ru": [
+          "При входе нужно снять обувь, носки не обязательны.",
+          "Корм для животных выдают на месте бесплатно."
+        ],
+        "en": [
+          "Shoes come off at the entrance; socks are not required.",
+          "Animal food is handed out on site for free."
+        ]
+      }
+    },
+    "easykart-bali-hai-pier": {
+      "name": "Easykart Go-Karting",
+      "description": {
+        "ru": "Уличный картинг у пирса Bali Hai, в нескольких шагах от Walking Street. Здесь две трассы. Детская, 350 м, рассчитана на ребят от 7 лет (рост от 125 см). Есть и двухместные карты, на которых можно прокатиться вместе с родителем: с 110 см, за рулём взрослый от 20 лет. Взрослая «Монако Трек», 800 м, быстрее: виражи чередуются с прямыми, где можно разогнаться. Шлем выдают, на трассе работает судейская команда. Есть панорамная терраса с напитками и закусками, бильярд и настольный футбол. Трасса открытая, вечером её освещают, поэтому погода влияет на поездку. Входит в сеть Easykart — вторая точка на Thepprasit.",
+        "en": "Outdoor go-karting by Bali Hai Pier, steps from Walking Street. There are two tracks. The children's track, 350 m, is for kids from age 7 (125 cm tall). There are also two-seater karts so a child can ride along with a parent: from 110 cm, with an adult driver aged 20+. The adult \"Monaco Track\", 800 m, is faster — bends alternate with straights where you can really pick up speed. Helmets are provided and marshals supervise the track. There is a panoramic terrace with drinks and snacks, a pool table and foosball. The track is outdoors and lit in the evening, so weather can affect your visit. Part of the Easykart network — the second site is on Thepprasit."
+      },
+      "tips": {
+        "ru": [
+          "Нужна закрытая обувь: кеды, кроссовки. Если пришли в шлёпанцах или кроксах, на месте можно взять кроссовки напрокат за 50 ฿. Нужный детский размер лучше уточнить заранее.",
+          "Заезд длится 8 минут, старты каждые 10 минут. Записываться заранее не обязательно, можно прийти и купить билет на месте.",
+          "Пакет заездов персональный: делить его с другим человеком нельзя."
+        ],
+        "en": [
+          "Closed shoes are required: trainers or sneakers. If you arrive in flip-flops or crocs, you can rent sneakers on site for 50 ฿. It is best to check the right children's size in advance.",
+          "A race lasts 8 minutes and starts run every 10 minutes. Booking ahead is not required — you can buy a ticket on site.",
+          "Race packages are personal and cannot be shared with another person."
+        ]
+      }
+    },
+    "easykart-thepprasit": {
+      "name": "Easykart Go-Karting",
+      "description": {
+        "ru": "Уличный картинг на Thepprasit Rd, в центральной части Паттайи. Здесь две трассы. Детская, 350 м, рассчитана на ребят от 7 лет (рост от 125 см). Есть и двухместные карты, на которых можно прокатиться вместе с родителем: с 110 см, за рулём взрослый от 20 лет. Взрослая трасса быстрее: виражи чередуются с прямыми, где можно разогнаться. Шлем выдают, на трассе работает судейская команда. Есть терраса с напитками, закусками и пиццей, бильярд и настольный футбол. Трасса открытая, вечером её освещают, поэтому погода влияет на поездку. Входит в сеть Easykart — вторая точка у пирса Bali Hai.",
+        "en": "Outdoor go-karting on Thepprasit Road in central Pattaya. There are two tracks. The children's track, 350 m, is for kids from age 7 (125 cm tall). There are also two-seater karts so a child can ride along with a parent: from 110 cm, with an adult driver aged 20+. The adult track is faster — bends alternate with straights where you can really pick up speed. Helmets are provided and marshals supervise the track. There is a terrace with drinks, snacks and pizza, a pool table and foosball. The track is outdoors and lit in the evening, so weather can affect your visit. Part of the Easykart network — the second site is by Bali Hai Pier."
+      },
+      "tips": {
+        "ru": [
+          "Нужна закрытая обувь: кеды, кроссовки. Если пришли в шлёпанцах или кроксах, на месте можно взять кроссовки напрокат за 50 ฿. Нужный детский размер лучше уточнить заранее.",
+          "Заезд длится 8 минут, старты каждые 10 минут. Записываться заранее не обязательно, можно прийти и купить билет на месте.",
+          "Пакет заездов персональный: делить его с другим человеком нельзя."
+        ],
+        "en": [
+          "Closed shoes are required: trainers or sneakers. If you arrive in flip-flops or crocs, you can rent sneakers on site for 50 ฿. It is best to check the right children's size in advance.",
+          "A race lasts 8 minutes and starts run every 10 minutes. Booking ahead is not required — you can buy a ticket on site.",
+          "Race packages are personal and cannot be shared with another person."
+        ]
+      }
+    },
+    "big-bee-farm-pattaya": {
+      "name": "Big Bee Farm Pattaya",
+      "description": {
+        "ru": "Пчелиная ферма в районе Nong Pla Lai. Здесь можно узнать, как живут пчёлы и как получают мёд, и купить продукты пчеловодства. На территории есть кафе и медицинский центр, где предлагают укусы пчёл (апитерапию) и иглоукалывание. Экскурсию можно попросить на русском языке — бесплатно. Есть небольшой музей пчёл, а показы работы пчеловодов проходят несколько раз в день. Спокойное место на час-полтора.",
+        "en": "A bee farm in the Nong Pla Lai area. You can learn how bees live and how honey is made, and buy beekeeping products. On site there is a café and a medical centre offering bee-sting therapy (apitherapy) and acupuncture. You can ask for a tour in Russian, free of charge. There is a small bee museum, and beekeeper demonstrations run several times a day. A calm stop for an hour or so."
+      },
+      "tips": {
+        "ru": [
+          "Бесплатную экскурсию на русском языке можно попросить у сотрудников.",
+          "Показы пчеловодов проходят несколько раз в день — около 8:30, 11:00, 13:30 и 15:30, по полчаса."
+        ],
+        "en": [
+          "You can ask the staff for a free tour in Russian.",
+          "Beekeeper demonstrations run several times a day — around 8:30, 11:00, 13:30 and 15:30, about half an hour each."
+        ]
+      }
+    },
+    "frost-magical-ice-of-siam": {
+      "name": "FROST Magical Ice of Siam",
+      "description": {
+        "ru": "Парк льда в районе Nong Pla Lai с четырьмя зонами: лес Химмапан со скульптурами из белого песка, ледяной город, снежный город и каток. По отзывам гостей, в холодной зоне сильный мороз, есть снежная горка с ватрушками, ледяные горки и постройки изо льда, в которые можно залезть; слой настоящего снега небольшой. На территории есть кафе. Хороший способ остыть в жаркий день.",
+        "en": "An ice park in the Nong Pla Lai area with four zones: the Himmapan forest with white-sand sculptures, an ice city, a snow city and an ice-skating rink. According to guest reviews, the cold zone is properly freezing and has a snow slide with tubes, ice slides and ice structures you can climb into; the layer of real snow is thin. There is a café on site. A good way to cool off on a hot day."
+      },
+      "tips": {
+        "ru": [
+          "Кроме билета на месте придётся доплатить: прокат сапог 90 ฿ (обязателен), перчатки 60 ฿, вход на каток 199 ฿. Куртка входит в билет.",
+          "В холодную зону пускают только в выданных сапогах: в своей обуви нельзя. Прокат сапог стоит 90 ฿ (по большинству описаний и отзывов, в билет он не входит).",
+          "Куртка входит в билет, по отзывам есть и детские размеры. Перчатки продаются на месте за 60 ฿. Внутри сильный мороз, оденьтесь потеплее: длинные брюки и тёплая кофта.",
+          "Дети до 90 см проходят бесплатно. Напиток, по отзывам, дают в холодной зоне.",
+          "Скидка по документам: по тайским правам — владельцу прав, по рабочему разрешению (work permit) — всем членам семьи, указанным в документе. Возьмите документы с собой.",
+          "Каток — отдельный вход, по отзывам 199 ฿; он небольшой и пластиковый, не ледяной.",
+          "Последний вход около 18:00, за час до закрытия.",
+          "Внутри скользкий ледяной пол: ходите аккуратно, с малышами лучше за руку."
+        ],
+        "en": [
+          "Besides the ticket you will pay on site: boot rental 90 ฿ (required), gloves 60 ฿, ice-rink entry 199 ฿. A jacket is included in the ticket.",
+          "You are only let into the cold zone in the boots they hand out — your own shoes are not allowed. Boot rental costs 90 ฿ (according to most descriptions and reviews it is not included in the ticket).",
+          "A jacket is included in the ticket, and reviews mention children's sizes too. Gloves are sold on site for 60 ฿. It is properly freezing inside, so dress warmly: long trousers and a warm top.",
+          "Children under 90 cm get in free. A drink, according to reviews, is given in the cold zone.",
+          "Discount with documents: with a Thai driving licence — for the licence holder; with a work permit — for every family member listed in the document. Bring the documents with you.",
+          "The ice rink is a separate entrance, 199 ฿ according to reviews; it is small and made of plastic, not ice.",
+          "Last entry is around 6 pm, an hour before closing.",
+          "The floor inside is slippery ice: walk carefully, and hold young children by the hand."
+        ]
+      }
+    },
+    "family-park-pattaya": {
+      "name": "Family Park Pattaya",
+      "description": {
+        "ru": "Ферма с домашними животными, шоу и игровыми зонами в районе Nong Pla Lai. Здесь можно покормить лошадей, кроликов, овец, коз, черепах и гусей, прокатиться на лошади и посмотреть шоу с собаками, птицами и другими животными. По территории с декорациями из сказок ходит паровозик, есть пиццерия и два кафе.",
+        "en": "A farm with domestic animals, shows and play areas in the Nong Pla Lai area. You can feed horses, rabbits, sheep, goats, tortoises and geese, ride a horse and watch shows with dogs, birds and other animals. A little train runs around the fairy-tale themed grounds, and there is a pizzeria and two cafés."
+      },
+      "tips": {
+        "ru": [
+          "Корм для животных продают отдельно в красном домике, порция около 20 ฿.",
+          "Расписание шоу публикуют на Facebook-странице парка. Чтобы застать утреннее шоу, лучше приехать к 10:00.",
+          "По территории ходит паровозик. Обезьян можно найти за деревянными перегородками: они не на виду.",
+          "По отзывам, на весь парк хватает около 4 часов."
+        ],
+        "en": [
+          "Animal food is sold separately in the red house, about 20 ฿ per portion.",
+          "The park posts its show schedule on its Facebook page. To catch the morning show, arrive by 10:00.",
+          "A little train runs around the grounds. The monkeys are behind wooden partitions and not in plain sight.",
+          "According to reviews, about 4 hours is enough for the whole park."
+        ]
+      }
+    },
+    "angry-birds-play-park-jomtien": {
+      "name": "Angry Birds Play Park (Jomtien)",
+      "description": {
+        "ru": "Городская детская площадка на пляже Джомтьен, рядом с ночным рынком. Игровые конструкции для детей примерно от 3 до 7 лет, для родителей есть скамейки. На картах указана как круглосуточная — удобно зайти по пути с пляжа.",
+        "en": "A public playground on Jomtien beach, next to the night market. Play structures for children roughly aged 3 to 7, with benches for parents. Listed on maps as open around the clock — easy to stop by on the way from the beach."
+      },
+      "tips": {
+        "ru": ["Площадка общая и открытая: следите за сумками и телефонами."],
+        "en": ["The playground is public and open: keep an eye on bags and phones."]
+      }
+    }
+  }
+}
