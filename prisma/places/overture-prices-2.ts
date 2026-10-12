@@ -32,12 +32,14 @@ export const OVERTURE_PRICES_2: readonly PlaceExtras[] = [
       "Цена за 3 часа, сверх времени — 50 ฿ за каждые 30 минут. Бесплатно: малыши до 65 см или до 6 месяцев; " +
       "старше 60 лет, беременные и гости на коляске — по одному человеку на категорию при покупке хотя бы одного билета. " +
       "Нужны носки Harborland — 60 ฿ на месте. " +
-      "Happy Care (присмотр за ребёнком от 10 лет, оплачивается сверх билета): 3 часа — 970 ฿ иностранцам, 670 ฿ гражданам Таиланда, на каждого ребёнка отдельный сотрудник.",
+      "Детям до 10 лет нужно сопровождение: родитель внутри вместе с ребёнком или Happy Care (присмотр сотрудника, оплачивается сверх билета): " +
+      "3 часа — 970 ฿ иностранцам, 670 ฿ гражданам Таиланда. На каждого ребёнка — свой родитель или сотрудник. С 10 лет ребёнок может быть без взрослых.",
     noteEn:
       "Price is for 3 hours; overtime is 50 ฿ per 30 minutes. Free: babies under 65 cm or 6 months; " +
       "guests over 60, pregnant women and wheelchair users — one person per category with at least one paid ticket. " +
       "Harborland-brand socks are required — 60 ฿ on site. " +
-      "Happy Care (childcare for ages 10+, paid on top of the ticket): 3 hours — 970 ฿ for foreigners, 670 ฿ for Thai citizens, one carer per child.",
+      "Children under 10 must be accompanied: a parent inside with the child, or Happy Care (a staff carer, paid on top of the ticket): " +
+      "3 hours — 970 ฿ for foreigners, 670 ฿ for Thai citizens. Each child needs their own parent or carer. From age 10, children may stay without adults.",
     contacts: [
       {
         type: "facebook",
