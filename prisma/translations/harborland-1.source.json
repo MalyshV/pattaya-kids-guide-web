@@ -1,0 +1,36 @@
+{
+  "_comment": "Исходные тексты Harbor Land (Terminal 21) для тайского перевода. Ключи сопоставления — русские оригиналы из базы (подсказки) и из prisma/places/overture-prices-2.ts (подписи цен, примечание).",
+  "places": {
+    "harbor-land-terminal-21": {
+      "name": "Harbor Land (Terminal 21)",
+      "description": {
+        "ru": "Крытая игровая на 4 этаже торгового центра Terminal 21 Pattaya, около 1 500 м² в космической теме: игровая башня Space Power Tower, стрельба шариками Aero Strike и LED-горка-труба в виде ракеты. Зона для малышей — на втором уровне; удобнее всего пройти в неё через зону с поделками, сразу по разноцветной лестнице возле кафе. Подходит детям от 5 месяцев до 15 лет. Можно укрыться от жары или дождя. Одна из точек сети HarborLand.",
+        "en": "An indoor playground on the 4th floor of Terminal 21 Pattaya, about 1,500 sq m with a space theme: the Space Power Tower play structure, Aero Strike ball-shooting game and an LED rocket tube slide. The toddler zone is on the second level; the easiest way in is through the crafts area, straight up the colourful staircase next to the café. Suits children from 5 months to 15 years. Works for escaping heat or rain. One of the HarborLand network locations."
+      },
+      "tips": {
+        "ru": [
+          "Билет на 3 часа; сверх времени — 50 ฿ за каждые 30 минут.",
+          "Нужны носки именно Harborland — 60 ฿ на месте.",
+          "Свою еду проносить нельзя; внутри есть кафе со столиками.",
+          "Есть зона с поделками.",
+          "Детям до 10 лет нужно сопровождение: родитель внутри вместе с ребёнком или няня-сотрудник Happy Care (платно, сверх билета). На каждого ребёнка — свой родитель или сотрудник. С 10 лет ребёнка можно оставить без взрослых.",
+          "Зона для малышей — на втором уровне; удобнее всего пройти через зону с поделками, по разноцветной лестнице возле кафе.",
+          "Дни рождения — формат Open Party, от 15 900 ฿ на 10 гостей; подробности в разделе «Дни рождения»."
+        ],
+        "en": [
+          "Ticket is for 3 hours; overtime is 50 ฿ per 30 minutes.",
+          "Harborland-brand socks are required — 60 ฿ on site.",
+          "Outside food is not allowed; there is a café with tables inside.",
+          "There is a crafts area.",
+          "Children under 10 must be accompanied: a parent inside with the child, or a Happy Care staff carer (paid on top of the ticket). Each child needs their own parent or carer. From age 10, children can be left without adults.",
+          "The toddler zone is on the second level; the easiest way in is through the crafts area, up the colourful staircase next to the café.",
+          "Birthdays — Open Party format, from 15,900 ฿ for 10 guests; details in the Birthdays section."
+        ]
+      },
+      "birthdayNotes": {
+        "ru": "В этом филиале доступен формат Open Party (закрытого формата Private здесь нет). 10 гостей — 15 900 ฿, 20 гостей — 26 900 ฿. Праздник длится 3 часа, в пакет входят еда, напитки и торт. Бронирование — на стойке HarborLand в ТЦ, по телефону 065 848 1000 или в LINE @harborland. Залог и срок предварительной записи уточняются.",
+        "en": "Only the Open Party format is available at this location (there is no Private format here). 10 guests — 15,900 ฿, 20 guests — 26,900 ฿. The party lasts 3 hours and includes food, drinks and a birthday cake. Book at the HarborLand counter in the mall, by phone at 065 848 1000 or via LINE @harborland. Deposit and advance-booking terms are to be confirmed."
+      }
+    }
+  }
+}
