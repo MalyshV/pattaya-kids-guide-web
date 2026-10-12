@@ -1,9 +1,9 @@
 /**
  * Точечный занос: сеть Easykart (docs/CHAINS_PLAN.md) — две точки в Паттайе.
  * - заводит бренд easykart (имя + другие написания для поиска);
- * - у двух точек ставит name «Easykart», связь с брендом и метку точки на трёх
- *   языках: на сайте выйдет «Easykart · Bali Hai Pier» / «Easykart · Thepprasit»,
- *   у каждой появится блок «Другие Easykart в Паттайе».
+ * - у двух точек ставит name «Easykart Go-Karting», связь с брендом и метку точки на трёх
+ *   языках: на сайте выйдет «Easykart Go-Karting · Bali Hai Pier» / «Easykart Go-Karting · Thepprasit»,
+ *   у каждой появится блок «Другие Easykart Go-Karting в Паттайе».
  *   Slug не трогает — ♡/✓ родителей и ссылки в Telegram живут.
  * Меняет ТОЛЬКО эти поля: цены, советы, часы, контакты и остальное не трогает.
  * Идемпотентно.
@@ -28,8 +28,8 @@ const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
 
 const BRAND = {
   slug: "easykart",
-  name: "Easykart",
-  searchAliases: ["Easykart Go-Karting", "EasyKart", "Изикарт", "อีซี่คาร์ท"],
+  name: "Easykart Go-Karting",
+  searchAliases: ["Easykart", "EasyKart", "Изикарт", "อีซี่คาร์ท"],
 };
 
 const POINTS = [
@@ -98,7 +98,7 @@ async function main(): Promise<void> {
     console.log("\nНичего не записано. Для записи добавьте --write.");
   } else {
     console.log(
-      "\nГотово. В админке — «Обновить кэш». Проверь блок «Другие Easykart в Паттайе».",
+      "\nГотово. В админке — «Обновить кэш». Проверь блок «Другие Easykart Go-Karting в Паттайе».",
     );
   }
 }
