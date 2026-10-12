@@ -32,12 +32,12 @@ export const OVERTURE_PRICES_2: readonly PlaceExtras[] = [
       "Цена за 3 часа, сверх времени — 50 ฿ за каждые 30 минут. Бесплатно: малыши до 65 см или до 6 месяцев; " +
       "старше 60 лет, беременные и гости на коляске — по одному человеку на категорию при покупке хотя бы одного билета. " +
       "Нужны носки Harborland — 60 ฿ на месте. " +
-      "Happy Care (присмотр за ребёнком от 10 лет): 3 часа — 970 ฿ иностранцам, 670 ฿ гражданам Таиланда, на каждого ребёнка отдельный сотрудник.",
+      "Happy Care (присмотр за ребёнком от 10 лет, оплачивается сверх билета): 3 часа — 970 ฿ иностранцам, 670 ฿ гражданам Таиланда, на каждого ребёнка отдельный сотрудник.",
     noteEn:
       "Price is for 3 hours; overtime is 50 ฿ per 30 minutes. Free: babies under 65 cm or 6 months; " +
       "guests over 60, pregnant women and wheelchair users — one person per category with at least one paid ticket. " +
       "Harborland-brand socks are required — 60 ฿ on site. " +
-      "Happy Care (childcare for ages 10+): 3 hours — 970 ฿ for foreigners, 670 ฿ for Thai citizens, one carer per child.",
+      "Happy Care (childcare for ages 10+, paid on top of the ticket): 3 hours — 970 ฿ for foreigners, 670 ฿ for Thai citizens, one carer per child.",
     contacts: [
       {
         type: "facebook",
@@ -45,6 +45,8 @@ export const OVERTURE_PRICES_2: readonly PlaceExtras[] = [
       },
       { type: "instagram", value: "https://www.instagram.com/harborland.th" },
       { type: "phone", value: "065 848 1000" },
+      { type: "line", value: "https://line.me/R/ti/p/%40harborland" },
+      { type: "tiktok", value: "https://www.tiktok.com/@harborland" },
     ],
     replaceTypes: ["facebook", "instagram"],
   },
