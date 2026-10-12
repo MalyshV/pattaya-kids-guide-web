@@ -1,6 +1,7 @@
 import { ADMIN_FIELDS, tooLongMessage } from "@/lib/admin/field-limits";
 import { CoverPreview, RotateButton } from "@/app/admin/rotate-button";
 import { TipsFields } from "@/app/admin/tips-fields";
+import { AgeMonthsInput } from "@/app/admin/age-months-input";
 import Link from "next/link";
 import type {
   Brand,
@@ -424,15 +425,12 @@ export function PlaceForm({
               />
             ))}
           </div>
-          <label className="admin-field admin-field-inline">
-            <span>Оставить ребёнка можно с (месяцев)</span>
-            <input
-              type="number"
-              name="leaveChildFromMonths"
-              min={0}
-              defaultValue={place?.leaveChildFromMonths ?? ""}
-            />
-          </label>
+          <AgeMonthsInput
+            inline
+            name="leaveChildFromMonths"
+            label="Оставить ребёнка можно с (месяцев)"
+            defaultValue={place?.leaveChildFromMonths}
+          />
         </fieldset>
 
         <fieldset className="admin-fieldset">

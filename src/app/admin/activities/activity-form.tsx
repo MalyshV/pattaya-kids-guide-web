@@ -3,6 +3,7 @@ import { classRowMessage } from "@/lib/admin/class-rows";
 import { ClassFields, type ClassFieldsItem } from "@/app/admin/class-fields";
 import { CoverPreview } from "@/app/admin/rotate-button";
 import { TipsFields } from "@/app/admin/tips-fields";
+import { AgeMonthsInput } from "@/app/admin/age-months-input";
 import type { PlaceProgram } from "@prisma/client";
 import { deleteActivityAction, saveActivityAction } from "@/app/admin/actions";
 import { OcrScratchpad } from "@/app/admin/ocr-scratchpad";
@@ -189,24 +190,16 @@ export function ActivityForm({
         </div>
 
         <div className="admin-row">
-          <label className="admin-field">
-            <span>Возраст от (месяцев)</span>
-            <input
-              type="number"
-              name="minAgeMonths"
-              min={0}
-              defaultValue={activity?.minAgeMonths ?? ""}
-            />
-          </label>
-          <label className="admin-field">
-            <span>Возраст до (месяцев)</span>
-            <input
-              type="number"
-              name="maxAgeMonths"
-              min={0}
-              defaultValue={activity?.maxAgeMonths ?? ""}
-            />
-          </label>
+          <AgeMonthsInput
+            name="minAgeMonths"
+            label="Возраст от (месяцев)"
+            defaultValue={activity?.minAgeMonths}
+          />
+          <AgeMonthsInput
+            name="maxAgeMonths"
+            label="Возраст до (месяцев)"
+            defaultValue={activity?.maxAgeMonths}
+          />
         </div>
 
         <div className="admin-row">

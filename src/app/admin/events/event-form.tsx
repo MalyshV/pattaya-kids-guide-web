@@ -1,5 +1,6 @@
 "use client";
 
+import { AgeMonthsInput } from "@/app/admin/age-months-input";
 import { ADMIN_FIELDS, tooLongMessage } from "@/lib/admin/field-limits";
 import { TipsFields } from "@/app/admin/tips-fields";
 import { useCallback, useState } from "react";
@@ -287,28 +288,20 @@ export function EventForm({
         </div>
 
         <div className="admin-row">
-          <label className="admin-field">
-            <span>Возраст от (месяцев)</span>
-            <input
-              type="number"
-              name="minAgeMonths"
-              min={0}
-              defaultValue={
-                event?.minAgeMonths ?? draft?.minAgeMonths ?? prefill?.minAgeMonths ?? ""
-              }
-            />
-          </label>
-          <label className="admin-field">
-            <span>Возраст до (месяцев; 5 лет = 60)</span>
-            <input
-              type="number"
-              name="maxAgeMonths"
-              min={0}
-              defaultValue={
-                event?.maxAgeMonths ?? draft?.maxAgeMonths ?? prefill?.maxAgeMonths ?? ""
-              }
-            />
-          </label>
+          <AgeMonthsInput
+            name="minAgeMonths"
+            label="Возраст от (месяцев)"
+            defaultValue={
+              event?.minAgeMonths ?? draft?.minAgeMonths ?? prefill?.minAgeMonths
+            }
+          />
+          <AgeMonthsInput
+            name="maxAgeMonths"
+            label="Возраст до (месяцев)"
+            defaultValue={
+              event?.maxAgeMonths ?? draft?.maxAgeMonths ?? prefill?.maxAgeMonths
+            }
+          />
         </div>
 
         <label className="admin-field">
