@@ -928,7 +928,8 @@ input[type="checkbox"]:focus-visible {
   font-size: 0.9rem;
 }
 
-.admin-field > span {
+.admin-field > span,
+.admin-field > small {
   color: var(--muted);
 }
 

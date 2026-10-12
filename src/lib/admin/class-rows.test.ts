@@ -178,8 +178,8 @@ describe("planClasses — что создать, обновить и удали�
       row({ maxAgeMonths: "12", ageLabel: "4–12 мес" }),
     ]);
     expect(plan.update[0].data.ageLabelTh).not.toBe("4–10 เดือน");
-    // 12 месяцев по-тайски — «1 ขวบ»
-    expect(plan.update[0].data.ageLabelTh).toBe("4 เดือน – 1 ขวบ");
+    // до 2 лет по-тайски пишем месяцы: «12 เดือน»
+    expect(plan.update[0].data.ageLabelTh).toBe("4 เดือน – 12 เดือน");
   });
 
   it("строка без id или с чужим id — новый класс; порядок — по строкам формы", () => {

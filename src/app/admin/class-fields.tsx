@@ -1,4 +1,5 @@
 import { CLASS_LIMITS, EXTRA_CLASS_ROWS, classFieldName } from "@/lib/admin/class-rows";
+import { AgeMonthsInput } from "@/app/admin/age-months-input";
 
 export type ClassFieldsItem = {
   id: string;
@@ -63,26 +64,20 @@ export function ClassFields({ classes }: ClassFieldsProps): React.ReactElement {
                   defaultValue={item?.name ?? ""}
                 />
               </label>
-              <label className="admin-field admin-field-inline">
-                <span>От (мес)</span>
-                <input
-                  type="number"
-                  name={classFieldName(index, "minAgeMonths")}
-                  min={0}
-                  max={CLASS_LIMITS.maxAgeMonths}
-                  defaultValue={item?.minAgeMonths ?? ""}
-                />
-              </label>
-              <label className="admin-field admin-field-inline">
-                <span>До (мес)</span>
-                <input
-                  type="number"
-                  name={classFieldName(index, "maxAgeMonths")}
-                  min={0}
-                  max={CLASS_LIMITS.maxAgeMonths}
-                  defaultValue={item?.maxAgeMonths ?? ""}
-                />
-              </label>
+              <AgeMonthsInput
+                inline
+                name={classFieldName(index, "minAgeMonths")}
+                label="От (мес)"
+                max={CLASS_LIMITS.maxAgeMonths}
+                defaultValue={item?.minAgeMonths}
+              />
+              <AgeMonthsInput
+                inline
+                name={classFieldName(index, "maxAgeMonths")}
+                label="До (мес)"
+                max={CLASS_LIMITS.maxAgeMonths}
+                defaultValue={item?.maxAgeMonths}
+              />
               <label className="admin-field admin-field-inline">
                 <span>С родителем</span>
                 <select
