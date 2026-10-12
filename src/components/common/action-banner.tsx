@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 
 /**
@@ -15,6 +15,11 @@ import { createPortal } from "react-dom";
  */
 
 export type ActionBannerVariant = "success" | "error";
+
+/** Подписки нет: нужно лишь различить сервер и клиент (портал — только в браузере). */
+function noSubscription(): () => void {
+  return () => {};
+}
 
 type ActionBannerProps = {
   variant: ActionBannerVariant;
@@ -61,7 +66,7 @@ export function ActionBanner({
   icon,
   closeLabel,
   onClose,
-}: ActionBannerProps): React.ReactElement {
+}: ActionBannerProps): React.ReactElement | null {
   const closeRef = useRef<HTMLButtonElement | null>(null);
   const boxRef = useRef<HTMLDivElement | null>(null);
 
@@ -96,6 +101,17 @@ export function ActionBanner({
       document.body.style.overflow = previousOverflow;
     };
   }, [onClose]);
+
+  // На сервере `document` нет: портал в body строится только в браузере.
+  // Без этого SSR страницы с ?done=… падал с «document is not defined».
+  const isClient = useSyncExternalStore(
+    noSubscription,
+    () => true,
+    () => false,
+  );
+  if (!isClient) {
+    return null;
+  }
 
   return createPortal(
     <div
