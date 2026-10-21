@@ -51,6 +51,7 @@ import { parsePattayaDay } from "@/lib/admin/pattaya-day";
 import { DEFAULT_CITY_SLUG } from "@/lib/geo/base-path";
 import { dropOldImage, rotateStoredImage } from "@/lib/admin/rotate-photo";
 import { saveTipsFromForm } from "@/lib/admin/tips-store";
+import { pickCategoryIds } from "@/lib/admin/category-ids";
 import { assignPlaceDistrict } from "@/services/districts.service";
 import { parseSubmissionStatus } from "@/lib/admin/submission-labels";
 
@@ -1057,6 +1058,18 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
     classRows = parsedClasses.rows;
   }
 
+  // категории: блока в форме не было (старая вкладка) — набор не трогаем
+  const categoryIds = formData.has("activityCategoriesShown")
+    ? pickCategoryIds(
+        formData.getAll("activityCategoryIds").map(String),
+        new Set(
+          (await prisma.activityCategory.findMany({ select: { id: true } })).map(
+            (category) => category.id,
+          ),
+        ),
+      )
+    : null;
+
   const type = text(formData, "type");
   const coverResult = await coverFromForm(formData, "activities");
   const uploadFailed = coverResult === "upload-error";
@@ -1153,6 +1166,27 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
       )
     : false;
 
+  // категории: полная замена набора; сбой записи карточку не отменяет
+  const categoriesFailed = categoryIds
+    ? await prisma
+        .$transaction([
+          prisma.programActivityCategory.deleteMany({ where: { programId: activityId } }),
+          prisma.programActivityCategory.createMany({
+            data: categoryIds.map((categoryId) => ({
+              programId: activityId,
+              categoryId,
+            })),
+          }),
+        ])
+        .then(
+          () => false,
+          (error: unknown) => {
+            console.error("admin: категории занятия не сохранились", error);
+            return true;
+          },
+        )
+    : false;
+
   const tipsFailed = await saveTipsFromForm("program", activityId, formData).then(
     () => false,
     (error: unknown) => {
@@ -1199,6 +1233,9 @@ export async function saveActivityAction(formData: FormData): Promise<void> {
   }
   if (classesFailed) {
     redirect(`${cardPath}?error=classes`);
+  }
+  if (categoriesFailed) {
+    redirect(`${cardPath}?error=categories`);
   }
   if (fromSubmission && linkResult) {
     redirect(

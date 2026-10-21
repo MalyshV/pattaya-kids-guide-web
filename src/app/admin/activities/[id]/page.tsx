@@ -21,21 +21,30 @@ export default async function AdminActivityEditPage({
   const error =
     typeof resolvedSearch.error === "string" ? resolvedSearch.error : undefined;
 
-  const [activity, places] = await Promise.all([
+  const [activity, places, allCategories] = await Promise.all([
     prisma.placeProgram.findUnique({
       where: { id },
       include: {
         _count: { select: { classes: true } },
         classes: { orderBy: { order: "asc" } },
         tips: { orderBy: { order: "asc" }, select: { text: true, textEn: true } },
+        categories: { select: { categoryId: true } },
       },
     }),
     prisma.place.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    prisma.activityCategory.findMany({ orderBy: { order: "asc" } }),
   ]);
 
   if (!activity) {
     notFound();
   }
 
-  return <ActivityForm activity={activity} places={places} error={error} />;
+  return (
+    <ActivityForm
+      activity={activity}
+      places={places}
+      allCategories={allCategories}
+      error={error}
+    />
+  );
 }

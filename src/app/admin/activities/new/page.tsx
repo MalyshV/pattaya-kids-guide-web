@@ -63,11 +63,12 @@ export default async function AdminActivityNewPage({
   const error =
     typeof resolvedSearch.error === "string" ? resolvedSearch.error : undefined;
   const from = typeof resolvedSearch.from === "string" ? resolvedSearch.from : undefined;
-  const [places, fromSubmission] = await Promise.all([
+  const [places, allCategories, fromSubmission] = await Promise.all([
     prisma.place.findMany({
       orderBy: { name: "asc" },
       select: { id: true, name: true },
     }),
+    prisma.activityCategory.findMany({ orderBy: { order: "asc" } }),
     submissionPrefill(from),
   ]);
 
@@ -75,6 +76,7 @@ export default async function AdminActivityNewPage({
     <ActivityForm
       activity={null}
       places={places}
+      allCategories={allCategories}
       error={error}
       fromSubmission={fromSubmission}
     />
