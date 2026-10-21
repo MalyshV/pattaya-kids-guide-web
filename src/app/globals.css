@@ -376,6 +376,25 @@ input[type="checkbox"]:focus-visible {
   line-height: 1.6;
 }
 
+/* Текст из базы (описания, адреса, советы) бывает с длинным «словом» без
+   пробелов — ссылкой, номером. Без переноса оно вылезает за карточку, а
+   overflow-x: clip у body прячет это от прокрутки. anywhere, а не break-word:
+   длинное слово ещё и не распирает колонку сетки карточек. */
+.hero-description,
+.place-card-description,
+.event-card-description,
+.program-description,
+.activity-description,
+.place-card-address,
+.activity-venue-address,
+.birthday-card-address,
+.tip-item,
+.entry-price-note,
+.closure-note,
+.brand-sibling-note {
+  overflow-wrap: anywhere;
+}
+
 /* страница ошибки: «Попробовать снова» + ссылка в каталог, в ряд, на телефоне
    переносятся сами */
 .error-actions {
