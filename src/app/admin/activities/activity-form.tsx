@@ -4,7 +4,7 @@ import { ClassFields, type ClassFieldsItem } from "@/app/admin/class-fields";
 import { CoverPreview } from "@/app/admin/rotate-button";
 import { TipsFields } from "@/app/admin/tips-fields";
 import { AgeMonthsInput } from "@/app/admin/age-months-input";
-import type { PlaceProgram } from "@prisma/client";
+import type { ActivityCategory, PlaceProgram } from "@prisma/client";
 import { deleteActivityAction, saveActivityAction } from "@/app/admin/actions";
 import { OcrScratchpad } from "@/app/admin/ocr-scratchpad";
 import { PhotoField } from "@/app/admin/photo-field";
@@ -34,9 +34,11 @@ type ActivityFormProps = {
         _count?: { classes: number };
         classes?: ClassFieldsItem[];
         tips?: Array<{ text: string; textEn: string | null }>;
+        categories?: Array<{ categoryId: string }>;
       })
     | null;
   places: PlaceOption[];
+  allCategories: ActivityCategory[];
   error?: string;
   fromSubmission?: ActivityFormSubmission;
 };
@@ -60,10 +62,14 @@ function pattayaLocalValue(date: Date | null | undefined): string {
 export function ActivityForm({
   activity,
   places,
+  allCategories,
   error,
   fromSubmission,
 }: ActivityFormProps): React.ReactElement {
   const prefill = fromSubmission?.prefill;
+  const checkedCategories = new Set(
+    (activity?.categories ?? []).map((link) => link.categoryId),
+  );
   return (
     <section className="admin-card">
       <h1>{activity ? `Занятие: ${activity.name}` : "Новое занятие"}</h1>
@@ -78,6 +84,11 @@ export function ActivityForm({
       {error === "name" ? <p className="admin-error">Название обязательно.</p> : null}
       {error === "upload" ? (
         <p className="admin-error">Фото не загрузилось — проверьте формат и размер.</p>
+      ) : null}
+      {error === "categories" ? (
+        <p className="admin-error">
+          Занятие сохранено, а категории — нет. Отметьте их ещё раз и сохраните.
+        </p>
       ) : null}
 
       {/* как у мест: распознанный текст — в черновик для копирования */}
@@ -132,6 +143,25 @@ export function ActivityForm({
             <option value="MEMBERSHIP">абонемент (без своей страницы)</option>
           </select>
         </label>
+
+        <fieldset className="admin-fieldset">
+          <legend>Категории</legend>
+          {/* маркер: блок был в форме — без него (старая вкладка) категории не трогаем */}
+          <input type="hidden" name="activityCategoriesShown" value="1" />
+          <div className="admin-tri-grid">
+            {allCategories.map((category) => (
+              <label key={category.id} className="admin-check">
+                <input
+                  type="checkbox"
+                  name="activityCategoryIds"
+                  value={category.id}
+                  defaultChecked={checkedCategories.has(category.id)}
+                />
+                <span>{category.name}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
         <label className="admin-field">
           <span>Описание (рус)</span>
