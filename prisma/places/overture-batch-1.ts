@@ -21,6 +21,17 @@ export type DraftPlace = {
   /// только официальные страницы; неофициальные «страницы-места» не берём
   facebookUrl: string | null;
   animals: boolean;
+  /// поля ниже — с партий сбора 21.10.2026; в старых партиях их нет
+  instagramUrl?: string | null;
+  phone?: string | null;
+  lineUrl?: string | null;
+  /// slug'и из справочника Category; отсутствующие в справочнике — в отчёт
+  categorySlugs?: readonly string[];
+  indoor?: boolean;
+  outdoor?: boolean;
+  /// что известно из источников — уходит в описание с пометкой «[черновик]»
+  about?: string | null;
+  otherSources?: readonly string[];
 };
 
 export const OVERTURE_BATCH_1: readonly DraftPlace[] = [

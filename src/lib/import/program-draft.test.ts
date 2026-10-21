@@ -24,6 +24,36 @@ describe("buildDraftNote", () => {
   });
 });
 
+describe("buildDraftNote — дополнительные каналы", () => {
+  it("добавляет Instagram, телефон, LINE, «что известно» и прочие источники", () => {
+    const note = buildDraftNote({
+      googleMapsUrl: "https://www.google.com/maps/place/X",
+      website: null,
+      facebookUrl: null,
+      instagramUrl: "https://www.instagram.com/x/",
+      phone: "081 234 5678",
+      lineUrl: "https://line.me/R/ti/p/%40x",
+      about: "бокс для детей от 6 лет",
+      otherSources: ["https://example.com/review"],
+    });
+    expect(note).toContain("Что известно: бокс для детей от 6 лет");
+    expect(note).toContain("Instagram: https://www.instagram.com/x/");
+    expect(note).toContain("Телефон: 081 234 5678");
+    expect(note).toContain("LINE: https://line.me/R/ti/p/%40x");
+    expect(note).toContain("Ещё: https://example.com/review");
+    expect(isDraftNote(note)).toBe(true);
+  });
+
+  it("без дополнительных полей не пишет пустых строк", () => {
+    const note = buildDraftNote({
+      googleMapsUrl: "https://www.google.com/maps/place/X",
+      website: null,
+      facebookUrl: null,
+    });
+    expect(note.split("\n")).toHaveLength(2);
+  });
+});
+
 describe("isDraftNote", () => {
   it("узнаёт служебную пометку", () => {
     const note = buildDraftNote({

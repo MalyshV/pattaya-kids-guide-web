@@ -7,7 +7,20 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 import { findDuplicate, type DraftIdentity } from "../../src/lib/import/draft-dedup";
+import { buildDraftNote } from "../../src/lib/import/program-draft";
 import type { DraftPlace } from "./overture-batch-1";
+
+/** Контакты черновика в порядке показа: сайт, соцсети, телефон, LINE. */
+function draftContacts(draft: DraftPlace): { type: string; value: string }[] {
+  const contacts: { type: string; value: string | null | undefined }[] = [
+    { type: "website", value: draft.website },
+    { type: "facebook", value: draft.facebookUrl },
+    { type: "instagram", value: draft.instagramUrl },
+    { type: "phone", value: draft.phone },
+    { type: "line", value: draft.lineUrl },
+  ];
+  return contacts.flatMap((c) => (c.value ? [{ type: c.type, value: c.value }] : []));
+}
 
 export async function runPlaceDrafts(drafts: readonly DraftPlace[]): Promise<void> {
   if (!process.env.DATABASE_URL) {
@@ -34,6 +47,12 @@ export async function runPlaceDrafts(drafts: readonly DraftPlace[]): Promise<voi
     });
     // сверяем и с каталогом, и с теми, что приняли в этой партии
     const known: DraftIdentity[] = existing.map((row) => ({ ...row }));
+    const categories = new Map<string, string>();
+    for (const category of await prisma.category.findMany({
+      select: { id: true, slug: true },
+    })) {
+      categories.set(category.slug, category.id);
+    }
 
     let created = 0;
     let skipped = 0;
@@ -56,37 +75,54 @@ export async function runPlaceDrafts(drafts: readonly DraftPlace[]): Promise<voi
         continue;
       }
       const tag = draft.animals ? " 🐾" : "";
+      const categoryIds = (draft.categorySlugs ?? []).flatMap((slug) => {
+        const id = categories.get(slug);
+        return id ? [id] : [];
+      });
+      const missing = (draft.categorySlugs ?? []).filter((slug) => !categories.has(slug));
+      const categoryNote =
+        missing.length > 0
+          ? ` (нет в справочнике: ${missing.join(", ")} — выбрать в админке)`
+          : "";
       if (write) {
-        const place = await prisma.place.create({
-          data: {
-            slug: draft.slug,
-            name: draft.name,
-            address: draft.address,
-            latitude: draft.latitude,
-            longitude: draft.longitude,
-            googleMapsUrl: draft.googleMapsUrl,
-            status: "PENDING",
-            sourceType: "IMPORT",
-            cityId: pattaya.id,
-          },
-        });
-        const contacts = [
-          draft.website && { type: "website", value: draft.website },
-          draft.facebookUrl && { type: "facebook", value: draft.facebookUrl },
-        ].filter((c): c is { type: string; value: string } => Boolean(c));
-        if (contacts.length > 0) {
-          await prisma.placeContact.createMany({
-            data: contacts.map((c, index) => ({
-              placeId: place.id,
-              type: c.type,
-              value: c.value,
-              order: index + 1,
-            })),
+        // место, контакты и категории — одной транзакцией: без полузаписанных черновиков
+        await prisma.$transaction(async (tx) => {
+          const place = await tx.place.create({
+            data: {
+              slug: draft.slug,
+              name: draft.name,
+              address: draft.address,
+              latitude: draft.latitude,
+              longitude: draft.longitude,
+              googleMapsUrl: draft.googleMapsUrl,
+              description: draft.about ? buildDraftNote(draft) : null,
+              indoor: draft.indoor ?? false,
+              outdoor: draft.outdoor ?? false,
+              status: "PENDING",
+              sourceType: "IMPORT",
+              cityId: pattaya.id,
+            },
           });
-        }
-        console.log(`+ создан черновик «${draft.name}»${tag}`);
+          const contacts = draftContacts(draft);
+          if (contacts.length > 0) {
+            await tx.placeContact.createMany({
+              data: contacts.map((c, index) => ({
+                placeId: place.id,
+                type: c.type,
+                value: c.value,
+                order: index + 1,
+              })),
+            });
+          }
+          if (categoryIds.length > 0) {
+            await tx.placeCategory.createMany({
+              data: categoryIds.map((categoryId) => ({ placeId: place.id, categoryId })),
+            });
+          }
+        });
+        console.log(`+ создан черновик «${draft.name}»${tag}${categoryNote}`);
       } else {
-        console.log(`+ создал бы «${draft.name}»${tag}`);
+        console.log(`+ создал бы «${draft.name}»${tag}${categoryNote}`);
       }
       known.push(candidate);
       created += 1;
