@@ -18,7 +18,11 @@
       { "slug": "art", "th": "ศิลปะ" },
       { "slug": "music", "th": "ดนตรี" },
       { "slug": "math", "th": "คณิตศาสตร์" },
-      { "slug": "cooking", "th": "ทำอาหาร" }
+      { "slug": "cooking", "th": "ทำอาหาร" },
+      { "slug": "martial-arts", "th": "ศิลปะการต่อสู้" },
+      { "slug": "sport", "th": "ชมรมกีฬา" },
+      { "slug": "languages", "th": "ภาษา" },
+      { "slug": "robotics", "th": "หุ่นยนต์และโค้ดดิ้ง" }
     ],
     "ageGroups": [
       { "minAge": 0, "maxAge": 2, "th": "0–2 ปี" },

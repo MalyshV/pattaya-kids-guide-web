@@ -198,6 +198,10 @@ async function main() {
     { slug: "music", name: "Музыка", nameEn: "Music", order: 6 },
     { slug: "math", name: "Математика", nameEn: "Math", order: 7 },
     { slug: "cooking", name: "Кулинария", nameEn: "Cooking", order: 8 },
+    { slug: "martial-arts", name: "Единоборства", nameEn: "Martial arts", order: 9 },
+    { slug: "sport", name: "Спортивные секции", nameEn: "Sports clubs", order: 10 },
+    { slug: "languages", name: "Языки", nameEn: "Languages", order: 11 },
+    { slug: "robotics", name: "Роботы и код", nameEn: "Robotics & coding", order: 12 },
   ];
   for (const category of activityCategoriesData) {
     await prisma.activityCategory.upsert({
