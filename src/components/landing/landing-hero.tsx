@@ -9,7 +9,9 @@ import { yearsToAgeBucket } from "@/lib/landing/scenarios";
 /**
  * Первый экран посадочной — предложение-фильтр: «Хочу найти [место] [на
  * Пратамнаке] для ребёнка [3 лет] и пойти [прямо сейчас]». Слова в скобках — выпадающие
- * списки; кнопка ведёт сразу в готовую отфильтрованную выдачу. Ниже — те же
+ * списки; кнопка ведёт сразу в готовую отфильтрованную выдачу. В предложении
+ * только те слова, по которым каталог выбранного раздела умеет фильтровать:
+ * у занятий добавляется вид («занятие — плавание»), «когда» есть только у мест. Ниже — те же
  * живые сценарии кнопками в одно касание (сервер отдаёт только прошедшие
  * порог честности и подходящие ко времени суток).
  */
@@ -34,16 +36,31 @@ export type LandingDistrictDto = {
   phrase: string;
   /** строка в раскрытом списке — название района */
   optionLabel: string;
-  /** число мест в районе — тихая пометка справа */
-  hint: string;
+  /** сколько в районе мест, занятий и событий — пометка справа в списке */
+  counts: Record<DistrictKind, number>;
+};
+
+/** Разделы, у которых каталог фильтрует по району. */
+type DistrictKind = "places" | "events" | "activities";
+
+/** Вид занятия в предложении: «плавание», «роботы и код». */
+export type LandingActivityKindDto = {
+  slug: string;
+  /** слово в предложении (со строчной) */
+  phrase: string;
+  /** строка в раскрытом списке — название вида как в каталоге */
+  optionLabel: string;
+  count: number;
 };
 
 type LandingHeroProps = {
   basePath: string;
   listPath: string;
   quick: LandingQuickDto[];
-  /** районы, где есть места; пусто — слова-района в предложении нет */
+  /** районы, где что-то есть; пусто — слова-района в предложении нет */
   districts: LandingDistrictDto[];
+  /** виды занятий из каталога; пусто — слова-вида в предложении нет */
+  activityKinds: LandingActivityKindDto[];
   /** вечер: «с самого утра» ведёт в завтрашнее утро — подпись об этом */
   morningTomorrow: boolean;
   /** есть ли прямо сейчас открытые места: иначе «прямо сейчас» не предлагаем первым */
@@ -59,6 +76,7 @@ const WHEN_OPTIONS: When[] = ["now", "morning", "any"];
 const DEFAULT_AGE = "3";
 const AGE_ANY = "any";
 const DISTRICT_ANY = "";
+const KIND_ANY = "";
 const AGE_YEAR_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 export function LandingHero({
@@ -66,6 +84,7 @@ export function LandingHero({
   listPath,
   quick,
   districts,
+  activityKinds,
   morningTomorrow,
   hasOpenNow,
 }: LandingHeroProps): React.ReactElement {
@@ -73,6 +92,7 @@ export function LandingHero({
   const sentence = dict.landing.sentence;
   const [what, setWhat] = useState<What>("places");
   const [district, setDistrict] = useState<string>(DISTRICT_ANY);
+  const [kind, setKind] = useState<string>(KIND_ANY);
   const [age, setAge] = useState<string>(DEFAULT_AGE);
   const [when, setWhen] = useState<When>(hasOpenNow ? "now" : "any");
 
@@ -80,13 +100,32 @@ export function LandingHero({
     value,
     label: sentence.what[value],
   }));
+  // районы — только те, где в выбранном разделе что-то есть; число — его же
+  const districtKind: DistrictKind | null = what === "birthdays" ? null : what;
   const districtOptions: PickOption[] = [
     { value: DISTRICT_ANY, label: sentence.districtAny },
-    ...districts.map((option) => ({
+    ...(districtKind
+      ? districts
+          .filter((option) => option.counts[districtKind] > 0)
+          .map((option) => ({
+            value: option.slug,
+            label: option.phrase,
+            optionLabel: option.optionLabel,
+            hint: String(option.counts[districtKind]),
+          }))
+      : []),
+  ];
+  // сменили раздел — выбранного района в нём может не быть: тогда «любой»
+  const activeDistrict = districtOptions.some((option) => option.value === district)
+    ? district
+    : DISTRICT_ANY;
+  const kindOptions: PickOption[] = [
+    { value: KIND_ANY, label: sentence.kindAny },
+    ...activityKinds.map((option) => ({
       value: option.slug,
       label: option.phrase,
       optionLabel: option.optionLabel,
-      hint: option.hint,
+      hint: String(option.count),
     })),
   ];
   const ageOptions: PickOption[] = [
@@ -107,14 +146,19 @@ export function LandingHero({
   }));
 
   // возраст ДР-формата пока не фильтрует (см. BACKLOG) — слово прячем,
-  // чтобы предложение не обещало лишнего; «когда» и район есть только у мест
+  // чтобы предложение не обещало лишнего; «когда» есть только у мест, район —
+  // у мест, занятий и событий, вид — у занятий
   const showAge = what !== "birthdays";
   const showWhen = what === "places";
-  const showDistrict = what === "places" && districts.length > 0;
+  const showDistrict = districtOptions.length > 1;
+  const showKind = what === "activities" && activityKinds.length > 0;
 
   const params = new URLSearchParams();
-  if (showDistrict && district !== DISTRICT_ANY) {
-    params.set("district", district);
+  if (showKind && kind !== KIND_ANY) {
+    params.set("category", kind);
+  }
+  if (showDistrict && activeDistrict !== DISTRICT_ANY) {
+    params.set("district", activeDistrict);
   }
   if (showAge && age !== AGE_ANY) {
     params.set("age", yearsToAgeBucket(Number(age)));
@@ -170,10 +214,24 @@ export function LandingHero({
               options={whatOptions}
               onChange={(value) => setWhat(value as What)}
             />{" "}
+            {showKind ? (
+              <>
+                {/* тире и вид занятия переносятся вместе: «— плавание» */}
+                <span className="landing-sentence-group">
+                  <span aria-hidden="true">—</span>{" "}
+                  <SentencePick
+                    ariaLabel={sentence.kindAria}
+                    value={kind}
+                    options={kindOptions}
+                    onChange={setKind}
+                  />
+                </span>{" "}
+              </>
+            ) : null}
             {showDistrict ? (
               <SentencePick
                 ariaLabel={sentence.districtAria}
-                value={district}
+                value={activeDistrict}
                 options={districtOptions}
                 onChange={setDistrict}
               />

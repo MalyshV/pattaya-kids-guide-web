@@ -272,6 +272,8 @@ export const en: Dictionary = {
         activities: "a class",
         birthdays: "a birthday venue",
       },
+      kindAria: "Kind of activity",
+      kindAny: "any",
       districtAria: "City district",
       districtAny: "in any district",
       inDistrict: (name: string): string => `in ${name}`,

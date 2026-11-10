@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import {
   LandingHero,
+  type LandingActivityKindDto,
   type LandingDistrictDto,
   type LandingQuickDto,
   type LandingQuickKey,
@@ -34,7 +35,14 @@ import { isActivityActive } from "@/lib/activities/activity-sort";
 import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
 import { getCityDistrictDefinitions } from "@/lib/districts/city-districts";
 import { countByDistrict, placeDistrictSlug } from "@/lib/districts/place-district";
-import { meanPoint, type GeoPosition } from "@/lib/districts/district-page";
+import {
+  activityDistrictSlug,
+  eventDistrictSlug,
+  meanPoint,
+  type GeoPosition,
+} from "@/lib/districts/district-page";
+import { placeDistrictMap } from "@/lib/districts/district-facet";
+import { pickLocalized } from "@/lib/i18n/localize";
 import { toDistrictDto } from "@/mappers/district.mapper";
 import {
   isGoNowStatus,
@@ -215,15 +223,82 @@ export default async function CityLandingPage({
     locativeRu: district.locativeRu,
     count,
   }));
-  const sentenceDistricts: LandingDistrictDto[] = districtCounts.map(
-    ({ slug, name, locativeRu, count }) => ({
-      slug,
-      phrase:
-        lang === "ru" && locativeRu ? locativeRu : dict.landing.sentence.inDistrict(name),
-      optionLabel: name,
-      hint: String(count),
-    }),
+  // Район в предложении есть у мест, занятий и событий — у каждого раздела
+  // свой счёт: занятие и событие при месте наследуют его район, как в их
+  // каталогах. В списке остаются районы, где есть хоть что-то.
+  const placeDistricts = placeDistrictMap(places, districtDefinitions);
+  const countsBySlug = (slugs: Array<string | null>): Map<string, number> =>
+    new Map(
+      countByDistrict(slugs, districtDefinitions).map(({ district, count }) => [
+        district.slug,
+        count,
+      ]),
+    );
+  const placeCounts = countsBySlug([...placeDistricts.values()]);
+  const activityCounts = countsBySlug(
+    cityActivities.map((activity) =>
+      activityDistrictSlug(activity, placeDistricts, districtDefinitions),
+    ),
   );
+  const eventCounts = countsBySlug(
+    cityEvents.map((event) =>
+      eventDistrictSlug(event, placeDistricts, districtDefinitions),
+    ),
+  );
+  const sentenceDistricts: LandingDistrictDto[] = [...districtDefinitions]
+    .sort((a, b) => a.order - b.order)
+    .map((definition) => {
+      const { slug, name } = toDistrictDto(definition, lang);
+      return {
+        slug,
+        // по-русски у района своя форма «где?», в остальных языках — шаблон
+        phrase:
+          lang === "ru" && definition.locativeRu
+            ? definition.locativeRu
+            : dict.landing.sentence.inDistrict(name),
+        optionLabel: name,
+        counts: {
+          places: placeCounts.get(slug) ?? 0,
+          activities: activityCounts.get(slug) ?? 0,
+          events: eventCounts.get(slug) ?? 0,
+        },
+      };
+    })
+    .filter(({ counts }) => counts.places + counts.activities + counts.events > 0);
+
+  // Вид занятия в предложении — те же виды и в том же порядке, что чипы
+  // каталога занятий; в предложении слово пишется со строчной.
+  const kindMap = new Map<string, LandingActivityKindDto & { order: number }>();
+  for (const activity of cityActivities) {
+    for (const link of activity.categories) {
+      const known = kindMap.get(link.category.slug);
+      if (known) {
+        known.count += 1;
+        continue;
+      }
+      const name = pickLocalized(
+        link.category.name,
+        link.category.nameEn,
+        link.category.nameTh,
+        lang,
+      );
+      kindMap.set(link.category.slug, {
+        slug: link.category.slug,
+        phrase: name.toLocaleLowerCase(lang),
+        optionLabel: name,
+        count: 1,
+        order: link.category.order,
+      });
+    }
+  }
+  const activityKinds: LandingActivityKindDto[] = [...kindMap.values()]
+    .sort((a, b) => a.order - b.order)
+    .map(({ slug, phrase, optionLabel, count }) => ({
+      slug,
+      phrase,
+      optionLabel,
+      count,
+    }));
 
   // районы для карты: под курсором или пальцем район подсвечивается, в нём
   // появляется подпись-ссылка на его страницу. Якорь подписи — среднее по
@@ -348,6 +423,7 @@ export default async function CityLandingPage({
         listPath={listPath}
         quick={quick}
         districts={sentenceDistricts}
+        activityKinds={activityKinds}
         morningTomorrow={isMorningTomorrow(city.timezone)}
         hasOpenNow={(counts.openNow ?? 0) > 0}
       />

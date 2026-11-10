@@ -274,6 +274,8 @@ export const th: Dictionary = {
         activities: "คลาสเรียน",
         birthdays: "สถานที่จัดงานวันเกิด",
       },
+      kindAria: "ประเภทคลาส",
+      kindAny: "ทุกประเภท",
       districtAria: "ย่านในเมือง",
       districtAny: "ย่านไหนก็ได้",
       inDistrict: (name: string): string => `ย่าน${name}`,

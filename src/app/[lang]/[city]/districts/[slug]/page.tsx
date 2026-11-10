@@ -12,8 +12,9 @@ import {
   getCitySeaLongitude,
 } from "@/lib/districts/city-districts";
 import {
+  activityDistrictSlug,
+  eventDistrictSlug,
   landVertices,
-  linkedDistrictSlug,
   meanPoint,
 } from "@/lib/districts/district-page";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
@@ -132,17 +133,9 @@ export default async function DistrictPage({
   for (const event of liveEvents) {
     const point = eventToMapPoint(event, basePath, lang);
     if (point) {
-      // у события могут быть свои координаты (проходит не в самом месте) —
-      // тогда район считается по ним, а не наследуется
-      const ownCoordinates = event.latitude != null && event.longitude != null;
       put(
-        linkedDistrictSlug({
-          placeId: ownCoordinates ? null : event.place?.id,
-          placeDistricts,
-          latitude: point.latitude,
-          longitude: point.longitude,
-          districts: definitions,
-        }),
+        // район события — тем же правилом, что в афише
+        eventDistrictSlug(event, placeDistricts, definitions),
         toDistrictItem(
           point,
           eventItemMeta(mapEventListItemToDto(event, lang), lang, city.timezone),
@@ -158,14 +151,8 @@ export default async function DistrictPage({
     const point = activityToMapPoint(activity, basePath, lang);
     if (point) {
       put(
-        // занятие при месте стоит на его координатах — район тоже его
-        linkedDistrictSlug({
-          placeId: activity.place?.id,
-          placeDistricts,
-          latitude: point.latitude,
-          longitude: point.longitude,
-          districts: definitions,
-        }),
+        // район занятия — тем же правилом, что в каталоге занятий
+        activityDistrictSlug(activity, placeDistricts, definitions),
         toDistrictItem(
           point,
           activityItemMeta(mapActivityToListItem(activity, lang), lang),

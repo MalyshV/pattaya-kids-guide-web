@@ -4399,6 +4399,13 @@ a.tip-source:hover {
   column-gap: 0.28em;
 }
 
+/* части, которые переносятся только вместе: тире и вид занятия */
+.landing-sentence-group {
+  display: inline-flex;
+  align-items: baseline;
+  column-gap: 0.28em;
+}
+
 /* тайский: надстрочные и подстрочные знаки — строкам нужно больше воздуха,
    иначе соседние строки предложения задевают друг друга */
 html[lang="th"] .landing-sentence {
