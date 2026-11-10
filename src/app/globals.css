@@ -1389,7 +1389,7 @@ a.admin-button {
   border: 1px solid var(--border-soft);
 }
 
-/* лайтбокс: клик по фото — увеличить; закрыть — шарик, Esc или клик вне */
+/* лайтбокс: клик по фото — увеличить; закрыть — крестик, Esc или клик вне */
 .zoomable-trigger {
   display: block;
   width: 100%;
@@ -1547,7 +1547,8 @@ a.admin-button {
   line-height: 1.55;
 }
 
-/* кнопка-шарик: тихонько покачивается; нажали — улетает вверх.
+/* кнопка закрытия — крестик двумя мазками туши на бумажном круге; стоит
+   спокойно, без покачивания (решение 10.11).
    Висит ЗА пределами фото — сразу над его верхним-правым углом (absolute внутри
    .lightbox-figure), не перекрывая картинку и не улетая в угол экрана. */
 .lightbox-close {
@@ -1563,10 +1564,14 @@ a.admin-button {
   border: none;
   border-radius: 50%;
   background: var(--surface);
-  color: var(--accent-text);
+  color: var(--foreground);
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-  animation: balloon-bob 3.4s ease-in-out infinite;
+  transition: color 0.15s ease;
+}
+
+.lightbox-close:hover {
+  color: var(--accent-text);
 }
 
 .lightbox-close:focus-visible {
@@ -1574,9 +1579,9 @@ a.admin-button {
   outline-offset: 2px;
 }
 
-.balloon-icon {
-  width: 28px;
-  height: 28px;
+.lightbox-close-icon {
+  width: 26px;
+  height: 26px;
 }
 
 /* стрелки листания карусели: спокойные круглые кнопки по краям */
@@ -1648,32 +1653,9 @@ a.admin-button {
   }
 }
 
-@keyframes balloon-bob {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-4px) rotate(3deg);
-  }
-}
-
-.lightbox-close-leaving {
-  animation: balloon-fly 0.3s ease-in forwards;
-}
-
-@keyframes balloon-fly {
-  to {
-    transform: translateY(-90px) rotate(10deg);
-    opacity: 0;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .lightbox-overlay,
-  .lightbox-img,
-  .lightbox-close,
-  .lightbox-close-leaving {
+  .lightbox-img {
     animation: none;
   }
 }
