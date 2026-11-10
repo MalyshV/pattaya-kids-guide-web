@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  activityDistrictSlug,
+  eventDistrictSlug,
   landVertices,
   linkedDistrictSlug,
   meanPoint,
@@ -125,5 +127,61 @@ describe("linkedDistrictSlug", () => {
         districts,
       }),
     ).toBe("b");
+  });
+});
+
+describe("activityDistrictSlug и eventDistrictSlug", () => {
+  const square = (slug: string, west: number): DistrictDefinition => ({
+    slug,
+    name: slug,
+    nameEn: slug,
+    nameTh: slug,
+    order: 10,
+    boundary: [
+      [0, west],
+      [0, west + 1],
+      [1, west + 1],
+      [1, west],
+    ],
+  });
+  const districts = [square("a", 0), square("b", 1)];
+  // место стоит в «b», но вручную отнесено к «a»
+  const studio = { id: "studio", latitude: 0.5, longitude: 1.5 };
+  const placeDistricts = new Map<string, string | null>([["studio", "a"]]);
+
+  it("занятие при месте наследует его район", () => {
+    expect(activityDistrictSlug({ place: studio }, placeDistricts, districts)).toBe("a");
+  });
+
+  it("занятие на своей площадке — по её координатам", () => {
+    expect(
+      activityDistrictSlug(
+        { place: null, venueLatitude: 0.5, venueLongitude: 1.5 },
+        placeDistricts,
+        districts,
+      ),
+    ).toBe("b");
+  });
+
+  it("занятие без координат — без района", () => {
+    expect(activityDistrictSlug({ place: null }, placeDistricts, districts)).toBeNull();
+  });
+
+  it("событие при месте наследует его район", () => {
+    expect(eventDistrictSlug({ place: studio }, placeDistricts, districts)).toBe("a");
+  });
+
+  it("событие со своими координатами — по ним, даже при месте", () => {
+    expect(
+      eventDistrictSlug(
+        { latitude: 0.5, longitude: 1.5, place: studio },
+        placeDistricts,
+        districts,
+      ),
+    ).toBe("b");
+  });
+
+  it("событие без координат — без района", () => {
+    expect(eventDistrictSlug({ place: null }, placeDistricts, districts)).toBeNull();
   });
 });

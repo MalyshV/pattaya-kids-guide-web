@@ -7,11 +7,13 @@ type ActivitiesPaginationProps = {
   basePath: string;
   age?: string;
   category?: string;
+  /** выбранный район (?district=) — переживает листание */
+  district?: string;
 };
 
 function buildPageHref(
   page: number,
-  params: { age?: string; category?: string },
+  params: { age?: string; category?: string; district?: string },
   basePath: string,
 ): string {
   const searchParams = new URLSearchParams();
@@ -21,6 +23,9 @@ function buildPageHref(
   }
   if (params.category) {
     searchParams.set("category", params.category);
+  }
+  if (params.district) {
+    searchParams.set("district", params.district);
   }
 
   searchParams.set("page", String(page));
@@ -36,6 +41,7 @@ export function ActivitiesPagination({
   basePath,
   age,
   category,
+  district,
 }: ActivitiesPaginationProps): React.ReactElement | null {
   const dict = getDictionary(langFromPath(basePath));
 
@@ -43,7 +49,7 @@ export function ActivitiesPagination({
     return null;
   }
 
-  const params = { age, category };
+  const params = { age, category, district };
   const hasPrevious = currentPage > 1;
   const hasNext = currentPage < totalPages;
 
