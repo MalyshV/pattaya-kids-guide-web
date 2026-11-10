@@ -18,7 +18,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         result.total,
         result.page,
         result.limit,
-        mapPlaceToDto,
+        // стрелка, а не сам маппер: items.map передал бы индекс и массив
+        // вторым и третьим аргументами (язык и районы)
+        (place) => mapPlaceToDto(place),
       ),
     );
   } catch (error) {

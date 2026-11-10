@@ -27,7 +27,7 @@ function withAge(href: string, age: string | null): string {
   return `${href}?${params.toString()}`;
 }
 
-/** Разделы строкой — широкий экран внутренних страниц. */
+/** Разделы строкой — широкий экран. */
 function SectionLinks({
   basePath,
   age,
@@ -76,37 +76,28 @@ function SectionLinks({
  * Навигация шапки — один ориентир «Разделы сайта» на всех страницах.
  * Память родителя везде одна дверь: значок ♡✓ с меню «Сохранённое · Были
  * здесь» (решение Вероники 21.09 вместо двух ссылок на одну страницу — обе
- * функции и их счётчики видны в меню до перехода). Разделы: на посадочной
- * всегда свёрнуты в меню ▦ (первый экран встречает вопросом); на внутренних
- * страницах в разметке и строка (широкий экран), и меню ▦ (телефон, планшет) —
- * какой вид показать, решает CSS по ширине, поэтому гидрация не мигает. Тема
- * на узком экране (до 850px) — на всех страницах, включая посадочную, —
- * уезжает пунктом в меню ▦: шапка везде одна строка «логотип … ▦ ♡✓ лупа
- * язык» (решение Вероники 21.09).
+ * функции и их счётчики видны в меню до перехода). Разделы на всех страницах,
+ * включая посадочную (решение 10.11: доступ к разделам — с первого экрана):
+ * в разметке и строка (широкий экран), и меню ▦ (телефон, планшет) — какой
+ * вид показать, решает CSS по ширине, поэтому гидрация не мигает. Тема на
+ * узком экране (до 850px) уезжает пунктом в меню ▦: шапка везде одна строка
+ * «логотип … ▦ ♡✓ лупа язык» (решение 21.09).
  */
 function HeaderNav({
   basePath,
   age,
-  isLanding,
 }: {
   basePath: string;
   age: string | null;
-  isLanding: boolean;
 }): React.ReactElement {
   const dict = useDictionary();
 
   return (
     <nav className="header-compact-nav" aria-label={dict.nav.aria}>
-      {isLanding ? (
+      <SectionLinks basePath={basePath} age={age} />
+      <div className="header-sections-compact">
         <SectionsMenu basePath={basePath} age={age} withTheme />
-      ) : (
-        <>
-          <SectionLinks basePath={basePath} age={age} />
-          <div className="header-sections-compact">
-            <SectionsMenu basePath={basePath} age={age} withTheme />
-          </div>
-        </>
-      )}
+      </div>
       <MemoryMenu basePath={basePath} age={age} />
     </nav>
   );
@@ -120,13 +111,11 @@ function HeaderRight({
   searchItems?: SearchItemDto[];
 }): React.ReactElement {
   const searchParams = useSearchParams();
-  const pathname = usePathname();
   const age = searchParams.get("age");
-  const isLanding = pathname === basePath;
 
   return (
     <div className="site-header-right">
-      <HeaderNav basePath={basePath} age={age} isLanding={isLanding} />
+      <HeaderNav basePath={basePath} age={age} />
       {searchItems ? <HeaderSearch items={searchItems} /> : null}
       <ThemeToggle />
       <LanguageMenu />
@@ -139,13 +128,11 @@ export function SiteHeader({
   searchItems,
 }: SiteHeaderProps): React.ReactElement {
   const pathname = usePathname();
-  const isLanding = pathname === basePath;
 
   // Считаем клиентские переходы для SmartBackLink: только смену pathname,
   // первый рендер страницы переходом не является. Живёт в SiteHeader (а не в
-  // NavLinks): на посадочной вместо NavLinks рендерятся кнопки-меню, а шапка
-  // смонтирована всегда — иначе первый переход с посадочной не считался бы
-  // и «← Назад» на детальной вёл бы в каталог вместо возврата.
+  // навигации): шапка смонтирована всегда, поэтому считается и самый первый
+  // переход — иначе «← Назад» на детальной вёл бы в каталог вместо возврата.
   const prevPathnameRef = useRef(pathname);
   useEffect(() => {
     if (prevPathnameRef.current !== pathname) {
@@ -165,7 +152,7 @@ export function SiteHeader({
         <Suspense
           fallback={
             <div className="site-header-right">
-              <HeaderNav basePath={basePath} age={null} isLanding={isLanding} />
+              <HeaderNav basePath={basePath} age={null} />
               <ThemeToggle />
             </div>
           }

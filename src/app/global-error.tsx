@@ -7,7 +7,7 @@ import { applyStoredTheme } from "@/lib/theme/theme-script";
  * Аварийная граница на случай сбоя в САМОМ корневом layout: Next рендерит
  * этот файл вместо всего дерева, поэтому здесь свои <html>/<body> и стили
  * отдельным <style> (globals.css может не примениться). Крайне редкий случай —
- * держим минимальным и в тёплой палитре, без техножаргона. Язык не
+ * держим минимальным и в палитре сайта (лист и тушь), без техножаргона. Язык не
  * определить надёжно (layout упал) — текст на русском, основном для гида.
  *
  * Тема: страница обязана уважать её, иначе у тёмного пользователя сбой
@@ -16,15 +16,16 @@ import { applyStoredTheme } from "@/lib/theme/theme-script";
  * prefers-color-scheme, а сохранённый выбор («тёмная при светлой системе»)
  * доставляет applyStoredTheme в эффекте. Инлайн-скрипт, как в рабочих
  * layout, здесь не годится: эту границу React рендерит уже на клиенте, а
- * вставленный им <script> браузер не исполняет.
+ * вставленный им <script> браузер не исполняет. Пока тёмная тема выключена
+ * (DARK_THEME_ENABLED), applyStoredTheme всегда ставит светлую.
  */
 const ERROR_STYLES = `
 :root {
-  --bg: #f6f3ee;
-  --fg: #1f1c18;
-  --muted: #6b6358;
-  --accent-text: #a65136;
-  --accent-fill: #a9563a;
+  --bg: #fdfdfb;
+  --fg: #26323b;
+  --muted: #5e6b74;
+  --accent-text: #1f5f78;
+  --accent-fill: #26323b;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
@@ -38,10 +39,11 @@ const ERROR_STYLES = `
   }
 }
 html[data-theme="light"] {
-  --bg: #f6f3ee;
-  --fg: #1f1c18;
-  --muted: #6b6358;
-  --accent-text: #a65136;
+  --bg: #fdfdfb;
+  --fg: #26323b;
+  --muted: #5e6b74;
+  --accent-text: #1f5f78;
+  --accent-fill: #26323b;
   color-scheme: light;
 }
 html[data-theme="dark"] {
@@ -49,6 +51,7 @@ html[data-theme="dark"] {
   --fg: #ede5d8;
   --muted: #b3a897;
   --accent-text: #e89a70;
+  --accent-fill: #a9563a;
   color-scheme: dark;
 }
 body {
@@ -75,8 +78,8 @@ body {
 .error-text { margin: 0 0 24px; color: var(--muted); line-height: 1.6; }
 .error-button {
   border: none;
-  border-radius: 14px;
-  padding: 12px 20px;
+  border-radius: 999px;
+  padding: 14px 26px;
   background: var(--accent-fill);
   color: #ffffff;
   font-size: 16px;

@@ -1,3 +1,4 @@
+import type { DistrictDto } from "@/dto/district.dto";
 import type { ClosureKind } from "@/lib/places/closure";
 
 export type PlaceDto = {
@@ -10,6 +11,8 @@ export type PlaceDto = {
   description: string | null;
   imageUrl: string | null;
   address: string;
+  /** район города на языке страницы; null — вне районов или город без районов */
+  district: DistrictDto | null;
   latitude: number;
   longitude: number;
   googleMapsUrl: string | null;

@@ -18,8 +18,19 @@ type PlaceImageProps = {
   priority?: boolean;
 };
 
+const PLACEHOLDER_VARIANTS = 4;
+
+/** Номер акварельной заглушки (0–3) — стабильный хэш подписи. */
+function placeholderVariant(seed: string): number {
+  let hash = 0;
+  for (const char of seed) {
+    hash = (hash * 31 + (char.codePointAt(0) ?? 0)) % 9973;
+  }
+  return hash % PLACEHOLDER_VARIANTS;
+}
+
 /**
- * Обложка места: фото (когда есть imageUrl) или спокойный плейсхолдер (когда
+ * Обложка места: фото (когда есть imageUrl) или акварельная заглушка (когда
  * нет — видно, куда встанет фото). next/image ужимает исходники под экран:
  * оригиналы по 200–400 КБ превращаются в ~30–60 КБ — страница летает даже
  * на медленном интернете. SVG-тестовые обложки отдаём как есть.
@@ -34,28 +45,15 @@ export function PlaceImage({
   const cls = `place-image${className ? ` ${className}` : ""}`;
 
   if (!url) {
-    // Нет фото — не пустой серый провал, а наш фирменный шарик на тёплом
-    // ореоле: тот же мотив, что у кнопки-закрывашки лайтбокса и пинов карты.
-    // «Обложка ждёт фото», спокойно и узнаваемо, а не «сломано».
+    // Нет фото — акварель в тонкой рамке: ракушка на размывке (рисунок —
+    // фоном в CSS, для скринридера это украшение). Вариант выбираем по
+    // подписи: у одного места заглушка всегда та же, а соседние в сетке
+    // не повторяются подряд.
     return (
-      <div className={`${cls} place-image-empty`} aria-hidden="true">
-        <svg
-          viewBox="0 0 64 64"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <ellipse cx="32" cy="25" rx="14" ry="16" />
-          {/* блик на куполе */}
-          <path d="M25 18a8 8 0 0 1 4.6-3.6" />
-          {/* узелок */}
-          <path d="M29.4 41.2 32 39l2.6 2.2z" />
-          {/* ниточка волной */}
-          <path d="M32 41.6c-3.2 3-3.2 5.6 0 8.6s3.2 5 0 6.4" />
-        </svg>
-      </div>
+      <div
+        className={`${cls} place-image-empty place-image-empty-${placeholderVariant(alt)}`}
+        aria-hidden="true"
+      />
     );
   }
 

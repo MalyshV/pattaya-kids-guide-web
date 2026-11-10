@@ -75,6 +75,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
   {
     slug: "naklua-wongamat",
     name: "Наклуа и Вонгамат",
+    locativeRu: "в Наклуа и Вонгамате",
     nameEn: "Naklua & Wongamat",
     nameTh: "นาเกลือ-วงศ์อมาตย์",
     order: 10,
@@ -83,6 +84,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
   {
     slug: "north-pattaya",
     name: "Северная Паттайя",
+    locativeRu: "в Северной Паттайе",
     nameEn: "North Pattaya",
     nameTh: "พัทยาเหนือ",
     order: 20,
@@ -91,6 +93,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
   {
     slug: "central-pattaya",
     name: "Центральная Паттайя",
+    locativeRu: "в Центральной Паттайе",
     nameEn: "Central Pattaya",
     nameTh: "พัทยากลาง",
     order: 30,
@@ -99,6 +102,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
   {
     slug: "south-pattaya",
     name: "Южная Паттайя",
+    locativeRu: "в Южной Паттайе",
     nameEn: "South Pattaya",
     nameTh: "พัทยาใต้",
     order: 40,
@@ -114,6 +118,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
   {
     slug: "pratumnak",
     name: "Пратамнак",
+    locativeRu: "на Пратамнаке",
     nameEn: "Pratumnak",
     nameTh: "พระตำหนัก",
     order: 50,
@@ -128,6 +133,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
   {
     slug: "jomtien",
     name: "Джомтьен",
+    locativeRu: "на Джомтьене",
     nameEn: "Jomtien",
     nameTh: "จอมเทียน",
     order: 60,
@@ -145,6 +151,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
   {
     slug: "na-jomtien",
     name: "На Джомтьен",
+    locativeRu: "в На Джомтьене",
     nameEn: "Na Jomtien",
     nameTh: "นาจอมเทียน",
     order: 70,
@@ -165,6 +172,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
   {
     slug: "bang-saray",
     name: "Банг Сарай",
+    locativeRu: "в Банг Сарае",
     nameEn: "Bang Saray",
     nameTh: "บางเสร่",
     order: 80,
@@ -180,6 +188,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
   {
     slug: "east-pattaya",
     name: "Восточная Паттайя",
+    locativeRu: "в Восточной Паттайе",
     nameEn: "East Pattaya",
     nameTh: "พัทยาตะวันออก",
     order: 90,
@@ -201,6 +210,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
   {
     slug: "siam-country-club",
     name: "Siam Country Club",
+    locativeRu: "у Siam Country Club",
     nameEn: "Siam Country Club",
     nameTh: "สยามคันทรีคลับ",
     order: 100,
@@ -216,6 +226,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
   {
     slug: "mabprachan",
     name: "Мабпрачан",
+    locativeRu: "у озера Мабпрачан",
     nameEn: "Mabprachan",
     nameTh: "มาบประชัน",
     order: 110,
@@ -224,6 +235,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
   {
     slug: "huay-yai",
     name: "Хуай Яй",
+    locativeRu: "в Хуай Яй",
     nameEn: "Huay Yai",
     nameTh: "ห้วยใหญ่",
     order: 120,

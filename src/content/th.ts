@@ -123,6 +123,11 @@ export const th: Dictionary = {
     filterApplying: "กำลังใช้ตัวกรองตามเครื่องหมาย “เคยไปแล้ว”…",
   },
 
+  districts: {
+    title: "ย่าน",
+    aria: "ย่านในเมือง",
+    any: "ทั้งเมือง",
+  },
   age: {
     question: "ลูกอายุเท่าไร?",
     all: "ทุกช่วงวัย",
@@ -163,6 +168,8 @@ export const th: Dictionary = {
     emptyTitle: "ไม่พบผลลัพธ์",
     emptyHint: "ลองปิดตัวกรองสักตัว",
     emptyAgeHint: "ยังไม่พบสถานที่สำหรับช่วงวัยนี้ — ลองเปลี่ยนช่วงวัยหรือยกเลิกการเลือก",
+    emptyDistrictHint:
+      "ย่านนี้ยังไม่มีสถานที่ที่ตรงเงื่อนไข — ลองย่านใกล้เคียงหรือดูทั้งเมือง",
     emptyCta: "แสดงสถานที่ทั้งหมด",
     emptyWorkTitle: "สถานที่แบบนี้ยังมีไม่มาก",
     emptyWorkHint:
@@ -240,48 +247,58 @@ export const th: Dictionary = {
 
   // тексты посадочной — черновой тайский, на нативное ревью (как весь th)
   landing: {
-    // «วันนี้» отражает «прямо сейчас» и разводит title с каталогом мест
     metaTitle: "วันนี้พาลูกไปเที่ยวที่ไหนดีในพัทยา",
-    question: "ตอนนี้กำลังมองหาอะไรอยู่?",
-    slotNotes: {
-      morning: "ตอนเช้า — คำตอบจะเปลี่ยนตอนเย็น",
-      day: "ตอนกลางวัน — คำตอบจะเปลี่ยนตอนเย็น",
-      evening: "ตอนเย็น — พรุ่งนี้เช้าจะมีคำตอบใหม่",
-      // «поздний час» идёт и после полуночи — там «завтра утром» уже неверно
-      night: "ดึกแล้ว — ตอนเช้าจะมีคำตอบใหม่",
+    // черновик на вычитку носителем: порядок слов в предложении-фильтре
+    eyebrow: "พัทยา · ไกด์สำหรับพ่อแม่",
+    sentence: {
+      lead: "กำลังมองหา",
+      whatAria: "สิ่งที่กำลังมองหา",
+      what: {
+        places: "สถานที่",
+        events: "กิจกรรม",
+        activities: "คลาสเรียน",
+        birthdays: "สถานที่จัดงานวันเกิด",
+      },
+      districtAria: "ย่านในเมือง",
+      districtAny: "ย่านไหนก็ได้",
+      inDistrict: (name: string): string => `ย่าน${name}`,
+      forChild: "สำหรับเด็ก",
+      ageAria: "อายุของเด็ก",
+      ageAny: "ทุกช่วงวัย",
+      age: (years: number): string => {
+        if (years < 1) {
+          return "อายุไม่ถึง 1 ขวบ";
+        }
+        return `อายุ ${years} ขวบ`;
+      },
+      whenLead: "ไป",
+      whenAria: "จะไปเมื่อไหร่",
+      when: {
+        now: "ตอนนี้เลย",
+        morning: "ตั้งแต่เช้า",
+        morningTomorrow: "พรุ่งนี้เช้า",
+        any: "เมื่อไหร่ก็ได้",
+      },
+      cta: "แสดง",
+      onMap: "หรือดูบนแผนที่",
     },
-    refresh: "ดูตัวเลือกอื่น",
-    refreshAria: "แสดงตัวเลือกอื่น",
-    allCatalog: "ดูทั้งหมด",
-    mapTitle: "บนแผนที่",
-    onMap: "ดูบนแผนที่",
-    scenarios: {
-      ageBefore: "กิจกรรมสำหรับเด็กวัย",
-      ageHint: "คลาสเรียนและกิจกรรมตามวัย",
-      ageAria: "อายุของลูก",
-      workFriendly: "ที่นั่งทำงานได้",
-      workFriendlyHint: "ลูกเล่น — คุณทำงาน: Wi-Fi แอร์ คาเฟ่",
-      openMorning: "เปิดตั้งแต่เช้า",
-      openMorningHint: "เปิดแล้วตั้งแต่ 8:00–9:00",
-      openMorningTomorrow: "พรุ่งนี้เปิดตั้งแต่เช้า",
-      openNow: "ไปได้เลยตอนนี้",
-      openNowHint: "เปิดอยู่ตอนนี้ หรือกำลังจะเปิด",
-      openNowHintOpen: "เปิดอยู่ตอนนี้",
-      shelter: "หลบร้อน",
-      shelterHint: "เย็นสบาย: แอร์หรือร่มเงา — และหลบฝนได้",
-      events: "สัปดาห์นี้มีอะไรบ้าง",
-      eventsHint: "อีเวนต์ที่กำลังจะมาถึง",
-      birthdays: "จัดวันเกิด",
-      birthdaysHint: "สถานที่และแพ็กเกจวันเกิด",
-      near: "ใกล้ฉัน",
-      nearHint: "ที่ใกล้ที่สุดขึ้นก่อน ตำแหน่งอยู่ในเบราว์เซอร์ของคุณ",
+    quickAria: "ตัวเลือกด่วน",
+    sections: {
+      placesHint: "เพลย์กราวด์ คาเฟ่ สวน ชายหาด",
+      eventsHint: "เทศกาล เวิร์กช็อป งานแฟร์",
+      activitiesHint: "คลาส ชมรม และแคมป์",
+      birthdaysHint: "สถานที่และสิ่งที่รวมอยู่",
+      birthdaysLabel: "จัดงานที่ไหนดี",
     },
-    ageOption: (years: number): string => {
-      if (years < 1) {
-        return "ไม่ถึง 1 ขวบ";
-      }
-      return `${years} ขวบ`;
-    },
+    openNowTitle: "เปิดอยู่ตอนนี้",
+    allPlaces: "สถานที่ทั้งหมด",
+    soonTitle: "เร็ว ๆ นี้",
+    soonHint: "กิจกรรมที่ยังไปทัน",
+    allEvents: "กิจกรรมทั้งหมด",
+    mapEyebrow: "แผนที่",
+    mapTitle: "ทุกอย่างใกล้คุณบนแผนที่เดียว",
+    districtsTitle: "อยู่ย่านไหนดีเมื่อมีลูก",
+    districtsHint: "เลือกย่าน แล้วดูสถานที่สำหรับเด็กในย่านนั้นบนแผนที่",
   },
 
   scenarios: {

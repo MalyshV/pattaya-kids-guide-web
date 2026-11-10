@@ -18,6 +18,7 @@ import { placeDisplayName } from "@/lib/places/display-name";
 import { computePlaceStatus, isClosureStatus } from "@/lib/places/closure";
 import { ClosureNotice } from "@/components/places/closure-notice";
 import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
+import { getCityDistrictDefinitions } from "@/lib/districts/city-districts";
 import { nowInCity, todayClosingTime } from "@/lib/schedule/open-status";
 import { JsonLd } from "@/components/seo/json-ld";
 import { absoluteUrl, breadcrumbJsonLd, placeJsonLd } from "@/lib/seo/json-ld";
@@ -206,7 +207,11 @@ export default async function PlaceDetailsPage({
   const events = await getUpcomingApprovedEventsByPlaceId(place.id);
   const eventDtos = events.map((event) => mapEventToDto(event, lang));
 
-  const dto: PlaceDetailsDto = mapPlaceDetailsToDto(place, lang);
+  const dto: PlaceDetailsDto = mapPlaceDetailsToDto(
+    place,
+    lang,
+    getCityDistrictDefinitions(citySlug),
+  );
 
   // другие точки сети в этом городе — блок «Другие {сеть} в {городе}»
   const siblingRows = place.brandId
@@ -321,7 +326,21 @@ export default async function PlaceDetailsPage({
       />
 
       <section className="hero">
-        <p className="eyebrow">{dict.placeDetails.eyebrow}</p>
+        <p className="eyebrow">
+          {dict.placeDetails.eyebrow}
+          {dto.district ? (
+            <>
+              {" · "}
+              {/* район — ссылка: всё, что есть в этом районе */}
+              <Link
+                href={`${basePath}/places?district=${dto.district.slug}`}
+                className="eyebrow-link"
+              >
+                {dto.district.name}
+              </Link>
+            </>
+          ) : null}
+        </p>
         <h1 className="hero-title">{dto.name}</h1>
         {dto.closureDetails ? (
           <ClosureNotice

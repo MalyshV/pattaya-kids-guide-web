@@ -34,12 +34,23 @@ export function PlaceCard({
   const isClosedToday =
     status !== undefined && (status.kind === "closedToday" || isClosureStatus(status));
 
+  // одной строкой: район · В помещении · На улице (+ расстояние в «Рядом»)
+  const formats = [
+    place.district?.name ?? null,
+    place.indoor ? dict.places.badgeIndoor : null,
+    place.outdoor ? dict.places.badgeOutdoor : null,
+  ].filter((label): label is string => label !== null);
+  // удобства — тихой строкой через точку, а не россыпью чипов
+  const facts = [
+    place.hasAirCon ? dict.placeFilters.labels.hasAirCon : null,
+    place.hasFood ? dict.places.features.food : null,
+    place.hasWifi ? dict.places.features.wifi : null,
+    place.canLeaveChild ? dict.places.features.childDropOff : null,
+    place.animalContact ? dict.places.features.animals : null,
+  ].filter((label): label is string => label !== null);
+
   return (
-    <article
-      className={`place-card interactive-surface${
-        isClosedToday ? " place-card-closed" : ""
-      }`}
-    >
+    <article className={`place-card${isClosedToday ? " place-card-closed" : ""}`}>
       <PlaceImage url={place.imageUrl} alt={place.name} />
       <MemoryButtons
         compact
@@ -48,25 +59,6 @@ export function PlaceCard({
         name={place.name}
         imageUrl={place.imageUrl}
       />
-
-      <div className="place-card-header">
-        <div>
-          <h3 className="place-card-title">
-            <Link href={`${basePath}/places/${place.slug}`} className="card-title-link">
-              {place.name}
-            </Link>
-          </h3>
-        </div>
-
-        <div className="place-badges">
-          {place.indoor ? (
-            <span className="place-badge">{dict.places.badgeIndoor}</span>
-          ) : null}
-          {place.outdoor ? (
-            <span className="place-badge">{dict.places.badgeOutdoor}</span>
-          ) : null}
-        </div>
-      </div>
 
       {status && status.kind !== "unknown" ? (
         <div className="place-card-status">
@@ -83,6 +75,24 @@ export function PlaceCard({
         </div>
       ) : null}
 
+      <h3 className="place-card-title">
+        <Link href={`${basePath}/places/${place.slug}`} className="card-title-link">
+          {place.name}
+        </Link>
+      </h3>
+
+      {formats.length > 0 || distanceLabel ? (
+        <p className="place-card-meta">
+          {formats.join(" · ")}
+          {distanceLabel ? (
+            <span className="place-card-distance">
+              {formats.length > 0 ? " · " : ""}
+              {distanceLabel}
+            </span>
+          ) : null}
+        </p>
+      ) : null}
+
       <p className="place-card-description">
         {pickLocalized(
           place.description,
@@ -92,43 +102,24 @@ export function PlaceCard({
         ) ?? dict.common.descriptionFallback}
       </p>
 
-      <p className="place-card-address">
-        {place.address ?? dict.places.addressFallback}
-        {distanceLabel ? (
-          <span className="place-card-distance"> · {distanceLabel}</span>
-        ) : null}
-      </p>
-
-      <div className="feature-list">
-        {place.hasFood ? (
-          <span className="feature-chip">{dict.places.features.food}</span>
-        ) : null}
-        {place.hasWifi ? (
-          <span className="feature-chip">{dict.places.features.wifi}</span>
-        ) : null}
-        {place.canLeaveChild ? (
-          <span className="feature-chip">{dict.places.features.childDropOff}</span>
-        ) : null}
-        {place.animalContact ? (
-          <span className="feature-chip">{dict.places.features.animals}</span>
-        ) : null}
-      </div>
-
       <div className="place-card-actions">
-        {/* вся карточка уже кликабельна ссылкой-заголовком (растянута ::after);
-            этот CTA — визуальный дубль той же ссылки, поэтому прячем его от
-            скринридера и с клавиатуры, чтобы не было двух одинаковых «Подробнее» */}
-        <Link
-          href={`${basePath}/places/${place.slug}`}
-          className="place-card-cta"
-          aria-hidden="true"
-          tabIndex={-1}
-        >
-          <span className="place-card-cta-text">{dict.common.detailsCta}</span>
-          <span className="place-card-cta-arrow" aria-hidden="true">
-            →
-          </span>
-        </Link>
+        <div className="place-card-foot">
+          <p className="place-card-facts">{facts.join(" · ")}</p>
+          {/* вся карточка уже кликабельна ссылкой-заголовком (растянута ::after);
+              этот CTA — визуальный дубль той же ссылки, поэтому прячем его от
+              скринридера и с клавиатуры, чтобы не было двух одинаковых «Подробнее» */}
+          <Link
+            href={`${basePath}/places/${place.slug}`}
+            className="place-card-cta"
+            aria-hidden="true"
+            tabIndex={-1}
+          >
+            <span className="place-card-cta-text">{dict.common.detailsCta}</span>
+            <span className="place-card-cta-arrow" aria-hidden="true">
+              →
+            </span>
+          </Link>
+        </div>
       </div>
     </article>
   );

@@ -1,5 +1,18 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { LandingHero, type LandingScenarioDto } from "@/components/landing/landing-hero";
+import {
+  LandingHero,
+  type LandingDistrictDto,
+  type LandingQuickDto,
+  type LandingQuickKey,
+} from "@/components/landing/landing-hero";
+import {
+  LandingSections,
+  type LandingSectionDto,
+} from "@/components/landing/landing-sections";
+import { LandingSoon } from "@/components/landing/landing-soon";
+import { PlaceCard } from "@/components/places/place-card";
+import { mapEventListItemToDto } from "@/mappers/event.mapper";
 import { LazyMount } from "@/components/common/lazy-mount";
 import { PlacesMap } from "@/components/places/places-map";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -19,6 +32,9 @@ import type { MapPointDto, MapPointKind } from "@/dto/map-point.dto";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { isActivityActive } from "@/lib/activities/activity-sort";
 import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
+import { getCityDistrictDefinitions } from "@/lib/districts/city-districts";
+import { countByDistrict, placeDistrictSlug } from "@/lib/districts/place-district";
+import { toDistrictDto } from "@/mappers/district.mapper";
 import {
   isGoNowStatus,
   nowInCity,
@@ -78,6 +94,7 @@ const CATALOG_PARAMS = new Set([
   "hasParking",
   "canLeaveChild",
   "animalContact",
+  "district",
 ]);
 
 export default async function CityLandingPage({
@@ -162,10 +179,101 @@ export default async function CityLandingPage({
     near: { href: `${listPath}?near=true` },
   };
 
-  const scenarios: LandingScenarioDto[] = pool.map((key) => ({
-    key,
-    ...scenarioHrefs[key],
+  // Сценарии мест в одно касание под предложением-фильтром: тот же пул, что
+  // прошёл порог честности и подходит ко времени суток. Разделы (афиша, ДР,
+  // занятия) в строку кнопок не идут — у них своя строка разделов ниже.
+  const quickKeys = new Set<ScenarioKey>([
+    "openNow",
+    "openMorning",
+    "workFriendly",
+    "shelter",
+    "near",
+  ]);
+  const quick: LandingQuickDto[] = pool
+    .filter((key) => quickKeys.has(key))
+    .map((key) => ({ key: key as LandingQuickKey, href: scenarioHrefs[key].href }));
+
+  // «Открыто сейчас»: три места, куда можно пойти в эту минуту; с фото — вперёд
+  const openNowCards = places
+    .map((place) => ({
+      place,
+      status: computePlaceStatus(place, place.schedules, city.timezone),
+    }))
+    .filter(({ status }) => isGoNowStatus(status))
+    .sort((a, b) => Number(Boolean(b.place.imageUrl)) - Number(Boolean(a.place.imageUrl)))
+    .slice(0, 3);
+
+  // районы для предложения: только те, где есть места. По-русски у района
+  // своя форма «где?» (предлог и падеж разные), в остальных языках — шаблон.
+  const districtDefinitions = getCityDistrictDefinitions(citySlug);
+  const districtCounts = countByDistrict(
+    places.map((place) => placeDistrictSlug(place, districtDefinitions)),
+    districtDefinitions,
+  ).map(({ district, count }) => ({
+    ...toDistrictDto(district, lang),
+    locativeRu: district.locativeRu,
+    count,
   }));
+  const sentenceDistricts: LandingDistrictDto[] = districtCounts.map(
+    ({ slug, name, locativeRu, count }) => ({
+      slug,
+      phrase:
+        lang === "ru" && locativeRu ? locativeRu : dict.landing.sentence.inDistrict(name),
+      optionLabel: `${name} · ${count}`,
+    }),
+  );
+
+  // ближайшие события: идущие и предстоящие, по дате начала
+  const liveEvents = cityEvents.filter(
+    (event) =>
+      computeEventStatus(
+        new Date(event.startDate),
+        event.endDate ? new Date(event.endDate) : null,
+        nowDate,
+      ) !== "past",
+  );
+  const soonEvents = [...liveEvents]
+    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+    .slice(0, 3)
+    .map((event) => mapEventListItemToDto(event, lang));
+
+  const activeActivitiesCount = cityActivities.filter((activity) =>
+    isActivityActive(activity, nowDate),
+  ).length;
+  const sections: LandingSectionDto[] = [
+    {
+      key: "places",
+      href: listPath,
+      title: dict.nav.places,
+      label: dict.places.count(places.length),
+      hint: dict.landing.sections.placesHint,
+    },
+    {
+      key: "events",
+      href: `${basePath}/events`,
+      title: dict.nav.events,
+      // пустая афиша — не «0 событий», а спокойная подпись раздела
+      label:
+        liveEvents.length > 0
+          ? dict.events.count(liveEvents.length)
+          : dict.landing.allEvents,
+      hint: dict.landing.sections.eventsHint,
+    },
+    {
+      key: "activities",
+      href: `${basePath}/activities`,
+      title: dict.nav.activities,
+      label: dict.activities.count(activeActivitiesCount),
+      hint: dict.landing.sections.activitiesHint,
+    },
+    {
+      key: "birthdays",
+      href: `${basePath}/birthdays`,
+      title: dict.nav.birthdays,
+      label: dict.landing.sections.birthdaysLabel,
+      hint: dict.landing.sections.birthdaysHint,
+    },
+  ];
 
   // Единая карта ниже сгиба (первый экран свят — карту «просто так» не видно,
   // к ней ведёт «Смотреть на карте» плавным скроллом). Все три типа точек —
@@ -179,15 +287,7 @@ export default async function CityLandingPage({
   // прошедшие события и завершённые лагеря на карту не ставим: пин, в отличие
   // от карточки, не несёт бейджа статуса — живой янтарный/шалфейный пин вёл бы
   // на «прошло». COURSE вечнозелёные, места и ongoing/upcoming — остаются.
-  const eventPoints = cityEvents
-    .filter(
-      (event) =>
-        computeEventStatus(
-          new Date(event.startDate),
-          event.endDate ? new Date(event.endDate) : null,
-          nowDate,
-        ) !== "past",
-    )
+  const eventPoints = liveEvents
     .map((event) => eventToMapPoint(event, basePath, lang))
     .filter((point): point is MapPointDto => point !== null);
   const activityPoints = cityActivities
@@ -208,21 +308,72 @@ export default async function CityLandingPage({
       <JsonLd
         data={websiteJsonLd({ name: dict.brand, url: getSiteUrl(), inLanguage: lang })}
       />
-      {/* первый экран — вопрос и ответы, занимает вьюпорт целиком */}
-      <div className="landing-hero-viewport">
-        <LandingHero
-          slot={slot}
-          scenarios={scenarios}
-          listPath={listPath}
-          morningTomorrow={isMorningTomorrow(city.timezone)}
-        />
-      </div>
+      {/* первый экран — предложение-фильтр и сценарии в одно касание */}
+      <LandingHero
+        basePath={basePath}
+        listPath={listPath}
+        quick={quick}
+        districts={sentenceDistricts}
+        morningTomorrow={isMorningTomorrow(city.timezone)}
+        hasOpenNow={(counts.openNow ?? 0) > 0}
+      />
 
-      {/* ниже сгиба: карта; Leaflet монтируется только при приближении.
+      <LandingSections ariaLabel={dict.nav.sectionsAria} sections={sections} />
+
+      {openNowCards.length > 0 ? (
+        <section className="landing-block">
+          <div className="landing-block-header">
+            <h2 className="landing-block-title">{dict.landing.openNowTitle}</h2>
+            <Link href={`${listPath}?openNow=true`} className="landing-more-link">
+              {dict.landing.allPlaces}
+              <span aria-hidden="true"> →</span>
+            </Link>
+          </div>
+          <div className="places-grid">
+            {openNowCards.map(({ place, status }) => (
+              <PlaceCard
+                key={place.id}
+                place={mapPlaceToListItemDto(place, lang, districtDefinitions)}
+                basePath={basePath}
+                status={status}
+                schedules={place.schedules.map((schedule) => ({
+                  day: schedule.day,
+                  openTime: schedule.openTime,
+                  closeTime: schedule.closeTime,
+                  isClosed: schedule.isClosed,
+                }))}
+                timezone={city.timezone}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {soonEvents.length > 0 ? (
+        <section className="landing-block landing-soon">
+          <div className="landing-soon-intro">
+            <h2 className="landing-block-title">{dict.landing.soonTitle}</h2>
+            <p className="landing-soon-hint">{dict.landing.soonHint}</p>
+            <Link href={`${basePath}/events`} className="landing-more-link">
+              {dict.landing.allEvents}
+              <span aria-hidden="true"> →</span>
+            </Link>
+          </div>
+          <LandingSoon
+            events={soonEvents}
+            basePath={basePath}
+            lang={lang}
+            timezone={city.timezone}
+          />
+        </section>
+      ) : null}
+
+      {/* карта; Leaflet монтируется только при приближении.
           Без aria-label: внутри PlacesMap уже есть region «Карта мест»,
           второй почти одноимённый ориентир только путал бы скринридер */}
-      <section id="map" className="landing-map">
-        <h2 className="landing-map-title">{dict.landing.mapTitle}</h2>
+      <section id="map" className="landing-block landing-map">
+        <p className="eyebrow">{dict.landing.mapEyebrow}</p>
+        <h2 className="landing-block-title landing-map-title">{dict.landing.mapTitle}</h2>
         <LazyMount>
           <PlacesMap
             markers={mapPoints}
@@ -232,6 +383,33 @@ export default async function CityLandingPage({
           />
         </LazyMount>
       </section>
+
+      {/* «Где жить с детьми?» — районы с числом мест; каждый открывает карту
+          каталога, отфильтрованную по району */}
+      {districtCounts.length > 0 ? (
+        <section className="landing-block landing-districts">
+          <div className="landing-districts-intro">
+            <h2 className="landing-block-title">{dict.landing.districtsTitle}</h2>
+            <p className="landing-soon-hint">{dict.landing.districtsHint}</p>
+          </div>
+          <ul className="landing-districts-list">
+            {districtCounts.map((district) => (
+              <li key={district.slug}>
+                <Link
+                  // #results — сразу к карте, мимо шапки каталога и фильтров
+                  href={`${listPath}?district=${district.slug}&view=map#results`}
+                  className="landing-district"
+                >
+                  <span className="landing-district-name">{district.name}</span>
+                  <span className="landing-district-count">
+                    {dict.places.count(district.count)}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </main>
   );
 }

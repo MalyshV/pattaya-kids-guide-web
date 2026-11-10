@@ -7,6 +7,7 @@ import { useDictionary } from "@/lib/i18n/use-dictionary";
 import { useParentMemory } from "@/lib/memory/use-parent-memory";
 import { listByKind } from "@/lib/memory/parent-memory";
 import { ThemeMenuItem } from "@/components/layout/theme-toggle";
+import { DARK_THEME_ENABLED } from "@/lib/theme/theme-script";
 
 /**
  * Компактная шапка: разделы и «память родителя» свёрнуты в две кнопки-иконки
@@ -204,7 +205,7 @@ export function SectionsMenu({
           </Link>
         );
       })}
-      {withTheme ? (
+      {withTheme && DARK_THEME_ENABLED ? (
         <>
           <div className="header-menu-divider" aria-hidden="true" />
           <ThemeMenuItem />

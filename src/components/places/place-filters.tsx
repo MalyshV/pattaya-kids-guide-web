@@ -16,6 +16,7 @@ type PlaceFiltersProps = {
   shelter?: string;
   near?: string;
   view?: string;
+  district?: string;
   indoor?: string;
   outdoor?: string;
   hasFood?: string;
@@ -143,6 +144,9 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
     }
     if (props.view === "map") {
       params.set("view", "map");
+    }
+    if (props.district) {
+      params.set("district", props.district);
     }
     return params;
   }

@@ -3,6 +3,7 @@ import type { PlaceDetailsDto } from "@/dto/place-details.dto";
 import { mapPlaceToDto } from "@/mappers/place.mapper";
 import { pickLocalized } from "@/lib/i18n/localize";
 import { placeClosure } from "@/lib/places/closure";
+import type { DistrictDefinition } from "@/lib/districts/resolve-district";
 import type { Prisma } from "@prisma/client";
 
 type PlaceWithDetails = Prisma.PlaceGetPayload<{
@@ -40,15 +41,17 @@ type PlaceWithDetails = Prisma.PlaceGetPayload<{
     contacts: true;
     programs: { include: { tips: true } };
     brand: true;
+    district: { select: { slug: true } };
   };
 }>;
 
 export function mapPlaceDetailsToDto(
   place: PlaceWithDetails,
   lang: string = "ru",
+  districts: readonly DistrictDefinition[] = [],
 ): PlaceDetailsDto {
   return {
-    ...mapPlaceToDto(place, lang),
+    ...mapPlaceToDto(place, lang, districts),
     closureDetails: placeClosure(place, lang),
     brand: place.brand ? { slug: place.brand.slug, name: place.brand.name } : null,
     branchNote: pickLocalized(

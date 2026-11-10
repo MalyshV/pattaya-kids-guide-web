@@ -12,11 +12,13 @@ export type PlacesPaginationParams = {
   limit?: number;
 };
 
-// В список тянем schedules (живой индикатор «открыто сейчас») и ageGroups
-// (сквозной фильтр «Сколько лет ребёнку?»)
+// В список тянем schedules (живой индикатор «открыто сейчас»), ageGroups
+// (сквозной фильтр «Сколько лет ребёнку?») и slug района — он нужен только
+// для ручного выбора из админки; район «по координатам» считается на показе.
+// district необязателен: в кэше между запросами может лежать старая выборка.
 export type PlaceListItem = Prisma.PlaceGetPayload<{
   include: { schedules: true; ageGroups: { include: { ageGroup: true } } };
-}>;
+}> & { district?: { slug: string } | null };
 
 export type PaginatedPlacesResult = {
   items: PlaceListItem[];
@@ -60,6 +62,7 @@ type PlaceDetailsResult = Prisma.PlaceGetPayload<{
     contacts: true;
     programs: { include: { tips: true } };
     brand: true;
+    district: { select: { slug: true } };
   };
 }>;
 
@@ -114,7 +117,11 @@ export const getAllApprovedPlaces = cachedQuery(
     return prisma.place.findMany({
       where: buildApprovedPlacesWhere(filter, cityId),
       orderBy: { name: "asc" },
-      include: { schedules: true, ageGroups: { include: { ageGroup: true } } },
+      include: {
+        schedules: true,
+        ageGroups: { include: { ageGroup: true } },
+        district: { select: { slug: true } },
+      },
     });
   },
 );
@@ -226,6 +233,7 @@ export const getApprovedPlaceBySlug = cache(
           },
           // сеть точки — для блока «Другие {сеть} в {городе}» и JSON-LD brand
           brand: true,
+          district: { select: { slug: true } },
         },
       });
     },
