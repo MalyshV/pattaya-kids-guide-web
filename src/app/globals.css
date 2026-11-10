@@ -616,9 +616,8 @@ input[type="checkbox"]:focus-visible {
 }
 
 .birthday-card {
-  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 18px;
+  border-radius: 10px;
   overflow: hidden;
 }
 
@@ -2588,23 +2587,40 @@ html[data-theme="dark"] .theme-toggle-moon {
 }
 
 /* сводка-чипы в шапке места: решающие факты без прокрутки */
+/* Главные факты (возраст, вход, присмотр, часы) — крупной строкой антиквой
+   между двумя линиями: то, что нужно понять за пять секунд */
 .hero-facts {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
+  margin-top: 22px;
+  border-top: 1px solid var(--foreground);
+  border-bottom: 1px solid var(--border);
 }
 
 .hero-fact-chip {
   display: inline-flex;
   align-items: center;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: var(--surface-muted);
+  padding: 16px 26px 18px 0;
+  margin-right: 26px;
+  border-right: 1px solid var(--border);
   color: var(--foreground);
-  font-size: 13px;
-  line-height: 1.2;
-  white-space: nowrap;
+  font-family: var(--serif);
+  font-size: 27px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.hero-fact-chip:last-child {
+  margin-right: 0;
+  border-right: 0;
+}
+
+@media (max-width: 640px) {
+  .hero-fact-chip {
+    padding: 12px 18px 13px 0;
+    margin-right: 18px;
+    font-size: 22px;
+  }
 }
 
 /* удобства-справочник внутри секции фактов */
@@ -2805,13 +2821,13 @@ html[data-theme="dark"] .theme-toggle-moon {
 .share-button {
   display: inline-flex;
   align-items: center;
-  padding: 7px 14px;
-  border: 1px solid var(--border);
+  padding: 9px 16px;
+  border: 1px solid var(--chip-border);
   border-radius: 999px;
-  background: var(--surface);
+  background: transparent;
   color: var(--foreground);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition:
     background 0.15s ease,
@@ -2860,17 +2876,18 @@ html[data-theme="dark"] .theme-toggle-moon {
   display: inline-flex;
   align-items: baseline;
   gap: 8px;
-  padding: 8px 14px;
+  padding: 10px 16px;
+  border: 1px solid var(--chip-border);
   border-radius: 999px;
-  background: var(--surface-muted);
   color: var(--foreground);
   text-decoration: none;
   font-size: 14px;
+  font-weight: 600;
   transition: background 0.15s ease;
 }
 
 .contact-link:hover {
-  background: var(--surface-deep);
+  background: var(--tint-hover);
 }
 
 .contact-channel {
@@ -2895,10 +2912,9 @@ html[data-theme="dark"] .theme-toggle-moon {
 }
 
 .program-card {
-  padding: 18px;
+  padding: 20px;
   border: 1px solid var(--border);
-  border-radius: 18px;
-  background: var(--surface);
+  border-radius: 10px;
 }
 
 .program-card-head {
@@ -3153,8 +3169,11 @@ html[data-theme="dark"] .theme-toggle-moon {
 
 /* details pages */
 
+/* разделы страницы-карточки: воздух и волосяная линия вместо плашек */
 .details-section {
-  margin-top: 32px;
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
 }
 
 .details-grid {
@@ -3257,13 +3276,24 @@ a.tip-source:hover {
 }
 
 .schedule-today-tag {
-  margin-left: 8px;
-  padding: 2px 9px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--sage);
-  background: var(--sage-bg);
+  margin-left: 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* «сегодня» — та самая единственная красная точка */
+.schedule-today-tag::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--dot);
+  vertical-align: 0.1em;
 }
 
 /* categories */
@@ -3278,12 +3308,12 @@ a.tip-source:hover {
 .category-chip {
   display: inline-flex;
   align-items: center;
-  padding: 5px 9px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.2;
-  background: var(--surface-muted);
   color: var(--muted);
   white-space: nowrap;
 }
@@ -3945,10 +3975,8 @@ a.tip-source:hover {
 .saved-item {
   position: relative;
   border: 1px solid var(--border);
-  border-radius: 18px;
-  background: var(--surface);
+  border-radius: 10px;
   padding: 12px;
-  box-shadow: var(--shadow);
 }
 .saved-item-link {
   display: block;
