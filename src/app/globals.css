@@ -2676,10 +2676,22 @@ html[data-theme="dark"] .theme-toggle-moon {
 }
 
 @media (max-width: 640px) {
+  /* телефон: факты столбиком между тонкими линиями — при переносе строк
+     вертикальные разделители повисали в воздухе */
+  .hero-facts {
+    flex-direction: column;
+  }
+
   .hero-fact-chip {
-    padding: 12px 18px 13px 0;
-    margin-right: 18px;
+    padding: 11px 0 12px;
+    margin-right: 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
     font-size: 22px;
+  }
+
+  .hero-fact-chip:last-child {
+    border-bottom: 0;
   }
 }
 
@@ -4365,6 +4377,13 @@ a.tip-source:hover {
   flex-wrap: wrap;
   align-items: baseline;
   column-gap: 0.28em;
+}
+
+/* тайский: надстрочные и подстрочные знаки — строкам нужно больше воздуха,
+   иначе соседние строки предложения задевают друг друга */
+html[lang="th"] .landing-sentence {
+  font-size: clamp(30px, 4.4vw, 50px);
+  line-height: 1.5;
 }
 
 /* Выбираемое слово: курсив «морем» с линией — так в предложении видно,
