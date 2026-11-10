@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { landVertices, meanPoint } from "@/lib/districts/district-page";
+import {
+  landVertices,
+  linkedDistrictSlug,
+  meanPoint,
+} from "@/lib/districts/district-page";
 import { PATTAYA_DISTRICTS, PATTAYA_SEA_LONGITUDE } from "@/lib/districts/pattaya";
-import type { LatLng } from "@/lib/districts/resolve-district";
+import type { DistrictDefinition, LatLng } from "@/lib/districts/resolve-district";
 
 describe("landVertices", () => {
   const SEA = 100;
@@ -61,5 +65,65 @@ describe("meanPoint", () => {
 
   it("пусто — подписывать нечего", () => {
     expect(meanPoint([])).toBeNull();
+  });
+});
+
+describe("linkedDistrictSlug", () => {
+  const square = (slug: string, west: number): DistrictDefinition => ({
+    slug,
+    name: slug,
+    nameEn: slug,
+    nameTh: slug,
+    order: 10,
+    boundary: [
+      [0, west],
+      [0, west + 1],
+      [1, west + 1],
+      [1, west],
+    ],
+  });
+  const districts = [square("a", 0), square("b", 1)];
+  // точка по координатам лежит в районе «b»
+  const point = { latitude: 0.5, longitude: 1.5 };
+
+  it("район берётся у места, даже если координаты говорят иначе", () => {
+    expect(
+      linkedDistrictSlug({
+        ...point,
+        placeId: "studio",
+        placeDistricts: new Map([["studio", "a"]]),
+        districts,
+      }),
+    ).toBe("a");
+  });
+
+  it("место вне районов — и занятие при нём вне районов", () => {
+    expect(
+      linkedDistrictSlug({
+        ...point,
+        placeId: "studio",
+        placeDistricts: new Map([["studio", null]]),
+        districts,
+      }),
+    ).toBeNull();
+  });
+
+  it("своя площадка или незнакомое место — по координатам", () => {
+    expect(
+      linkedDistrictSlug({
+        ...point,
+        placeId: null,
+        placeDistricts: new Map([["studio", "a"]]),
+        districts,
+      }),
+    ).toBe("b");
+    expect(
+      linkedDistrictSlug({
+        ...point,
+        placeId: "unknown",
+        placeDistricts: new Map([["studio", "a"]]),
+        districts,
+      }),
+    ).toBe("b");
   });
 });

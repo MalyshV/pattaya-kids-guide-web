@@ -11,8 +11,11 @@ import {
   getCityDistrictDefinitions,
   getCitySeaLongitude,
 } from "@/lib/districts/city-districts";
-import { landVertices, meanPoint } from "@/lib/districts/district-page";
-import { resolveDistrictSlug } from "@/lib/districts/resolve-district";
+import {
+  landVertices,
+  linkedDistrictSlug,
+  meanPoint,
+} from "@/lib/districts/district-page";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { pickLocalized } from "@/lib/i18n/localize";
 import { pageAlternates } from "@/lib/seo/meta";
@@ -62,8 +65,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 /**
  * Страница района (решение 10.11): для тех, кто выбирает, где жить с детьми.
  * Всё, что есть в районе, — места, события и занятия — списком и на карте.
- * Район каждой точки считается на показе по координатам (у места — с учётом
- * ручного выбора из админки), запись в базу не нужна.
+ * Район каждой точки считается на показе: у места — ручной выбор из админки
+ * или координаты; занятие и событие при месте наследуют его район. Запись в
+ * базу не нужна.
  */
 export default async function DistrictPage({
   params,
@@ -99,12 +103,15 @@ export default async function DistrictPage({
     }
   };
 
+  // район каждого места — его наследуют занятия и события при этом месте
+  const placeDistricts = new Map<string, string | null>();
   for (const place of places) {
     if (!Number.isFinite(place.latitude) || !Number.isFinite(place.longitude)) {
       continue;
     }
     // маппер уже посчитал район места: ручной выбор или координаты
     const dto = mapPlaceToListItemDto(place, lang, definitions);
+    placeDistricts.set(place.id, dto.district?.slug ?? null);
     put(
       dto.district?.slug ?? null,
       toDistrictItem(placeToMapPoint(dto, basePath, lang), placeItemMeta(dto, lang)),
@@ -125,8 +132,17 @@ export default async function DistrictPage({
   for (const event of liveEvents) {
     const point = eventToMapPoint(event, basePath, lang);
     if (point) {
+      // у события могут быть свои координаты (проходит не в самом месте) —
+      // тогда район считается по ним, а не наследуется
+      const ownCoordinates = event.latitude != null && event.longitude != null;
       put(
-        resolveDistrictSlug(point.latitude, point.longitude, definitions),
+        linkedDistrictSlug({
+          placeId: ownCoordinates ? null : event.place?.id,
+          placeDistricts,
+          latitude: point.latitude,
+          longitude: point.longitude,
+          districts: definitions,
+        }),
         toDistrictItem(
           point,
           eventItemMeta(mapEventListItemToDto(event, lang), lang, city.timezone),
@@ -142,7 +158,14 @@ export default async function DistrictPage({
     const point = activityToMapPoint(activity, basePath, lang);
     if (point) {
       put(
-        resolveDistrictSlug(point.latitude, point.longitude, definitions),
+        // занятие при месте стоит на его координатах — район тоже его
+        linkedDistrictSlug({
+          placeId: activity.place?.id,
+          placeDistricts,
+          latitude: point.latitude,
+          longitude: point.longitude,
+          districts: definitions,
+        }),
         toDistrictItem(
           point,
           activityItemMeta(mapActivityToListItem(activity, lang), lang),
