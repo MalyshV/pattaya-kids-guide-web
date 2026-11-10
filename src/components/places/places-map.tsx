@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BASEMAP_ERRORS_BEFORE_FALLBACK,
   OSM_BASEMAP,
@@ -144,6 +144,8 @@ type MapLatLng = [number, number];
  */
 export type MapDistrict = MapLabel & {
   boundary: MapLatLng[];
+  /** суша района — к ней карта приближается по нажатию на район */
+  frame: MapLatLng[];
 };
 
 /// Район в фокусе: всё ВНЕ его границы накрыто лёгкой вуалью, сам район
@@ -217,6 +219,9 @@ export function PlacesMap({
 }: PlacesMapProps): React.ReactElement {
   const dict = useDictionary();
   const containerRef = useRef<HTMLDivElement | null>(null);
+  // «Весь город» — возврат к исходному кадру после приближения к району
+  const [canReset, setCanReset] = useState(false);
+  const resetViewRef = useRef<(() => void) | null>(null);
 
   // Ключи-примитивы вместо объектов в deps: массив маркеров пересоздаётся
   // на каждом рендере родителя, а перестраивать карту нужно только когда
@@ -228,6 +233,7 @@ export function PlacesMap({
   const labelsKey = JSON.stringify(labels ?? []);
   const hoverKey = JSON.stringify(hoverDistricts ?? []);
   const youAreHereLabel = dict.places.mapYouAreHere;
+  const zoomInLabel = dict.places.mapZoomIn;
 
   useEffect(() => {
     let map: LeafletMap | undefined;
@@ -357,14 +363,21 @@ export function PlacesMap({
           interactive: false,
         });
       // подпись района — ссылка на его страницу; active — на плашке поверх пинов
+      // zoom — плашка пока приближает карту к району, а не уводит на его
+      // страницу: подпись «приблизить» и обработчик нажатия
       const labelFor = (
         label: MapLabel,
         active: boolean,
+        zoom?: { label: string; onClick: (event: MouseEvent) => void },
       ): ReturnType<typeof L.marker> => {
         const link = document.createElement("a");
-        link.className = active
-          ? "map-district-label map-district-label-active"
-          : "map-district-label";
+        link.className = [
+          "map-district-label",
+          active ? "map-district-label-active" : "",
+          zoom ? "map-district-label-zoom" : "",
+        ]
+          .filter(Boolean)
+          .join(" ");
         link.href = label.href;
         link.textContent = label.name;
         if (label.hint) {
@@ -372,6 +385,13 @@ export function PlacesMap({
           hint.className = "map-district-label-hint";
           hint.textContent = label.hint;
           link.appendChild(hint);
+        }
+        if (zoom) {
+          const action = document.createElement("span");
+          action.className = "map-district-label-action";
+          action.textContent = zoom.label;
+          link.appendChild(action);
+          link.addEventListener("click", zoom.onClick);
         }
         return L.marker([label.latitude, label.longitude], {
           icon: L.divIcon({
@@ -387,6 +407,10 @@ export function PlacesMap({
 
       const focus = JSON.parse(focusKey) as MapLatLng[];
       const hoverable = JSON.parse(hoverKey) as MapDistrict[];
+      // на общей карте нажатие на метку заодно подсвечивает её район: на
+      // телефоне по пустому месту в центре города не попасть — мешают метки
+      let activateDistrictAt: ((latitude: number, longitude: number) => void) | null =
+        null;
       if (focus.length >= 3 || hoverable.length > 0) {
         map.createPane("districtMask").classList.add("map-district-mask");
       }
@@ -410,8 +434,58 @@ export function PlacesMap({
         const container = map.getContainer();
         let activeId: string | null = null;
         let activeLayers: Array<{ remove: () => unknown }> = [];
-        const show = (district: MapDistrict | undefined): void => {
-          if ((district?.id ?? null) === activeId || !map) {
+        const districtAt = (
+          latitude: number,
+          longitude: number,
+        ): MapDistrict | undefined =>
+          hoverable.find((district) =>
+            isPointInPolygon(latitude, longitude, district.boundary),
+          );
+
+        // Приближение к району: на общем плане метки стоят плотно, а ходить
+        // по ним хочется, не уходя со страницы. Если район и так занимает кадр
+        // (или карта ещё ближе) — приближать некуда: иначе каждый щелчок по
+        // пустому месту сбрасывал бы масштаб, выбранный руками.
+        const framePadding = (): number => {
+          const size = map ? map.getSize() : { x: 0, y: 0 };
+          return Math.max(
+            32,
+            Math.round(Math.min(size.x, size.y) * DISTRICT_FRAME_MARGIN),
+          );
+        };
+        const zoomTarget = (
+          district: MapDistrict | undefined,
+        ): ReturnType<typeof L.latLngBounds> | null => {
+          if (!map || !district || district.frame.length < 2) {
+            return null;
+          }
+          const bounds = L.latLngBounds(district.frame);
+          const padding = framePadding();
+          const fitZoom = map.getBoundsZoom(bounds, false, L.point(padding, padding));
+          return fitZoom > map.getZoom() ? bounds : null;
+        };
+        const zoomInto = (district: MapDistrict): boolean => {
+          const bounds = zoomTarget(district);
+          if (!bounds || !map) {
+            return false;
+          }
+          const padding = framePadding();
+          const reduceMotion = window.matchMedia(
+            "(prefers-reduced-motion: reduce)",
+          ).matches;
+          map.flyToBounds(bounds, {
+            padding: [padding, padding],
+            animate: !reduceMotion,
+            duration: 0.6,
+          });
+          container.style.cursor = "";
+          return true;
+        };
+
+        // force — перерисовать тот же район: после смены масштаба плашка
+        // меняет роль («приблизить» → ссылка на страницу района)
+        const show = (district: MapDistrict | undefined, force = false): void => {
+          if (!map || (!force && (district?.id ?? null) === activeId)) {
             return;
           }
           for (const layer of activeLayers) {
@@ -420,30 +494,67 @@ export function PlacesMap({
           activeLayers = [];
           activeId = district?.id ?? null;
           if (district) {
+            // Плашка района: пока есть куда приближать — она приближает
+            // (она всегда поверх меток, а по самому району в центре города
+            // не попасть — мешают метки); когда район уже в кадре — ведёт на
+            // его страницу. Щелчок с Ctrl/⌘ и средней кнопкой остаётся ссылкой.
+            const zoom = zoomTarget(district)
+              ? {
+                  label: zoomInLabel,
+                  onClick: (event: MouseEvent): void => {
+                    if (
+                      event.button !== 0 ||
+                      event.metaKey ||
+                      event.ctrlKey ||
+                      event.shiftKey ||
+                      event.altKey
+                    ) {
+                      return;
+                    }
+                    if (zoomInto(district)) {
+                      event.preventDefault();
+                    }
+                  },
+                }
+              : undefined;
             activeLayers = [
               maskFor(district.boundary).addTo(map),
-              labelFor(district, true).addTo(map),
+              labelFor(district, true, zoom).addTo(map),
             ];
           }
         };
-        const districtAt = (
-          latitude: number,
-          longitude: number,
-        ): MapDistrict | undefined =>
-          hoverable.find((district) =>
-            isPointInPolygon(latitude, longitude, district.boundary),
-          );
+        activateDistrictAt = (latitude: number, longitude: number): void => {
+          show(districtAt(latitude, longitude));
+        };
+
         container.addEventListener("mousemove", (event) => {
           if (!map) {
             return;
           }
           const { lat, lng } = map.mouseEventToLatLng(event);
-          show(districtAt(lat, lng));
+          const district = districtAt(lat, lng);
+          show(district);
+          // лупа подсказывает, что нажатие приблизит район
+          container.style.cursor = zoomTarget(district) ? "zoom-in" : "";
         });
-        container.addEventListener("mouseleave", () => show(undefined));
+        container.addEventListener("mouseleave", () => {
+          show(undefined);
+          container.style.cursor = "";
+        });
         // касание: событий наведения нет — район выбирается нажатием на карту
         map.on("click", (event) => {
-          show(districtAt(event.latlng.lat, event.latlng.lng));
+          const district = districtAt(event.latlng.lat, event.latlng.lng);
+          show(district);
+          if (district) {
+            zoomInto(district);
+          }
+        });
+        // масштаб сменился — у плашки активного района могла смениться роль
+        map.on("zoomend", () => {
+          const current = hoverable.find((district) => district.id === activeId);
+          if (current) {
+            show(current, true);
+          }
         });
       }
 
@@ -511,7 +622,8 @@ export function PlacesMap({
           title: marker.name,
         })
           .addTo(map)
-          .bindPopup(popup);
+          .bindPopup(popup)
+          .on("click", () => activateDistrictAt?.(position[0], position[1]));
       }
 
       if (userKey) {
@@ -546,12 +658,26 @@ export function PlacesMap({
         // совсем без точек не бывает (страница мест), но на всякий — Паттайя
         map.setView([12.9276, 100.8771], 12);
       }
+
+      // общая карта: после приближения к району появляется «Весь город» —
+      // возврат к исходному кадру одним нажатием
+      if (hoverable.length > 0) {
+        const home = { center: map.getCenter(), zoom: map.getZoom() };
+        map.on("zoomend", () => {
+          setCanReset(map !== undefined && map.getZoom() > home.zoom);
+        });
+        resetViewRef.current = () => {
+          map?.setView(home.center, home.zoom);
+        };
+      }
     });
 
     return () => {
       cancelled = true;
       themeObserver?.disconnect();
       map?.remove();
+      resetViewRef.current = null;
+      setCanReset(false);
     };
   }, [
     markersKey,
@@ -562,6 +688,7 @@ export function PlacesMap({
     frameKey,
     labelsKey,
     hoverKey,
+    zoomInLabel,
   ]);
 
   const legend =
@@ -587,6 +714,15 @@ export function PlacesMap({
         aria-label={regionLabel ?? dict.places.mapRegionLabel}
       />
       {legend}
+      {canReset ? (
+        <button
+          type="button"
+          className="map-reset"
+          onClick={() => resetViewRef.current?.()}
+        >
+          {dict.places.mapWholeCity}
+        </button>
+      ) : null}
     </div>
   );
 }

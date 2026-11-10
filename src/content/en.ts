@@ -221,6 +221,10 @@ export const en: Dictionary = {
     viewList: "List",
     viewMap: "Map",
     mapRegionLabel: "Map of places",
+    // кнопка на общей карте: вернуть исходный кадр после приближения
+    mapWholeCity: "Whole city",
+    // плашка района на общей карте, пока район не в кадре
+    mapZoomIn: "zoom in",
     mapLegend: {
       title: "Legend",
       place: "places",
@@ -321,7 +325,7 @@ export const en: Dictionary = {
     allEvents: "All events",
     mapEyebrow: "Map",
     mapTitle: "Everything nearby on one map",
-    mapDistrictHint: "Hover over the map or tap it to highlight a district.",
+    mapDistrictHint: "Click a district to zoom in and explore its pins one by one.",
     districtsTitle: "Where to live with kids?",
     districtsHint: "Pick a district to see its places for children on the map.",
   },

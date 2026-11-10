@@ -1878,6 +1878,40 @@ a.admin-button {
   max-height: 20px;
 }
 
+/* «Весь город» — возврат к исходному кадру общей карты; правый верх свободен
+   (зум слева, легенда и копирайт внизу) */
+.map-reset {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  padding: 9px 16px;
+  background: var(--surface);
+  border: 1px solid var(--foreground);
+  border-radius: 999px;
+  box-shadow: var(--shadow-soft);
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.map-reset:hover {
+  background: var(--accent-strong);
+  color: var(--accent-foreground);
+}
+
+.map-reset:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 /* маркер — фигура из туши (SVG внутри divIcon); гасим дефолтный белый
    квадрат leaflet-div-icon, оставляем только лёгкую тень под фигурой.
    Тени пина и точки «вы здесь» намеренно НЕ через токены палитры: они
@@ -5570,6 +5604,19 @@ html[data-theme="dark"] .map-tiles-osm {
   content: "→";
   margin-left: 8px;
   letter-spacing: 0;
+}
+
+/* плашка-«приблизить»: действие «морем», стрелки нет — она не уводит со
+   страницы, а приближает карту к району */
+.leaflet-container .map-district-label-zoom::after {
+  content: none;
+}
+
+.map-district-label-action {
+  margin-left: 10px;
+  padding-left: 10px;
+  border-left: 1px solid var(--chip-border);
+  color: var(--accent-text);
 }
 
 .map-district-label-hint {
