@@ -33,11 +33,15 @@ import type { MapPointDto, MapPointKind } from "@/dto/map-point.dto";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { isActivityActive } from "@/lib/activities/activity-sort";
 import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
-import { getCityDistrictDefinitions } from "@/lib/districts/city-districts";
+import {
+  getCityDistrictDefinitions,
+  getCitySeaLongitude,
+} from "@/lib/districts/city-districts";
 import { countByDistrict, placeDistrictSlug } from "@/lib/districts/place-district";
 import {
   activityDistrictSlug,
   eventDistrictSlug,
+  landVertices,
   meanPoint,
   type GeoPosition,
 } from "@/lib/districts/district-page";
@@ -311,6 +315,7 @@ export default async function CityLandingPage({
       placesByDistrict.set(slug, [...(placesByDistrict.get(slug) ?? []), position]);
     }
   }
+  const seaLongitude = getCitySeaLongitude(citySlug);
   const mapDistricts: MapDistrict[] = districtCounts.flatMap((district) => {
     const anchor = meanPoint(placesByDistrict.get(district.slug) ?? []);
     const definition = districtDefinitions.find((item) => item.slug === district.slug);
@@ -324,6 +329,10 @@ export default async function CityLandingPage({
             latitude: anchor.latitude,
             longitude: anchor.longitude,
             boundary: definition.boundary.map(
+              ([latitude, longitude]): [number, number] => [latitude, longitude],
+            ),
+            // к суше района карта приближается по нажатию на него
+            frame: landVertices(definition.boundary, seaLongitude).map(
               ([latitude, longitude]): [number, number] => [latitude, longitude],
             ),
           },
