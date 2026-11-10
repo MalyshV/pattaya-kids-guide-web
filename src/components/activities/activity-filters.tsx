@@ -9,6 +9,8 @@ type ActivityFiltersProps = {
   /** Текущий выбор возраста (?age=) — сохраняем в ссылках категорий. */
   activeAge?: string;
   activeCategory?: string;
+  /** Выбранный район (?district=) — переживает смену типа. */
+  activeDistrict?: string;
   /** ?view=map — карта остаётся картой при смене типа */
   view?: string;
   categories: { slug: string; name: string }[];
@@ -16,7 +18,7 @@ type ActivityFiltersProps = {
 
 function buildHref(
   basePath: string,
-  params: { age?: string; category?: string; view?: string },
+  params: { age?: string; category?: string; district?: string; view?: string },
 ): string {
   const search = new URLSearchParams();
   if (params.age) {
@@ -24,6 +26,9 @@ function buildHref(
   }
   if (params.category) {
     search.set("category", params.category);
+  }
+  if (params.district) {
+    search.set("district", params.district);
   }
   if (params.view === "map") {
     search.set("view", "map");
@@ -40,6 +45,7 @@ export function ActivityFilters({
   basePath,
   activeAge,
   activeCategory,
+  activeDistrict,
   view,
   categories,
 }: ActivityFiltersProps): React.ReactElement | null {
@@ -55,7 +61,7 @@ export function ActivityFilters({
         <span className="filter-group-label">{dict.activities.filterTypeTitle}</span>
         <div className="filter-chips">
           <Link
-            href={buildHref(basePath, { age: activeAge, view })}
+            href={buildHref(basePath, { age: activeAge, district: activeDistrict, view })}
             className={chipClass(!activeCategory)}
           >
             {dict.activities.filterAll}
@@ -66,6 +72,7 @@ export function ActivityFilters({
               href={buildHref(basePath, {
                 age: activeAge,
                 category: category.slug,
+                district: activeDistrict,
                 view,
               })}
               className={chipClass(activeCategory === category.slug)}

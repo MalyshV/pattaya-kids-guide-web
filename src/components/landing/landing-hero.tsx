@@ -9,7 +9,9 @@ import { yearsToAgeBucket } from "@/lib/landing/scenarios";
 /**
  * Первый экран посадочной — предложение-фильтр: «Хочу найти [место] [на
  * Пратамнаке] для ребёнка [3 лет] и пойти [прямо сейчас]». Слова в скобках — выпадающие
- * списки; кнопка ведёт сразу в готовую отфильтрованную выдачу. Ниже — те же
+ * списки; кнопка ведёт сразу в готовую отфильтрованную выдачу. В предложении
+ * только те слова, по которым каталог выбранного раздела умеет фильтровать:
+ * у занятий добавляется вид («занятие — плавание»), «когда» есть только у мест. Ниже — те же
  * живые сценарии кнопками в одно касание (сервер отдаёт только прошедшие
  * порог честности и подходящие ко времени суток).
  */
@@ -34,16 +36,31 @@ export type LandingDistrictDto = {
   phrase: string;
   /** строка в раскрытом списке — название района */
   optionLabel: string;
-  /** число мест в районе — тихая пометка справа */
-  hint: string;
+  /** сколько в районе мест, занятий и событий — пометка справа в списке */
+  counts: Record<DistrictKind, number>;
+};
+
+/** Разделы, у которых каталог фильтрует по району. */
+type DistrictKind = "places" | "events" | "activities";
+
+/** Вид занятия в предложении: «плавание», «роботы и код». */
+export type LandingActivityKindDto = {
+  slug: string;
+  /** слово в предложении (со строчной) */
+  phrase: string;
+  /** строка в раскрытом списке — название вида как в каталоге */
+  optionLabel: string;
+  count: number;
 };
 
 type LandingHeroProps = {
   basePath: string;
   listPath: string;
   quick: LandingQuickDto[];
-  /** районы, где есть места; пусто — слова-района в предложении нет */
+  /** районы, где что-то есть; пусто — слова-района в предложении нет */
   districts: LandingDistrictDto[];
+  /** виды занятий из каталога; пусто — слова-вида в предложении нет */
+  activityKinds: LandingActivityKindDto[];
   /** вечер: «с самого утра» ведёт в завтрашнее утро — подпись об этом */
   morningTomorrow: boolean;
   /** есть ли прямо сейчас открытые места: иначе «прямо сейчас» не предлагаем первым */
@@ -59,6 +76,7 @@ const WHEN_OPTIONS: When[] = ["now", "morning", "any"];
 const DEFAULT_AGE = "3";
 const AGE_ANY = "any";
 const DISTRICT_ANY = "";
+const KIND_ANY = "";
 const AGE_YEAR_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 export function LandingHero({
@@ -66,6 +84,7 @@ export function LandingHero({
   listPath,
   quick,
   districts,
+  activityKinds,
   morningTomorrow,
   hasOpenNow,
 }: LandingHeroProps): React.ReactElement {
@@ -73,6 +92,7 @@ export function LandingHero({
   const sentence = dict.landing.sentence;
   const [what, setWhat] = useState<What>("places");
   const [district, setDistrict] = useState<string>(DISTRICT_ANY);
+  const [kind, setKind] = useState<string>(KIND_ANY);
   const [age, setAge] = useState<string>(DEFAULT_AGE);
   const [when, setWhen] = useState<When>(hasOpenNow ? "now" : "any");
 
@@ -80,13 +100,28 @@ export function LandingHero({
     value,
     label: sentence.what[value],
   }));
+  // районы — все, с числом записей выбранного раздела: пустой район ведёт
+  // в каталог с приглашением рассказать о том, чего на сайте ещё нет
+  const districtKind: DistrictKind | null = what === "birthdays" ? null : what;
   const districtOptions: PickOption[] = [
     { value: DISTRICT_ANY, label: sentence.districtAny },
-    ...districts.map((option) => ({
+    ...(districtKind
+      ? districts.map((option) => ({
+          value: option.slug,
+          label: option.phrase,
+          optionLabel: option.optionLabel,
+          hint: String(option.counts[districtKind]),
+        }))
+      : []),
+  ];
+  const activeDistrict = district;
+  const kindOptions: PickOption[] = [
+    { value: KIND_ANY, label: sentence.kindAny },
+    ...activityKinds.map((option) => ({
       value: option.slug,
       label: option.phrase,
       optionLabel: option.optionLabel,
-      hint: option.hint,
+      hint: String(option.count),
     })),
   ];
   const ageOptions: PickOption[] = [
@@ -107,14 +142,19 @@ export function LandingHero({
   }));
 
   // возраст ДР-формата пока не фильтрует (см. BACKLOG) — слово прячем,
-  // чтобы предложение не обещало лишнего; «когда» и район есть только у мест
+  // чтобы предложение не обещало лишнего; «когда» есть только у мест, район —
+  // у мест, занятий и событий, вид — у занятий
   const showAge = what !== "birthdays";
   const showWhen = what === "places";
-  const showDistrict = what === "places" && districts.length > 0;
+  const showDistrict = districtOptions.length > 1;
+  const showKind = what === "activities" && activityKinds.length > 0;
 
   const params = new URLSearchParams();
-  if (showDistrict && district !== DISTRICT_ANY) {
-    params.set("district", district);
+  if (showKind && kind !== KIND_ANY) {
+    params.set("category", kind);
+  }
+  if (showDistrict && activeDistrict !== DISTRICT_ANY) {
+    params.set("district", activeDistrict);
   }
   if (showAge && age !== AGE_ANY) {
     params.set("age", yearsToAgeBucket(Number(age)));
@@ -128,6 +168,14 @@ export function LandingHero({
   const targetPath = what === "places" ? listPath : `${basePath}/${what}`;
   const query = params.toString();
   const href = query ? `${targetPath}?${query}` : targetPath;
+  // «или посмотреть на карте» — та же выдача с теми же словами предложения,
+  // только картой; #results подводит сразу к ней, мимо шапки и фильтров
+  // (у дней рождения такого якоря нет)
+  const mapParams = new URLSearchParams(params);
+  mapParams.set("view", "map");
+  const mapHref = `${targetPath}?${mapParams.toString()}${
+    what === "birthdays" ? "" : "#results"
+  }`;
 
   const quickLabels: Record<LandingQuickKey, string> = {
     openNow: dict.scenarios.openNow,
@@ -162,10 +210,24 @@ export function LandingHero({
               options={whatOptions}
               onChange={(value) => setWhat(value as What)}
             />{" "}
+            {showKind ? (
+              <>
+                {/* тире и вид занятия переносятся вместе: «— плавание» */}
+                <span className="landing-sentence-group">
+                  <span aria-hidden="true">—</span>{" "}
+                  <SentencePick
+                    ariaLabel={sentence.kindAria}
+                    value={kind}
+                    options={kindOptions}
+                    onChange={setKind}
+                  />
+                </span>{" "}
+              </>
+            ) : null}
             {showDistrict ? (
               <SentencePick
                 ariaLabel={sentence.districtAria}
-                value={district}
+                value={activeDistrict}
                 options={districtOptions}
                 onChange={setDistrict}
               />
@@ -211,35 +273,9 @@ export function LandingHero({
               <path d="M5 12h14M13 6l6 6-6 6" />
             </svg>
           </Link>
-          {/* карта живёт на этой же странице ниже — плавно подводим к ней;
-              href остаётся якорем для новой вкладки и без JS */}
-          <a
-            href="#map"
-            className="landing-map-link"
-            onClick={(event) => {
-              // модифицированный клик (новая вкладка/окно) отдаём браузеру
-              if (
-                event.defaultPrevented ||
-                event.button !== 0 ||
-                event.metaKey ||
-                event.ctrlKey ||
-                event.shiftKey ||
-                event.altKey
-              ) {
-                return;
-              }
-              event.preventDefault();
-              const reduceMotion = window.matchMedia(
-                "(prefers-reduced-motion: reduce)",
-              ).matches;
-              document.getElementById("map")?.scrollIntoView({
-                behavior: reduceMotion ? "auto" : "smooth",
-                block: "start",
-              });
-            }}
-          >
+          <Link href={mapHref} className="landing-map-link">
             {sentence.onMap}
-          </a>
+          </Link>
         </div>
 
         {quick.length > 0 ? (

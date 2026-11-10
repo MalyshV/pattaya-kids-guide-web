@@ -7,6 +7,8 @@ type EventsPaginationProps = {
   type?: string;
   /// выбранный возраст (?age=) — переживает листание
   age?: string;
+  /// выбранный район (?district=) — переживает листание
+  district?: string;
   basePath: string;
 };
 
@@ -14,6 +16,7 @@ function buildPageHref(
   page: number,
   type: string | undefined,
   age: string | undefined,
+  district: string | undefined,
   basePath: string,
 ): string {
   const searchParams = new URLSearchParams();
@@ -23,6 +26,9 @@ function buildPageHref(
   }
   if (age) {
     searchParams.set("age", age);
+  }
+  if (district) {
+    searchParams.set("district", district);
   }
 
   searchParams.set("page", String(page));
@@ -37,6 +43,7 @@ export function EventsPagination({
   totalPages,
   type,
   age,
+  district,
   basePath,
 }: EventsPaginationProps): React.ReactElement | null {
   const dict = getDictionary(langFromPath(basePath));
@@ -58,7 +65,7 @@ export function EventsPagination({
         {hasPrevious ? (
           <Link
             className="pagination-link"
-            href={buildPageHref(currentPage - 1, type, age, basePath)}
+            href={buildPageHref(currentPage - 1, type, age, district, basePath)}
           >
             ← {dict.pagination.previous}
           </Link>
@@ -71,7 +78,7 @@ export function EventsPagination({
         {hasNext ? (
           <Link
             className="pagination-link"
-            href={buildPageHref(currentPage + 1, type, age, basePath)}
+            href={buildPageHref(currentPage + 1, type, age, district, basePath)}
           >
             {dict.pagination.next} →
           </Link>

@@ -11,6 +11,13 @@ import { PlacesMap, type PlaceMapMarker } from "@/components/places/places-map";
 import { mapActivityToListItem } from "@/mappers/activity.mapper";
 import { activityToMapPoint } from "@/mappers/map-point.mapper";
 import { getCityActivities } from "@/services/activities.service";
+import { DistrictPicker } from "@/components/places/district-picker";
+import { DistrictEmptyState } from "@/components/districts/district-empty-state";
+import { getAllApprovedPlaces } from "@/services/places.service";
+import { getCityDistrictDefinitions } from "@/lib/districts/city-districts";
+import { districtFacet, placeDistrictMap } from "@/lib/districts/district-facet";
+import { parseDistrictParam } from "@/lib/districts/place-district";
+import { activityDistrictSlug } from "@/lib/districts/district-page";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { activitySortRank, isActivityActive } from "@/lib/activities/activity-sort";
 import { matchesAnyAgeBucket, parseAgeBuckets } from "@/lib/age/age-buckets";
@@ -63,13 +70,26 @@ export default async function CityActivitiesPage({
   const age = getSingleSearchParam(resolvedSearchParams.age);
   const ageBuckets = parseAgeBuckets(age);
   const activeCategory = getSingleSearchParam(resolvedSearchParams.category);
+  // ?district= — район; незнакомый slug фильтром не считается
+  const districtDefinitions = getCityDistrictDefinitions(citySlug);
+  const activeDistrict = parseDistrictParam(
+    getSingleSearchParam(resolvedSearchParams.district),
+    districtDefinitions,
+  );
+  const districtParam = activeDistrict ?? undefined;
   const currentPage =
     parsePositiveNumberParam(getSingleSearchParam(resolvedSearchParams.page)) ?? 1;
   // ?view=map — карта вместо списка (те же возраст и тип)
   const viewParam = getSingleSearchParam(resolvedSearchParams.view);
   const view = parseListView(viewParam);
 
-  const activities = await getCityActivities(city.id);
+  // места нужны только ради района: занятие при месте наследует его район
+  // (вместе с ручным выбором из админки); выборка мест кэширована
+  const [activities, places] = await Promise.all([
+    getCityActivities(city.id),
+    getAllApprovedPlaces({}, city.id),
+  ]);
+  const placeDistricts = placeDistrictMap(places, districtDefinitions);
   const now = new Date();
 
   // Доступные категории для чипов — из всех занятий города (до фильтрации),
@@ -93,13 +113,28 @@ export default async function CityActivitiesPage({
   }
   const availableCategories = [...categoryMap.values()].sort((a, b) => a.order - b.order);
 
-  const isFiltered = Boolean(ageBuckets.length > 0 || activeCategory);
+  const isFiltered = Boolean(ageBuckets.length > 0 || activeCategory || activeDistrict);
+  // Район — последним: в выборе только районы, где при остальных условиях
+  // есть занятия, и рядом с каждым — сколько.
   // сырое занятие рядом с DTO — из него точка карты (координаты места/площадки)
-  const entries = activities
-    .map((raw) => ({ raw, item: mapActivityToListItem(raw, lang) }))
-    .filter(({ item }) => matchesAnyAgeBucket(item, ageBuckets))
-    .filter(({ item }) => (activeCategory ? matchesCategory(item, activeCategory) : true))
-    .sort((a, b) => activitySortRank(a.item, now) - activitySortRank(b.item, now));
+  const districtView = districtFacet(
+    activities
+      .map((raw) => ({
+        raw,
+        item: mapActivityToListItem(raw, lang),
+        districtSlug: activityDistrictSlug(raw, placeDistricts, districtDefinitions),
+      }))
+      .filter(({ item }) => matchesAnyAgeBucket(item, ageBuckets))
+      .filter(({ item }) =>
+        activeCategory ? matchesCategory(item, activeCategory) : true,
+      ),
+    activeDistrict,
+    districtDefinitions,
+    lang,
+  );
+  const entries = districtView.entries.sort(
+    (a, b) => activitySortRank(a.item, now) - activitySortRank(b.item, now),
+  );
   const items = entries.map(({ item }) => item);
 
   const totalPages = Math.max(1, Math.ceil(items.length / LIST_PAGE_SIZE));
@@ -129,7 +164,7 @@ export default async function CityActivitiesPage({
   ];
 
   const listPath = `${basePath}/activities`;
-  const listParams = { age, category: activeCategory };
+  const listParams = { age, category: activeCategory, district: districtParam };
   const viewToggle = (
     <ViewToggle
       view={view}
@@ -151,11 +186,26 @@ export default async function CityActivitiesPage({
         <p className="hero-description">{dict.activities.heroDescription}</p>
       </section>
 
+      <DistrictPicker
+        pathname={listPath}
+        districts={districtView.options}
+        active={activeDistrict}
+        districtHref={
+          activeDistrict ? `${basePath}/districts/${activeDistrict}` : undefined
+        }
+        preservedParams={{
+          age,
+          category: activeCategory,
+          view: viewParam === "map" ? "map" : undefined,
+        }}
+      />
+
       <AgeQuestion
         pathname={`${basePath}/activities`}
         activeBuckets={ageBuckets}
         preservedParams={{
           category: activeCategory,
+          district: districtParam,
           view: viewParam === "map" ? "map" : undefined,
         }}
       />
@@ -164,6 +214,7 @@ export default async function CityActivitiesPage({
         basePath={basePath}
         activeAge={age}
         activeCategory={activeCategory}
+        activeDistrict={districtParam}
         view={viewParam}
         categories={availableCategories}
       />
@@ -177,7 +228,14 @@ export default async function CityActivitiesPage({
         <SuggestLink basePath={basePath} kind="activity" label={dict.suggest.cta} />
       </section>
 
-      {items.length === 0 ? (
+      {items.length === 0 && activeDistrict ? (
+        <DistrictEmptyState
+          basePath={basePath}
+          kind="activity"
+          allHref={viewHref(listPath, {}, view)}
+          allLabel={dict.activities.emptyCta}
+        />
+      ) : items.length === 0 ? (
         <section className="empty-state">
           <h3>{dict.activities.emptyTitle}</h3>
           <p>
@@ -230,6 +288,7 @@ export default async function CityActivitiesPage({
             basePath={basePath}
             age={age}
             category={activeCategory}
+            district={districtParam}
           />
         </>
       )}

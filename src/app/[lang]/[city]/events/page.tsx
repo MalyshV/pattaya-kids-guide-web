@@ -12,6 +12,13 @@ import { matchesAnyAgeBucket, parseAgeBuckets } from "@/lib/age/age-buckets";
 import { mapEventListItemToDto } from "@/mappers/event.mapper";
 import { eventToMapPoint } from "@/mappers/map-point.mapper";
 import { getCityEvents } from "@/services/events.service";
+import { DistrictPicker } from "@/components/places/district-picker";
+import { DistrictEmptyState } from "@/components/districts/district-empty-state";
+import { getAllApprovedPlaces } from "@/services/places.service";
+import { getCityDistrictDefinitions } from "@/lib/districts/city-districts";
+import { districtFacet, placeDistrictMap } from "@/lib/districts/district-facet";
+import { parseDistrictParam } from "@/lib/districts/place-district";
+import { eventDistrictSlug } from "@/lib/districts/district-page";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { computeEventStatus, eventSortRank } from "@/lib/events/event-lifecycle";
 import { eventTimingNote } from "@/lib/events/event-date";
@@ -81,16 +88,29 @@ export default async function CityEventsPage({
   const type = parseEventType(typeParam);
   const currentPage = parsePositiveNumberParam(pageParam) ?? 1;
   const ageBuckets = parseAgeBuckets(ageParam);
+  // ?district= — район; незнакомый slug фильтром не считается
+  const districtDefinitions = getCityDistrictDefinitions(citySlug);
+  const activeDistrict = parseDistrictParam(
+    getSingleSearchParam(resolvedSearchParams.district),
+    districtDefinitions,
+  );
+  const districtParam = activeDistrict ?? undefined;
 
   // выборка кэшируется целиком (без вкладки в SQL — «сейчас» замерло бы в
   // кэше); вкладку идёт/будущие/прошедшие фильтруем ниже по живому статусу
-  const allEvents = await getCityEvents(city.id);
+  // места нужны только ради района: событие при месте наследует его район
+  // (вместе с ручным выбором из админки); выборка мест кэширована
+  const [allEvents, places] = await Promise.all([
+    getCityEvents(city.id),
+    getAllApprovedPlaces({}, city.id),
+  ]);
+  const placeDistricts = placeDistrictMap(places, districtDefinitions);
   const now = new Date();
 
   // Живой статус + сортировка: идёт сейчас → будущие (ближайшие выше) →
   // прошедшие в конец (свежие выше). Сортировка до пагинации, как у мест.
   // Возрастной фильтр — как у занятий: событие без возраста не прячем.
-  const eventsWithStatus = allEvents
+  const statusEntries = allEvents
     // сырое событие рядом с DTO — из него точка карты (координаты места)
     .map((raw) => ({ raw, event: mapEventListItemToDto(raw, lang) }))
     .filter(({ event }) => matchesAnyAgeBucket(event, ageBuckets))
@@ -104,11 +124,27 @@ export default async function CityEventsPage({
           )
         : undefined;
 
-      return { raw, event, status, startMs };
+      return {
+        raw,
+        event,
+        status,
+        startMs,
+        districtSlug: eventDistrictSlug(raw, placeDistricts, districtDefinitions),
+      };
     })
     // вкладка типа — та же логика, что раньше в SQL (buildEventLifecycleWhere),
     // только по вычисленному статусу
     .filter((entry) => (type ? entry.status === type : true));
+
+  // Район — последним: в выборе только районы, где при остальных условиях
+  // есть события, и рядом с каждым — сколько.
+  const districtView = districtFacet(
+    statusEntries,
+    activeDistrict,
+    districtDefinitions,
+    lang,
+  );
+  const eventsWithStatus = districtView.entries;
 
   eventsWithStatus.sort((a, b) => {
     const rank = eventSortRank(a.status) - eventSortRank(b.status);
@@ -150,7 +186,7 @@ export default async function CityEventsPage({
     ...(mapPastCount > 0 ? [dict.events.mapPastNote(mapPastCount)] : []),
   ];
 
-  const listParams = { type, age: ageParam };
+  const listParams = { type, age: ageParam, district: districtParam };
   const viewToggle = (
     <ViewToggle
       view={view}
@@ -172,13 +208,37 @@ export default async function CityEventsPage({
         <p className="hero-description">{dict.events.heroDescription}</p>
       </section>
 
+      <DistrictPicker
+        pathname={`${basePath}/events`}
+        districts={districtView.options}
+        active={activeDistrict}
+        districtHref={
+          activeDistrict ? `${basePath}/districts/${activeDistrict}` : undefined
+        }
+        preservedParams={{
+          type,
+          age: ageParam,
+          view: viewParam === "map" ? "map" : undefined,
+        }}
+      />
+
       <AgeQuestion
         pathname={`${basePath}/events`}
         activeBuckets={ageBuckets}
-        preservedParams={{ type, view: viewParam === "map" ? "map" : undefined }}
+        preservedParams={{
+          type,
+          district: districtParam,
+          view: viewParam === "map" ? "map" : undefined,
+        }}
       />
 
-      <EventFilters type={type} basePath={basePath} age={ageParam} view={viewParam} />
+      <EventFilters
+        type={type}
+        basePath={basePath}
+        age={ageParam}
+        district={districtParam}
+        view={viewParam}
+      />
 
       <section className="results-header results-header-with-action" id="results">
         <div>
@@ -189,7 +249,14 @@ export default async function CityEventsPage({
         <SuggestLink basePath={basePath} kind="event" label={dict.suggest.cta} />
       </section>
 
-      {total === 0 ? (
+      {total === 0 && activeDistrict ? (
+        <DistrictEmptyState
+          basePath={basePath}
+          kind="event"
+          allHref={viewHref(`${basePath}/events`, {}, view)}
+          allLabel={dict.events.emptyCta}
+        />
+      ) : total === 0 ? (
         <section className="empty-state">
           <h3>{dict.events.emptyTitle}</h3>
           <p>{dict.events.emptyHint}</p>
@@ -246,6 +313,7 @@ export default async function CityEventsPage({
             totalPages={totalPages}
             type={type}
             age={ageParam}
+            district={districtParam}
             basePath={basePath}
           />
         </>

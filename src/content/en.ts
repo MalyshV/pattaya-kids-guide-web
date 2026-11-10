@@ -119,6 +119,17 @@ export const en: Dictionary = {
     title: "District",
     aria: "City district",
     any: "whole city",
+    emptyTitle: "Nothing in this district yet",
+    emptyInvite: {
+      place: "Know a good place for kids here? Tell us and we'll add it.",
+      event: "Know about a kids' event here? Tell us and we'll add it.",
+      activity: "Know an activity for kids here? Tell us and we'll add it.",
+    },
+    emptySuggest: {
+      place: "Suggest a place",
+      event: "Suggest an event",
+      activity: "Suggest an activity",
+    },
   },
   districtPage: {
     allDistricts: "All districts",
@@ -177,8 +188,6 @@ export const en: Dictionary = {
     emptyHint: "Try removing one of the filters.",
     emptyAgeHint:
       "Nothing found for this age yet — try another age or clear the selection.",
-    emptyDistrictHint:
-      "Nothing in this district matches yet — try a neighbouring district or the whole city.",
     emptyCta: "Show all places",
     emptyWorkTitle: "Not many such places yet",
     emptyWorkHint:
@@ -272,6 +281,8 @@ export const en: Dictionary = {
         activities: "a class",
         birthdays: "a birthday venue",
       },
+      kindAria: "Kind of activity",
+      kindAny: "any",
       districtAria: "City district",
       districtAny: "in any district",
       inDistrict: (name: string): string => `in ${name}`,

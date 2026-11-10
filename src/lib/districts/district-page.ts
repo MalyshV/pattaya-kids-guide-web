@@ -74,3 +74,61 @@ export function linkedDistrictSlug(input: {
   }
   return resolveDistrictSlug(latitude, longitude, districts);
 }
+
+/** Место, как оно приходит вместе с занятием или событием. */
+type LinkedPlace = { id: string; latitude: number; longitude: number };
+
+/**
+ * Район занятия. Координаты — как у точки карты: сначала место, при котором
+ * оно проходит, иначе своя площадка; без координат района нет.
+ */
+export function activityDistrictSlug(
+  activity: {
+    place?: LinkedPlace | null;
+    venueLatitude?: number | null;
+    venueLongitude?: number | null;
+  },
+  placeDistricts: ReadonlyMap<string, string | null>,
+  districts: readonly DistrictDefinition[],
+): string | null {
+  const latitude = activity.place?.latitude ?? activity.venueLatitude ?? null;
+  const longitude = activity.place?.longitude ?? activity.venueLongitude ?? null;
+  if (latitude == null || longitude == null) {
+    return null;
+  }
+  return linkedDistrictSlug({
+    placeId: activity.place?.id,
+    placeDistricts,
+    latitude,
+    longitude,
+    districts,
+  });
+}
+
+/**
+ * Район события. Свои координаты (проходит не в самом месте) важнее места:
+ * тогда район считается по ним, а не наследуется.
+ */
+export function eventDistrictSlug(
+  event: {
+    latitude?: number | null;
+    longitude?: number | null;
+    place?: LinkedPlace | null;
+  },
+  placeDistricts: ReadonlyMap<string, string | null>,
+  districts: readonly DistrictDefinition[],
+): string | null {
+  const ownCoordinates = event.latitude != null && event.longitude != null;
+  const latitude = event.latitude ?? event.place?.latitude ?? null;
+  const longitude = event.longitude ?? event.place?.longitude ?? null;
+  if (latitude == null || longitude == null) {
+    return null;
+  }
+  return linkedDistrictSlug({
+    placeId: ownCoordinates ? null : event.place?.id,
+    placeDistricts,
+    latitude,
+    longitude,
+    districts,
+  });
+}
