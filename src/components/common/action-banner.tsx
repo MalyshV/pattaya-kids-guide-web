@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
+import { BrushCloseIcon } from "@/components/common/brush-close-icon";
 
 /**
  * Универсальный модальный баннер результата действия. Сейчас применяется в
@@ -133,7 +134,7 @@ export function ActionBanner({
           aria-label={closeLabel}
           onClick={onClose}
         >
-          <span aria-hidden="true">×</span>
+          <BrushCloseIcon />
         </button>
 
         <div className="action-banner-icon" aria-hidden={icon ? undefined : "true"}>

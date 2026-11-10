@@ -1497,10 +1497,12 @@ a.admin-button {
   height: 36px;
   border: none;
   border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   background: transparent;
-  color: var(--muted);
-  font-size: 24px;
-  line-height: 1;
+  color: var(--foreground);
   cursor: pointer;
   transition: background 0.15s ease;
 }
@@ -1586,9 +1588,34 @@ a.admin-button {
   outline-offset: 2px;
 }
 
-.lightbox-close-icon {
+/* крестик-мазок (BrushCloseIcon): крупный — в кнопке лайтбокса, поменьше —
+   в маленьких круглых кнопках (закрыть попап, убрать из списка) */
+.brush-close-icon {
   width: 26px;
   height: 26px;
+}
+
+.action-banner-close .brush-close-icon,
+.saved-item-remove .brush-close-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Телефон на боку: над фото места нет — кнопка закрытия обрезалась краем
+   экрана. Ставим её сбоку, справа от верхнего угла фото; фото за это
+   отдаёт немного ширины и забирает освободившуюся высоту. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .lightbox-img {
+    max-width: calc(100vw - 152px);
+    max-height: 88vh;
+  }
+
+  .lightbox-close {
+    top: 0;
+    bottom: auto;
+    right: auto;
+    left: calc(100% + 10px);
+  }
 }
 
 /* стрелки листания карусели: спокойные круглые кнопки по краям */
@@ -4158,11 +4185,13 @@ a.tip-source:hover {
   height: 36px;
   border-radius: 999px;
   border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   background: var(--surface-veil);
   box-shadow: var(--shadow-tiny);
-  color: var(--muted);
-  font-size: 1.2rem;
-  line-height: 1;
+  color: var(--foreground);
   cursor: pointer;
   z-index: 2;
 }
