@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import {
   LandingHero,
+  type LandingDistrictDto,
   type LandingQuickDto,
   type LandingQuickKey,
 } from "@/components/landing/landing-hero";
@@ -31,6 +32,9 @@ import type { MapPointDto, MapPointKind } from "@/dto/map-point.dto";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { isActivityActive } from "@/lib/activities/activity-sort";
 import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
+import { getCityDistrictDefinitions } from "@/lib/districts/city-districts";
+import { countByDistrict, placeDistrictSlug } from "@/lib/districts/place-district";
+import { toDistrictDto } from "@/mappers/district.mapper";
 import {
   isGoNowStatus,
   nowInCity,
@@ -90,6 +94,7 @@ const CATALOG_PARAMS = new Set([
   "hasParking",
   "canLeaveChild",
   "animalContact",
+  "district",
 ]);
 
 export default async function CityLandingPage({
@@ -198,6 +203,24 @@ export default async function CityLandingPage({
     .sort((a, b) => Number(Boolean(b.place.imageUrl)) - Number(Boolean(a.place.imageUrl)))
     .slice(0, 3);
 
+  // районы для предложения: только те, где есть места. По-русски у района
+  // своя форма «где?» (предлог и падеж разные), в остальных языках — шаблон.
+  const districtDefinitions = getCityDistrictDefinitions(citySlug);
+  const sentenceDistricts: LandingDistrictDto[] = countByDistrict(
+    places.map((place) => placeDistrictSlug(place, districtDefinitions)),
+    districtDefinitions,
+  ).map(({ district, count }) => {
+    const { slug, name } = toDistrictDto(district, lang);
+    return {
+      slug,
+      phrase:
+        lang === "ru" && district.locativeRu
+          ? district.locativeRu
+          : dict.landing.sentence.inDistrict(name),
+      optionLabel: `${name} · ${count}`,
+    };
+  });
+
   // ближайшие события: идущие и предстоящие, по дате начала
   const liveEvents = cityEvents.filter(
     (event) =>
@@ -288,6 +311,7 @@ export default async function CityLandingPage({
         basePath={basePath}
         listPath={listPath}
         quick={quick}
+        districts={sentenceDistricts}
         morningTomorrow={isMorningTomorrow(city.timezone)}
         hasOpenNow={(counts.openNow ?? 0) > 0}
       />
@@ -307,7 +331,7 @@ export default async function CityLandingPage({
             {openNowCards.map(({ place, status }) => (
               <PlaceCard
                 key={place.id}
-                place={mapPlaceToListItemDto(place, lang)}
+                place={mapPlaceToListItemDto(place, lang, districtDefinitions)}
                 basePath={basePath}
                 status={status}
                 schedules={place.schedules.map((schedule) => ({

@@ -16,6 +16,11 @@ export type DistrictDefinition = {
   name: string;
   nameEn: string;
   nameTh: string;
+  /**
+   * «Где?» по-русски для предложения на главной: «на Пратамнаке», «в Южной
+   * Паттайе». Предлог и падеж у районов разные, шаблоном их не собрать.
+   */
+  locativeRu?: string;
   /** порядок показа (меньше — раньше) */
   order: number;
   boundary: readonly LatLng[];

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SuggestLink } from "@/components/suggest/suggest-link";
 import { notFound } from "next/navigation";
 import { AgeQuestion } from "@/components/common/age-question";
+import { DistrictPicker } from "@/components/places/district-picker";
 import { PlaceFilters } from "@/components/places/place-filters";
 import { ScenarioBar } from "@/components/places/scenario-bar";
 import { PlacesCount } from "@/components/places/places-count";
@@ -12,6 +13,13 @@ import { getAllApprovedPlaces } from "@/services/places.service";
 import { mapPlaceToListItemDto } from "@/mappers/place.mapper";
 import { parseAgeBuckets, placeAgeGroupsMatch } from "@/lib/age/age-buckets";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
+import { getCityDistrictDefinitions } from "@/lib/districts/city-districts";
+import {
+  countByDistrict,
+  parseDistrictParam,
+  placeDistrictSlug,
+} from "@/lib/districts/place-district";
+import { toDistrictDto } from "@/mappers/district.mapper";
 import {
   isGoNowStatus,
   isMorningTomorrow,
@@ -99,6 +107,13 @@ export default async function CityPlacesPage({
   const viewParam = getSingleSearchParam(resolvedSearchParams.view);
   const view: "list" | "map" = viewParam === "map" ? "map" : "list";
   const age = getSingleSearchParam(resolvedSearchParams.age);
+  // ?district= — район города; незнакомый slug фильтром не считается
+  const districtDefinitions = getCityDistrictDefinitions(citySlug);
+  const activeDistrict = parseDistrictParam(
+    getSingleSearchParam(resolvedSearchParams.district),
+    districtDefinitions,
+  );
+  const districtParam = activeDistrict ?? undefined;
   const pageParam = getSingleSearchParam(resolvedSearchParams.page);
   // ?visited= — фильтр по ✓-отметкам; сервер список НЕ фильтрует (отметки в
   // localStorage), только проносит параметр — фильтрует клиент PlacesResults
@@ -123,6 +138,7 @@ export default async function CityPlacesPage({
     age,
     visited,
     view: viewParam,
+    district: districtParam,
     indoor,
     outdoor,
     hasFood,
@@ -195,6 +211,31 @@ export default async function CityPlacesPage({
     );
   }
 
+  // Район — последним: в выборе показываем только районы, где при остальных
+  // условиях что-то есть, и рядом с каждым — сколько. Район места считается
+  // на показе (ручной выбор из админки или координаты).
+  const placesWithDistrict = visiblePlaces.map((entry) => ({
+    ...entry,
+    districtSlug: placeDistrictSlug(entry.place, districtDefinitions),
+  }));
+  const districtOptions = countByDistrict(
+    placesWithDistrict.map((entry) => entry.districtSlug),
+    districtDefinitions,
+  ).map(({ district, count }) => ({ ...toDistrictDto(district, lang), count }));
+  if (activeDistrict) {
+    visiblePlaces = placesWithDistrict.filter(
+      (entry) => entry.districtSlug === activeDistrict,
+    );
+    // выбранный район обязан остаться в списке, даже если в нём стало пусто —
+    // иначе фильтр включён, а снять его нечем
+    const definition = districtDefinitions.find(
+      (district) => district.slug === activeDistrict,
+    );
+    if (definition && !districtOptions.some((option) => option.slug === activeDistrict)) {
+      districtOptions.push({ ...toDistrictDto(definition, lang), count: 0 });
+    }
+  }
+
   const total = visiblePlaces.length;
   const totalPages = Math.max(1, Math.ceil(total / LIST_PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);
@@ -222,9 +263,11 @@ export default async function CityPlacesPage({
         ? dict.places.emptyShelterHint
         : isWorkFriendly
           ? dict.places.emptyWorkHint
-          : !scenarioActive && ageBuckets.length > 0
-            ? dict.places.emptyAgeHint
-            : dict.places.emptyHint;
+          : activeDistrict
+            ? dict.places.emptyDistrictHint
+            : !scenarioActive && ageBuckets.length > 0
+              ? dict.places.emptyAgeHint
+              : dict.places.emptyHint;
 
   return (
     <main className="page-shell">
@@ -234,6 +277,30 @@ export default async function CityPlacesPage({
         <h1 className="hero-title">{dict.places.heroTitle}</h1>
         <p className="hero-description">{dict.places.heroDescription}</p>
       </section>
+
+      <DistrictPicker
+        pathname={listPath}
+        districts={districtOptions}
+        active={activeDistrict}
+        preservedParams={{
+          age,
+          visited,
+          openNow,
+          openMorning,
+          workFriendly,
+          shelter,
+          near,
+          view: viewParam,
+          indoor,
+          outdoor,
+          hasFood,
+          hasWifi,
+          hasAirCon,
+          hasParking,
+          canLeaveChild,
+          animalContact,
+        }}
+      />
 
       <AgeQuestion
         pathname={listPath}
@@ -246,6 +313,7 @@ export default async function CityPlacesPage({
           shelter,
           near,
           view: viewParam,
+          district: districtParam,
           indoor,
           outdoor,
           hasFood,
@@ -268,6 +336,7 @@ export default async function CityPlacesPage({
           shelter,
           near,
           view: viewParam,
+          district: districtParam,
           indoor,
           outdoor,
           hasFood,
@@ -300,6 +369,7 @@ export default async function CityPlacesPage({
         workFriendly={workFriendly}
         near={near}
         view={viewParam}
+        district={districtParam}
         indoor={indoor}
         outdoor={outdoor}
         hasFood={hasFood}
@@ -336,7 +406,7 @@ export default async function CityPlacesPage({
           // слим-DTO вместо сырой Prisma-модели: items сериализуются в браузер,
           // служебные поля (модерация, заметки) туда попадать не должны
           items={visiblePlaces.map(({ place, status }) => ({
-            place: mapPlaceToListItemDto(place, lang),
+            place: mapPlaceToListItemDto(place, lang, districtDefinitions),
             status,
             // только поля расписания — бейдж статуса пересчитывается в браузере
             schedules: place.schedules.map((schedule) => ({
@@ -363,6 +433,7 @@ export default async function CityPlacesPage({
             shelter,
             workFriendly,
             near,
+            district: districtParam,
             indoor,
             outdoor,
             hasFood,

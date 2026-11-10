@@ -115,6 +115,11 @@ export const en: Dictionary = {
     filterApplying: "Applying your “Been there” filter…",
   },
 
+  districts: {
+    title: "District",
+    aria: "City district",
+    any: "whole city",
+  },
   age: {
     question: "How old is your child?",
     all: "All ages",
@@ -156,6 +161,8 @@ export const en: Dictionary = {
     emptyHint: "Try removing one of the filters.",
     emptyAgeHint:
       "Nothing found for this age yet — try another age or clear the selection.",
+    emptyDistrictHint:
+      "Nothing in this district matches yet — try a neighbouring district or the whole city.",
     emptyCta: "Show all places",
     emptyWorkTitle: "Not many such places yet",
     emptyWorkHint:
@@ -249,6 +256,9 @@ export const en: Dictionary = {
         activities: "a class",
         birthdays: "a birthday venue",
       },
+      districtAria: "City district",
+      districtAny: "in any district",
+      inDistrict: (name: string): string => `in ${name}`,
       forChild: "for a child",
       ageAria: "Child’s age",
       ageAny: "of any age",

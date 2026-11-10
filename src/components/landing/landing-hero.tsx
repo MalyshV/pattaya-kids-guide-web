@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { SentencePick, type PickOption } from "@/components/common/sentence-pick";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
 import { yearsToAgeBucket } from "@/lib/landing/scenarios";
 
 /**
- * Первый экран посадочной — предложение-фильтр: «Хочу найти [место] для
- * ребёнка [3 лет] и пойти [прямо сейчас]». Слова в скобках — выпадающие
+ * Первый экран посадочной — предложение-фильтр: «Хочу найти [место] [на
+ * Пратамнаке] для ребёнка [3 лет] и пойти [прямо сейчас]». Слова в скобках — выпадающие
  * списки; кнопка ведёт сразу в готовую отфильтрованную выдачу. Ниже — те же
  * живые сценарии кнопками в одно касание (сервер отдаёт только прошедшие
  * порог честности и подходящие ко времени суток).
@@ -26,10 +27,21 @@ export type LandingQuickDto = {
   href: string;
 };
 
+/** Район в предложении: slug и готовая форма «где?» на языке страницы. */
+export type LandingDistrictDto = {
+  slug: string;
+  /** «на Пратамнаке» / «in Pratumnak» */
+  phrase: string;
+  /** строка в раскрытом списке: название и число мест */
+  optionLabel: string;
+};
+
 type LandingHeroProps = {
   basePath: string;
   listPath: string;
   quick: LandingQuickDto[];
+  /** районы, где есть места; пусто — слова-района в предложении нет */
+  districts: LandingDistrictDto[];
   /** вечер: «с самого утра» ведёт в завтрашнее утро — подпись об этом */
   morningTomorrow: boolean;
   /** есть ли прямо сейчас открытые места: иначе «прямо сейчас» не предлагаем первым */
@@ -44,73 +56,21 @@ const WHEN_OPTIONS: When[] = ["now", "morning", "any"];
 // ?age= на посадочной не живёт — список стартует с самого частого возраста
 const DEFAULT_AGE = "3";
 const AGE_ANY = "any";
+const DISTRICT_ANY = "";
 const AGE_YEAR_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-
-type PickOption = { value: string; label: string };
-
-/**
- * Выбираемое слово в предложении. Видимая часть — обычный текст курсивом с
- * линией; поверх него лежит прозрачный нативный <select>. Так слово занимает
- * ровно свою ширину (нативный список растягивался бы под самый длинный
- * вариант и рвал строку), а выбор открывается системным списком — привычным
- * на телефоне и доступным с клавиатуры и скринридера без своего JS.
- */
-function SentencePick({
-  ariaLabel,
-  value,
-  options,
-  onChange,
-}: {
-  ariaLabel: string;
-  value: string;
-  options: PickOption[];
-  onChange: (value: string) => void;
-}): React.ReactElement {
-  const current = options.find((option) => option.value === value) ?? options[0];
-
-  return (
-    <span className="sentence-pick">
-      <span className="sentence-pick-label" aria-hidden="true">
-        {current?.label}
-        <svg
-          className="sentence-pick-chevron"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          focusable="false"
-        >
-          <path d="M6 9l6 6 6-6" />
-        </svg>
-      </span>
-      <select
-        className="sentence-pick-select"
-        aria-label={ariaLabel}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </span>
-  );
-}
 
 export function LandingHero({
   basePath,
   listPath,
   quick,
+  districts,
   morningTomorrow,
   hasOpenNow,
 }: LandingHeroProps): React.ReactElement {
   const dict = useDictionary();
   const sentence = dict.landing.sentence;
   const [what, setWhat] = useState<What>("places");
+  const [district, setDistrict] = useState<string>(DISTRICT_ANY);
   const [age, setAge] = useState<string>(DEFAULT_AGE);
   const [when, setWhen] = useState<When>(hasOpenNow ? "now" : "any");
 
@@ -118,6 +78,14 @@ export function LandingHero({
     value,
     label: sentence.what[value],
   }));
+  const districtOptions: PickOption[] = [
+    { value: DISTRICT_ANY, label: sentence.districtAny },
+    ...districts.map((option) => ({
+      value: option.slug,
+      label: option.phrase,
+      optionLabel: option.optionLabel,
+    })),
+  ];
   const ageOptions: PickOption[] = [
     ...AGE_YEAR_OPTIONS.map((years) => ({
       value: String(years),
@@ -136,11 +104,15 @@ export function LandingHero({
   }));
 
   // возраст ДР-формата пока не фильтрует (см. BACKLOG) — слово прячем,
-  // чтобы предложение не обещало лишнего; «когда» есть только у мест
+  // чтобы предложение не обещало лишнего; «когда» и район есть только у мест
   const showAge = what !== "birthdays";
   const showWhen = what === "places";
+  const showDistrict = what === "places" && districts.length > 0;
 
   const params = new URLSearchParams();
+  if (showDistrict && district !== DISTRICT_ANY) {
+    params.set("district", district);
+  }
   if (showAge && age !== AGE_ANY) {
     params.set("age", yearsToAgeBucket(Number(age)));
   }
@@ -185,6 +157,14 @@ export function LandingHero({
               options={whatOptions}
               onChange={(value) => setWhat(value as What)}
             />
+            {showDistrict ? (
+              <SentencePick
+                ariaLabel={sentence.districtAria}
+                value={district}
+                options={districtOptions}
+                onChange={setDistrict}
+              />
+            ) : null}
           </span>
           {showAge ? (
             <span className="landing-sentence-row">

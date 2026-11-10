@@ -621,6 +621,25 @@ input[type="checkbox"]:focus-visible {
   overflow: hidden;
 }
 
+/* широкий экран: фото слева, пакеты и контакты справа — иначе обложка
+   занимает весь первый экран, а до цен надо листать */
+@media (min-width: 761px) {
+  .birthday-card {
+    display: grid;
+    grid-template-columns: minmax(240px, 32%) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .birthday-card > .place-image {
+    margin: 20px 0 20px 20px;
+  }
+
+  /* ♡ и ✓ стоят в правом верхнем углу карточки — заголовок их не задевает */
+  .birthday-card .birthday-card-title {
+    padding-right: 96px;
+  }
+}
+
 .birthday-card-body {
   padding: 18px 20px 20px;
   display: flex;
@@ -629,7 +648,8 @@ input[type="checkbox"]:focus-visible {
 }
 
 .birthday-card-title {
-  font-size: 20px;
+  font-size: 28px;
+  line-height: 1.1;
   margin: 0;
 }
 
@@ -653,6 +673,46 @@ input[type="checkbox"]:focus-visible {
   flex-wrap: wrap;
   gap: 8px 18px;
   font-size: 14px;
+}
+
+/* Район над каталогом: подпись вразрядку и выбираемое слово — как в
+   предложении на главной, только тише. */
+.district-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  margin-bottom: 18px;
+}
+
+.district-picker-title {
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.district-picker-value {
+  font-family: var(--serif);
+  font-size: 30px;
+  line-height: 1.15;
+}
+
+/* район в надзаголовке страницы места — ссылка на всё в этом районе */
+.eyebrow-link {
+  color: var(--accent-text);
+  border-bottom: 1px solid var(--accent-line);
+  transition: border-color 0.15s ease;
+}
+
+.eyebrow-link:hover {
+  border-bottom-color: var(--accent-text);
+}
+
+.eyebrow-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 /* Возраст ребёнка — сквозной вопрос над сценариями. Активный чип — тёплый
@@ -4482,7 +4542,8 @@ a.tip-source:hover {
 }
 
 .landing-art-star {
-  right: min(36vw, 440px);
+  /* правее колонки с предложением и кнопками — звезда их не задевает */
+  left: max(64%, 716px);
   bottom: 18px;
   width: 104px;
   aspect-ratio: 1;

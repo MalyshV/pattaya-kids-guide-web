@@ -123,6 +123,11 @@ export const th: Dictionary = {
     filterApplying: "กำลังใช้ตัวกรองตามเครื่องหมาย “เคยไปแล้ว”…",
   },
 
+  districts: {
+    title: "ย่าน",
+    aria: "ย่านในเมือง",
+    any: "ทั้งเมือง",
+  },
   age: {
     question: "ลูกอายุเท่าไร?",
     all: "ทุกช่วงวัย",
@@ -163,6 +168,8 @@ export const th: Dictionary = {
     emptyTitle: "ไม่พบผลลัพธ์",
     emptyHint: "ลองปิดตัวกรองสักตัว",
     emptyAgeHint: "ยังไม่พบสถานที่สำหรับช่วงวัยนี้ — ลองเปลี่ยนช่วงวัยหรือยกเลิกการเลือก",
+    emptyDistrictHint:
+      "ย่านนี้ยังไม่มีสถานที่ที่ตรงเงื่อนไข — ลองย่านใกล้เคียงหรือดูทั้งเมือง",
     emptyCta: "แสดงสถานที่ทั้งหมด",
     emptyWorkTitle: "สถานที่แบบนี้ยังมีไม่มาก",
     emptyWorkHint:
@@ -252,6 +259,9 @@ export const th: Dictionary = {
         activities: "คลาสเรียน",
         birthdays: "สถานที่จัดงานวันเกิด",
       },
+      districtAria: "ย่านในเมือง",
+      districtAny: "ย่านไหนก็ได้",
+      inDistrict: (name: string): string => `ย่าน${name}`,
       forChild: "สำหรับเด็ก",
       ageAria: "อายุของเด็ก",
       ageAny: "ทุกช่วงวัย",

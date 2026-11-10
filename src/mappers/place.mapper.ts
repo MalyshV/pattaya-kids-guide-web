@@ -3,9 +3,22 @@ import type { PlaceListItemDto } from "@/dto/place-list-item.dto";
 import { pickLocalized } from "@/lib/i18n/localize";
 import { placeDisplayName } from "@/lib/places/display-name";
 import { closureKind } from "@/lib/places/closure";
+import { toPlaceDistrictDto } from "@/mappers/district.mapper";
+import type { DistrictDefinition } from "@/lib/districts/resolve-district";
 import type { Place } from "@prisma/client";
 
-export function mapPlaceToDto(place: Place, lang: string = "ru"): PlaceDto {
+/** Место из выборки; связь с районом есть только там, где её запросили. */
+type PlaceSource = Place & { district?: { slug: string } | null };
+
+/**
+ * districts — районы города (границы в коде). Без них район в DTO пустой:
+ * так живут страницы, где он не показывается.
+ */
+export function mapPlaceToDto(
+  place: PlaceSource,
+  lang: string = "ru",
+  districts: readonly DistrictDefinition[] = [],
+): PlaceDto {
   return {
     id: place.id,
     // точка сети: «Skippy Land · Lotus's North, у фудкорта» — метка на языке страницы
@@ -20,6 +33,7 @@ export function mapPlaceToDto(place: Place, lang: string = "ru"): PlaceDto {
     ),
     imageUrl: place.imageUrl,
     address: place.address,
+    district: toPlaceDistrictDto(place, districts, lang),
     latitude: place.latitude,
     longitude: place.longitude,
     googleMapsUrl: place.googleMapsUrl,
@@ -45,11 +59,12 @@ export function mapPlaceToDto(place: Place, lang: string = "ru"): PlaceDto {
  * сериализовать в браузер нельзя, только этот отобранный набор.
  */
 export function mapPlaceToListItemDto(
-  place: Place,
+  place: PlaceSource,
   lang: string = "ru",
+  districts: readonly DistrictDefinition[] = [],
 ): PlaceListItemDto {
   return {
-    ...mapPlaceToDto(place, lang),
+    ...mapPlaceToDto(place, lang, districts),
     description: place.description,
     descriptionEn: place.descriptionEn,
     descriptionTh: place.descriptionTh,

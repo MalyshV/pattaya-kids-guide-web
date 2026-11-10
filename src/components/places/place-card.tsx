@@ -34,8 +34,9 @@ export function PlaceCard({
   const isClosedToday =
     status !== undefined && (status.kind === "closedToday" || isClosureStatus(status));
 
-  // «формат» одной строкой: В помещении · На улице (+ расстояние в «Рядом»)
+  // одной строкой: район · В помещении · На улице (+ расстояние в «Рядом»)
   const formats = [
+    place.district?.name ?? null,
     place.indoor ? dict.places.badgeIndoor : null,
     place.outdoor ? dict.places.badgeOutdoor : null,
   ].filter((label): label is string => label !== null);
