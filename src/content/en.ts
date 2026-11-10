@@ -310,6 +310,7 @@ export const en: Dictionary = {
     allEvents: "All events",
     mapEyebrow: "Map",
     mapTitle: "Everything nearby on one map",
+    mapDistrictHint: "Hover over the map or tap it to highlight a district.",
     districtsTitle: "Where to live with kids?",
     districtsHint: "Pick a district to see its places for children on the map.",
   },

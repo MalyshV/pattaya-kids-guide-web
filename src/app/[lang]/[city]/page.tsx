@@ -14,7 +14,7 @@ import { LandingSoon } from "@/components/landing/landing-soon";
 import { PlaceCard } from "@/components/places/place-card";
 import { mapEventListItemToDto } from "@/mappers/event.mapper";
 import { LazyMount } from "@/components/common/lazy-mount";
-import { PlacesMap } from "@/components/places/places-map";
+import { PlacesMap, type MapDistrict } from "@/components/places/places-map";
 import { JsonLd } from "@/components/seo/json-ld";
 import { websiteJsonLd } from "@/lib/seo/json-ld";
 import { getAllApprovedPlaces, getBirthdayPlaces } from "@/services/places.service";
@@ -34,6 +34,7 @@ import { isActivityActive } from "@/lib/activities/activity-sort";
 import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
 import { getCityDistrictDefinitions } from "@/lib/districts/city-districts";
 import { countByDistrict, placeDistrictSlug } from "@/lib/districts/place-district";
+import { meanPoint, type GeoPosition } from "@/lib/districts/district-page";
 import { toDistrictDto } from "@/mappers/district.mapper";
 import {
   isGoNowStatus,
@@ -224,6 +225,37 @@ export default async function CityLandingPage({
     }),
   );
 
+  // районы для карты: под курсором или пальцем район подсвечивается, в нём
+  // появляется подпись-ссылка на его страницу. Якорь подписи — среднее по
+  // местам района: там, где в нём есть что смотреть.
+  const placesByDistrict = new Map<string, GeoPosition[]>();
+  for (const place of places) {
+    const slug = placeDistrictSlug(place, districtDefinitions);
+    if (slug && Number.isFinite(place.latitude) && Number.isFinite(place.longitude)) {
+      const position = { latitude: place.latitude, longitude: place.longitude };
+      placesByDistrict.set(slug, [...(placesByDistrict.get(slug) ?? []), position]);
+    }
+  }
+  const mapDistricts: MapDistrict[] = districtCounts.flatMap((district) => {
+    const anchor = meanPoint(placesByDistrict.get(district.slug) ?? []);
+    const definition = districtDefinitions.find((item) => item.slug === district.slug);
+    return anchor && definition
+      ? [
+          {
+            id: district.slug,
+            name: district.name,
+            hint: dict.places.count(district.count),
+            href: `${basePath}/districts/${district.slug}`,
+            latitude: anchor.latitude,
+            longitude: anchor.longitude,
+            boundary: definition.boundary.map(
+              ([latitude, longitude]): [number, number] => [latitude, longitude],
+            ),
+          },
+        ]
+      : [];
+  });
+
   // ближайшие события: идущие и предстоящие, по дате начала
   const liveEvents = cityEvents.filter(
     (event) =>
@@ -375,12 +407,16 @@ export default async function CityLandingPage({
       <section id="map" className="landing-block landing-map">
         <p className="eyebrow">{dict.landing.mapEyebrow}</p>
         <h2 className="landing-block-title landing-map-title">{dict.landing.mapTitle}</h2>
+        {mapDistricts.length > 0 ? (
+          <p className="landing-map-hint">{dict.landing.mapDistrictHint}</p>
+        ) : null}
         <LazyMount>
           <PlacesMap
             markers={mapPoints}
             userPoint={null}
             basePath={basePath}
             legendKinds={presentKinds}
+            hoverDistricts={mapDistricts}
           />
         </LazyMount>
       </section>
