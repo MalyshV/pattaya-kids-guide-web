@@ -128,6 +128,14 @@ export function LandingHero({
   const targetPath = what === "places" ? listPath : `${basePath}/${what}`;
   const query = params.toString();
   const href = query ? `${targetPath}?${query}` : targetPath;
+  // «или посмотреть на карте» — та же выдача с теми же словами предложения,
+  // только картой; #results подводит сразу к ней, мимо шапки и фильтров
+  // (у дней рождения такого якоря нет)
+  const mapParams = new URLSearchParams(params);
+  mapParams.set("view", "map");
+  const mapHref = `${targetPath}?${mapParams.toString()}${
+    what === "birthdays" ? "" : "#results"
+  }`;
 
   const quickLabels: Record<LandingQuickKey, string> = {
     openNow: dict.scenarios.openNow,
@@ -211,35 +219,9 @@ export function LandingHero({
               <path d="M5 12h14M13 6l6 6-6 6" />
             </svg>
           </Link>
-          {/* карта живёт на этой же странице ниже — плавно подводим к ней;
-              href остаётся якорем для новой вкладки и без JS */}
-          <a
-            href="#map"
-            className="landing-map-link"
-            onClick={(event) => {
-              // модифицированный клик (новая вкладка/окно) отдаём браузеру
-              if (
-                event.defaultPrevented ||
-                event.button !== 0 ||
-                event.metaKey ||
-                event.ctrlKey ||
-                event.shiftKey ||
-                event.altKey
-              ) {
-                return;
-              }
-              event.preventDefault();
-              const reduceMotion = window.matchMedia(
-                "(prefers-reduced-motion: reduce)",
-              ).matches;
-              document.getElementById("map")?.scrollIntoView({
-                behavior: reduceMotion ? "auto" : "smooth",
-                block: "start",
-              });
-            }}
-          >
+          <Link href={mapHref} className="landing-map-link">
             {sentence.onMap}
-          </a>
+          </Link>
         </div>
 
         {quick.length > 0 ? (
