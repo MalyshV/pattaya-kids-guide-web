@@ -2,7 +2,11 @@
 
 import { useEffect } from "react";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
-import { applyStoredTheme, THEME_STORAGE_KEY } from "@/lib/theme/theme-script";
+import {
+  applyStoredTheme,
+  DARK_THEME_ENABLED,
+  THEME_STORAGE_KEY,
+} from "@/lib/theme/theme-script";
 
 /**
  * Переключатель темы: кнопка-иконка рядом с выбором языка. Меняет data-theme
@@ -61,17 +65,25 @@ function toggleTheme(): void {
   }
 }
 
-export function ThemeToggle(): React.ReactElement {
+export function ThemeToggle(): React.ReactElement | null {
   const dict = useDictionary();
 
   // пока выбор не сделан — живьём следуем за сменой системной темы
   // (сохранённый выбор внутри applyStoredTheme всегда сильнее системы)
   useEffect(() => {
+    if (!DARK_THEME_ENABLED) {
+      return;
+    }
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = (): void => applyStoredTheme();
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
   }, []);
+
+  // тёмная тема временно выключена — кнопки нет (см. theme-script)
+  if (!DARK_THEME_ENABLED) {
+    return null;
+  }
 
   return (
     <button
