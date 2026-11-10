@@ -7,6 +7,7 @@ import {
   pickBasemap,
   type Basemap,
 } from "@/lib/map/basemap";
+import { gestureZoomDelta, pinchStep } from "@/lib/map/pinch-zoom";
 import type { Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
@@ -247,6 +248,68 @@ export function PlacesMap({
         // колесо мыши не перехватываем: страница должна скроллиться спокойно
         scrollWheelZoom: false,
       });
+
+      // Щипок на трекпаде над картой меняет масштаб карты, а не всей
+      // страницы (обычная прокрутка двумя пальцами по-прежнему листает
+      // страницу). Chrome и Firefox шлют щипок как колесо с зажатым Ctrl,
+      // Safari — gesture-событиями. Слушатели живут на контейнере и уходят
+      // вместе с ним.
+      const gestureTarget = map.getContainer();
+      let pinchAccumulated = 0;
+      gestureTarget.addEventListener(
+        "wheel",
+        (event) => {
+          if (!event.ctrlKey || !map) {
+            return;
+          }
+          // без этого браузер увеличивает всю страницу
+          event.preventDefault();
+          const step = pinchStep(pinchAccumulated, event.deltaY);
+          pinchAccumulated = step.rest;
+          if (step.direction !== 0) {
+            // масштаб меняется вокруг курсора: под пальцами остаётся то же место
+            map.setZoomAround(
+              map.mouseEventToContainerPoint(event),
+              map.getZoom() + step.direction,
+            );
+          }
+        },
+        // passive: false — иначе preventDefault браузер проигнорирует
+        { passive: false },
+      );
+      // Safari на Mac. На устройствах с сенсорным экраном (iPhone, iPad) эти
+      // же события сопровождают обычный щипок пальцами, который Leaflet уже
+      // обрабатывает сам, — там не вмешиваемся.
+      if (navigator.maxTouchPoints === 0) {
+        type GestureLikeEvent = Event & {
+          scale: number;
+          clientX: number;
+          clientY: number;
+        };
+        let gestureStartZoom = 0;
+        gestureTarget.addEventListener("gesturestart", (event) => {
+          event.preventDefault();
+          gestureStartZoom = map?.getZoom() ?? 0;
+        });
+        gestureTarget.addEventListener("gesturechange", (event) => {
+          event.preventDefault();
+          if (!map) {
+            return;
+          }
+          const gesture = event as GestureLikeEvent;
+          const target = gestureStartZoom + gestureZoomDelta(gesture.scale);
+          if (target !== map.getZoom()) {
+            const box = gestureTarget.getBoundingClientRect();
+            map.setZoomAround(
+              L.point(gesture.clientX - box.left, gesture.clientY - box.top),
+              target,
+            );
+          }
+        });
+        gestureTarget.addEventListener("gestureend", (event) => {
+          event.preventDefault();
+        });
+      }
 
       // Подложка: CARTO с ключом, иначе — запасная OSM (см. lib/map/basemap).
       // Тема приходит из data-theme на <html> (его ведут theme-script и
