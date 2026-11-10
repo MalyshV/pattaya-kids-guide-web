@@ -13,6 +13,7 @@ import { useDictionary } from "@/lib/i18n/use-dictionary";
 import type { GeoPoint } from "@/lib/geo/distance";
 import { spreadOverlapping } from "@/lib/geo/spread-points";
 import type { MapPointKind } from "@/dto/map-point.dto";
+import { isPointInPolygon } from "@/lib/districts/resolve-district";
 
 /**
  * Карта. Обёртка над движком: снаружи проект знает только маркеры, точку «вы
@@ -135,6 +136,15 @@ export type MapLabel = {
 /** Вершина границы: [широта, долгота]. */
 type MapLatLng = [number, number];
 
+/**
+ * Район, который общая карта подсвечивает под курсором или пальцем: остальной
+ * город уходит под вуаль, а в районе появляется подпись-ссылка на его
+ * страницу.
+ */
+export type MapDistrict = MapLabel & {
+  boundary: MapLatLng[];
+};
+
 /// Район в фокусе: всё ВНЕ его границы накрыто лёгкой вуалью, сам район
 /// остаётся чистым листом. Цвет вуали — цвет воды основной подложки (CARTO:
 /// 212/218/221): суша вне района заметно сереет, а море не меняется вовсе —
@@ -146,7 +156,10 @@ type MapLatLng = [number, number];
 /// Обычное наложение, без mix-blend-mode: режим darken дал бы тот же эффект
 /// на любой подложке, но его нельзя проверить в Safari — выбрана надёжность.
 const DISTRICT_MASK_COLOR = "#d4dadd";
-const DISTRICT_MASK_OPACITY = 0.58;
+const DISTRICT_MASK_OPACITY = 0.78;
+/// Поля кадра вокруг района — доля меньшей стороны карты. Район не должен
+/// занимать весь кадр: тогда вуали не видно совсем и непонятно, что выделено.
+const DISTRICT_FRAME_MARGIN = 0.16;
 const WORLD_RING: MapLatLng[] = [
   [-85, -180],
   [-85, 180],
@@ -183,6 +196,8 @@ type PlacesMapProps = {
   frame?: MapLatLng[];
   /** подписи-ссылки (соседние районы); в кадр не входят */
   labels?: MapLabel[];
+  /** районы, которые подсвечиваются под курсором или пальцем (общая карта) */
+  hoverDistricts?: MapDistrict[];
   /** доп. класс обёртки — своя высота карты на странице района */
   className?: string;
 };
@@ -196,6 +211,7 @@ export function PlacesMap({
   focusBoundary,
   frame,
   labels,
+  hoverDistricts,
   className,
 }: PlacesMapProps): React.ReactElement {
   const dict = useDictionary();
@@ -209,6 +225,7 @@ export function PlacesMap({
   const focusKey = JSON.stringify(focusBoundary ?? []);
   const frameKey = JSON.stringify(frame ?? []);
   const labelsKey = JSON.stringify(labels ?? []);
+  const hoverKey = JSON.stringify(hoverDistricts ?? []);
   const youAreHereLabel = dict.places.mapYouAreHere;
 
   useEffect(() => {
@@ -267,23 +284,24 @@ export function PlacesMap({
         attributeFilter: ["data-theme"],
       });
 
-      // район в фокусе: вуаль на всём, кроме него (см. DISTRICT_MASK_COLOR)
-      const focus = JSON.parse(focusKey) as MapLatLng[];
-      if (focus.length >= 3) {
-        map.createPane("districtMask").classList.add("map-district-mask");
-        L.polygon([WORLD_RING, focus], {
+      // вуаль на всём, кроме одного района (см. DISTRICT_MASK_COLOR)
+      const maskFor = (boundary: MapLatLng[]): ReturnType<typeof L.polygon> =>
+        L.polygon([WORLD_RING, boundary], {
           pane: "districtMask",
           stroke: false,
           fillColor: DISTRICT_MASK_COLOR,
           fillOpacity: DISTRICT_MASK_OPACITY,
           interactive: false,
-        }).addTo(map);
-      }
-
-      // подписи соседних районов — ссылки поверх вуали, под пинами
-      for (const label of JSON.parse(labelsKey) as MapLabel[]) {
+        });
+      // подпись района — ссылка на его страницу; active — на плашке поверх пинов
+      const labelFor = (
+        label: MapLabel,
+        active: boolean,
+      ): ReturnType<typeof L.marker> => {
         const link = document.createElement("a");
-        link.className = "map-district-label";
+        link.className = active
+          ? "map-district-label map-district-label-active"
+          : "map-district-label";
         link.href = label.href;
         link.textContent = label.name;
         if (label.hint) {
@@ -292,7 +310,7 @@ export function PlacesMap({
           hint.textContent = label.hint;
           link.appendChild(hint);
         }
-        L.marker([label.latitude, label.longitude], {
+        return L.marker([label.latitude, label.longitude], {
           icon: L.divIcon({
             className: "map-district-label-anchor",
             html: link,
@@ -300,8 +318,70 @@ export function PlacesMap({
           }),
           // ссылка внутри сама фокусируется; маркеру второй фокус не нужен
           keyboard: false,
-          zIndexOffset: -1000,
-        }).addTo(map);
+          zIndexOffset: active ? 2000 : -1000,
+        });
+      };
+
+      const focus = JSON.parse(focusKey) as MapLatLng[];
+      const hoverable = JSON.parse(hoverKey) as MapDistrict[];
+      if (focus.length >= 3 || hoverable.length > 0) {
+        map.createPane("districtMask").classList.add("map-district-mask");
+      }
+
+      // район в фокусе (страница района) — вуаль стоит постоянно
+      if (focus.length >= 3) {
+        maskFor(focus).addTo(map);
+      }
+
+      // подписи соседних районов — ссылки поверх вуали, под пинами
+      for (const label of JSON.parse(labelsKey) as MapLabel[]) {
+        labelFor(label, false).addTo(map);
+      }
+
+      // Общая карта: район под курсором или пальцем подсвечивается, в нём
+      // появляется подпись-ссылка. Район ищем по координате указателя, а не
+      // по событиям слоя: над пинами и подписью курсор по-прежнему «в районе»,
+      // и подсветка не мигает. Слушатели живут на контейнере карты и уходят
+      // вместе с ним при map.remove().
+      if (hoverable.length > 0) {
+        const container = map.getContainer();
+        let activeId: string | null = null;
+        let activeLayers: Array<{ remove: () => unknown }> = [];
+        const show = (district: MapDistrict | undefined): void => {
+          if ((district?.id ?? null) === activeId || !map) {
+            return;
+          }
+          for (const layer of activeLayers) {
+            layer.remove();
+          }
+          activeLayers = [];
+          activeId = district?.id ?? null;
+          if (district) {
+            activeLayers = [
+              maskFor(district.boundary).addTo(map),
+              labelFor(district, true).addTo(map),
+            ];
+          }
+        };
+        const districtAt = (
+          latitude: number,
+          longitude: number,
+        ): MapDistrict | undefined =>
+          hoverable.find((district) =>
+            isPointInPolygon(latitude, longitude, district.boundary),
+          );
+        container.addEventListener("mousemove", (event) => {
+          if (!map) {
+            return;
+          }
+          const { lat, lng } = map.mouseEventToLatLng(event);
+          show(districtAt(lat, lng));
+        });
+        container.addEventListener("mouseleave", () => show(undefined));
+        // касание: событий наведения нет — район выбирается нажатием на карту
+        map.on("click", (event) => {
+          show(districtAt(event.latlng.lat, event.latlng.lng));
+        });
       }
 
       // иконка на каждый тип — своя форма (капля/круги/звезда), создаём
@@ -391,7 +471,12 @@ export function PlacesMap({
       }
 
       if (bounds.length > 1) {
-        map.fitBounds(bounds, { padding: [32, 32] });
+        const size = map.getSize();
+        const padding =
+          focus.length >= 3
+            ? Math.max(32, Math.round(Math.min(size.x, size.y) * DISTRICT_FRAME_MARGIN))
+            : 32;
+        map.fitBounds(bounds, { padding: [padding, padding] });
       } else if (bounds.length === 1) {
         map.setView(bounds[0], 15);
       } else {
@@ -405,7 +490,16 @@ export function PlacesMap({
       themeObserver?.disconnect();
       map?.remove();
     };
-  }, [markersKey, userKey, basePath, youAreHereLabel, focusKey, frameKey, labelsKey]);
+  }, [
+    markersKey,
+    userKey,
+    basePath,
+    youAreHereLabel,
+    focusKey,
+    frameKey,
+    labelsKey,
+    hoverKey,
+  ]);
 
   const legend =
     legendKinds && legendKinds.length > 0 ? (
