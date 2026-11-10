@@ -146,7 +146,10 @@ type MapLatLng = [number, number];
 /// Обычное наложение, без mix-blend-mode: режим darken дал бы тот же эффект
 /// на любой подложке, но его нельзя проверить в Safari — выбрана надёжность.
 const DISTRICT_MASK_COLOR = "#d4dadd";
-const DISTRICT_MASK_OPACITY = 0.58;
+const DISTRICT_MASK_OPACITY = 0.78;
+/// Поля кадра вокруг района — доля меньшей стороны карты. Район не должен
+/// занимать весь кадр: тогда вуали не видно совсем и непонятно, что выделено.
+const DISTRICT_FRAME_MARGIN = 0.16;
 const WORLD_RING: MapLatLng[] = [
   [-85, -180],
   [-85, 180],
@@ -391,7 +394,12 @@ export function PlacesMap({
       }
 
       if (bounds.length > 1) {
-        map.fitBounds(bounds, { padding: [32, 32] });
+        const size = map.getSize();
+        const padding =
+          focus.length >= 3
+            ? Math.max(32, Math.round(Math.min(size.x, size.y) * DISTRICT_FRAME_MARGIN))
+            : 32;
+        map.fitBounds(bounds, { padding: [padding, padding] });
       } else if (bounds.length === 1) {
         map.setView(bounds[0], 15);
       } else {
