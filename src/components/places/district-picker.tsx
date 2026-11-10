@@ -69,7 +69,7 @@ export function DistrictPicker({
     ...districts.map((district) => ({
       value: district.slug,
       label: district.name,
-      optionLabel: `${district.name} · ${district.count}`,
+      hint: String(district.count),
     })),
   ];
 

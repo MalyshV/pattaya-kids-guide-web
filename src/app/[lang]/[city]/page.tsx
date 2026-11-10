@@ -219,7 +219,8 @@ export default async function CityLandingPage({
       slug,
       phrase:
         lang === "ru" && locativeRu ? locativeRu : dict.landing.sentence.inDistrict(name),
-      optionLabel: `${name} · ${count}`,
+      optionLabel: name,
+      hint: String(count),
     }),
   );
 

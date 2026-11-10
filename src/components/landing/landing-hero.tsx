@@ -32,8 +32,10 @@ export type LandingDistrictDto = {
   slug: string;
   /** «на Пратамнаке» / «in Pratumnak» */
   phrase: string;
-  /** строка в раскрытом списке: название и число мест */
+  /** строка в раскрытом списке — название района */
   optionLabel: string;
+  /** число мест в районе — тихая пометка справа */
+  hint: string;
 };
 
 type LandingHeroProps = {
@@ -84,6 +86,7 @@ export function LandingHero({
       value: option.slug,
       label: option.phrase,
       optionLabel: option.optionLabel,
+      hint: option.hint,
     })),
   ];
   const ageOptions: PickOption[] = [
@@ -149,14 +152,16 @@ export function LandingHero({
         <p className="eyebrow">{dict.landing.eyebrow}</p>
 
         <h1 className="landing-sentence">
+          {/* пробелы между частями вёрстке не нужны (ряд — flex), но без них
+              текст заголовка склеивается для скринридера и поиска */}
           <span className="landing-sentence-row">
-            <span>{sentence.lead}</span>
+            <span>{sentence.lead}</span>{" "}
             <SentencePick
               ariaLabel={sentence.whatAria}
               value={what}
               options={whatOptions}
               onChange={(value) => setWhat(value as What)}
-            />
+            />{" "}
             {showDistrict ? (
               <SentencePick
                 ariaLabel={sentence.districtAria}
@@ -165,21 +170,21 @@ export function LandingHero({
                 onChange={setDistrict}
               />
             ) : null}
-          </span>
+          </span>{" "}
           {showAge ? (
             <span className="landing-sentence-row">
-              <span>{sentence.forChild}</span>
+              <span>{sentence.forChild}</span>{" "}
               <SentencePick
                 ariaLabel={sentence.ageAria}
                 value={age}
                 options={ageOptions}
                 onChange={setAge}
-              />
+              />{" "}
             </span>
           ) : null}
           {showWhen ? (
             <span className="landing-sentence-row">
-              <span>{sentence.whenLead}</span>
+              <span>{sentence.whenLead}</span>{" "}
               <SentencePick
                 ariaLabel={sentence.whenAria}
                 value={when}
