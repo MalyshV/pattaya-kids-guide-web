@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { mapSearchIndex } from "@/mappers/search.mapper";
+import { PATTAYA_DISTRICTS } from "@/lib/districts/pattaya";
+import { searchItems } from "@/lib/search/match";
 import type {
   SearchActivityRow,
   SearchEventRow,
@@ -9,6 +11,8 @@ import type {
 const BASE = "/ru/pattaya";
 
 const NO_BRANCH = { branchLabel: null, branchLabelEn: null, branchLabelTh: null };
+// место, при котором проходит занятие или событие: точка в Северной Паттайе
+const LINKED = { id: "p9", latitude: 12.951, longitude: 100.905 };
 
 function placeRow(overrides: Partial<SearchPlaceRow> = {}): SearchPlaceRow {
   return {
@@ -16,6 +20,11 @@ function placeRow(overrides: Partial<SearchPlaceRow> = {}): SearchPlaceRow {
     name: "Skippy Land",
     slug: "skippy-land",
     address: "Lotus's North Pattaya",
+    // Lotus's North — Северная Паттайя
+    latitude: 12.951,
+    longitude: 100.905,
+    districtManual: false,
+    district: null,
     operatingStatus: "OPEN",
     ...NO_BRANCH,
     brand: null,
@@ -42,6 +51,8 @@ function activityRow(overrides: Partial<SearchActivityRow> = {}): SearchActivity
     venueName: "Tara Pattana",
     venueNameEn: "Tara Pattana",
     venueNameTh: null,
+    venueLatitude: null,
+    venueLongitude: null,
     place: null,
     categories: [],
     ...overrides,
@@ -58,6 +69,8 @@ function eventRow(overrides: Partial<SearchEventRow> = {}): SearchEventRow {
     locationName: "Terminal 21",
     locationNameEn: "Terminal 21",
     locationNameTh: null,
+    latitude: null,
+    longitude: null,
     place: null,
     // строкой, как с кэш-хита data-cache (в индекс даты не попадают)
     startDate: "2099-01-01T10:00:00.000Z",
@@ -134,7 +147,7 @@ describe("mapSearchIndex", () => {
   it("занятие: hint предпочитает название места каталога, если оно есть", () => {
     const [item] = mapSearchIndex(
       [],
-      [activityRow({ place: { name: "The Little Gym", ...NO_BRANCH } })],
+      [activityRow({ place: { name: "The Little Gym", ...NO_BRANCH, ...LINKED } })],
       [],
       BASE,
       "ru",
@@ -165,7 +178,7 @@ describe("mapSearchIndex", () => {
     const [item] = mapSearchIndex(
       [],
       [],
-      [eventRow({ place: { name: "LariDea", ...NO_BRANCH } })],
+      [eventRow({ place: { name: "LariDea", ...NO_BRANCH, ...LINKED } })],
       BASE,
       "ru",
     );
@@ -178,6 +191,7 @@ describe("mapSearchIndex", () => {
       branchLabel: "Lotus's South",
       branchLabelEn: "Lotus's South",
       branchLabelTh: null,
+      ...LINKED,
     };
     const [event] = mapSearchIndex([], [], [eventRow({ place: zone })], BASE, "ru");
     expect(event.hint).toBe("Skippy Land · Lotus's South");
@@ -194,5 +208,94 @@ describe("mapSearchIndex", () => {
   it("порядок индекса: сначала места, потом занятия, потом события", () => {
     const items = mapSearchIndex([placeRow()], [activityRow()], [eventRow()], BASE, "ru");
     expect(items.map((i) => i.type)).toEqual(["place", "activity", "event"]);
+  });
+});
+
+describe("mapSearchIndex — районы", () => {
+  const index = (lang = "ru"): ReturnType<typeof mapSearchIndex> =>
+    mapSearchIndex(
+      [placeRow()],
+      [activityRow({ venueLatitude: 12.885, venueLongitude: 100.88 })],
+      [eventRow({ place: { name: "LariDea", ...NO_BRANCH, ...LINKED } })],
+      BASE,
+      lang,
+      PATTAYA_DISTRICTS,
+    );
+
+  it("без списка районов индекс прежний: только места, занятия и события", () => {
+    const items = mapSearchIndex([placeRow()], [activityRow()], [eventRow()], BASE, "ru");
+    expect(items.some((item) => item.type === "district")).toBe(false);
+    expect(items[0].searchText).not.toContain("Северная Паттайя");
+  });
+
+  it("район — сам результат поиска: ведёт на свою страницу, имя на языке страницы", () => {
+    const ru = index().find((item) => item.id === "district:pratumnak");
+    expect(ru).toMatchObject({
+      type: "district",
+      name: "Пратамнак",
+      url: "/ru/pattaya/districts/pratumnak",
+      hint: null,
+    });
+    const en = index("en").find((item) => item.id === "district:pratumnak");
+    expect(en?.name).toBe("Pratumnak");
+  });
+
+  it("районы идут первыми и в порядке показа (побережье с севера на юг)", () => {
+    const types = index().map((item) => item.type);
+    expect(types.slice(0, PATTAYA_DISTRICTS.length).every((t) => t === "district")).toBe(
+      true,
+    );
+    expect(index()[0].id).toBe("district:naklua-wongamat");
+  });
+
+  it("район находится по другим написаниям: «Сиам Кантри Клаб», «за Сукхумвитом», «Джомтиен»", () => {
+    const top = (query: string): string | undefined => searchItems(index(), query)[0]?.id;
+    expect(top("сиам кантри")).toBe("district:siam-country-club");
+    expect(top("за сукхумвитом")).toBe("district:east-pattaya");
+    expect(top("джомтиен")).toBe("district:jomtien");
+    expect(top("pratamnak")).toBe("district:pratumnak");
+  });
+
+  it("место находится по названию своего района — на любом языке", () => {
+    const place = index().find((item) => item.type === "place");
+    expect(place?.searchText).toContain("Северная Паттайя");
+    expect(place?.searchText).toContain("North Pattaya");
+    expect(place?.searchText).toContain("พัทยาเหนือ");
+    // категория + район: «крытая игровая» есть только у места
+    const found = searchItems(index(), "крытая северная паттайя").map((item) => item.id);
+    expect(found).toEqual(["p1"]);
+  });
+
+  it("ручной район из админки важнее координат", () => {
+    const [place] = mapSearchIndex(
+      [placeRow({ districtManual: true, district: { slug: "jomtien" } })],
+      [],
+      [],
+      BASE,
+      "ru",
+      PATTAYA_DISTRICTS,
+    ).filter((item) => item.type === "place");
+    expect(place.searchText).toContain("Джомтьен");
+    expect(place.searchText).not.toContain("Северная Паттайя");
+  });
+
+  it("занятие — по своей площадке, событие — по месту, при котором проходит", () => {
+    const items = index();
+    const activity = items.find((item) => item.type === "activity");
+    const event = items.find((item) => item.type === "event");
+    expect(activity?.searchText).toContain("Джомтьен");
+    expect(event?.searchText).toContain("Северная Паттайя");
+  });
+
+  it("без координат района нет — позиция просто не находится по району", () => {
+    const [activity] = mapSearchIndex(
+      [],
+      [activityRow()],
+      [],
+      BASE,
+      "ru",
+      PATTAYA_DISTRICTS,
+    ).filter((item) => item.type === "activity");
+    expect(activity.searchText).not.toContain("Паттайя");
   });
 });

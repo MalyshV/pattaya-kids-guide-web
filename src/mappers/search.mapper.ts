@@ -8,12 +8,29 @@ import { pickLocalized } from "@/lib/i18n/localize";
 import { placeDisplayName, placeDisplayNames } from "@/lib/places/display-name";
 import { closureKind } from "@/lib/places/closure";
 import { getDictionary } from "@/content/dictionary";
+import { placeDistrictMap } from "@/lib/districts/district-facet";
+import { activityDistrictSlug, eventDistrictSlug } from "@/lib/districts/district-page";
+import type { DistrictDefinition } from "@/lib/districts/resolve-district";
 
 /**
  * Индекс поиска: видимое название локализуется по языку страницы, а ищется
  * всегда по обеим локалям сразу — родители печатают и «литл гим», и
  * "little gym" независимо от выбранного языка интерфейса.
+ *
+ * Районы (решение 10.10, шаг 4): район находится сам — ведёт на свою
+ * страницу, — а место, занятие и событие находятся по названию своего
+ * района: «игровая джомтьен», «за сукхумвитом».
  */
+
+/** Все написания района: названия на трёх языках и разговорные варианты. */
+function districtNames(district: DistrictDefinition): string[] {
+  return [
+    district.name,
+    district.nameEn,
+    district.nameTh,
+    ...(district.searchAliases ?? []),
+  ];
+}
 
 function categoriesText(
   categories: Array<{
@@ -35,8 +52,34 @@ export function mapSearchIndex(
   events: SearchEventRow[],
   basePath: string,
   lang: string,
+  /** районы города; без них поиск работает как раньше — только по названиям */
+  districts: readonly DistrictDefinition[] = [],
 ): SearchItemDto[] {
   const statusDict = getDictionary(lang).openStatus;
+
+  // район каждой позиции считается здесь, на показе: ручной выбор из админки
+  // или координаты (как в каталоге и на странице района)
+  const districtText = new Map(
+    districts.map((district) => [district.slug, districtNames(district).join(" ")]),
+  );
+  const placeDistricts = placeDistrictMap(places, districts);
+  const textOf = (slug: string | null | undefined): string =>
+    (slug ? districtText.get(slug) : undefined) ?? "";
+
+  const districtItems: SearchItemDto[] = [...districts]
+    .sort((a, b) => a.order - b.order)
+    .map((district) => ({
+      id: `district:${district.slug}`,
+      type: "district",
+      name: pickLocalized(district.name, district.nameEn, district.nameTh, lang),
+      hint: null,
+      url: `${basePath}/districts/${district.slug}`,
+      searchText: districtNames(district).join(" "),
+      // любое написание района весит как его название: район встаёт выше
+      // мест, которые находятся по нему же
+      aliases: districtNames(district),
+    }));
+
   const placeItems: SearchItemDto[] = places.map((place) => ({
     id: place.id,
     type: "place",
@@ -57,6 +100,7 @@ export function mapSearchIndex(
       place.brand?.name ?? "",
       ...(place.brand?.searchAliases ?? []),
       categoriesText(place.categories),
+      textOf(placeDistricts.get(place.id)),
     ].join(" "),
   }));
 
@@ -87,6 +131,7 @@ export function mapSearchIndex(
         activity.venueNameEn ?? "",
         activity.venueNameTh ?? "",
         categoriesText(activity.categories),
+        textOf(activityDistrictSlug(activity, placeDistricts, districts)),
       ].join(" "),
     }));
 
@@ -114,8 +159,9 @@ export function mapSearchIndex(
       event.locationName ?? "",
       event.locationNameEn ?? "",
       event.locationNameTh ?? "",
+      textOf(eventDistrictSlug(event, placeDistricts, districts)),
     ].join(" "),
   }));
 
-  return [...placeItems, ...activityItems, ...eventItems];
+  return [...districtItems, ...placeItems, ...activityItems, ...eventItems];
 }

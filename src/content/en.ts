@@ -271,6 +271,7 @@ export const en: Dictionary = {
     typePlace: "place",
     typeActivity: "activity",
     typeEvent: "event",
+    typeDistrict: "district",
   },
 
   landing: {

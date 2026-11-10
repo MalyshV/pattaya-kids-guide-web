@@ -312,6 +312,7 @@ export const ru = {
     typePlace: "место",
     typeActivity: "занятие",
     typeEvent: "событие",
+    typeDistrict: "район",
   },
 
   // посадочная (корень города): вопрос и живые ответы-сценарии

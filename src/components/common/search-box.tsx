@@ -151,7 +151,9 @@ export function SearchBox({ items, autoFocus }: SearchBoxProps): React.ReactElem
                     ? dict.search.typePlace
                     : item.type === "activity"
                       ? dict.search.typeActivity
-                      : dict.search.typeEvent}
+                      : item.type === "event"
+                        ? dict.search.typeEvent
+                        : dict.search.typeDistrict}
                 </span>
               </div>
               {item.hint ? <div className="search-result-hint">{item.hint}</div> : null}

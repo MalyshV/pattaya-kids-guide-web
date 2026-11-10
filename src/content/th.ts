@@ -272,6 +272,7 @@ export const th: Dictionary = {
     typePlace: "สถานที่",
     typeActivity: "คลาสเรียน",
     typeEvent: "อีเวนต์",
+    typeDistrict: "ย่าน",
   },
 
   // тексты посадочной — черновой тайский, на нативное ревью (как весь th)
