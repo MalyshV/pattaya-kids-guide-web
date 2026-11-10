@@ -3941,9 +3941,9 @@ a.tip-source:hover {
   margin: 8px 0 0;
 }
 
-/* «Скрыть, где уже были» — под заголовком раздела «Нравится» */
+/* «Скрыть, где уже были» — над списком вкладки «Нравится» */
 .saved-section-tools {
-  margin: -4px 0 14px;
+  margin: 0 0 14px;
 }
 
 /* тихая строка под hero (напр. «возраст здесь не фильтрует») */
@@ -4011,30 +4011,33 @@ a.tip-source:hover {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
-.saved-section {
-  margin-top: 28px;
-  /* при переходе по якорю из меню шапки (#visited) — воздух под липкой шапкой */
-  scroll-margin-top: 16px;
+/* Вкладки «Нравится | Уже были» — тот же вид, что у «Список | Карта»
+   (.view-toggle-option), только это кнопки и рядом с названием — число. */
+.saved-tabs {
+  margin: 0 0 22px;
 }
-.saved-section-title {
-  font-size: 1.15rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 14px;
-}
-.saved-count {
-  min-width: 22px;
-  height: 22px;
-  padding: 0 7px;
-  border-radius: 999px;
-  background: var(--surface-muted);
-  color: var(--muted);
-  font-size: 0.8rem;
-  font-weight: 600;
+.saved-tab {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  align-items: baseline;
+  gap: 8px;
+  border-top: 0;
+  border-right: 0;
+  border-left: 0;
+  border-radius: 0;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+.saved-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+.saved-tab-count {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
 }
 .saved-grid {
   list-style: none;
