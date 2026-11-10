@@ -87,26 +87,18 @@ function SectionLinks({
 function HeaderNav({
   basePath,
   age,
-  isLanding,
 }: {
   basePath: string;
   age: string | null;
-  isLanding: boolean;
 }): React.ReactElement {
   const dict = useDictionary();
 
   return (
     <nav className="header-compact-nav" aria-label={dict.nav.aria}>
-      {isLanding ? (
+      <SectionLinks basePath={basePath} age={age} />
+      <div className="header-sections-compact">
         <SectionsMenu basePath={basePath} age={age} withTheme />
-      ) : (
-        <>
-          <SectionLinks basePath={basePath} age={age} />
-          <div className="header-sections-compact">
-            <SectionsMenu basePath={basePath} age={age} withTheme />
-          </div>
-        </>
-      )}
+      </div>
       <MemoryMenu basePath={basePath} age={age} />
     </nav>
   );
@@ -120,13 +112,11 @@ function HeaderRight({
   searchItems?: SearchItemDto[];
 }): React.ReactElement {
   const searchParams = useSearchParams();
-  const pathname = usePathname();
   const age = searchParams.get("age");
-  const isLanding = pathname === basePath;
 
   return (
     <div className="site-header-right">
-      <HeaderNav basePath={basePath} age={age} isLanding={isLanding} />
+      <HeaderNav basePath={basePath} age={age} />
       {searchItems ? <HeaderSearch items={searchItems} /> : null}
       <ThemeToggle />
       <LanguageMenu />
@@ -139,7 +129,6 @@ export function SiteHeader({
   searchItems,
 }: SiteHeaderProps): React.ReactElement {
   const pathname = usePathname();
-  const isLanding = pathname === basePath;
 
   // Считаем клиентские переходы для SmartBackLink: только смену pathname,
   // первый рендер страницы переходом не является. Живёт в SiteHeader (а не в
@@ -165,7 +154,7 @@ export function SiteHeader({
         <Suspense
           fallback={
             <div className="site-header-right">
-              <HeaderNav basePath={basePath} age={null} isLanding={isLanding} />
+              <HeaderNav basePath={basePath} age={null} />
               <ThemeToggle />
             </div>
           }

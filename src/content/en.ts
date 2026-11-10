@@ -239,45 +239,51 @@ export const en: Dictionary = {
 
   landing: {
     metaTitle: "Where to go with kids in Pattaya",
-    question: "What are you looking for right now?",
-    slotNotes: {
-      morning: "morning — the answers will change by evening",
-      day: "afternoon — the answers will change by evening",
-      evening: "evening — it'll be different in the morning",
-      night: "late night — it'll be different in the morning",
+    eyebrow: "Pattaya · a guide for parents",
+    sentence: {
+      lead: "I’m looking for",
+      whatAria: "What you are looking for",
+      what: {
+        places: "a place",
+        events: "an event",
+        activities: "a class",
+        birthdays: "a birthday venue",
+      },
+      forChild: "for a child",
+      ageAria: "Child’s age",
+      ageAny: "of any age",
+      age: (years: number): string => {
+        if (years < 1) {
+          return "under 1";
+        }
+        return `aged ${years}`;
+      },
+      whenLead: "to go",
+      whenAria: "When to go",
+      when: {
+        now: "right now",
+        morning: "first thing in the morning",
+        morningTomorrow: "tomorrow morning",
+        any: "any time",
+      },
+      cta: "Show",
+      onMap: "or see the map",
     },
-    refresh: "show others",
-    refreshAria: "Show other options",
-    allCatalog: "Full catalog",
-    mapTitle: "On the map",
-    onMap: "View on the map",
-    scenarios: {
-      ageBefore: "Activities for kids aged",
-      ageHint: "Classes and clubs for this age",
-      ageAria: "Child's age",
-      workFriendly: "A place to get work done",
-      workFriendlyHint: "Your kid plays — you're on the laptop: Wi-Fi, AC, café",
-      openMorning: "Open early in the morning",
-      openMorningHint: "Already open by 8:00–9:00",
-      openMorningTomorrow: "Open early tomorrow",
-      openNow: "Go right now",
-      openNowHint: "Open now or opening shortly",
-      openNowHintOpen: "Open right now",
-      shelter: "Escape the heat",
-      shelterHint: "Cool inside: AC or shade — and dry when it rains",
-      events: "What's on this week",
-      eventsHint: "Upcoming events nearby",
-      birthdays: "Celebrate a birthday",
-      birthdaysHint: "Venues and party packages",
-      near: "Near me",
-      nearHint: "Closest first; your location stays in the browser",
+    quickAria: "Quick scenarios",
+    sections: {
+      placesHint: "Play areas, cafés, parks, beaches",
+      eventsHint: "Festivals, workshops, fairs",
+      activitiesHint: "Clubs, classes and camps",
+      birthdaysHint: "Venues and what’s included",
+      birthdaysLabel: "Where to celebrate",
     },
-    ageOption: (years: number): string => {
-      if (years < 1) {
-        return "under 1";
-      }
-      return years === 1 ? "1 year" : `${years} years`;
-    },
+    openNowTitle: "Open now",
+    allPlaces: "All places",
+    soonTitle: "Coming up",
+    soonHint: "Things you can still make it to.",
+    allEvents: "All events",
+    mapEyebrow: "Map",
+    mapTitle: "Everything nearby on one map",
   },
 
   scenarios: {
