@@ -263,6 +263,35 @@ export const en: Dictionary = {
     },
   },
 
+  // "My plan" — a draft slice behind a flag (decision 10.11): working names
+  plan: {
+    title: "My plan",
+    weekTitle: "This week",
+    back: "← Back to places",
+    add: "Add to plan",
+    inPlan: "In plan",
+    pickDay: "Which day?",
+    open: "Open plan →",
+    today: "today",
+    free: "free",
+    weekCount: (count: number): string =>
+      count === 0
+        ? "nothing planned yet"
+        : `${count} ${count === 1 ? "thing" : "things"} planned`,
+    prevWeek: "Previous week",
+    nextWeek: "Next week",
+    thisWeek: "This week",
+    remove: "Remove from plan",
+    likedTitle: "Liked — ready to add to the plan",
+    emptyTitle: "Your plan is empty",
+    emptyHint:
+      "Open a place, event or activity, tap “Add to plan” and pick a day — it will show up here.",
+    emptyCta: "Browse places",
+    storageNote:
+      "The plan is kept only in this browser — no sign-up. Safari on iPhone and Mac may clear it if you do not visit the site for about a week.",
+    navPlan: "My plan",
+  },
+
   // search box for places and activities (instant suggestions)
   search: {
     placeholder: "Find a place, activity or event…",

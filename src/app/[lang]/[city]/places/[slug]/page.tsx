@@ -25,6 +25,7 @@ import { absoluteUrl, breadcrumbJsonLd, placeJsonLd } from "@/lib/seo/json-ld";
 import { ShareButton } from "@/components/common/share-button";
 import { SmartBackLink } from "@/components/common/smart-back-link";
 import { MemoryButtons } from "@/components/memory/memory-buttons";
+import { PlanButton } from "@/components/plan/plan-button";
 import { LiveOpenStatusBadge } from "@/components/places/live-open-status-badge";
 import { PlaceProgramCard } from "@/components/places/place-program-card";
 import { ZoomableImage } from "@/components/common/zoomable-image";
@@ -313,6 +314,7 @@ export default async function PlaceDetailsPage({
             name={dto.name}
             imageUrl={dto.imageUrl}
           />
+          <PlanButton entity="place" slug={dto.slug} name={dto.name} />
           <ShareButton title={dto.name} />
         </div>
       </div>

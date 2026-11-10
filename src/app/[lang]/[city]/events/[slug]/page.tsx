@@ -10,6 +10,7 @@ import type { EventDetailsDto } from "@/dto/event-details.dto";
 import { ShareButton } from "@/components/common/share-button";
 import { SmartBackLink } from "@/components/common/smart-back-link";
 import { MemoryButtons } from "@/components/memory/memory-buttons";
+import { PlanButton } from "@/components/plan/plan-button";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { mapEventDetailsToDto } from "@/mappers/event-details.mapper";
 import { getApprovedEventBySlug } from "@/services/events.service";
@@ -181,6 +182,12 @@ export default async function EventDetailsPage({
             name={dto.title}
             imageUrl={dto.imageUrl}
             canMarkVisited={eventStatus !== "upcoming"}
+          />
+          <PlanButton
+            entity="event"
+            slug={dto.slug}
+            name={dto.title}
+            hint={dto.place?.name ?? dto.locationName ?? null}
           />
           <ShareButton title={dto.title} />
         </div>
