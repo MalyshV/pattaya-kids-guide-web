@@ -7,12 +7,13 @@ import {
   openLightboxHistoryEntry,
   subscribeLightboxHistoryGuard,
 } from "@/components/common/lightbox-history";
+import { BrushCloseIcon } from "@/components/common/brush-close-icon";
 import { PlaceImage } from "@/components/places/place-image";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
 
 /**
  * Фото с увеличением: клик открывает лайтбокс на весь экран. Закрытие —
- * клик вне фото, Esc или кнопка-шарик (нажал — шарик улетает вверх).
+ * клик вне фото, Esc или кнопка-крестик.
  * Без url ведёт себя как обычный PlaceImage-плейсхолдер, клика нет.
  *
  * История: открытие кладёт запись, закрытие всегда идёт через history.back()
@@ -31,31 +32,6 @@ type ZoomableImageProps = {
   priority?: boolean;
 };
 
-/** Воздушный шарик — минималистичная замена крестику (одна линия) */
-function BalloonIcon(): React.ReactElement {
-  return (
-    <svg
-      className="balloon-icon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      {/* купол шарика */}
-      <ellipse cx="12" cy="8.6" rx="5.6" ry="6.4" />
-      {/* блик */}
-      <path d="M9.3 6.2a3.4 3.4 0 0 1 2-1.5" />
-      {/* узелок */}
-      <path d="M10.9 15.6l1.1-1 1.1 1z" />
-      {/* ниточка волной */}
-      <path d="M12 15.9c-1.3 1.2 1.3 2.2 0 4.1" />
-    </svg>
-  );
-}
-
 export function ZoomableImage({
   url,
   alt,
@@ -65,8 +41,6 @@ export function ZoomableImage({
 }: ZoomableImageProps): React.ReactElement {
   const dict = useDictionary();
   const [isOpen, setIsOpen] = useState(false);
-  // «улетание» шарика перед закрытием — только при клике по нему
-  const [isLeaving, setIsLeaving] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
 
@@ -80,7 +54,6 @@ export function ZoomableImage({
       window.history.back();
     } else {
       setIsOpen(false);
-      setIsLeaving(false);
       triggerRef.current?.focus();
     }
   }, []);
@@ -99,7 +72,6 @@ export function ZoomableImage({
 
     const onPopState = (): void => {
       setIsOpen(false);
-      setIsLeaving(false);
       triggerRef.current?.focus();
     };
     window.addEventListener("popstate", onPopState);
@@ -108,15 +80,6 @@ export function ZoomableImage({
       markClosed();
     };
   }, [isOpen]);
-
-  // клик по шарику: даём анимации улететь, потом закрываем
-  function closeWithBalloon(): void {
-    if (isLeaving) {
-      return;
-    }
-    setIsLeaving(true);
-    window.setTimeout(requestClose, 280);
-  }
 
   useEffect(() => {
     if (!isOpen) {
@@ -133,7 +96,7 @@ export function ZoomableImage({
       if (event.key === "Escape") {
         requestClose();
       }
-      // единственный фокусируемый элемент — кнопка-шарик: Tab не уводит фокус
+      // единственный фокусируемый элемент — кнопка закрытия: Tab не уводит фокус
       if (event.key === "Tab") {
         event.preventDefault();
         closeRef.current?.focus();
@@ -198,14 +161,14 @@ export function ZoomableImage({
                 <button
                   type="button"
                   ref={closeRef}
-                  className={`lightbox-close${isLeaving ? " lightbox-close-leaving" : ""}`}
+                  className="lightbox-close"
                   aria-label={dict.common.closePhoto}
                   onClick={(event) => {
                     event.stopPropagation();
-                    closeWithBalloon();
+                    requestClose();
                   }}
                 >
-                  <BalloonIcon />
+                  <BrushCloseIcon />
                 </button>
               </div>
             </div>,

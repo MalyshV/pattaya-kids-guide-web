@@ -7,6 +7,7 @@ import {
   openLightboxHistoryEntry,
   subscribeLightboxHistoryGuard,
 } from "@/components/common/lightbox-history";
+import { BrushCloseIcon } from "@/components/common/brush-close-icon";
 import { PlaceImage } from "@/components/places/place-image";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
 
@@ -15,7 +16,7 @@ import { useDictionary } from "@/lib/i18n/use-dictionary";
  * просмотр, где фото можно листать: стрелки, клавиши ← →, свайп на телефоне,
  * счётчик «2 из 4». Закрытие — «Назад» браузера (лайтбокс кладёт запись в
  * историю: интуитивный жест закрывает фото, а не уводит со страницы), Esc,
- * кнопка-шарик или клик по фону.
+ * кнопка-крестик или клик по фону.
  *
  * История: закрытие ВСЕГДА идёт через history.back() → popstate — единая
  * точка, где лайтбокс гаснет и фокус возвращается на миниатюру. Это чинит
@@ -33,27 +34,6 @@ type GalleryPhoto = {
   url: string | null;
   caption: string | null;
 };
-
-/** Воздушный шарик — та же метафора закрытия, что и в ZoomableImage */
-function BalloonIcon(): React.ReactElement {
-  return (
-    <svg
-      className="balloon-icon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <ellipse cx="12" cy="8.6" rx="5.6" ry="6.4" />
-      <path d="M9.3 6.2a3.4 3.4 0 0 1 2-1.5" />
-      <path d="M10.9 15.6l1.1-1 1.1 1z" />
-      <path d="M12 15.9c-1.3 1.2 1.3 2.2 0 4.1" />
-    </svg>
-  );
-}
 
 /** порог свайпа: короче — считаем случайным дрожанием пальца */
 const SWIPE_THRESHOLD = 45;
@@ -243,7 +223,7 @@ export function PhotoGallery({
                     requestClose();
                   }}
                 >
-                  <BalloonIcon />
+                  <BrushCloseIcon />
                 </button>
               </div>
 
