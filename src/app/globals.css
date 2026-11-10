@@ -1861,14 +1861,14 @@ a.admin-button {
   max-height: 20px;
 }
 
-/* маркер места — пин-шарик (SVG внутри divIcon); гасим дефолтный белый
-   квадрат leaflet-div-icon, оставляем только мягкую тень под шариком.
+/* маркер — фигура из туши (SVG внутри divIcon); гасим дефолтный белый
+   квадрат leaflet-div-icon, оставляем только лёгкую тень под фигурой.
    Тени пина и точки «вы здесь» намеренно НЕ через токены палитры: они
    ложатся на тайлы карты, а те живут своей темой (см. лайтбокс выше) */
 .map-pin {
   background: none;
   border: none;
-  filter: drop-shadow(0 2px 3px rgba(60, 50, 35, 0.35));
+  filter: drop-shadow(0 1px 2px rgba(38, 50, 59, 0.28));
 }
 
 .map-pin svg {
@@ -1886,7 +1886,7 @@ a.admin-button {
   background: var(--sage);
   border: 3px solid #fff;
   border-radius: 50%;
-  box-shadow: 0 1px 4px rgba(60, 50, 35, 0.35);
+  box-shadow: 0 1px 4px rgba(38, 50, 59, 0.3);
 }
 
 .map-popup {
@@ -4387,8 +4387,8 @@ html[lang="th"] .landing-sentence {
 }
 
 /* Выбираемое слово: курсив «морем» с линией — так в предложении видно,
-   что можно поменять. Поверх лежит прозрачный нативный select (см.
-   SentencePick): слово держит свою ширину, а список открывает система. */
+   что можно поменять. Слово — кнопка; под ним раскрывается свой список
+   (см. SentencePick). */
 .sentence-pick {
   position: relative;
   display: inline-flex;
@@ -4398,12 +4398,22 @@ html[lang="th"] .landing-sentence {
   display: inline-flex;
   align-items: baseline;
   gap: 0.14em;
-  padding-bottom: 0.02em;
+  margin: 0;
+  padding: 0 0 0.02em;
+  background: none;
+  border: 0;
   border-bottom: 1.5px solid var(--accent-line);
+  border-radius: 0;
   color: var(--accent-text);
+  font: inherit;
   font-style: italic;
   font-weight: 600;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: pointer;
   transition: border-color 0.15s ease;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .sentence-pick-chevron {
@@ -4412,31 +4422,111 @@ html[lang="th"] .landing-sentence {
   flex: none;
   align-self: center;
   margin-top: 0.22em;
+  transition: transform 0.15s ease;
 }
 
-.sentence-pick-select {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  border: 0;
-  opacity: 0;
-  cursor: pointer;
-  /* 16px: iOS не приближает страницу при открытии списка */
-  font-size: 16px;
-  appearance: none;
-  -webkit-appearance: none;
+.sentence-pick-label[aria-expanded="true"] .sentence-pick-chevron {
+  transform: rotate(180deg);
 }
 
-.sentence-pick:hover .sentence-pick-label {
+.sentence-pick-label:hover,
+.sentence-pick-label[aria-expanded="true"] {
   border-bottom-color: var(--accent-text);
 }
 
-.sentence-pick:focus-within .sentence-pick-label {
+.sentence-pick-label:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 4px;
   border-radius: 4px;
+}
+
+/* Список вариантов — лист бумаги под словом: тонкая рамка, лёгкая тень
+   (всплывающему она положена), варианты тем же шрифтом, что и предложение.
+   Размеры заданы в px: список не должен расти вместе с заголовком. */
+.sentence-pick-list {
+  position: absolute;
+  top: calc(100% + 10px);
+  /* --pick-shift выставляет SentencePick, когда список упирается в край */
+  left: var(--pick-shift, 0px);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  min-width: max(100%, 190px);
+  max-width: min(340px, calc(100vw - 24px));
+  max-height: min(62vh, 430px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lift);
+  color: var(--foreground);
+  font-family: var(--serif);
+  font-size: 21px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-transform: none;
+  animation: sentence-pick-rise 0.16s ease-out;
+}
+
+@keyframes sentence-pick-rise {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sentence-pick-list {
+    animation: none;
+  }
+}
+
+.sentence-pick-option {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 9px 14px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.sentence-pick-option + .sentence-pick-option {
+  margin-top: 1px;
+}
+
+.sentence-pick-option:hover,
+.sentence-pick-option:focus-visible {
+  background: var(--tint-active);
+  outline: none;
+}
+
+/* выбранный вариант — тем же курсивом «морем», что и слово в предложении */
+.sentence-pick-option-selected {
+  color: var(--accent-text);
+  font-style: italic;
+  font-weight: 600;
+}
+
+.sentence-pick-option-hint {
+  flex: none;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
 }
 
 .landing-actions {
