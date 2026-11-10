@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { PlaceImage } from "@/components/places/place-image";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
 import { useParentMemory } from "@/lib/memory/use-parent-memory";
@@ -13,6 +13,12 @@ import {
   type MemoryItem,
   type MemoryKind,
 } from "@/lib/memory/parent-memory";
+import {
+  parseSavedTab,
+  SAVED_TAB_PARAM,
+  SAVED_TABS,
+  savedPageHref,
+} from "@/lib/memory/saved-tab";
 import { cityBasePath, DEFAULT_CITY_SLUG, DEFAULT_LANG } from "@/lib/geo/base-path";
 
 const ENTITY_PATH: Record<MemoryEntity, string> = {
@@ -27,6 +33,10 @@ const ENTITY_PATH: Record<MemoryEntity, string> = {
  * актуальную страницу, где данные свежие. До гидрации показываем только
  * заголовок и вступление: разделы появляются, когда память прочитана, —
  * иначе после перезагрузки мигало «Пока пусто», будто всё пропало.
+ *
+ * Два списка — две вкладки (решение 10.11): меню шапки предлагает выбор
+ * «Нравится» или «Уже были», и страница показывает именно выбранный список,
+ * а не оба сразу. Вкладка живёт в URL (?tab=visited).
  *
  * Закладки общие для всех городов: ссылка ведёт в город записи, а подпись
  * города появляется, только когда в списке больше одного города.
@@ -101,14 +111,37 @@ export function SavedList({
   // понравившееся остаётся понравившимся, просто не мешает искать новое
   const [hideVisited, setHideVisited] = useState(false);
 
-  // #visited из меню шапки: до гидрации раздела ещё нет в разметке, и
-  // браузер не докручивает — докручиваем сами, когда память прочитана
+  const searchParams = useSearchParams();
+  const tab = parseSavedTab(searchParams.get(SAVED_TAB_PARAM));
+  const tabRefs = useRef<Partial<Record<MemoryKind, HTMLButtonElement | null>>>({});
+
+  // Переключение — без похода на сервер: списки уже в памяти браузера.
+  // history.replaceState Next подхватывает сам (useSearchParams обновится).
+  const selectTab = (next: MemoryKind): void => {
+    window.history.replaceState(null, "", savedPageHref(basePath, { age, tab: next }));
+  };
+
+  // старая ссылка из меню шапки вела на якорь #visited — открываем вкладку
   useEffect(() => {
-    if (!hydrated || !window.location.hash) {
+    if (window.location.hash === "#visited") {
+      window.history.replaceState(
+        null,
+        "",
+        savedPageHref(basePath, { age, tab: "visited" }),
+      );
+    }
+  }, [basePath, age]);
+
+  // стрелки листают вкладки (как положено tablist), фокус идёт за выбором
+  const onTabsKeyDown = (event: React.KeyboardEvent): void => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
       return;
     }
-    document.getElementById(window.location.hash.slice(1))?.scrollIntoView();
-  }, [hydrated]);
+    event.preventDefault();
+    const next: MemoryKind = tab === "saved" ? "visited" : "saved";
+    selectTab(next);
+    tabRefs.current[next]?.focus();
+  };
 
   const saved = listByKind(items, "saved");
   const visited = listByKind(items, "visited");
@@ -136,17 +169,17 @@ export function SavedList({
     }
   };
 
-  const renderSection = (
-    title: string,
-    list: MemoryItem[],
-    kind: MemoryKind,
-  ): React.ReactElement | null => {
+  const renderPanel = (list: MemoryItem[], kind: MemoryKind): React.ReactElement => {
+    // имя панели — её вкладка; пустой список объясняет, как сюда попадают записи
+    const panelProps = {
+      className: "saved-section",
+      role: "tabpanel",
+      id: "saved-panel",
+      "aria-labelledby": `saved-tab-${kind}`,
+    } as const;
     if (list.length === 0) {
-      // секция не исчезает молча: пришедший по «✓ Уже были» из меню шапки
-      // должен увидеть, куда попал и как сюда попадают записи
       return (
-        <section className="saved-section" id={kind}>
-          <h2 className="saved-section-title">{title}</h2>
+        <section {...panelProps}>
           <p className="saved-section-empty">
             {kind === "saved"
               ? dict.memory.savedSectionEmpty
@@ -162,11 +195,7 @@ export function SavedList({
         ? list.filter((item) => !visitedKeys.has(sameThing(item)))
         : list;
     return (
-      // id — якорь для пунктов меню шапки (♡ → #saved, ✓ → #visited)
-      <section className="saved-section" id={kind}>
-        <h2 className="saved-section-title">
-          {title} <span className="saved-count">{shown.length}</span>
-        </h2>
+      <section {...panelProps}>
         {canHide ? (
           <div className="saved-section-tools">
             <button
@@ -244,8 +273,43 @@ export function SavedList({
         </div>
       ) : hydrated ? (
         <>
-          {renderSection(dict.memory.savedSection, saved, "saved")}
-          {renderSection(dict.memory.visitedSection, visited, "visited")}
+          <div
+            className="view-toggle saved-tabs"
+            role="tablist"
+            aria-label={dict.memory.menuAria}
+            onKeyDown={onTabsKeyDown}
+          >
+            {SAVED_TABS.map((kind) => {
+              const isActive = kind === tab;
+              const count = kind === "saved" ? saved.length : visited.length;
+              return (
+                <button
+                  key={kind}
+                  ref={(el) => {
+                    tabRefs.current[kind] = el;
+                  }}
+                  type="button"
+                  role="tab"
+                  id={`saved-tab-${kind}`}
+                  aria-selected={isActive}
+                  aria-controls="saved-panel"
+                  tabIndex={isActive ? 0 : -1}
+                  className={`view-toggle-option saved-tab${
+                    isActive ? " view-toggle-active" : ""
+                  }`}
+                  onClick={() => selectTab(kind)}
+                >
+                  {kind === "saved"
+                    ? dict.memory.savedSection
+                    : dict.memory.visitedSection}
+                  {count > 0 ? <span className="saved-tab-count">{count}</span> : null}
+                </button>
+              );
+            })}
+          </div>
+          {tab === "saved"
+            ? renderPanel(saved, "saved")
+            : renderPanel(visited, "visited")}
         </>
       ) : null}
 

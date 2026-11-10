@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
 import { useParentMemory } from "@/lib/memory/use-parent-memory";
 import { listByKind } from "@/lib/memory/parent-memory";
+import { savedPageHref } from "@/lib/memory/saved-tab";
 import { ThemeMenuItem } from "@/components/layout/theme-toggle";
 import { DARK_THEME_ENABLED } from "@/lib/theme/theme-script";
 
@@ -234,7 +235,7 @@ export function MemoryMenu({
       icon={<MemoryIcon />}
       current={pathname.startsWith(`${basePath}/saved`)}
     >
-      <Link href={withAge(`${basePath}/saved`, age)} className="header-menu-item">
+      <Link href={savedPageHref(basePath, { age })} className="header-menu-item">
         <span className="header-menu-item-mark" aria-hidden="true">
           ♡
         </span>
@@ -244,8 +245,8 @@ export function MemoryMenu({
         ) : null}
       </Link>
       <Link
-        // query — строго до #visited: withAge после хэша дал бы битый URL
-        href={`${withAge(`${basePath}/saved`, age)}#visited`}
+        // своя вкладка страницы: пункт меню открывает ровно названный список
+        href={savedPageHref(basePath, { age, tab: "visited" })}
         className="header-menu-item"
       >
         <span className="header-menu-item-mark" aria-hidden="true">
