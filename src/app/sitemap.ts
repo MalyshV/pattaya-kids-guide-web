@@ -3,6 +3,8 @@ import { prisma } from "@/db/prisma";
 import { demoFilter } from "@/lib/demo/show-demo";
 import { getSiteUrl } from "@/lib/geo/city";
 import { localizedSitemapEntry } from "@/lib/seo/sitemap-entry";
+import { getCityDistrictDefinitions } from "@/lib/districts/city-districts";
+import { countByDistrict, placeDistrictSlug } from "@/lib/districts/place-district";
 
 // Карта строится при запросе, а не при сборке. Иначе сборка зависит от базы
 // (заминка связи с ней роняла деплой), а сама карта замирает до следующего
@@ -15,8 +17,9 @@ export const dynamic = "force-dynamic";
  *
  * Каждый URL — одна запись на канонической (дефолтной) локали + alternates.
  * languages на все переводы и x-default: так Google связывает языковые версии
- * между собой прямо из карты сайта, без догадок. Разделы, места, события И
- * занятия покрыты во всех локалях.
+ * между собой прямо из карты сайта, без догадок. Разделы, места, события,
+ * занятия и страницы районов (только районы, где есть места) покрыты во
+ * всех локалях.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getSiteUrl();
@@ -26,7 +29,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     include: {
       places: {
         where: { status: "APPROVED", ...demoFilter() },
-        select: { slug: true, updatedAt: true },
+        select: {
+          slug: true,
+          updatedAt: true,
+          // район места считается на показе — для страниц районов в карте
+          latitude: true,
+          longitude: true,
+          districtManual: true,
+          district: { select: { slug: true } },
+        },
       },
       events: {
         where: { status: "APPROVED", ...demoFilter() },
@@ -76,6 +87,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entries.push(entry("/events", cityLastMod));
     entries.push(entry("/activities", cityLastMod));
     entries.push(entry("/birthdays", cityLastMod));
+
+    // страницы районов — только те, где есть хотя бы одно место: пустой
+    // район в выдаче был бы страницей без содержания
+    const districtDefinitions = getCityDistrictDefinitions(city.slug);
+    for (const { district } of countByDistrict(
+      city.places.map((place) => placeDistrictSlug(place, districtDefinitions)),
+      districtDefinitions,
+    )) {
+      entries.push(entry(`/districts/${district.slug}`, cityLastMod));
+    }
 
     // детальные страницы
     for (const place of city.places) {

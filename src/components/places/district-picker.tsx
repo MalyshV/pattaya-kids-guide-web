@@ -1,6 +1,7 @@
 "use client";
 
 import { useOptimistic, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SentencePick, type PickOption } from "@/components/common/sentence-pick";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
@@ -21,6 +22,8 @@ type DistrictPickerProps = {
   active: string | null;
   /** остальные параметры страницы — сохраняем (кроме page: фильтр = 1-я страница) */
   preservedParams?: Record<string, string | undefined>;
+  /** страница выбранного района («О районе»); без выбора ссылки нет */
+  districtHref?: string;
 };
 
 const ANY = "";
@@ -53,6 +56,7 @@ export function DistrictPicker({
   districts,
   active,
   preservedParams = {},
+  districtHref,
 }: DistrictPickerProps): React.ReactElement | null {
   const router = useRouter();
   const dict = useDictionary();
@@ -95,6 +99,12 @@ export function DistrictPicker({
           onChange={apply}
         />
       </span>
+      {active && districtHref ? (
+        <Link href={districtHref} className="district-picker-about">
+          {dict.districtPage.aboutLink}
+          <span aria-hidden="true"> →</span>
+        </Link>
+      ) : null}
     </section>
   );
 }

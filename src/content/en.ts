@@ -120,6 +120,22 @@ export const en: Dictionary = {
     aria: "City district",
     any: "whole city",
   },
+  districtPage: {
+    allDistricts: "All districts",
+    kindsAria: "What to show",
+    emptyTitle: "Nothing in this district yet",
+    emptyHint:
+      "No places, activities or events here yet — have a look at the neighbouring districts.",
+    emptyKinds: "Everything is hidden — turn on places, events or activities.",
+    catalogLink: "This district's places in the catalogue, with filters",
+    aboutLink: "About the district",
+    mapAria: (name: string): string => `Map of ${name}`,
+    otherHint: "Pick a district to see its places, activities and events.",
+    metaTitle: (name: string): string =>
+      `${name} with kids — places, activities and events`,
+    metaDescription: (name: string, cityName: string): string =>
+      `Where to go with a child in ${name}, ${cityName}: places, activities and events as a list and on the map.`,
+  },
   age: {
     question: "How old is your child?",
     all: "All ages",

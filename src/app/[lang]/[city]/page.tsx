@@ -385,8 +385,8 @@ export default async function CityLandingPage({
         </LazyMount>
       </section>
 
-      {/* «Где жить с детьми?» — районы с числом мест; каждый открывает карту
-          каталога, отфильтрованную по району */}
+      {/* «Где жить с детьми?» — районы с числом мест; каждый открывает
+          страницу района: всё, что в нём есть, списком и на карте */}
       {districtCounts.length > 0 ? (
         <section className="landing-block landing-districts">
           <div className="landing-districts-intro">
@@ -397,8 +397,7 @@ export default async function CityLandingPage({
             {districtCounts.map((district) => (
               <li key={district.slug}>
                 <Link
-                  // #results — сразу к карте, мимо шапки каталога и фильтров
-                  href={`${listPath}?district=${district.slug}&view=map#results`}
+                  href={`${basePath}/districts/${district.slug}`}
                   className="landing-district"
                 >
                   <span className="landing-district-name">{district.name}</span>

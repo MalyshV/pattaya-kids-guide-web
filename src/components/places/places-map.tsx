@@ -120,6 +120,54 @@ const PIN_SHAPE: Record<MapPointKind, PinShape> = {
   event: { html: starPin, size: [26, 26], anchor: [13, 14], popup: [0, -13] },
 };
 
+/** Подпись-ссылка на карте — соседний район на странице района. */
+export type MapLabel = {
+  id: string;
+  /** «Джомтьен» */
+  name: string;
+  /** тихая пометка после названия — число мест */
+  hint?: string;
+  href: string;
+  latitude: number;
+  longitude: number;
+};
+
+/** Вершина границы: [широта, долгота]. */
+type MapLatLng = [number, number];
+
+/// Район в фокусе: всё ВНЕ его границы накрыто лёгкой вуалью, сам район
+/// остаётся чистым листом. Цвет вуали — цвет воды основной подложки (CARTO:
+/// 212/218/221): суша вне района заметно сереет, а море не меняется вовсе —
+/// поэтому граница района, грубо уходящая в воду, на море не видна, и
+/// рисовать берег не нужно. (На запасной подложке OSM вода другого цвета —
+/// там полоса района на море слегка заметна.) Край вуали размыт
+/// (.map-district-mask), как край акварельной заливки: границы районов
+/// условны, жёсткая линия обещала бы точность, которой у них нет.
+/// Обычное наложение, без mix-blend-mode: режим darken дал бы тот же эффект
+/// на любой подложке, но его нельзя проверить в Safari — выбрана надёжность.
+const DISTRICT_MASK_COLOR = "#d4dadd";
+const DISTRICT_MASK_OPACITY = 0.58;
+const WORLD_RING: MapLatLng[] = [
+  [-85, -180],
+  [-85, 180],
+  [85, 180],
+  [85, -180],
+];
+
+/**
+ * Фигура пина вне карты — в легенде и у переключателей страницы района:
+ * та же форма и цвет, что на карте (учит форме, а не только цвету).
+ */
+export function MapPinIcon({ kind }: { kind: MapPointKind }): React.ReactElement {
+  return (
+    <span
+      className="map-legend-icon"
+      aria-hidden="true"
+      dangerouslySetInnerHTML={{ __html: PIN_SHAPE[kind].html(PIN_COLOR[kind]) }}
+    />
+  );
+}
+
 type PlacesMapProps = {
   markers: PlaceMapMarker[];
   /** позиция пользователя (только с его согласия) — точка «вы здесь» */
@@ -129,6 +177,14 @@ type PlacesMapProps = {
   legendKinds?: MapPointKind[];
   /** имя региона для скринридера; без него «Карта мест» */
   regionLabel?: string;
+  /** граница района в фокусе — всё вне её приглушается */
+  focusBoundary?: MapLatLng[];
+  /** точки, которые должны попасть в кадр вместе с пинами (суша района) */
+  frame?: MapLatLng[];
+  /** подписи-ссылки (соседние районы); в кадр не входят */
+  labels?: MapLabel[];
+  /** доп. класс обёртки — своя высота карты на странице района */
+  className?: string;
 };
 
 export function PlacesMap({
@@ -137,6 +193,10 @@ export function PlacesMap({
   basePath,
   legendKinds,
   regionLabel,
+  focusBoundary,
+  frame,
+  labels,
+  className,
 }: PlacesMapProps): React.ReactElement {
   const dict = useDictionary();
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -146,6 +206,9 @@ export function PlacesMap({
   // реально изменился состав точек.
   const markersKey = JSON.stringify(markers);
   const userKey = userPoint ? `${userPoint.latitude},${userPoint.longitude}` : "";
+  const focusKey = JSON.stringify(focusBoundary ?? []);
+  const frameKey = JSON.stringify(frame ?? []);
+  const labelsKey = JSON.stringify(labels ?? []);
   const youAreHereLabel = dict.places.mapYouAreHere;
 
   useEffect(() => {
@@ -203,6 +266,43 @@ export function PlacesMap({
       themeObserver.observe(document.documentElement, {
         attributeFilter: ["data-theme"],
       });
+
+      // район в фокусе: вуаль на всём, кроме него (см. DISTRICT_MASK_COLOR)
+      const focus = JSON.parse(focusKey) as MapLatLng[];
+      if (focus.length >= 3) {
+        map.createPane("districtMask").classList.add("map-district-mask");
+        L.polygon([WORLD_RING, focus], {
+          pane: "districtMask",
+          stroke: false,
+          fillColor: DISTRICT_MASK_COLOR,
+          fillOpacity: DISTRICT_MASK_OPACITY,
+          interactive: false,
+        }).addTo(map);
+      }
+
+      // подписи соседних районов — ссылки поверх вуали, под пинами
+      for (const label of JSON.parse(labelsKey) as MapLabel[]) {
+        const link = document.createElement("a");
+        link.className = "map-district-label";
+        link.href = label.href;
+        link.textContent = label.name;
+        if (label.hint) {
+          const hint = document.createElement("span");
+          hint.className = "map-district-label-hint";
+          hint.textContent = label.hint;
+          link.appendChild(hint);
+        }
+        L.marker([label.latitude, label.longitude], {
+          icon: L.divIcon({
+            className: "map-district-label-anchor",
+            html: link,
+            iconSize: [0, 0],
+          }),
+          // ссылка внутри сама фокусируется; маркеру второй фокус не нужен
+          keyboard: false,
+          zIndexOffset: -1000,
+        }).addTo(map);
+      }
 
       // иконка на каждый тип — своя форма (капля/круги/звезда), создаём
       // один раз, переиспользуем
@@ -284,6 +384,12 @@ export function PlacesMap({
         bounds.push([lat, lng]);
       }
 
+      // суша района входит в кадр вместе с пинами: район виден целиком,
+      // даже если мест в нём два и оба в одном углу
+      for (const vertex of JSON.parse(frameKey) as MapLatLng[]) {
+        bounds.push(vertex);
+      }
+
       if (bounds.length > 1) {
         map.fitBounds(bounds, { padding: [32, 32] });
       } else if (bounds.length === 1) {
@@ -299,22 +405,14 @@ export function PlacesMap({
       themeObserver?.disconnect();
       map?.remove();
     };
-  }, [markersKey, userKey, basePath, youAreHereLabel]);
+  }, [markersKey, userKey, basePath, youAreHereLabel, focusKey, frameKey, labelsKey]);
 
   const legend =
     legendKinds && legendKinds.length > 0 ? (
       <ul className="map-legend" aria-label={dict.places.mapLegend.title}>
         {legendKinds.map((kind) => (
           <li key={kind} className="map-legend-item">
-            {/* та же фигура, что и пин на карте — легенда учит форме, не
-                только цвету (текст рядом остаётся для доступности) */}
-            <span
-              className="map-legend-icon"
-              aria-hidden="true"
-              dangerouslySetInnerHTML={{
-                __html: PIN_SHAPE[kind].html(PIN_COLOR[kind]),
-              }}
-            />
+            <MapPinIcon kind={kind} />
             {dict.places.mapLegend[kind]}
           </li>
         ))}
@@ -324,7 +422,7 @@ export function PlacesMap({
   // region + имя: скринридер объявляет «Карта» и может её пропустить —
   // доступная альтернатива та же (список с теми же фильтрами)
   return (
-    <div className="places-map-wrap">
+    <div className={`places-map-wrap${className ? ` ${className}` : ""}`}>
       <div
         ref={containerRef}
         className="places-map-shell"
