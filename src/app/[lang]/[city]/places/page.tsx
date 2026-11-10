@@ -14,12 +14,9 @@ import { mapPlaceToListItemDto } from "@/mappers/place.mapper";
 import { parseAgeBuckets, placeAgeGroupsMatch } from "@/lib/age/age-buckets";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { getCityDistrictDefinitions } from "@/lib/districts/city-districts";
-import {
-  countByDistrict,
-  parseDistrictParam,
-  placeDistrictSlug,
-} from "@/lib/districts/place-district";
-import { toDistrictDto } from "@/mappers/district.mapper";
+import { parseDistrictParam, placeDistrictSlug } from "@/lib/districts/place-district";
+import { districtFacet } from "@/lib/districts/district-facet";
+import { DistrictEmptyState } from "@/components/districts/district-empty-state";
 import {
   isGoNowStatus,
   isMorningTomorrow,
@@ -211,30 +208,20 @@ export default async function CityPlacesPage({
     );
   }
 
-  // Район — последним: в выборе показываем только районы, где при остальных
-  // условиях что-то есть, и рядом с каждым — сколько. Район места считается
-  // на показе (ручной выбор из админки или координаты).
-  const placesWithDistrict = visiblePlaces.map((entry) => ({
-    ...entry,
-    districtSlug: placeDistrictSlug(entry.place, districtDefinitions),
-  }));
-  const districtOptions = countByDistrict(
-    placesWithDistrict.map((entry) => entry.districtSlug),
+  // Район — последним: в выборе все районы города, у каждого — сколько мест
+  // при остальных условиях. Район места считается на показе (ручной выбор из
+  // админки или координаты).
+  const districtView = districtFacet(
+    visiblePlaces.map((entry) => ({
+      ...entry,
+      districtSlug: placeDistrictSlug(entry.place, districtDefinitions),
+    })),
+    activeDistrict,
     districtDefinitions,
-  ).map(({ district, count }) => ({ ...toDistrictDto(district, lang), count }));
-  if (activeDistrict) {
-    visiblePlaces = placesWithDistrict.filter(
-      (entry) => entry.districtSlug === activeDistrict,
-    );
-    // выбранный район обязан остаться в списке, даже если в нём стало пусто —
-    // иначе фильтр включён, а снять его нечем
-    const definition = districtDefinitions.find(
-      (district) => district.slug === activeDistrict,
-    );
-    if (definition && !districtOptions.some((option) => option.slug === activeDistrict)) {
-      districtOptions.push({ ...toDistrictDto(definition, lang), count: 0 });
-    }
-  }
+    lang,
+  );
+  const districtOptions = districtView.options;
+  visiblePlaces = districtView.entries;
 
   const total = visiblePlaces.length;
   const totalPages = Math.max(1, Math.ceil(total / LIST_PAGE_SIZE));
@@ -263,11 +250,9 @@ export default async function CityPlacesPage({
         ? dict.places.emptyShelterHint
         : isWorkFriendly
           ? dict.places.emptyWorkHint
-          : activeDistrict
-            ? dict.places.emptyDistrictHint
-            : !scenarioActive && ageBuckets.length > 0
-              ? dict.places.emptyAgeHint
-              : dict.places.emptyHint;
+          : !scenarioActive && ageBuckets.length > 0
+            ? dict.places.emptyAgeHint
+            : dict.places.emptyHint;
 
   return (
     <main className="page-shell">
@@ -395,7 +380,14 @@ export default async function CityPlacesPage({
         <SuggestLink basePath={basePath} kind="place" label={dict.suggest.cta} />
       </section>
 
-      {total === 0 ? (
+      {total === 0 && activeDistrict && !scenarioActive ? (
+        <DistrictEmptyState
+          basePath={basePath}
+          kind="place"
+          allHref={listPath}
+          allLabel={dict.places.emptyCta}
+        />
+      ) : total === 0 ? (
         <section className="empty-state">
           <h3>{emptyTitle}</h3>
           <p>{emptyHint}</p>

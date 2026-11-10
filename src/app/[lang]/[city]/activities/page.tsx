@@ -12,6 +12,7 @@ import { mapActivityToListItem } from "@/mappers/activity.mapper";
 import { activityToMapPoint } from "@/mappers/map-point.mapper";
 import { getCityActivities } from "@/services/activities.service";
 import { DistrictPicker } from "@/components/places/district-picker";
+import { DistrictEmptyState } from "@/components/districts/district-empty-state";
 import { getAllApprovedPlaces } from "@/services/places.service";
 import { getCityDistrictDefinitions } from "@/lib/districts/city-districts";
 import { districtFacet, placeDistrictMap } from "@/lib/districts/district-facet";
@@ -227,15 +228,18 @@ export default async function CityActivitiesPage({
         <SuggestLink basePath={basePath} kind="activity" label={dict.suggest.cta} />
       </section>
 
-      {items.length === 0 ? (
+      {items.length === 0 && activeDistrict ? (
+        <DistrictEmptyState
+          basePath={basePath}
+          kind="activity"
+          allHref={viewHref(listPath, {}, view)}
+          allLabel={dict.activities.emptyCta}
+        />
+      ) : items.length === 0 ? (
         <section className="empty-state">
           <h3>{dict.activities.emptyTitle}</h3>
           <p>
-            {activeDistrict
-              ? dict.places.emptyDistrictHint
-              : isFiltered
-                ? dict.activities.emptyFilteredHint
-                : dict.activities.emptyHint}
+            {isFiltered ? dict.activities.emptyFilteredHint : dict.activities.emptyHint}
           </p>
           {isFiltered ? (
             <Link href={viewHref(listPath, {}, view)} className="empty-state-cta">

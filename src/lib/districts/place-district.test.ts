@@ -94,6 +94,18 @@ describe("countByDistrict", () => {
     ]);
   });
 
+  it("includeEmpty — все районы, пустые с нулём", () => {
+    const third: DistrictDefinition = { ...SQUARE_A, slug: "c", order: 30 };
+    const result = countByDistrict(["a"], [SQUARE_A, SQUARE_B, third], {
+      includeEmpty: true,
+    });
+    expect(result.map((entry) => [entry.district.slug, entry.count])).toEqual([
+      ["b", 0],
+      ["a", 1],
+      ["c", 0],
+    ]);
+  });
+
   it("slug не из справочника не создаёт района", () => {
     expect(countByDistrict(["ghost"], DISTRICTS)).toEqual([]);
   });

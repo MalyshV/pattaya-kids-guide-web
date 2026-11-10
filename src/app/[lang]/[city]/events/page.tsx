@@ -13,6 +13,7 @@ import { mapEventListItemToDto } from "@/mappers/event.mapper";
 import { eventToMapPoint } from "@/mappers/map-point.mapper";
 import { getCityEvents } from "@/services/events.service";
 import { DistrictPicker } from "@/components/places/district-picker";
+import { DistrictEmptyState } from "@/components/districts/district-empty-state";
 import { getAllApprovedPlaces } from "@/services/places.service";
 import { getCityDistrictDefinitions } from "@/lib/districts/city-districts";
 import { districtFacet, placeDistrictMap } from "@/lib/districts/district-facet";
@@ -248,10 +249,17 @@ export default async function CityEventsPage({
         <SuggestLink basePath={basePath} kind="event" label={dict.suggest.cta} />
       </section>
 
-      {total === 0 ? (
+      {total === 0 && activeDistrict ? (
+        <DistrictEmptyState
+          basePath={basePath}
+          kind="event"
+          allHref={viewHref(`${basePath}/events`, {}, view)}
+          allLabel={dict.events.emptyCta}
+        />
+      ) : total === 0 ? (
         <section className="empty-state">
           <h3>{dict.events.emptyTitle}</h3>
-          <p>{activeDistrict ? dict.places.emptyDistrictHint : dict.events.emptyHint}</p>
+          <p>{dict.events.emptyHint}</p>
           <Link
             href={viewHref(`${basePath}/events`, {}, view)}
             className="empty-state-cta"

@@ -25,25 +25,27 @@ describe("districtFacet", () => {
     { id: 4, districtSlug: null },
   ];
 
-  it("без выбора — все записи и только районы, где что-то есть", () => {
+  it("без выбора — все записи и все районы, пустые с нулём", () => {
     const facet = districtFacet(entries, null, DISTRICTS, "ru");
     expect(facet.entries).toHaveLength(4);
     expect(facet.options).toEqual([
       { slug: "b", name: "Район b", count: 1 },
       { slug: "a", name: "Район a", count: 2 },
+      { slug: "c", name: "Район c", count: 0 },
     ]);
   });
 
   it("выбранный район оставляет только свои записи, числа — по всем", () => {
     const facet = districtFacet(entries, "a", DISTRICTS, "en");
     expect(facet.entries.map((entry) => entry.id)).toEqual([1, 3]);
-    expect(facet.options).toEqual([
-      { slug: "b", name: "District b", count: 1 },
-      { slug: "a", name: "District a", count: 2 },
+    expect(facet.options.map((option) => [option.name, option.count])).toEqual([
+      ["District b", 1],
+      ["District a", 2],
+      ["District c", 0],
     ]);
   });
 
-  it("пустой выбранный район остаётся в выборе — его можно снять", () => {
+  it("пустой район можно выбрать — записей нет, в выборе он с нулём", () => {
     const facet = districtFacet(entries, "c", DISTRICTS, "ru");
     expect(facet.entries).toEqual([]);
     expect(facet.options.at(-1)).toEqual({ slug: "c", name: "Район c", count: 0 });

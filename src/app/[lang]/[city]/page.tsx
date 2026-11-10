@@ -225,7 +225,8 @@ export default async function CityLandingPage({
   }));
   // Район в предложении есть у мест, занятий и событий — у каждого раздела
   // свой счёт: занятие и событие при месте наследуют его район, как в их
-  // каталогах. В списке остаются районы, где есть хоть что-то.
+  // каталогах. В списке все районы города: пустой ведёт в каталог с
+  // приглашением рассказать о том, чего на сайте ещё нет.
   const placeDistricts = placeDistrictMap(places, districtDefinitions);
   const countsBySlug = (slugs: Array<string | null>): Map<string, number> =>
     new Map(
@@ -263,8 +264,7 @@ export default async function CityLandingPage({
           events: eventCounts.get(slug) ?? 0,
         },
       };
-    })
-    .filter(({ counts }) => counts.places + counts.activities + counts.events > 0);
+    });
 
   // Вид занятия в предложении — те же виды и в том же порядке, что чипы
   // каталога занятий; в предложении слово пишется со строчной.

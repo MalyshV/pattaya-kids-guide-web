@@ -44,13 +44,15 @@ export type DistrictCount = {
 };
 
 /**
- * Районы, в которых есть хотя бы одно место, — в порядке показа и с числом
- * мест. Пустые районы в выбор не попадают: выбрать район и увидеть «ничего
- * не нашлось» — разочарование без пользы.
+ * Районы в порядке показа с числом записей. По умолчанию — только те, где
+ * что-то есть (оглавление «Где жить с детьми?», карта сайта). includeEmpty —
+ * все районы, пустые с нулём: в фильтрах пустой район не прячем (решение
+ * 10.11) — на его месте приглашение рассказать о том, чего на сайте нет.
  */
 export function countByDistrict(
   slugs: readonly (string | null)[],
   districts: readonly DistrictDefinition[],
+  options: { includeEmpty?: boolean } = {},
 ): DistrictCount[] {
   const counts = new Map<string, number>();
   for (const slug of slugs) {
@@ -61,5 +63,5 @@ export function countByDistrict(
   return [...districts]
     .sort((a, b) => a.order - b.order)
     .map((district) => ({ district, count: counts.get(district.slug) ?? 0 }))
-    .filter((entry) => entry.count > 0);
+    .filter((entry) => options.includeEmpty === true || entry.count > 0);
 }

@@ -100,25 +100,21 @@ export function LandingHero({
     value,
     label: sentence.what[value],
   }));
-  // районы — только те, где в выбранном разделе что-то есть; число — его же
+  // районы — все, с числом записей выбранного раздела: пустой район ведёт
+  // в каталог с приглашением рассказать о том, чего на сайте ещё нет
   const districtKind: DistrictKind | null = what === "birthdays" ? null : what;
   const districtOptions: PickOption[] = [
     { value: DISTRICT_ANY, label: sentence.districtAny },
     ...(districtKind
-      ? districts
-          .filter((option) => option.counts[districtKind] > 0)
-          .map((option) => ({
-            value: option.slug,
-            label: option.phrase,
-            optionLabel: option.optionLabel,
-            hint: String(option.counts[districtKind]),
-          }))
+      ? districts.map((option) => ({
+          value: option.slug,
+          label: option.phrase,
+          optionLabel: option.optionLabel,
+          hint: String(option.counts[districtKind]),
+        }))
       : []),
   ];
-  // сменили раздел — выбранного района в нём может не быть: тогда «любой»
-  const activeDistrict = districtOptions.some((option) => option.value === district)
-    ? district
-    : DISTRICT_ANY;
+  const activeDistrict = district;
   const kindOptions: PickOption[] = [
     { value: KIND_ANY, label: sentence.kindAny },
     ...activityKinds.map((option) => ({

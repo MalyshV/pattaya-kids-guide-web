@@ -5,9 +5,10 @@ import type { DistrictDefinition } from "@/lib/districts/resolve-district";
 import { toDistrictDto } from "@/mappers/district.mapper";
 
 /**
- * Фильтр «Район» для каталогов занятий и событий — та же логика, что у мест:
- * в выборе только районы, где при остальных условиях что-то есть, с числом;
- * выбранный район остаётся в выборе, даже если в нём стало пусто.
+ * Фильтр «Район» для каталогов мест, занятий и событий: в выборе все районы
+ * города в порядке показа, у каждого — сколько записей при остальных
+ * условиях. Пустые районы не прячем (решение 10.11): пустой район в каталоге
+ * — приглашение рассказать о том, чего на сайте ещё нет.
  */
 
 export type DistrictOption = DistrictDto & { count: number };
@@ -28,17 +29,12 @@ export function districtFacet<T extends { districtSlug: string | null }>(
   const options: DistrictOption[] = countByDistrict(
     entries.map((entry) => entry.districtSlug),
     districts,
+    { includeEmpty: true },
   ).map(({ district, count }) => ({ ...toDistrictDto(district, lang), count }));
-  if (!active) {
-    return { entries: [...entries], options };
-  }
-  // иначе фильтр включён, а снять его нечем
-  const definition = districts.find((district) => district.slug === active);
-  if (definition && !options.some((option) => option.slug === active)) {
-    options.push({ ...toDistrictDto(definition, lang), count: 0 });
-  }
   return {
-    entries: entries.filter((entry) => entry.districtSlug === active),
+    entries: active
+      ? entries.filter((entry) => entry.districtSlug === active)
+      : [...entries],
     options,
   };
 }
