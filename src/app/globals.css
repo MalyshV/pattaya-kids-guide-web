@@ -37,6 +37,8 @@
   /* подчёркивание выбираемого слова в предложении-фильтре */
   --accent-line: #9cc3d3;
   --dot: #c8402c;
+  /* рамка чипов и тихих кнопок — заметнее волосяной линии */
+  --chip-border: #d6dbdd;
   /* зелёная вода — живой статус, «рядом», чек-отметки */
   --sage: #23745f;
   --sage-strong: #1b5c4b;
@@ -104,6 +106,10 @@ html[data-theme="dark"] {
   --accent-text: #e89a70;
   --accent-deep: #f0b28e;
   --accent-hover: #b95f3d;
+  --accent-line: #6f8e9c;
+  --dot: #e2836e;
+  --chip-border: #564a39;
+  --amber-graphic: #e0b273;
   --sage: #a9c3ad;
   --sage-strong: #c4d7c6;
   --sage-bg: #334033;
@@ -307,7 +313,10 @@ input[type="checkbox"]:focus-visible {
   top: 0;
   z-index: 100;
   border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  /* тот же лист ватмана, что у страницы: шапка — его край, а не плашка */
+  background-color: var(--background);
+  background-image: url("/illustrations/paper.webp");
+  background-size: 256px 256px;
 }
 
 .site-header-inner {
@@ -321,12 +330,27 @@ input[type="checkbox"]:focus-visible {
 }
 
 .site-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   text-decoration: none;
   color: var(--foreground);
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-family: var(--serif);
+  font-size: 23px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.005em;
   /* «Pattaya Kids Guide» не рвётся на две строки на планшете */
   white-space: nowrap;
+}
+
+/* знак — акварельный гребешок; декоративный, поэтому фоном, а не <img> */
+.site-brand::before {
+  content: "";
+  width: 40px;
+  height: 32px;
+  flex: none;
+  background: url("/illustrations/scallop-indigo.webp") center / contain no-repeat;
 }
 
 .site-nav {
@@ -335,60 +359,56 @@ input[type="checkbox"]:focus-visible {
      Без этого в узком диапазоне (761–950px) flex сжимал их в один ряд и
      тайские подписи (слова без пробелов) рвались посреди слога */
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 2px 26px;
 }
 
+/* Разделы — строкой текста, без «пилюль»: активный отмечен линией тушью,
+   как подчёркнутое слово в оглавлении */
 .site-nav-link {
   text-decoration: none;
-  color: var(--muted);
+  color: var(--foreground);
   font-size: 14px;
-  font-weight: 500;
-  padding: 8px 14px;
-  border-radius: 999px;
+  font-weight: 600;
+  padding: 9px 0 7px;
+  border-bottom: 1.5px solid transparent;
   /* подпись остаётся цельной: тайский переносится только между пунктами */
   white-space: nowrap;
   transition:
-    background 0.15s ease,
+    border-color 0.15s ease,
     color 0.15s ease;
 }
 
-/* hover — нежный терракотовый тинт (та же пара, что у активных чипов
-   возраста); активный пункт не перекрашиваем — «вы здесь» остаётся
-   спокойной нейтральной меткой */
 .site-nav-link:not(.site-nav-link-active):hover {
-  background: var(--tint-active);
-  color: var(--accent-deep);
+  color: var(--accent-text);
+  border-bottom-color: var(--accent-line);
 }
 
 .site-nav-link-active {
-  background: var(--surface-muted);
-  color: var(--foreground);
-  font-weight: 600;
+  border-bottom-color: var(--foreground);
+  font-weight: 700;
 }
 
+/* Заголовок страницы стоит прямо на листе — без плашки и тени */
 .hero {
   margin-bottom: 28px;
-  padding: 32px;
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  background: var(--surface-veil-soft);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(10px);
+  padding: 20px 0 4px;
 }
 
+/* мелкая подпись вразрядку — общий «голос» служебных строк */
 .eyebrow {
-  margin: 0 0 8px;
-  color: var(--accent-text);
-  font-size: 13px;
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
 .hero-title {
   margin: 0;
-  font-size: clamp(32px, 5vw, 52px);
-  line-height: 1.05;
+  font-size: clamp(38px, 6vw, 68px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
 }
 
 .hero-description {
@@ -428,19 +448,18 @@ input[type="checkbox"]:focus-visible {
   margin-top: 24px;
 }
 
-.filters-panel,
-.place-card,
-.event-card,
+/* пустое состояние — единственная рамка: тонкая линия на листе */
 .empty-state {
   border: 1px solid var(--border);
-  border-radius: 24px;
-  background: var(--surface);
-  box-shadow: var(--shadow);
+  border-radius: 10px;
 }
 
+/* фильтры — блок между двумя линиями: сверху тушью, снизу волосяной */
 .filters-panel {
   margin-bottom: 28px;
-  padding: 24px;
+  padding: 22px 0 24px;
+  border-top: 1px solid var(--foreground);
+  border-bottom: 1px solid var(--border);
 }
 
 .filters-panel-header,
@@ -455,7 +474,8 @@ input[type="checkbox"]:focus-visible {
 
 .section-title {
   margin: 0;
-  font-size: 24px;
+  font-size: 30px;
+  line-height: 1.1;
 }
 
 .section-subtitle {
@@ -509,12 +529,14 @@ input[type="checkbox"]:focus-visible {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 52px;
-  padding: 14px 16px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--surface-muted);
+  min-height: 48px;
+  padding: 10px 16px;
+  border: 1px solid var(--chip-border);
+  border-radius: 999px;
+  background: transparent;
   color: var(--foreground);
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease;
 }
@@ -533,7 +555,7 @@ input[type="checkbox"]:focus-visible {
 }
 
 .filter-toggle:hover {
-  background: var(--surface-deep);
+  background: var(--tint-hover);
 }
 
 /* Размер, флекс-фикс («флекс сжимал чекбокс рядом с длинным текстом») и
@@ -542,8 +564,8 @@ input[type="checkbox"]:focus-visible {
 
 .filter-toggle-active {
   background: var(--accent-strong);
-  color: white;
-  border-color: var(--accent-text);
+  color: var(--accent-foreground);
+  border-color: var(--accent-strong);
 }
 
 .filters-actions {
@@ -552,8 +574,9 @@ input[type="checkbox"]:focus-visible {
 
 .primary-button {
   border: none;
-  border-radius: 14px;
-  padding: 12px 18px;
+  border-radius: 999px;
+  padding: 14px 26px;
+  font-weight: 600;
   background: var(--accent-strong);
   color: var(--accent-foreground);
   cursor: pointer;
@@ -647,13 +670,14 @@ input[type="checkbox"]:focus-visible {
 .age-chip {
   display: inline-flex;
   align-items: center;
-  padding: 7px 14px;
+  padding: 9px 16px;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--chip-border);
+  background: transparent;
   color: var(--foreground);
   font-family: inherit;
   font-size: 13px;
+  font-weight: 600;
   text-decoration: none;
   cursor: pointer;
   transition:
@@ -719,11 +743,13 @@ input[type="checkbox"]:focus-visible {
   background: var(--tint-hover);
 }
 
-.age-chip-active {
-  border-color: var(--accent-text);
-  background: var(--tint-active);
-  color: var(--accent-deep);
-  font-weight: 600;
+/* выбранный чип — заливка тушью: один и тот же знак «включено» у возраста,
+   сценариев и плиток фильтра */
+.age-chip-active,
+.age-chip-active:hover {
+  border-color: var(--accent-strong);
+  background: var(--accent-strong);
+  color: var(--accent-foreground);
 }
 
 .age-chip-reset {
@@ -758,45 +784,41 @@ input[type="checkbox"]:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 18px;
+  padding: 11px 18px;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--chip-border);
+  background: transparent;
   color: var(--foreground);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition:
     background 0.15s ease,
-    border-color 0.15s ease,
-    transform 0.1s ease;
-}
-
-.scenario-chip::before {
-  content: "";
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--sage-graphic);
+    border-color 0.15s ease;
 }
 
 .scenario-chip:hover {
   background: var(--tint-hover);
-  transform: translateY(-1px);
 }
 
-.scenario-chip-active {
-  border-color: var(--sage-border);
-  background: var(--sage-bg);
-  color: var(--sage-strong);
+.scenario-chip-active,
+.scenario-chip-active:hover {
+  border-color: var(--accent-strong);
+  background: var(--accent-strong);
+  color: var(--accent-foreground);
 }
 
+/* точка «включено» — только у выбранного сценария */
 .scenario-chip-active::before {
-  background: var(--sage);
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #7fd6bd;
 }
 
 .scenario-chip:focus-visible {
-  outline: 2px solid var(--sage);
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
 
@@ -808,7 +830,7 @@ input[type="checkbox"]:focus-visible {
 }
 
 .scenario-active-hint {
-  color: var(--sage);
+  color: var(--muted);
 }
 
 /* «Рядом со мной»: спокойная строка статуса геолокации (определяем/не вышло) */
@@ -1874,24 +1896,29 @@ a.admin-button {
 .events-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 18px;
+  /* карточки без рамок — их разделяет воздух: по вертикали его больше */
+  gap: 52px 36px;
 }
 
 /* place cards */
 
+/* Карточка места стоит на листе без плашки: фото, строка статуса, имя
+   антиквой, две строки фактов. Колонкой — чтобы низ (линия с удобствами)
+   у соседних карточек стоял на одном уровне. */
 .place-card {
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* обложка места: фото или спокойный плейсхолдер (видно, куда встанет фото) */
 .place-image {
   /* relative обязателен: next/image с fill позиционируется от контейнера */
   position: relative;
-  aspect-ratio: 16 / 10;
-  border-radius: 14px;
+  aspect-ratio: 4 / 3;
+  border-radius: 10px;
   overflow: hidden;
   background: var(--surface-muted);
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .place-image-img {
@@ -1927,34 +1954,44 @@ html[data-theme="dark"] .place-image-img {
   filter: brightness(0.92);
 }
 
+/* Нет фото — акварель в тонкой рамке: ракушка на размывке. Обложка «ждёт
+   фото», а каталог уже выглядит цельно. Вариант (0–3) выбирается по имени
+   места (см. PlaceImage) — соседние заглушки не повторяются подряд, а у
+   одного места картинка всегда та же. Размер ракушки — от высоты обложки:
+   соразмерна и в карточке, и в широкой обложке страницы места. */
 .place-image-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* тёплый ореол за шариком — обложка «ждёт фото», а не серый провал.
-     Центр берём из своего токена, а не из --tint-hover: в тёмной палитре
-     тот почти совпал с --surface-muted, и ореол выродился в плоское пятно */
-  background: radial-gradient(
-    circle at 50% 44%,
-    var(--placeholder-glow) 0%,
-    var(--surface-muted) 72%
-  );
-  color: var(--accent);
+  border: 1px solid var(--border);
+  background-color: var(--placeholder-glow);
+  background-repeat: no-repeat;
+  background-position:
+    center 46%,
+    center 58%;
+  background-size:
+    auto 52%,
+    auto 96%;
+  background-image:
+    url("/illustrations/moon-sea.webp"), url("/illustrations/wash-sea.webp");
 }
 
-.place-image-empty svg {
-  /* доля от ширины обложки — шарик соразмерен и в карточке, и в hero */
-  width: 32%;
-  max-width: 72px;
-  min-width: 44px;
-  height: auto;
-  opacity: 0.5;
+.place-image-empty-1 {
+  background-image:
+    url("/illustrations/scallop-sand.webp"), url("/illustrations/wash-green.webp");
+}
+
+.place-image-empty-2 {
+  background-image:
+    url("/illustrations/scallop-rose.webp"), url("/illustrations/wash-rose.webp");
+}
+
+.place-image-empty-3 {
+  background-image:
+    url("/illustrations/star-ochre.webp"), url("/illustrations/wash-sand.webp");
 }
 
 /* баннер-обложка на странице места — шире и ниже карточной */
 .place-image-hero {
   aspect-ratio: 16 / 7;
-  border-radius: 18px;
+  border-radius: 10px;
   margin-bottom: 20px;
 }
 
@@ -2050,26 +2087,12 @@ html[data-theme="dark"] .place-image-img {
   line-height: 1.55;
 }
 
-.place-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lift);
-}
+/* отклик на наведение — имя окрашивается «морем» (см. .card-title-link),
+   карточка не прыгает и не отбрасывает тень */
 
-.place-card:focus-within {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lift);
-}
-
-/* закрытое сегодня место — тише и «спокойнее», но бейдж и CTA остаются живыми */
-.place-card-closed {
-  background: var(--surface-muted);
-  box-shadow: none;
-}
-
-.place-card-closed:hover,
-.place-card-closed:focus-within {
-  transform: none;
-  box-shadow: none;
+/* закрытое сегодня место — тише: бледнеет обложка, текст остаётся читаемым */
+.place-card-closed .place-image {
+  opacity: 0.55;
 }
 
 /* приглушаем только заголовок и описание — у них (--foreground) большой запас
@@ -2080,15 +2103,10 @@ html[data-theme="dark"] .place-image-img {
   opacity: 0.8;
 }
 
-/* бейдж «Сегодня закрыто» остаётся светлым и чётким на приглушённой карточке */
-.place-card-closed .open-status-closed {
-  background: var(--surface);
-}
-
 .place-card-title {
-  margin: 0;
-  font-size: 22px;
-  line-height: 1.2;
+  margin: 6px 0 0;
+  font-size: 30px;
+  line-height: 1.1;
 }
 
 .place-card-slug {
@@ -2097,10 +2115,25 @@ html[data-theme="dark"] .place-image-img {
   font-size: 13px;
 }
 
+/* строка «район · формат» под именем */
+.place-card-meta {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* описание в списке — две строки: суть места, остальное на странице */
 .place-card-description {
-  margin: 16px 0 0;
+  margin: 6px 0 0;
   color: var(--foreground);
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 .place-card-address {
@@ -2116,17 +2149,38 @@ html[data-theme="dark"] .place-image-img {
   white-space: nowrap;
 }
 
+/* низ карточки: удобства строкой и тихое «Подробнее» — над волосяной линией */
 .place-card-actions {
-  margin-top: 18px;
+  margin-top: auto;
+  padding-top: 14px;
+}
+
+.place-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  border-top: 1px solid var(--border);
+}
+
+.place-card-facts {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .place-card-cta {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--accent-text);
+  flex: none;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--foreground);
   text-decoration: none;
   cursor: pointer;
 }
@@ -2173,46 +2227,42 @@ html[data-theme="dark"] .place-image-img {
 }
 
 /* живой индикатор «открыто сейчас» — спокойно, без красного и «!» */
+/* Статус — не плашка, а строка: цветная точка и подпись вразрядку.
+   Смысл несёт текст («Открыто до 18:00»), точка его только подкрашивает:
+   зелёная — открыто, охра — скоро закроется, пустая — закрыто. */
 .open-status {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1;
-  white-space: nowrap;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   cursor: default;
 }
 
 .open-status::before {
   content: "";
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
+  flex: none;
   border-radius: 50%;
-  background: currentColor;
-  opacity: 0.75;
+  background: var(--sage-graphic);
 }
 
-.open-status-open {
-  color: var(--sage);
-  background: var(--sage-bg);
+.open-status-soon::before {
+  background: var(--amber-graphic);
 }
 
-.open-status-soon {
-  /* было #97612f = 4.48:1 (чуть ниже нормы) → глубже до 5.54:1 */
-  color: var(--amber-text);
-  background: var(--amber-bg);
-}
-
-.open-status-closed {
-  color: var(--muted);
-  background: var(--surface-muted);
+.open-status-closed::before {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--muted);
 }
 
 .place-card-status {
-  margin-top: 10px;
+  margin-top: 0;
 }
 
 .hero-status {
@@ -2708,12 +2758,12 @@ html[data-theme="dark"] .theme-toggle-moon {
 .feature-chip {
   display: inline-flex;
   align-items: center;
-  padding: 6px 10px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.2;
-  background: var(--surface-muted);
   color: var(--muted);
   white-space: nowrap;
   cursor: default;
@@ -3600,15 +3650,7 @@ a.tip-source:hover {
     box-shadow 0.18s ease;
 }
 
-.interactive-surface:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lift);
-}
-
-.interactive-surface:focus-within {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lift);
-}
+/* карточки на листе не «поднимаются»: отклик — цвет имени, не тень */
 
 /* ============================================================
    Память родителя: закладки ♡ «нравится» / ✓ «уже были»
@@ -3629,11 +3671,9 @@ a.tip-source:hover {
 /* компактные кнопки-кружки поверх обложки, в правом верхнем углу */
 .memory-buttons-compact {
   position: absolute;
-  /* 30px от края карточки (padding 20 + 10) → кнопки садятся на обложку;
-     у activity-card-outer паддинг на Link внутри, обложка тоже стартует на 20,
-     поэтому те же 30px кладут кнопки на фото — правило одно на все карточки */
-  top: 30px;
-  right: 30px;
+  /* карточки без внутренних полей: 10px от края — кнопки на обложке */
+  top: 10px;
+  right: 10px;
   z-index: 2;
   gap: 6px;
 }
