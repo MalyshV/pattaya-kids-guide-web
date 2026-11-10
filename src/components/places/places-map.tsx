@@ -7,13 +7,13 @@ import {
   pickBasemap,
   type Basemap,
 } from "@/lib/map/basemap";
+import { gestureZoomDelta, pinchStep } from "@/lib/map/pinch-zoom";
 import type { Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
 import type { GeoPoint } from "@/lib/geo/distance";
 import { spreadOverlapping } from "@/lib/geo/spread-points";
 import type { MapPointKind } from "@/dto/map-point.dto";
-import { gestureZoomDelta, pinchStep } from "@/lib/map/pinch-zoom";
 
 /**
  * Карта. Обёртка над движком: снаружи проект знает только маркеры, точку «вы
