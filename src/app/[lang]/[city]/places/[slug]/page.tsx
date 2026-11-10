@@ -331,9 +331,9 @@ export default async function PlaceDetailsPage({
           {dto.district ? (
             <>
               {" · "}
-              {/* район — ссылка: всё, что есть в этом районе */}
+              {/* район — ссылка на страницу района: всё, что в нём есть */}
               <Link
-                href={`${basePath}/places?district=${dto.district.slug}`}
+                href={`${basePath}/districts/${dto.district.slug}`}
                 className="eyebrow-link"
               >
                 {dto.district.name}

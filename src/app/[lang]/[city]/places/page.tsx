@@ -282,6 +282,9 @@ export default async function CityPlacesPage({
         pathname={listPath}
         districts={districtOptions}
         active={activeDistrict}
+        districtHref={
+          activeDistrict ? `${basePath}/districts/${activeDistrict}` : undefined
+        }
         preservedParams={{
           age,
           visited,

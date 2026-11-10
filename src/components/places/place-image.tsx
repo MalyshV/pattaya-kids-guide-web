@@ -16,6 +16,11 @@ type PlaceImageProps = {
    * нет, там ленивость правильна.
    */
   priority?: boolean;
+  /**
+   * По чему выбирать вариант заглушки, когда подпись пустая (картинка —
+   * украшение рядом с названием): иначе все заглушки списка одинаковые.
+   */
+  placeholderSeed?: string;
 };
 
 const PLACEHOLDER_VARIANTS = 4;
@@ -41,6 +46,7 @@ export function PlaceImage({
   className,
   sizes = "(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 370px",
   priority = false,
+  placeholderSeed,
 }: PlaceImageProps): React.ReactElement {
   const cls = `place-image${className ? ` ${className}` : ""}`;
 
@@ -51,7 +57,7 @@ export function PlaceImage({
     // не повторяются подряд.
     return (
       <div
-        className={`${cls} place-image-empty place-image-empty-${placeholderVariant(alt)}`}
+        className={`${cls} place-image-empty place-image-empty-${placeholderVariant(placeholderSeed ?? alt)}`}
         aria-hidden="true"
       />
     );

@@ -128,6 +128,21 @@ export const th: Dictionary = {
     aria: "ย่านในเมือง",
     any: "ทั้งเมือง",
   },
+  // หน้าย่าน — ฉบับร่าง รอเจ้าของภาษาตรวจ
+  districtPage: {
+    allDistricts: "ทุกย่าน",
+    kindsAria: "เลือกสิ่งที่จะแสดง",
+    emptyTitle: "ย่านนี้ยังไม่มีข้อมูล",
+    emptyHint: "ยังไม่มีสถานที่ คลาส หรืออีเวนต์ในย่านนี้ — ลองดูย่านใกล้เคียง",
+    emptyKinds: "ซ่อนทั้งหมดอยู่ — เปิดสถานที่ อีเวนต์ หรือคลาส",
+    catalogLink: "สถานที่ในย่านนี้ พร้อมตัวกรอง",
+    aboutLink: "เกี่ยวกับย่านนี้",
+    mapAria: (name: string): string => `แผนที่ย่าน ${name}`,
+    otherHint: "เลือกย่าน แล้วดูสถานที่ คลาส และอีเวนต์ในย่านนั้น",
+    metaTitle: (name: string): string => `${name} กับลูก — สถานที่ คลาส และอีเวนต์`,
+    metaDescription: (name: string, cityName: string): string =>
+      `พาลูกไปไหนดีในย่าน ${name} ${cityName}: สถานที่ คลาส และอีเวนต์ ทั้งแบบรายการและบนแผนที่`,
+  },
   age: {
     question: "ลูกอายุเท่าไร?",
     all: "ทุกช่วงวัย",

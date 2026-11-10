@@ -699,7 +699,24 @@ input[type="checkbox"]:focus-visible {
   line-height: 1.15;
 }
 
-/* район в надзаголовке страницы места — ссылка на всё в этом районе */
+/* «О районе →» рядом с выбранным районом — на страницу района */
+.district-picker-about {
+  color: var(--accent-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.district-picker-about:hover {
+  color: var(--foreground);
+}
+
+.district-picker-about:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* район в надзаголовке страницы места — ссылка на страницу района */
 .eyebrow-link {
   color: var(--accent-text);
   border-bottom: 1px solid var(--accent-line);
@@ -5150,6 +5167,360 @@ html[data-theme="dark"] .map-tiles-osm {
   .landing-districts-list {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* текущий район в оглавлении районов — тем же курсивом «морем», что выбор */
+.landing-district[aria-current="page"] .landing-district-name {
+  color: var(--accent-text);
+  font-style: italic;
+}
+
+/* ───── Страница района ─────
+   Слева — район и всё, что в нём есть; справа — карта, которая остаётся на
+   экране, пока листается список. На телефоне — одной колонкой: название,
+   карта, список. */
+.district-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
+  gap: 0 48px;
+  align-items: start;
+}
+
+.district-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.district-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.district-head-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.district-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+/* единственная красная точка страницы */
+.district-dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--dot);
+}
+
+.district-all-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--accent-text);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.district-all-link:hover {
+  color: var(--foreground);
+}
+
+.district-title {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(44px, 6vw, 68px);
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.district-counts {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.district-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+/* «Места / События / Занятия» — что показывать в списке и на карте */
+.district-kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 22px;
+  padding: 4px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.district-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.district-kind .map-legend-icon {
+  transition: opacity 0.15s ease;
+}
+
+/* выключенный тип — серой водой, фигура бледнеет */
+.district-kind[aria-pressed="false"] {
+  color: var(--muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.district-kind[aria-pressed="false"] .map-legend-icon {
+  opacity: 0.35;
+}
+
+.district-kind:focus-visible,
+.district-all-link:focus-visible,
+.district-row:focus-visible,
+.district-catalog-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.district-group-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--foreground);
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.district-group-count {
+  font-variant-numeric: tabular-nums;
+}
+
+.district-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.district-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--foreground);
+}
+
+.district-row .place-image {
+  width: 68px;
+  height: 68px;
+  flex: none;
+  aspect-ratio: auto;
+  margin: 0;
+}
+
+.district-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.district-row-name {
+  font-family: var(--serif);
+  font-size: 23px;
+  font-weight: 600;
+  line-height: 1.12;
+  transition: color 0.15s ease;
+}
+
+.district-row:hover .district-row-name {
+  color: var(--accent-text);
+}
+
+.district-row-meta {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* закрытое место — в списке остаётся, но тише */
+.district-row-muted {
+  opacity: 0.6;
+}
+
+.district-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.district-empty p {
+  margin: 0;
+}
+
+.district-empty-title {
+  margin-bottom: 6px;
+  color: var(--foreground);
+  font-family: var(--serif);
+  font-size: 25px;
+  font-weight: 600;
+}
+
+.district-catalog-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 8px 24px;
+  border: 1px solid var(--foreground);
+  border-radius: 999px;
+  color: var(--foreground);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.district-catalog-link:hover {
+  background: var(--accent-strong);
+  color: var(--accent-foreground);
+}
+
+/* карта держится под шапкой, пока листается список слева */
+.district-map {
+  position: sticky;
+  top: 92px;
+  min-width: 0;
+}
+
+.district-map-wrap .places-map-shell {
+  height: clamp(420px, calc(100dvh - 124px), 860px);
+}
+
+@media (max-width: 900px) {
+  .district-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  /* блоки левой колонки становятся строками общей сетки: название, затем
+     карта, затем переключатели и список */
+  .district-aside {
+    display: contents;
+  }
+
+  .district-head,
+  .district-note {
+    order: 1;
+  }
+
+  .district-map {
+    position: static;
+    order: 2;
+  }
+
+  .district-kinds,
+  .district-group,
+  .district-empty,
+  .district-catalog-link {
+    order: 3;
+  }
+
+  .district-map-wrap .places-map-shell {
+    height: min(58vh, 460px);
+  }
+}
+
+/* Вуаль вне района на карте (см. DISTRICT_MASK_COLOR в places-map): слой
+   между плитками и пинами, край размыт. Префикс .leaflet-container — чтобы
+   перебить z-index: 400 у .leaflet-pane из leaflet.css. */
+.leaflet-container .map-district-mask {
+  z-index: 250;
+  pointer-events: none;
+  filter: blur(6px);
+}
+
+/* подпись соседнего района на карте — ссылка вразрядку по центру якоря */
+.leaflet-container .map-district-label-anchor {
+  background: none;
+  border: 0;
+}
+
+.leaflet-container .map-district-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 6px 8px;
+  transform: translate(-50%, -50%);
+  color: var(--foreground);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  /* светлый ореол: подпись читается поверх дорог и названий подложки */
+  text-shadow:
+    0 0 3px #fff,
+    0 0 3px #fff,
+    0 0 6px #fff;
+}
+
+.leaflet-container .map-district-label:hover {
+  color: var(--accent-text);
+}
+
+.leaflet-container .map-district-label:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.map-district-label-hint {
+  margin-left: 7px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 
 /* карта посадочной: ниже сгиба, к ней ведёт плавный скролл по якорю */

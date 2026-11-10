@@ -23,8 +23,12 @@ import type { DistrictDefinition, LatLng } from "@/lib/districts/resolve-distric
  * окраины: севернее Мабпрачана и восточнее полей Siam Country Club.
  */
 
-/** Западный край — уже в море. */
-const SEA = 100.8;
+/**
+ * Западный край — уже в море. Вершины на этой долготе — не суша: страница
+ * района не берёт их в кадр карты (см. landVertices).
+ */
+export const PATTAYA_SEA_LONGITUDE = 100.8;
+const SEA = PATTAYA_SEA_LONGITUDE;
 
 /** Железная дорога с севера на юг — восточный край прибрежных районов. */
 const RAIL_BANG_LAMUNG: LatLng = [13.0, 100.934];
