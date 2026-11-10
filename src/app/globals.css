@@ -4988,6 +4988,77 @@ html[data-theme="dark"] .map-tiles-osm {
     contrast(0.85);
 }
 
+/* «Где жить с детьми?» — районы списком в две-три колонки, как оглавление */
+.landing-districts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr);
+  gap: 24px 64px;
+  align-items: start;
+}
+
+.landing-districts-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.landing-districts-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 40px;
+  border-top: 1px solid var(--foreground);
+}
+
+.landing-district {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding: 14px 0 13px;
+  border-bottom: 1px solid var(--border);
+  color: var(--foreground);
+}
+
+.landing-district-name {
+  font-family: var(--serif);
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1.1;
+  transition: color 0.15s ease;
+}
+
+.landing-district:hover .landing-district-name {
+  color: var(--accent-text);
+}
+
+.landing-district-count {
+  flex: none;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.landing-district:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 760px) {
+  .landing-districts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .landing-districts-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* карта посадочной: ниже сгиба, к ней ведёт плавный скролл по якорю */
 .landing-map {
   /* воздух над заголовком карты под липкой шапкой после якорного скролла */

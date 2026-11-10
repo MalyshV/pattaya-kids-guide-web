@@ -346,6 +346,8 @@ export const ru = {
     allEvents: "Вся афиша",
     mapEyebrow: "Карта",
     mapTitle: "Всё рядом — на одной карте",
+    districtsTitle: "Где жить с детьми?",
+    districtsHint: "Выберите район — покажем на карте, какие места для детей в нём есть.",
   },
 
   scenarios: {

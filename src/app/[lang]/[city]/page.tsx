@@ -206,20 +206,22 @@ export default async function CityLandingPage({
   // районы для предложения: только те, где есть места. По-русски у района
   // своя форма «где?» (предлог и падеж разные), в остальных языках — шаблон.
   const districtDefinitions = getCityDistrictDefinitions(citySlug);
-  const sentenceDistricts: LandingDistrictDto[] = countByDistrict(
+  const districtCounts = countByDistrict(
     places.map((place) => placeDistrictSlug(place, districtDefinitions)),
     districtDefinitions,
-  ).map(({ district, count }) => {
-    const { slug, name } = toDistrictDto(district, lang);
-    return {
+  ).map(({ district, count }) => ({
+    ...toDistrictDto(district, lang),
+    locativeRu: district.locativeRu,
+    count,
+  }));
+  const sentenceDistricts: LandingDistrictDto[] = districtCounts.map(
+    ({ slug, name, locativeRu, count }) => ({
       slug,
       phrase:
-        lang === "ru" && district.locativeRu
-          ? district.locativeRu
-          : dict.landing.sentence.inDistrict(name),
+        lang === "ru" && locativeRu ? locativeRu : dict.landing.sentence.inDistrict(name),
       optionLabel: `${name} · ${count}`,
-    };
-  });
+    }),
+  );
 
   // ближайшие события: идущие и предстоящие, по дате начала
   const liveEvents = cityEvents.filter(
@@ -381,6 +383,33 @@ export default async function CityLandingPage({
           />
         </LazyMount>
       </section>
+
+      {/* «Где жить с детьми?» — районы с числом мест; каждый открывает карту
+          каталога, отфильтрованную по району */}
+      {districtCounts.length > 0 ? (
+        <section className="landing-block landing-districts">
+          <div className="landing-districts-intro">
+            <h2 className="landing-block-title">{dict.landing.districtsTitle}</h2>
+            <p className="landing-soon-hint">{dict.landing.districtsHint}</p>
+          </div>
+          <ul className="landing-districts-list">
+            {districtCounts.map((district) => (
+              <li key={district.slug}>
+                <Link
+                  // #results — сразу к карте, мимо шапки каталога и фильтров
+                  href={`${listPath}?district=${district.slug}&view=map#results`}
+                  className="landing-district"
+                >
+                  <span className="landing-district-name">{district.name}</span>
+                  <span className="landing-district-count">
+                    {dict.places.count(district.count)}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </main>
   );
 }

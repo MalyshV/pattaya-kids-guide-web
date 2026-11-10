@@ -294,6 +294,8 @@ export const en: Dictionary = {
     allEvents: "All events",
     mapEyebrow: "Map",
     mapTitle: "Everything nearby on one map",
+    districtsTitle: "Where to live with kids?",
+    districtsHint: "Pick a district to see its places for children on the map.",
   },
 
   scenarios: {

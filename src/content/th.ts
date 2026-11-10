@@ -297,6 +297,8 @@ export const th: Dictionary = {
     allEvents: "กิจกรรมทั้งหมด",
     mapEyebrow: "แผนที่",
     mapTitle: "ทุกอย่างใกล้คุณบนแผนที่เดียว",
+    districtsTitle: "อยู่ย่านไหนดีเมื่อมีลูก",
+    districtsHint: "เลือกย่าน แล้วดูสถานที่สำหรับเด็กในย่านนั้นบนแผนที่",
   },
 
   scenarios: {
