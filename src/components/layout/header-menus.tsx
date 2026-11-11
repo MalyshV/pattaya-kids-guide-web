@@ -9,6 +9,7 @@ import { listByKind } from "@/lib/memory/parent-memory";
 import { savedPageHref } from "@/lib/memory/saved-tab";
 import { ThemeMenuItem } from "@/components/layout/theme-toggle";
 import { DARK_THEME_ENABLED } from "@/lib/theme/theme-script";
+import { MY_PLAN_ENABLED } from "@/lib/plan/plan-flag";
 
 /**
  * Компактная шапка: разделы и «память родителя» свёрнуты в две кнопки-иконки
@@ -257,6 +258,14 @@ export function MemoryMenu({
           <span className="header-menu-item-count">{visitedCount}</span>
         ) : null}
       </Link>
+      {MY_PLAN_ENABLED ? (
+        <>
+          <div className="header-menu-divider" aria-hidden="true" />
+          <Link href={`${basePath}/plan`} className="header-menu-item">
+            {dict.plan.navPlan}
+          </Link>
+        </>
+      ) : null}
     </HeaderDropdown>
   );
 }

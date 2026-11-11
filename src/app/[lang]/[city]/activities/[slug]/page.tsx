@@ -12,6 +12,7 @@ import { getActivityBySlug } from "@/services/activities.service";
 import { ShareButton } from "@/components/common/share-button";
 import { SmartBackLink } from "@/components/common/smart-back-link";
 import { MemoryButtons } from "@/components/memory/memory-buttons";
+import { PlanButton } from "@/components/plan/plan-button";
 import { ZoomableImage } from "@/components/common/zoomable-image";
 import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
 import { mapsSearchUrl } from "@/lib/geo/maps-search";
@@ -170,6 +171,14 @@ export default async function ActivityDetailsPage({
               slug={dto.slug}
               name={dto.name}
               imageUrl={dto.imageUrl}
+            />
+          ) : null}
+          {dto.slug ? (
+            <PlanButton
+              entity="activity"
+              slug={dto.slug}
+              name={dto.name}
+              hint={dto.place?.name ?? dto.venueName ?? null}
             />
           ) : null}
           <ShareButton title={dto.name} />

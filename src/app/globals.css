@@ -6623,3 +6623,450 @@ html[data-theme="dark"] .theme-label-to-light {
 .action-banner .telegram-notify {
   margin-top: 16px;
 }
+
+/* ── «Мой план»: черновой срез за флагом NEXT_PUBLIC_MY_PLAN_ENABLED
+   (решение 10.11). Неделя по дням — строки с волосяной линией; красная
+   точка одна — у «сегодня». ── */
+.plan-picker {
+  position: relative;
+}
+
+.plan-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border: 1px solid var(--chip-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.plan-btn:hover {
+  background: var(--tint-hover);
+}
+
+/* уже в плане — рамка тушью, как у выбранного */
+.plan-btn-active {
+  border-color: var(--accent-strong);
+}
+
+.plan-btn:focus-visible,
+.plan-day-chip:focus-visible,
+.plan-nav-arrow:focus-visible,
+.plan-nav-today:focus-visible,
+.plan-entry-remove:focus-visible,
+.plan-entry-link:focus-visible,
+.plan-liked-link:focus-visible,
+.plan-picker-open:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* панель выбора дня — всплывающее, поэтому с тенью (как меню шапки) */
+.plan-picker-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 20;
+  display: grid;
+  gap: 10px;
+  width: max-content;
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.plan-picker-title {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.plan-picker-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.plan-day-chip {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  min-width: 46px;
+  padding: 7px 4px 5px;
+  border: 1px solid var(--chip-border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--foreground);
+  font: inherit;
+  cursor: pointer;
+}
+
+.plan-day-chip:hover {
+  background: var(--tint-hover);
+}
+
+.plan-day-chip-name {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.plan-day-chip-date {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.plan-day-chip-active {
+  border-color: var(--accent-strong);
+  background: var(--accent-strong);
+  color: var(--accent-foreground);
+}
+
+.plan-day-chip-active:hover {
+  background: var(--accent-hover);
+}
+
+.plan-day-chip-active .plan-day-chip-name {
+  color: var(--accent-foreground);
+}
+
+.plan-picker-open {
+  justify-self: start;
+  color: var(--accent-text);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.plan-picker-open:hover {
+  text-decoration: underline;
+}
+
+/* телефон: панель не привязана к кнопке (та может стоять посреди строки) —
+   встаёт карточкой у нижнего края экрана */
+@media (max-width: 560px) {
+  .plan-picker-panel {
+    position: fixed;
+    top: auto;
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+    width: auto;
+    max-width: none;
+  }
+
+  /* семь дней в одну строку; «сегодня» — слово длиннее, ему шире */
+  .plan-picker-days {
+    display: grid;
+    grid-template-columns: 1.6fr repeat(6, minmax(0, 1fr));
+  }
+
+  .plan-day-chip {
+    min-width: 0;
+  }
+}
+
+.plan-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.plan-title {
+  margin: 0;
+  font-size: clamp(40px, 6vw, 64px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.plan-range {
+  margin: 12px 0 0;
+  color: var(--muted);
+}
+
+.plan-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.plan-nav-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0 0 3px;
+  border: 1px solid var(--chip-border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.plan-nav-arrow:hover {
+  background: var(--tint-hover);
+}
+
+.plan-nav-today {
+  padding: 0;
+  margin-right: 8px;
+  border: 0;
+  background: none;
+  color: var(--accent-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.plan-nav-today:hover {
+  text-decoration: underline;
+}
+
+/* неделя: сверху линия тушью, между днями — волосяные */
+.plan-week {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--foreground);
+}
+
+.plan-day {
+  display: grid;
+  grid-template-columns: 148px minmax(0, 1fr);
+  gap: 16px;
+  align-items: baseline;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.plan-day-date {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.plan-day-num {
+  font-family: var(--serif);
+  font-size: 34px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.plan-day-name {
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* сегодня — единственная красная точка страницы */
+.plan-day-today .plan-day-name {
+  color: var(--foreground);
+}
+
+.plan-day-today .plan-day-name::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--dot);
+  vertical-align: 1px;
+}
+
+/* прошедшие дни недели — тише */
+.plan-day-past .plan-day-num,
+.plan-day-past .plan-entry-name {
+  color: var(--muted);
+}
+
+.plan-day-free {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.plan-entries {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plan-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.plan-entry-link,
+.plan-liked-link {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.plan-entry-type {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.plan-entry-name,
+.plan-liked-name {
+  font-family: var(--serif);
+  font-size: 23px;
+  font-weight: 600;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.plan-entry-link:hover .plan-entry-name,
+.plan-liked-link:hover .plan-liked-name {
+  color: var(--accent-text);
+}
+
+.plan-entry-hint {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.plan-entry-remove {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.plan-entry-remove:hover {
+  background: var(--tint-hover);
+  color: var(--foreground);
+}
+
+.plan-entry-remove svg {
+  width: 18px;
+  height: 18px;
+}
+
+.plan-empty {
+  margin-top: 32px;
+}
+
+.plan-empty-title {
+  margin: 0 0 6px;
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.plan-empty-hint {
+  margin: 0;
+  max-width: 56ch;
+  color: var(--muted);
+}
+
+.plan-liked {
+  margin-top: 56px;
+}
+
+.plan-section-title {
+  margin: 0 0 14px;
+  font-size: 30px;
+  line-height: 1.1;
+}
+
+.plan-liked-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border);
+}
+
+.plan-liked-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.plan-storage-note {
+  margin: 40px 0 0;
+  max-width: 60ch;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+@media (max-width: 560px) {
+  /* на телефоне день — строкой над своими делами: колонке даты тесно */
+  .plan-day {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .plan-day-num {
+    font-size: 28px;
+  }
+
+  .plan-entry-name,
+  .plan-liked-name {
+    font-size: 20px;
+  }
+}
+
+/* телефон: с кнопкой «В план» строке действий тесно рядом со ссылкой
+   «Назад» — ссылка остаётся на своей строке, действия уходят под неё.
+   Правило срабатывает только когда кнопка есть (флаг включён). */
+@media (max-width: 560px) {
+  .back-link-wrapper:has(.plan-picker) {
+    flex-wrap: wrap;
+    row-gap: 12px;
+  }
+
+  .back-link-wrapper:has(.plan-picker) .detail-actions {
+    margin-left: auto;
+  }
+}
