@@ -941,7 +941,9 @@ input[type="checkbox"]:focus-visible {
   scroll-margin-top: 16px;
 }
 
-/* ── админка: личный кабинет Вероники, calm-палитра, без словаря ── */
+/* ── админка: рабочий кабинет, без словаря. Образ тот же, что на сайте, —
+   «Тушь и вода»: формы лежат прямо на бумаге, блоки разделяют волосяные
+   линии, а не плашки с рамкой; цвета — только токены палитры ── */
 .admin-shell {
   max-width: 860px;
   margin: 0 auto;
@@ -972,7 +974,7 @@ input[type="checkbox"]:focus-visible {
 }
 
 .admin-nav a {
-  color: var(--sage);
+  color: var(--accent-text);
   text-decoration: none;
 }
 
@@ -997,12 +999,12 @@ input[type="checkbox"]:focus-visible {
   gap: 14px;
 }
 
+/* классы разделяет линия, а не рамка вокруг каждого */
 .admin-class-row {
   display: grid;
   gap: 8px;
-  padding: 12px;
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
 }
 
 /* «Повернуть: ↺ влево · вправо ↻» под фото */
@@ -1014,11 +1016,9 @@ input[type="checkbox"]:focus-visible {
   font-size: 14px;
 }
 
+/* страница админки — прямо на бумаге, без белой плашки */
 .admin-card {
-  background: var(--surface);
-  border: 1px solid var(--border-soft);
-  border-radius: 18px;
-  padding: 24px;
+  padding: 0;
 }
 
 .admin-login {
@@ -1034,32 +1034,30 @@ input[type="checkbox"]:focus-visible {
   margin-bottom: 16px;
 }
 
+/* список — строки с волосяной линией между ними, как в «Часах работы» */
 .admin-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 8px;
+  border-top: 1px solid var(--border);
 }
 
 .admin-list-item {
-  background: var(--surface);
-  border: 1px solid var(--border-soft);
-  border-radius: 14px;
+  border-bottom: 1px solid var(--border);
 }
 
 .admin-item-link {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 12px 16px;
+  padding: 13px 8px;
   color: inherit;
   text-decoration: none;
 }
 
 .admin-item-link:hover {
-  background: var(--surface-muted);
-  border-radius: 14px;
+  background: var(--tint-hover);
 }
 
 .admin-item-name {
@@ -1123,18 +1121,37 @@ input[type="checkbox"]:focus-visible {
   }
 }
 
+/* блок полей: сверху волосяная линия, под ней заголовок блока — без рамки
+   вокруг. Заголовку задан float: так браузер кладёт его внутрь блока
+   обычной строкой, а не поверх линии, как делает с legend по умолчанию. */
 .admin-fieldset {
-  border: 1px solid var(--border-soft);
-  border-radius: 14px;
-  padding: 14px 16px;
+  min-width: 0;
+  margin: 8px 0 0;
+  padding: 18px 0 0;
+  border: none;
+  border-top: 1px solid var(--border);
   display: grid;
   gap: 10px;
 }
 
 .admin-fieldset legend {
-  padding: 0 6px;
-  font-size: 0.85rem;
-  color: var(--muted);
+  float: left;
+  width: 100%;
+  padding: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+/* блок внутри блока — тише: без своей линии, заголовок как подпись поля */
+.admin-fieldset .admin-fieldset {
+  margin: 4px 0 0;
+  padding: 0;
+  border-top: none;
+}
+
+.admin-fieldset .admin-fieldset legend {
+  font-size: 0.9rem;
 }
 
 .admin-tri-grid {
@@ -1199,10 +1216,9 @@ a.admin-button {
 .admin-next {
   display: grid;
   gap: 10px;
-  padding: 14px 16px;
-  border: 1px solid var(--border-soft);
-  border-radius: 14px;
-  background: var(--surface-muted);
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 .admin-next p {
@@ -1220,16 +1236,15 @@ a.admin-button {
 /* форма места, открытая из предложения */
 .admin-from-submission {
   margin: 0 0 12px;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: var(--surface-muted);
+  padding: 2px 0 2px 14px;
+  border-left: 2px solid var(--accent-line);
   color: var(--foreground);
   font-size: 0.95rem;
 }
 
 .admin-danger-button {
   padding: 9px 18px;
-  border: 1px solid rgba(160, 60, 40, 0.4);
+  border: 1px solid color-mix(in srgb, var(--danger-text) 40%, transparent);
   border-radius: 999px;
   background: none;
   color: var(--danger-text);
@@ -1252,19 +1267,17 @@ a.admin-button {
 .admin-divider {
   margin: 28px 0;
   border: none;
-  border-top: 1px solid var(--border-soft);
+  border-top: 1px solid var(--border);
 }
 
-/* Блок «Разобрать афишу» над формой события: визуально отделён от полей,
-   тонкая терракотовая полоса слева — как флагманские блоки витрины */
+/* Блок «Разобрать афишу» над формой события: отделён от полей тонкой
+   линией слева, без подложки */
 .admin-flyer {
   display: grid;
   gap: 10px;
   margin: 18px 0 24px;
-  padding: 14px 16px;
-  background: var(--surface-muted, var(--background));
-  border-left: 3px solid var(--accent, var(--accent));
-  border-radius: 8px;
+  padding: 2px 0 2px 16px;
+  border-left: 2px solid var(--accent-line);
 }
 
 .admin-flyer-notes {
@@ -1273,7 +1286,7 @@ a.admin-button {
 }
 
 /* OCR-зона скрина афиши: пунктирная рамка читается как «сюда можно бросить»;
-   при перетаскивании и наведении подсвечивается терракотой */
+   при перетаскивании и наведении подсвечивается «морем» */
 .admin-ocr {
   display: grid;
   gap: 6px;
@@ -1281,9 +1294,9 @@ a.admin-button {
 
 .admin-ocr-zone {
   padding: 18px 16px;
-  border: 1.5px dashed var(--border);
+  border: 1.5px dashed var(--chip-border);
   border-radius: 12px;
-  background: var(--surface);
+  background: none;
   color: var(--muted);
   font: inherit;
   text-align: center;
@@ -1295,8 +1308,8 @@ a.admin-button {
 
 .admin-ocr-zone:not(:disabled):hover,
 .admin-ocr-zone-active {
-  border-color: var(--accent, var(--accent));
-  background: rgba(201, 111, 74, 0.05);
+  border-color: var(--accent);
+  background: var(--tint-active);
 }
 
 .admin-ocr-zone:disabled {
@@ -1314,8 +1327,8 @@ a.admin-button {
   margin: 0;
   padding: 10px 14px;
   border-radius: 10px;
-  background: rgba(79, 107, 87, 0.1);
-  color: var(--sage);
+  background: var(--sage-bg);
+  color: var(--sage-strong);
 }
 
 /* черновик из скрина у форм без парсера (место, занятие) */
@@ -1354,7 +1367,7 @@ a.admin-button {
 
 .admin-error {
   color: var(--danger-text);
-  background: rgba(160, 60, 40, 0.08);
+  background: color-mix(in srgb, var(--danger-text) 8%, transparent);
   border-radius: 10px;
   padding: 10px 14px;
 }
@@ -1532,15 +1545,16 @@ a.admin-button {
   height: 28px;
 }
 
-/* success — спокойный sage, error — тёплый терракот (не тревожный красный) */
+/* success — зелёная вода, error — спокойный кирпичный (не тревожный красный);
+   оба — из токенов палитры */
 .action-banner-success .action-banner-icon {
-  background: rgba(79, 107, 87, 0.14);
+  background: var(--sage-bg);
   color: var(--sage);
 }
 
 .action-banner-error .action-banner-icon {
-  background: rgba(201, 111, 74, 0.14);
-  color: var(--accent-text);
+  background: color-mix(in srgb, var(--danger-text) 10%, transparent);
+  color: var(--danger-text);
 }
 
 .action-banner-title {
@@ -4396,7 +4410,7 @@ a.tip-source:hover {
 
 .skeleton-admin-item {
   height: 58px;
-  border-radius: 14px;
+  border-radius: 6px;
 }
 
 /* текст только для скринридеров (стандартный паттерн visually-hidden) */
@@ -5978,9 +5992,8 @@ html[data-theme="dark"] .theme-label-to-light {
 /* форма «Дополнить карточку»: название карточки вместо полей «что» и «где» */
 .suggest-about-card {
   margin: 0;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: var(--surface-muted);
+  padding: 2px 0 2px 14px;
+  border-left: 2px solid var(--accent-line);
   color: var(--foreground);
   font-size: 16px;
   font-weight: 600;
@@ -6006,16 +6019,14 @@ html[data-theme="dark"] .theme-label-to-light {
   /* строки подсказок не длиннее ~90 знаков: на широком экране читается спокойно */
   max-width: 760px;
   margin-top: 24px;
-  padding: 28px;
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  background: var(--surface);
-  box-shadow: var(--shadow);
+  /* форма лежит прямо на бумаге: от вступления её отделяет волосяная
+     линия, а не белая плашка с тенью (образ «Тушь и вода») */
+  padding: 28px 0 0;
+  border-top: 1px solid var(--border);
 }
 
 .suggest-form-loading {
   min-height: 560px;
-  box-shadow: none;
   opacity: 0.6;
 }
 
@@ -6053,8 +6064,8 @@ html[data-theme="dark"] .theme-label-to-light {
 .suggest-input {
   width: 100%;
   padding: 11px 14px;
-  /* контроловая рамка (≥3:1), а не декоративная border-soft: поле на белой
-     карточке иначе почти не видно */
+  /* контроловая рамка (≥3:1), а не декоративная border-soft: белое поле на
+     почти белой бумаге иначе почти не видно */
   border: 1px solid var(--control-border);
   border-radius: 12px;
   background: var(--surface);
@@ -6442,8 +6453,7 @@ html[data-theme="dark"] .theme-label-to-light {
 
 @media (max-width: 640px) {
   .suggest-form {
-    padding: 20px;
-    border-radius: 20px;
+    padding-top: 22px;
   }
 
   /* на телефоне шапка списка встаёт в столбик — кнопку оставляем справа
@@ -6534,9 +6544,8 @@ html[data-theme="dark"] .theme-label-to-light {
 /* «Мы сохранили ваш черновик · Начать заново», «Это другое» — тихие текстовые кнопки */
 .suggest-restored {
   margin: 0;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: var(--surface-muted);
+  padding: 2px 0 2px 14px;
+  border-left: 2px solid var(--accent-line);
   color: var(--foreground);
   font-size: 14px;
 }
