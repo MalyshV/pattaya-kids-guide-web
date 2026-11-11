@@ -692,8 +692,11 @@ async function main() {
     hasParking: true,
     hasCafeSeating: true,
     hasPowerOutlets: null, // кафе до входа — без розеток (заряжают на стойке); внутренняя зона — уточняется
-    entryPriceNote: "В будни при посещении до 15:00 — скидка 10%. Цены с НДС 7%.",
-    entryPriceNoteEn: "10% off on weekdays before 15:00. Prices include 7% VAT.",
+    // НДС: с июля 2026 кафе добавляет 7% сверху ко всем ценам (объявление в
+    // сториз «Prices» их Instagram); прежняя подпись «цены с НДС» устарела
+    entryPriceNote:
+      "В будни при посещении до 15:00 — скидка 10%. К ценам добавляется НДС 7%.",
+    entryPriceNoteEn: "10% off on weekdays before 15:00. 7% VAT is added to the prices.",
     status: "APPROVED" as const,
     cityId: pattaya.id,
   };
@@ -759,9 +762,9 @@ async function main() {
   // переносы строк осмысленные: каждый пакет с новой строки (вёрстка
   // birthday-card-notes рендерит pre-line — простыня из трёх пакетов нечитаема)
   const lariDeaBirthdayNotes =
-    "«Little Joy» — от 946 ฿ за ребёнка (от 5 детей, 2 часа)\n«Happy Moments» — 1 166 ฿ (от 10 детей)\n«Magic Day» — 1 496 ฿ (от 10 детей, 4 часа, приватная игровая)\nДепозит 50%, цены включают VAT. Допы: декор, фотограф, шоу.";
+    "«Little Joy» — от 946 ฿ за ребёнка (от 5 детей, 2 часа)\n«Happy Moments» — 1 166 ฿ (от 10 детей)\n«Magic Day» — 1 496 ฿ (от 10 детей, 4 часа, приватная игровая)\nДепозит 50%, к ценам добавляется НДС 7%. Допы: декор — 2 500 ฿, фотограф — 6 000 ฿, шоу фокусов — 6 000 ฿.";
   const lariDeaBirthdayNotesEn =
-    "“Little Joy” — from 946 ฿ per child (from 5 kids, 2 hours)\n“Happy Moments” — 1,166 ฿ (from 10 kids)\n“Magic Day” — 1,496 ฿ (from 10 kids, 4 hours, private playground)\n50% deposit, prices include VAT. Add-ons: decor, photographer, show.";
+    "“Little Joy” — from 946 ฿ per child (from 5 kids, 2 hours)\n“Happy Moments” — 1,166 ฿ (from 10 kids)\n“Magic Day” — 1,496 ฿ (from 10 kids, 4 hours, private playground)\n50% deposit; 7% VAT is added to the prices. Add-ons: decorations — 2,500 ฿, photographer — 6,000 ฿, magic show — 6,000 ฿.";
   await prisma.placeBirthdayInfo.upsert({
     where: { placeId: lariDea.id },
     update: {
