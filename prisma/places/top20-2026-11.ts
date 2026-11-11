@@ -608,6 +608,7 @@ export const TOP20_2026_11: readonly PlaceFill[] = [
           "There is no air conditioning: tables are under a canopy with fans — on hot days come in the morning or towards evening.",
       },
     ],
+    hours: EVERY_DAY("08:00", "00:00"),
     flags: {
       outdoor: true,
       hasFood: true,

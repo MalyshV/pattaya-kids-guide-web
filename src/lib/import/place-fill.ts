@@ -257,7 +257,9 @@ export function validatePlaceFill(fill: PlaceFill): string[] {
     }
     if (!TIME.test(value.open) || !TIME.test(value.close)) {
       say(`часы ${day}: время не в виде ЧЧ:ММ`);
-    } else if (value.open >= value.close) {
+    } else if (value.close !== "00:00" && value.open >= value.close) {
+      // «до полуночи» на сайте пишется как закрытие в 00:00 (конец суток);
+      // остальное «закрытие раньше открытия» в детских местах — опечатка
       say(`часы ${day}: открытие не раньше закрытия`);
     }
   }

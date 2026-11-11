@@ -177,6 +177,12 @@ describe("validatePlaceFill", () => {
     ]);
   });
 
+  it("закрытие в полночь — не ошибка: 00:00 значит конец суток", () => {
+    expect(
+      validatePlaceFill(fill({ hours: { MON: { open: "08:00", close: "00:00" } } })),
+    ).toEqual([]);
+  });
+
   it("ловит противоречия в ценах и возрасте", () => {
     const problems = validatePlaceFill(
       fill({
