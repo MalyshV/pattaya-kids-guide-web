@@ -552,13 +552,15 @@ export const TOP20_2026_11: readonly PlaceFill[] = [
   {
     slug: "miffys-voyage-cafe",
     description:
-      "Тематическое кафе с зайчиком Миффи в Premium Outlet Pattaya — второе такое в Таиланде. " +
+      "Тематическое кафе с зайчиком Миффи в Premium Outlet Pattaya — второе такое в Таиланде. Этажей два: " +
+      "на первом — столики кафе и магазин с сувенирами, на втором — детская игровая зона с сухим бассейном. " +
       "В меню — рис, паста, боулы и десерты: тосты, блинчики, манго со стики-райсом, какигори; есть блюда для детей. " +
-      "В кафе продают коробочки-сюрпризы с фигурками. Платы за вход нет — только заказ.",
+      "Платы за вход нет — только заказ.",
     descriptionEn:
-      "A Miffy-themed café at Premium Outlet Pattaya — the second of its kind in Thailand. " +
+      "A Miffy-themed café at Premium Outlet Pattaya — the second of its kind in Thailand. It has two floors: " +
+      "café tables and a souvenir shop on the ground floor, and a children's play zone with a ball pit upstairs. " +
       "The menu has rice dishes, pasta, bowls and desserts: toast, pancakes, mango sticky rice, kakigori; there are dishes for children too. " +
-      "The café sells blind boxes with figurines. There is no entry fee — you only pay for what you order.",
+      "There is no entry fee — you only pay for what you order.",
     tips: [
       {
         text: "В будни кафе открывается на час позже, чем в выходные: в 11:00 вместо 10:00.",
