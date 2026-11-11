@@ -29,12 +29,12 @@ export const TOP20_2026_11: readonly PlaceFill[] = [
       "Большая игровая на набережной Северной Паттайи, при ресторане Fat Coco (3-я сой Beach Road). Зон две. " +
       "На улице, на первом этаже, — водная зона Coco Pool: бассейн и водные горки, вокруг столики, есть раздевалки. " +
       "Через второй этаж заходят в крытую двухэтажную игровую с кондиционером: горки, сухой бассейн с шариками, " +
-      "зона активных игр и уголок с костюмами для переодевания. Пускают не только гостей отеля The Cruise Hotel — билет покупают на месте, сеанс длится 3 часа.",
+      "зона активных игр и уголок с костюмами для переодевания. Пускают не только гостей отеля The Cruise Hotel — билет покупают на месте; сеанс в игровой длится 3 часа, водная зона оплачивается отдельно.",
     descriptionEn:
       "A large play centre on the North Pattaya beachfront, at the Fat Coco restaurant (Beach Road Soi 3). There are two zones. " +
       "Outdoors on the ground floor is the Coco Pool water zone: a pool and water slides, with tables around it and changing rooms. " +
       "The second floor leads into an air-conditioned two-storey indoor playground: slides, a ball pit, " +
-      "an active play zone and a dress-up corner with costumes. It is open to non-guests of The Cruise Hotel too — you buy a ticket on site, and a session lasts 3 hours.",
+      "an active play zone and a dress-up corner with costumes. It is open to non-guests of The Cruise Hotel too — you buy a ticket on site; a playground session lasts 3 hours, and the water zone is paid separately.",
     tips: [
       {
         text: "Сеанс — 3 часа. Малыши ростом до 65 см и гости старше 60 лет проходят бесплатно.",
@@ -46,8 +46,22 @@ export const TOP20_2026_11: readonly PlaceFill[] = [
           "The indoor area is air-conditioned — bring a light top and socks for your child.",
       },
       {
-        text: "Для водной зоны пригодятся купальник, полотенце и сменная одежда.",
-        textEn: "For the water zone, bring swimwear, a towel and a change of clothes.",
+        text: "В водную зону нужен купальник; полотенце возьмите своё или купите на месте. В туалетах есть шкафчики.",
+        textEn:
+          "Swimwear is required in the water zone; bring a towel or buy one on site. There are lockers in the restrooms.",
+      },
+      {
+        text: "Глубина бассейна — 1,1–1,2 м: малыши купаются только под присмотром взрослого. Есть жилеты и доски для плавания.",
+        textEn:
+          "The pool is 1.1–1.2 m deep: small children swim only under adult supervision. Life vests and float boards are available.",
+      },
+      {
+        text: "Водная горка — для детей до 10 лет и весом до 60 кг.",
+        textEn: "The water slide is for children up to age 10 and up to 60 kg.",
+      },
+      {
+        text: "Свою еду и напитки в водную зону приносить нельзя.",
+        textEn: "You cannot bring your own food and drinks into the water zone.",
       },
       {
         text: "В загруженные дни игровая советует позвонить перед приездом: 038 259 550.",
@@ -60,15 +74,21 @@ export const TOP20_2026_11: readonly PlaceFill[] = [
     categorySlugs: ["indoor-playground"],
     entryRows: [
       {
-        label: "Сеанс 3 часа",
-        labelEn: "3-hour session",
+        label: "Крытая игровая Coco Play — сеанс 3 часа",
+        labelEn: "Coco Play indoor playground — 3-hour session",
         child: 300,
         adult: 300,
       },
+      {
+        label: "Водная зона Coco Pool",
+        labelEn: "Coco Pool water zone",
+        child: 100,
+        adult: 100,
+      },
     ],
-    note: "Детский билет — рост 65–160 см, взрослый — от 160 см. Гостям отеля The Cruise Hotel вход бесплатный.",
+    note: "Игровая: детский билет — рост 65–160 см, взрослый — от 160 см; гостям отеля The Cruise Hotel вход бесплатный. Водная зона оплачивается отдельно, цена за человека.",
     noteEn:
-      "Child ticket: height 65–160 cm; adult: over 160 cm. Entry is free for guests of The Cruise Hotel.",
+      "Playground: child ticket — height 65–160 cm, adult — over 160 cm; entry is free for guests of The Cruise Hotel. The water zone is paid separately, per person.",
     contacts: [
       { type: "facebook", value: "https://www.facebook.com/cocoplaypattaya" },
       { type: "instagram", value: "https://www.instagram.com/cocoplaypattaya" },
