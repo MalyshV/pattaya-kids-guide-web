@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
+import { BrushCloseIcon } from "@/components/common/brush-close-icon";
 import { PlaceImage } from "@/components/places/place-image";
 import { useDictionary } from "@/lib/i18n/use-dictionary";
 import { useParentMemory } from "@/lib/memory/use-parent-memory";
@@ -240,7 +241,7 @@ export function SavedList({
                   title={`${dict.memory.remove}: ${item.name}`}
                   onClick={() => removeWithUndo(item, kind)}
                 >
-                  <span aria-hidden="true">×</span>
+                  <BrushCloseIcon />
                 </button>
               </li>
             ))}
