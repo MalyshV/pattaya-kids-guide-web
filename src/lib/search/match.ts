@@ -9,6 +9,12 @@ export type SearchableItem = {
   name: string;
   /** всё, по чему ищем: имя в обеих локалях, категории, место проведения */
   searchText: string;
+  /**
+   * Другие названия той же вещи — весят как само название. Нужны району:
+   * «Сиам Кантри Клаб» и «за Сукхумвитом» должны поднимать район выше мест,
+   * которые в нём просто находятся.
+   */
+  aliases?: readonly string[];
 };
 
 /**
@@ -33,7 +39,8 @@ export const MIN_QUERY_LENGTH = 2;
  * Релевантность запроса к элементу. 0 — не совпало; больше — лучше:
  * 4 — название начинается с запроса, 3 — запрос внутри названия целиком,
  * 2 — все слова запроса есть в названии (пусть и не подряд),
- * 1 — слова встречаются только в searchText (категории, место).
+ * 1 — слова встречаются только в searchText (категории, место, район).
+ * «Название» здесь — видимое имя или любое из aliases.
  */
 export function scoreMatch(item: SearchableItem, normalizedQuery: string): number {
   if (normalizedQuery.length < MIN_QUERY_LENGTH) {
@@ -49,20 +56,20 @@ export function scoreMatch(item: SearchableItem, normalizedQuery: string): numbe
     return 0;
   }
 
-  const name = normalizeSearchText(item.name);
-  const haystack = normalizeSearchText(item.searchText);
+  const names = [item.name, ...(item.aliases ?? [])].map(normalizeSearchText);
+  const haystack = normalizeSearchText([item.searchText, ...names].join(" "));
 
   if (!words.every((word) => haystack.includes(word))) {
     return 0;
   }
 
-  if (name.startsWith(normalizedQuery)) {
+  if (names.some((name) => name.startsWith(normalizedQuery))) {
     return 4;
   }
-  if (name.includes(normalizedQuery)) {
+  if (names.some((name) => name.includes(normalizedQuery))) {
     return 3;
   }
-  if (words.every((word) => name.includes(word))) {
+  if (names.some((name) => words.every((word) => name.includes(word)))) {
     return 2;
   }
   return 1;

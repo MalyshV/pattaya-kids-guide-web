@@ -7,7 +7,9 @@ import { demoFilter } from "@/lib/demo/show-demo";
  * Данные для поискового индекса города: одобренные места + занятия со своей
  * страницей (COURSE/CAMP со slug) + актуальные события (идущие и предстоящие —
  * прошедшие в поиск не берём). Только публичные поля — индекс уходит в браузер
- * целиком. Сборку DTO делает mapSearchIndex (mapper).
+ * целиком. Сборку DTO делает mapSearchIndex (mapper). Координаты и ручной
+ * район нужны мапперу только чтобы узнать район (поиск «по району»); в
+ * браузер они не уходят.
  */
 
 type SearchCategory = {
@@ -24,10 +26,22 @@ export type SearchBranch = {
   branchLabelTh: string | null;
 };
 
+/** Место, при котором проходит занятие или событие: имя + точка на карте. */
+export type SearchLinkedPlace = SearchBranch & {
+  id: string;
+  latitude: number;
+  longitude: number;
+};
+
 export type SearchPlaceRow = SearchBranch & {
   id: string;
   slug: string;
   address: string;
+  latitude: number;
+  longitude: number;
+  /** район выбран руками в админке (место на границе) — тогда он важнее координат */
+  districtManual: boolean;
+  district: { slug: string } | null;
   /** закрытое место ищется (знакомое название), но подсказка честно говорит об этом */
   operatingStatus: "OPEN" | "TEMPORARILY_CLOSED" | "CLOSED";
   categories: SearchCategory[];
@@ -43,7 +57,9 @@ export type SearchActivityRow = {
   venueName: string | null;
   venueNameEn: string | null;
   venueNameTh: string | null;
-  place: SearchBranch | null;
+  venueLatitude: number | null;
+  venueLongitude: number | null;
+  place: SearchLinkedPlace | null;
   categories: SearchCategory[];
 };
 
@@ -56,15 +72,22 @@ export type SearchEventRow = {
   locationName: string | null;
   locationNameEn: string | null;
   locationNameTh: string | null;
-  place: SearchBranch | null;
+  /** свои координаты события — когда оно проходит не в самом месте */
+  latitude: number | null;
+  longitude: number | null;
+  place: SearchLinkedPlace | null;
   // окно показа — только для отсечения прошедших ПОСЛЕ кэша (в браузер и
   // в поисковый индекс даты не уходят). На кэш-хите приходят строками.
   startDate: Date | string;
   endDate: Date | string | null;
 };
 
-// имя места + метка точки сети — для подписи «где проходит» у занятий и событий
+// имя места + метка точки сети — для подписи «где проходит» у занятий и
+// событий; id и координаты — чтобы узнать район
 const BRANCH_SELECT = {
+  id: true,
+  latitude: true,
+  longitude: true,
   name: true,
   branchLabel: true,
   branchLabelEn: true,
@@ -83,7 +106,9 @@ type SearchRowsResult = {
  * уже поверх кэша, свежим new Date().
  */
 const getSearchRowsCached = cachedQuery(
-  "search-rows",
+  // v2: в строках появились координаты и район — старая выборка в кэше
+  // (живёт до часа) под новым именем не подхватится
+  "search-rows-v2",
   ["places", "activities", "events"],
   async function getSearchRowsCached(cityId: string): Promise<SearchRowsResult> {
     const [places, activities, events] = await Promise.all([
@@ -94,6 +119,10 @@ const getSearchRowsCached = cachedQuery(
           name: true,
           slug: true,
           address: true,
+          latitude: true,
+          longitude: true,
+          districtManual: true,
+          district: { select: { slug: true } },
           operatingStatus: true,
           branchLabel: true,
           branchLabelEn: true,
@@ -129,6 +158,8 @@ const getSearchRowsCached = cachedQuery(
           venueName: true,
           venueNameEn: true,
           venueNameTh: true,
+          venueLatitude: true,
+          venueLongitude: true,
           place: { select: BRANCH_SELECT },
           categories: {
             select: {
@@ -153,6 +184,8 @@ const getSearchRowsCached = cachedQuery(
           locationName: true,
           locationNameEn: true,
           locationNameTh: true,
+          latitude: true,
+          longitude: true,
           place: { select: BRANCH_SELECT },
           startDate: true,
           endDate: true,

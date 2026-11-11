@@ -4,13 +4,15 @@
  */
 export type SearchItemDto = {
   id: string;
-  type: "place" | "activity" | "event";
+  type: "place" | "activity" | "event" | "district";
   /** видимое название (локализовано по языку страницы) */
   name: string;
   /** тихая подсказка под названием: адрес места или где проходит занятие */
   hint: string | null;
-  /** готовая ссылка с basePath: /ru/pattaya/places/… */
+  /** готовая ссылка с basePath: /ru/pattaya/places/… (у района — его страница) */
   url: string;
-  /** всё, по чему ищем: имя в обеих локалях + категории + место */
+  /** всё, по чему ищем: имя во всех локалях + категории + место + район */
   searchText: string;
+  /** другие названия, весят как само название (у района — все его написания) */
+  aliases?: string[];
 };

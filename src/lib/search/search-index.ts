@@ -7,6 +7,7 @@ import { mapSearchIndex } from "@/mappers/search.mapper";
  * одних и тех же кэшированных строк — React cache отдаёт один массив, и
  * Flight сериализует его в payload один раз (back-reference вместо копии).
  * Аргументы сравниваются по ссылке: строки приходят из React-cached
- * getSearchRows, поэтому в пределах запроса они идентичны.
+ * getSearchRows, а районы — постоянный список из кода, поэтому в пределах
+ * запроса они идентичны.
  */
 export const getSearchIndex = cache(mapSearchIndex);

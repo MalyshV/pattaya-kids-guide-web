@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { cityBasePath, getCityBySlug } from "@/lib/geo/city";
 import { getSearchRows } from "@/services/search.service";
 import { getSearchIndex } from "@/lib/search/search-index";
+import { getCityDistrictDefinitions } from "@/lib/districts/city-districts";
 import { getDictionary, isSupportedLang } from "@/content/dictionary";
 import { hreflangLanguages } from "@/lib/seo/meta";
 
@@ -81,6 +82,9 @@ export default async function CityLayout({
     searchRows.events,
     basePath,
     lang,
+    // районы — постоянный список из кода: ссылка та же от запроса к запросу,
+    // поэтому кэш индекса (сравнение аргументов по ссылке) не ломается
+    getCityDistrictDefinitions(city),
   );
 
   return (

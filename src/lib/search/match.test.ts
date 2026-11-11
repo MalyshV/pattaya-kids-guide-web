@@ -100,3 +100,35 @@ describe("searchItems", () => {
     expect(catalog).toEqual(before);
   });
 });
+
+describe("aliases — другие названия весят как само название", () => {
+  const district = {
+    name: "Siam Country Club",
+    searchText: "Siam Country Club Сиам Кантри Клаб",
+    aliases: ["Siam Country Club", "Сиам Кантри Клаб"],
+  };
+  const placeInside = item("Art Studio Cafe", "кафе Siam Country Club Сиам Кантри Клаб");
+
+  it("запрос по другому написанию — высший балл, как по названию", () => {
+    expect(scoreMatch(district, normalizeSearchText("сиам кантри"))).toBe(4);
+    expect(scoreMatch(district, normalizeSearchText("кантри клаб"))).toBe(3);
+    expect(scoreMatch(district, normalizeSearchText("клаб сиам"))).toBe(2);
+  });
+
+  it("район встаёт выше места, которое находится по нему же", () => {
+    const found = searchItems([placeInside, district], "сиам кантри");
+    expect(found.map((entry) => entry.name)).toEqual([
+      "Siam Country Club",
+      "Art Studio Cafe",
+    ]);
+  });
+
+  it("aliases ищутся, даже если их забыли положить в searchText", () => {
+    const lonely = {
+      name: "Восточная Паттайя",
+      searchText: "",
+      aliases: ["за Сукхумвитом"],
+    };
+    expect(scoreMatch(lonely, normalizeSearchText("за сукхумвитом"))).toBe(4);
+  });
+});

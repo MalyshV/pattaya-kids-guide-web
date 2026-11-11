@@ -82,6 +82,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
     locativeRu: "в Наклуа и Вонгамате",
     nameEn: "Naklua & Wongamat",
     nameTh: "นาเกลือ-วงศ์อมาตย์",
+    searchAliases: ["Вонг Амат", "Wong Amat"],
     order: 10,
     boundary: [[13.0, SEA], RAIL_BANG_LAMUNG, RAIL_NAKLUA, RAIL_NORTH, [12.955, SEA]],
   },
@@ -125,6 +126,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
     locativeRu: "на Пратамнаке",
     nameEn: "Pratumnak",
     nameTh: "พระตำหนัก",
+    searchAliases: ["Пратумнак", "Pratamnak", "Phra Tamnak"],
     order: 50,
     boundary: [
       [12.921, SEA],
@@ -140,6 +142,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
     locativeRu: "на Джомтьене",
     nameEn: "Jomtien",
     nameTh: "จอมเทียน",
+    searchAliases: ["Джомтиен", "Jomthien"],
     order: 60,
     boundary: [
       THAPPRAYA_THEPPRASIT,
@@ -158,6 +161,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
     locativeRu: "в На Джомтьене",
     nameEn: "Na Jomtien",
     nameTh: "นาจอมเทียน",
+    searchAliases: ["На-Джомтьен", "На Джомтиен", "Na Jomthien"],
     order: 70,
     boundary: [
       [12.876, SEA],
@@ -179,6 +183,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
     locativeRu: "в Банг Сарае",
     nameEn: "Bang Saray",
     nameTh: "บางเสร่",
+    searchAliases: ["Бангсарай", "Bangsaray", "Bang Sare"],
     order: 80,
     boundary: [
       [12.778, SEA],
@@ -195,6 +200,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
     locativeRu: "в Восточной Паттайе",
     nameEn: "East Pattaya",
     nameTh: "พัทยาตะวันออก",
+    searchAliases: ["за Сукхумвитом", "Тёмная сторона", "Dark Side", "Darkside"],
     order: 90,
     boundary: [
       RAIL_NAKLUA,
@@ -217,6 +223,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
     locativeRu: "у Siam Country Club",
     nameEn: "Siam Country Club",
     nameTh: "สยามคันทรีคลับ",
+    searchAliases: ["Сиам Кантри Клаб"],
     order: 100,
     boundary: [
       EAST_LAKE_ROAD,
@@ -233,6 +240,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
     locativeRu: "у озера Мабпрачан",
     nameEn: "Mabprachan",
     nameTh: "มาบประชัน",
+    searchAliases: ["Мапрачан", "Maprachan", "озеро Мабпрачан", "Lake Mabprachan"],
     order: 110,
     boundary: [EAST_NORTH, [12.975, 101.0], LAKE_SOUTH_EAST, LAKE_SOUTH, EAST_LAKE_ROAD],
   },
@@ -242,6 +250,7 @@ export const PATTAYA_DISTRICTS: readonly DistrictDefinition[] = [
     locativeRu: "в Хуай Яй",
     nameEn: "Huay Yai",
     nameTh: "ห้วยใหญ่",
+    searchAliases: ["Хуайяй", "Huai Yai"],
     order: 120,
     boundary: [
       EAST_HUAY_YAI,
