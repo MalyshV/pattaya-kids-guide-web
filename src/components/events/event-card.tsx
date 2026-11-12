@@ -8,6 +8,7 @@ import { getDictionary, langFromPath } from "@/content/dictionary";
 import { formatEventDay } from "@/lib/events/event-date";
 import type { Dictionary } from "@/content/dictionary";
 import { formatAgeRange } from "@/lib/age/format-age";
+import { eventCardLocation } from "@/lib/events/event-venue";
 
 type EventCardProps = {
   event: EventListItemDto;
@@ -36,6 +37,9 @@ export function EventCard({
   const dict = getDictionary(lang);
   const isPast = status === "past";
   const ageRange = formatAgeRange(event.minAgeMonths, event.maxAgeMonths, lang);
+  // «Место уточняется» — только когда места правда нет: если событие привязано
+  // к месту из каталога, его уже называет строка «Место: …» ниже
+  const location = eventCardLocation(event, dict.eventCard.locationTbd);
 
   return (
     <article
@@ -89,9 +93,7 @@ export function EventCard({
         ) : null}
       </div>
 
-      <p className="event-card-location">
-        {event.locationName ?? event.address ?? dict.eventCard.locationTbd}
-      </p>
+      {location ? <p className="event-card-location">{location}</p> : null}
 
       {event.place ? (
         <p className="event-card-place">

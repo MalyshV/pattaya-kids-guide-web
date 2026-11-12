@@ -59,7 +59,7 @@ describe("mapEventToDto", () => {
 });
 
 describe("mapEventListItemToDto", () => {
-  it("место сжимается до id/name/slug", () => {
+  it("место сжимается до id/name/slug/address", () => {
     const withPlace = {
       ...EVENT,
       place: { id: "p1", name: "Парк", slug: "park", address: "x", notes: "секрет" },
@@ -68,6 +68,7 @@ describe("mapEventListItemToDto", () => {
       id: "p1",
       name: "Парк",
       slug: "park",
+      address: "x",
     });
   });
 

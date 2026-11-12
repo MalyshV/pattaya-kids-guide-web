@@ -19,6 +19,7 @@ import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
 import { mapsSearchUrl } from "@/lib/geo/maps-search";
 import { computeEventStatus } from "@/lib/events/event-lifecycle";
 import { formatAgeRange } from "@/lib/age/format-age";
+import { eventVenue } from "@/lib/events/event-venue";
 import { articleOpenGraph, metaDescription, pageAlternates } from "@/lib/seo/meta";
 import { JsonLd } from "@/components/seo/json-ld";
 import { absoluteUrl, breadcrumbJsonLd, eventJsonLd } from "@/lib/seo/json-ld";
@@ -144,6 +145,10 @@ export default async function EventDetailsPage({
       )
     : undefined;
 
+  // площадка и адрес: своё поле события, иначе — место из каталога
+  // (иначе «Не указано» стояло бы над привязанным местом)
+  const venue = eventVenue(dto);
+
   // Structured data (schema.org): Event с датами и площадкой (право на event
   // rich results) + хлебные крошки. Площадка: своё название → место → адрес.
   const siteUrl = getSiteUrl();
@@ -155,8 +160,8 @@ export default async function EventDetailsPage({
     image: absoluteUrl(siteUrl, dto.imageUrl),
     startDate: dto.startDate,
     endDate: dto.endDate,
-    locationName: dto.locationName ?? dto.place?.name ?? null,
-    address: dto.address,
+    locationName: venue.name,
+    address: venue.address,
     cityName: localizedCityName(city, "en"),
     inLanguage: lang,
   });
@@ -232,19 +237,19 @@ export default async function EventDetailsPage({
 
           <div>
             <strong>{dict.eventDetails.location}:</strong>{" "}
-            {dto.locationName ?? dict.eventDetails.notSpecified}
+            {venue.name ?? dict.eventDetails.notSpecified}
           </div>
 
           <div>
             <strong>{dict.eventDetails.address}:</strong>{" "}
-            {dto.address ?? dict.eventDetails.notSpecified}
-            {dto.address ? (
+            {venue.address ?? dict.eventDetails.notSpecified}
+            {venue.address ? (
               <>
                 {" "}
                 {/* адрес — не мёртвый текст: с него можно построить маршрут */}
                 <a
                   className="map-link"
-                  href={mapsSearchUrl(dto.address)}
+                  href={mapsSearchUrl(venue.address)}
                   target="_blank"
                   rel="noreferrer"
                 >
