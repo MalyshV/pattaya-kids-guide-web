@@ -2,12 +2,21 @@ import { placeDisplayName } from "@/lib/places/display-name";
 import Link from "next/link";
 import { prisma } from "@/db/prisma";
 import { requireAdmin } from "@/lib/admin/auth";
+import { firstParam, parseVisibility, type AdminListItem } from "@/lib/admin/list-search";
+import { AdminSearchList } from "@/app/admin/admin-search-list";
 
 export const dynamic = "force-dynamic";
 
-/** Список всех мест города — включая скрытые (PENDING) и демо. */
-export default async function AdminPlacesPage(): Promise<React.ReactElement> {
+type Props = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+/** Список всех мест города — включая скрытые (PENDING) и демо, с поиском. */
+export default async function AdminPlacesPage({
+  searchParams,
+}: Props): Promise<React.ReactElement> {
   await requireAdmin();
+  const params = (await searchParams) ?? {};
 
   const places = await prisma.place.findMany({
     orderBy: { name: "asc" },
@@ -15,11 +24,30 @@ export default async function AdminPlacesPage(): Promise<React.ReactElement> {
       id: true,
       name: true,
       slug: true,
+      address: true,
+      branchLabel: true,
+      branchLabelEn: true,
+      branchLabelTh: true,
       status: true,
       isDemo: true,
       imageUrl: true,
       _count: { select: { photos: true } },
     },
+  });
+
+  const items: AdminListItem[] = places.map((place) => {
+    const displayName = placeDisplayName(place, "ru");
+    return {
+      id: place.id,
+      href: `/admin/places/${place.id}`,
+      name: displayName,
+      meta:
+        `/${place.slug} · фото: ${place._count.photos + (place.imageUrl ? 1 : 0)}` +
+        (place.status !== "APPROVED" ? " · скрыто с сайта" : "") +
+        (place.isDemo ? " · демо" : ""),
+      hidden: place.status !== "APPROVED",
+      searchText: [displayName, place.name, place.slug, place.address].join(" "),
+    };
   });
 
   return (
@@ -31,20 +59,12 @@ export default async function AdminPlacesPage(): Promise<React.ReactElement> {
         </Link>
       </div>
 
-      <ul className="admin-list">
-        {places.map((place) => (
-          <li key={place.id} className="admin-list-item">
-            <Link href={`/admin/places/${place.id}`} className="admin-item-link">
-              <span className="admin-item-name">{placeDisplayName(place, "ru")}</span>
-              <span className="admin-item-meta">
-                /{place.slug} · фото: {place._count.photos + (place.imageUrl ? 1 : 0)}
-                {place.status !== "APPROVED" ? " · скрыто с сайта" : ""}
-                {place.isDemo ? " · демо" : ""}
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <AdminSearchList
+        items={items}
+        initialQuery={firstParam(params.q)}
+        initialShow={parseVisibility(firstParam(params.show))}
+        placeholder="Название, адрес или slug"
+      />
     </section>
   );
 }
