@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ScrollToHash } from "@/components/common/scroll-to-hash";
 import { SuggestLink } from "@/components/suggest/suggest-link";
 import { notFound } from "next/navigation";
 import { AgeQuestion } from "@/components/common/age-question";
@@ -241,6 +242,8 @@ export default async function CityEventsPage({
       />
 
       <section className="results-header results-header-with-action" id="results">
+        {/* переход на #results с другой страницы: докрутить после скелетона */}
+        <ScrollToHash id="results" />
         <div>
           <h2>{dict.events.sectionTitle}</h2>
           {/* role=status: после фильтрации скринридер озвучит счётчик */}

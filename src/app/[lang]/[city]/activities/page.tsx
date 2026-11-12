@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ScrollToHash } from "@/components/common/scroll-to-hash";
 import { SuggestLink } from "@/components/suggest/suggest-link";
 import { notFound } from "next/navigation";
 import { ActivityCard } from "@/components/activities/activity-card";
@@ -220,6 +221,8 @@ export default async function CityActivitiesPage({
       />
 
       <section className="results-header results-header-with-action" id="results">
+        {/* переход на #results с другой страницы: докрутить после скелетона */}
+        <ScrollToHash id="results" />
         <div>
           <h2>{dict.activities.sectionTitle}</h2>
           {/* role=status: после фильтрации скринридер озвучит счётчик */}
