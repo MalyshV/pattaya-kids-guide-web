@@ -14,7 +14,8 @@
  * остаётся «уточняется». Список сомнений — в описании PR.
  *
  * Фото — свои, уменьшены до 1024 px, без метаданных; лица посторонних смазаны.
- * Правило 11.11: свой ребёнок в кадре — можно; узнаваемых взрослых не берём.
+ * Решение 11–12.11: кадры с семьёй автора (ребёнок и родители) — можно;
+ * лица посторонних смазываем или убираем обрезкой.
  * Строка о правах — у каждого места.
  */
 import type { PlaceFill } from "../../src/lib/import/place-fill";
@@ -355,6 +356,10 @@ export const ALBUMS_2026_11_NEW_FILLS: readonly PlaceFill[] = [
     cover: { url: "/images/places/black-forest-pattaya.jpg", rightsNote: OWN("2026-07") },
     photos: [
       {
+        url: "/images/places/black-forest-pattaya-fish-feeding.jpg",
+        caption: "Кормление рыб у таблички Fish feeding area",
+      },
+      {
         url: "/images/places/black-forest-pattaya-cocoon.jpg",
         caption: "Подвесной плетёный кокон над прудом",
       },
@@ -493,6 +498,10 @@ export const ALBUMS_2026_11_FILLS: readonly PlaceFill[] = [
     cover: { url: "/images/places/pa-boon-cafe-5.jpg", rightsNote: OWN("2026-01") },
     photos: [
       {
+        url: "/images/places/pa-boon-cafe-5-pavilions.jpg",
+        caption: "Беседки над водой",
+      },
+      {
         url: "/images/places/pa-boon-cafe-5-canal.jpg",
         caption: "Канал с карпами под деревьями",
       },
@@ -503,6 +512,10 @@ export const ALBUMS_2026_11_FILLS: readonly PlaceFill[] = [
       {
         url: "/images/places/pa-boon-cafe-5-stones.jpg",
         caption: "Камни-листья через воду",
+      },
+      {
+        url: "/images/places/pa-boon-cafe-5-duck.jpg",
+        caption: "Утка плавает вместе с карпами",
       },
       {
         url: "/images/places/pa-boon-cafe-5-farm.jpg",
@@ -563,8 +576,16 @@ export const ALBUMS_2026_11_FILLS: readonly PlaceFill[] = [
     },
     photos: [
       {
+        url: "/images/places/monster-aquarium-pattaya-flamingo-scoop.jpg",
+        caption: "Фламинго кормят из ковшика на длинной ручке",
+      },
+      {
+        url: "/images/places/monster-aquarium-pattaya-flamingos.jpg",
+        caption: "Фламинго у скалы с водопадом",
+      },
+      {
         url: "/images/places/monster-aquarium-pattaya-flamingo-feeding.jpg",
-        caption: "Фламинго кормят из ковшика",
+        caption: "Табличка: корм для фламинго — 20 ฿",
       },
       {
         url: "/images/places/monster-aquarium-pattaya-goats.jpg",
