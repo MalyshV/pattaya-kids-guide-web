@@ -2,6 +2,8 @@ import { placeDisplayName } from "@/lib/places/display-name";
 import Link from "next/link";
 import { prisma } from "@/db/prisma";
 import { requireAdmin } from "@/lib/admin/auth";
+import { firstParam, parseVisibility, type AdminListItem } from "@/lib/admin/list-search";
+import { AdminSearchList } from "@/app/admin/admin-search-list";
 
 export const dynamic = "force-dynamic";
 
@@ -11,15 +13,23 @@ const TYPE_LABEL: Record<string, string> = {
   MEMBERSHIP: "абонемент",
 };
 
-/** Все занятия (курсы, лагеря, абонементы) — включая демо. */
-export default async function AdminActivitiesPage(): Promise<React.ReactElement> {
+type Props = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+/** Все занятия (курсы, лагеря, абонементы) — включая скрытые и демо, с поиском. */
+export default async function AdminActivitiesPage({
+  searchParams,
+}: Props): Promise<React.ReactElement> {
   await requireAdmin();
+  const params = (await searchParams) ?? {};
 
   const activities = await prisma.placeProgram.findMany({
     orderBy: { name: "asc" },
     select: {
       id: true,
       name: true,
+      slug: true,
       type: true,
       isDemo: true,
       status: true,
@@ -33,8 +43,36 @@ export default async function AdminActivitiesPage(): Promise<React.ReactElement>
         },
       },
       venueName: true,
+      venueAddress: true,
       _count: { select: { classes: true } },
     },
+  });
+
+  const items: AdminListItem[] = activities.map((activity) => {
+    const where = activity.place
+      ? placeDisplayName(activity.place, "ru")
+      : (activity.venueName ?? "");
+    const typeLabel = TYPE_LABEL[activity.type] ?? activity.type;
+    return {
+      id: activity.id,
+      href: `/admin/activities/${activity.id}`,
+      name: activity.name,
+      meta:
+        typeLabel +
+        (where ? ` · ${where}` : "") +
+        (activity._count.classes > 0 ? ` · классов: ${activity._count.classes}` : "") +
+        (!activity.imageUrl ? " · без фото" : "") +
+        (activity.status !== "APPROVED" ? " · скрыто" : "") +
+        (activity.isDemo ? " · демо" : ""),
+      hidden: activity.status !== "APPROVED",
+      searchText: [
+        activity.name,
+        activity.slug ?? "",
+        typeLabel,
+        where,
+        activity.venueAddress ?? "",
+      ].join(" "),
+    };
   });
 
   return (
@@ -46,31 +84,12 @@ export default async function AdminActivitiesPage(): Promise<React.ReactElement>
         </Link>
       </div>
 
-      <ul className="admin-list">
-        {activities.map((activity) => (
-          <li key={activity.id} className="admin-list-item">
-            <Link href={`/admin/activities/${activity.id}`} className="admin-item-link">
-              <span className="admin-item-name">{activity.name}</span>
-              <span className="admin-item-meta">
-                {TYPE_LABEL[activity.type] ?? activity.type}
-                {(
-                  activity.place
-                    ? placeDisplayName(activity.place, "ru")
-                    : activity.venueName
-                )
-                  ? ` · ${activity.place ? placeDisplayName(activity.place, "ru") : activity.venueName}`
-                  : ""}
-                {activity._count.classes > 0
-                  ? ` · классов: ${activity._count.classes}`
-                  : ""}
-                {!activity.imageUrl ? " · без фото" : ""}
-                {activity.status !== "APPROVED" ? " · скрыто" : ""}
-                {activity.isDemo ? " · демо" : ""}
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <AdminSearchList
+        items={items}
+        initialQuery={firstParam(params.q)}
+        initialShow={parseVisibility(firstParam(params.show))}
+        placeholder="Название, место проведения или вид"
+      />
     </section>
   );
 }
