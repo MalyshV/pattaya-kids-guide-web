@@ -114,6 +114,31 @@ export const ALBUMS_2026_11_NEW_PLACES: readonly DraftPlace[] = [
       "https://www.pattayamail.com/ourcommunity/the-chocolate-factory-opens-in-pattaya-57583",
     ],
   },
+  {
+    // ресторан, не детское место: занесён ради пакетов дня рождения — решить при вычитке
+    slug: "azur-restaurant-lounge-pattaya",
+    name: "Azur Restaurant & Lounge",
+    address: "46/9 Moo 1, Na Chom Thian, Sattahip District, Chon Buri 20250",
+    latitude: 12.8599126,
+    longitude: 100.9000611,
+    googleMapsUrl:
+      "https://www.google.com/maps/place/Azur+Restaurant+%26+Lounge+Pattaya/@12.8599126,100.9000611,17z/data=!3m1!4b1!4m6!3m5!1s0x310295d45eadca57:0x6c9922bade862ee5!8m2!3d12.8599126!4d100.9000611!16s%2Fg%2F11tndwfpfm",
+    website: "https://azurpattaya.com",
+    facebookUrl: null,
+    instagramUrl: "https://www.instagram.com/azur_restaurant_th/",
+    phone: "094 658 0105",
+    animals: false,
+    categorySlugs: [],
+    indoor: true,
+    about:
+      "Европейский ресторан в На-Джомтьене с детскими днями рождения в отдельной лаунж-зоне (сторис 09.07.2026): " +
+      "Mini — 890 ฿ с человека, от 5 детей, 3 часа; Classic — 990 ฿, от 10 детей, 3 часа; " +
+      "Premium — 1 190 ฿, от 10 детей, до 4 часов, с тортом, шарами и видеосъёмкой. В пакеты входят пицца, наггетсы, картофель фри, фрукты, " +
+      "лимонад или морс, оформление стола и фотозона. Допы: аниматор (1 ч) 3 500 ฿, аквагрим 3 000 ฿, шоу пузырей 5 000 ฿, " +
+      "научное шоу 8 000 ฿, арка из шаров 5 000 ฿, фотограф 6 000 ฿, пиньята 1 500 ฿, торт от 1 200 ฿ за кг. " +
+      "Налоги и сервисный сбор в сторис не упомянуты. Есть ли детская зона вне праздников — неизвестно. " +
+      "(Уверенность средняя: оставить ли ресторан в гиде — решить.)",
+  },
 ];
 
 const OWN = (visit: string): string => `Своё фото (визит ${visit})`;
