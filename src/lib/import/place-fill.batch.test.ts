@@ -30,8 +30,8 @@ describe("партия наполнения top20-2026-11", () => {
 
   it("у каждого места есть содержательное описание на двух языках", () => {
     for (const fill of TOP20_2026_11) {
-      expect(fill.description.length, fill.slug).toBeGreaterThan(80);
-      expect(fill.descriptionEn.length, fill.slug).toBeGreaterThan(80);
+      expect((fill.description ?? "").length, fill.slug).toBeGreaterThan(80);
+      expect((fill.descriptionEn ?? "").length, fill.slug).toBeGreaterThan(80);
     }
   });
 });

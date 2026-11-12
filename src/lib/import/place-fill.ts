@@ -7,7 +7,8 @@
  * - описание пишем, если его нет или там пометка «[черновик]» из сбора;
  * - советы, часы, цены, категории — только если у места их ещё нет;
  * - признак («кондиционер», «парковка»…) ставим, только пока он «уточняется»;
- *   «в помещении» / «на улице» по умолчанию false, поэтому их только включаем.
+ *   «в помещении» / «на улице» по умолчанию false, поэтому их только включаем;
+ * - обложку ставим, только если её нет; галерею — только если в ней пусто.
  * Всё, что уже заполнено в админке, остаётся как есть и попадает в skipped —
  * раннер покажет это в отчёте. Повторный запуск ничего не меняет.
  */
@@ -52,10 +53,17 @@ export type FillEntryRow = {
 
 export type FillTip = { text: string; textEn: string };
 
+/** Обложка: путь в public и строка-провенанс (кто снял, когда). */
+export type FillCover = { url: string; rightsNote: string };
+
+/** Фото галереи: путь в public и подпись. Права — общие с обложкой (photoRightsNote). */
+export type FillPhoto = { url: string; caption: string };
+
 export type PlaceFill = {
   slug: string;
-  description: string;
-  descriptionEn: string;
+  /// описания нет в заготовке — она только дополняет карточку (например, фото)
+  description?: string;
+  descriptionEn?: string;
   tips?: readonly FillTip[];
   hours?: FillHours;
   flags?: FillFlags;
@@ -71,6 +79,11 @@ export type PlaceFill = {
   contacts?: readonly ContactRow[];
   /// типы контактов, которые заменяем целиком (старые значения убираем)
   replaceTypes?: readonly string[];
+  /// обложка места (файл уже лежит в public/images/places)
+  cover?: FillCover;
+  /// галерея; провенанс один на все снимки — photoRightsNote
+  photos?: readonly FillPhoto[];
+  photoRightsNote?: string;
 };
 
 /** Что сейчас у места в базе — ровно то, что нужно для решения. */
@@ -83,6 +96,8 @@ export type PlaceFillState = {
   categoryCount: number;
   flags: Record<FillFlag, boolean | null>;
   leaveChildFromMonths: number | null;
+  imageUrl: string | null;
+  photoCount: number;
 };
 
 export type ScheduleRow = {
@@ -101,6 +116,8 @@ export type PlaceFillPlan = {
   categories: boolean;
   free: boolean;
   entryRows: boolean;
+  cover: boolean;
+  photos: boolean;
   /// что в заготовке было, но не записано: у места это уже заполнено
   skipped: string[];
 };
@@ -133,8 +150,9 @@ export function scheduleRows(hours: FillHours): ScheduleRow[] {
 export function planPlaceFill(state: PlaceFillState, fill: PlaceFill): PlaceFillPlan {
   const skipped: string[] = [];
 
-  const description = isDraftDescription(state.description);
-  if (!description) {
+  const hasDescription = fill.description !== undefined;
+  const description = hasDescription && isDraftDescription(state.description);
+  if (hasDescription && !description) {
     skipped.push("описание");
   }
 
@@ -194,6 +212,17 @@ export function planPlaceFill(state: PlaceFillState, fill: PlaceFill): PlaceFill
     skipped.push("цены");
   }
 
+  const cover = fill.cover !== undefined && !state.imageUrl;
+  if (fill.cover !== undefined && !cover) {
+    skipped.push("обложка");
+  }
+
+  const hasPhotos = (fill.photos?.length ?? 0) > 0;
+  const photos = hasPhotos && state.photoCount === 0;
+  if (hasPhotos && !photos) {
+    skipped.push("галерея");
+  }
+
   return {
     description,
     tips,
@@ -203,6 +232,8 @@ export function planPlaceFill(state: PlaceFillState, fill: PlaceFill): PlaceFill
     categories,
     free,
     entryRows,
+    cover,
+    photos,
     skipped,
   };
 }
@@ -217,11 +248,15 @@ export function isEmptyPlan(plan: PlaceFillPlan): boolean {
     plan.leaveChildFromMonths === null &&
     !plan.categories &&
     !plan.free &&
-    !plan.entryRows
+    !plan.entryRows &&
+    !plan.cover &&
+    !plan.photos
   );
 }
 
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
+/// фото мест лежат в public/images/places — другой путь на сайте не откроется
+const PLACE_IMAGE = /^\/images\/places\/[a-z0-9-]+\.(jpg|png|webp)$/;
 
 /**
  * Ошибки в самой заготовке — их ловим до обращения к базе (и тестом по всей
@@ -233,10 +268,16 @@ export function validatePlaceFill(fill: PlaceFill): string[] {
     problems.push(`${fill.slug}: ${text}`);
   };
 
+  if ((fill.description === undefined) !== (fill.descriptionEn === undefined)) {
+    say("описание только на одном языке");
+  }
   for (const [name, value] of [
     ["описание", fill.description],
     ["описание (en)", fill.descriptionEn],
   ] as const) {
+    if (value === undefined) {
+      continue;
+    }
     if (value.trim() === "") {
       say(`${name} пустое`);
     } else if (value.includes(DRAFT_MARK)) {
@@ -282,6 +323,30 @@ export function validatePlaceFill(fill: PlaceFill): string[] {
   }
   if ((fill.note === undefined) !== (fill.noteEn === undefined)) {
     say("подпись к ценам только на одном языке");
+  }
+
+  if (fill.cover !== undefined) {
+    if (!PLACE_IMAGE.test(fill.cover.url)) {
+      say(`обложка: путь не из /images/places — ${fill.cover.url}`);
+    }
+    if (fill.cover.rightsNote.trim() === "") {
+      say("обложка без строки о правах");
+    }
+  }
+  const photos = fill.photos ?? [];
+  for (const photo of photos) {
+    if (!PLACE_IMAGE.test(photo.url)) {
+      say(`фото: путь не из /images/places — ${photo.url}`);
+    }
+    if (photo.caption.trim() === "") {
+      say(`фото ${photo.url} без подписи`);
+    }
+  }
+  if (new Set(photos.map((photo) => photo.url)).size !== photos.length) {
+    say("одно фото в галерее дважды");
+  }
+  if (photos.length > 0 && (fill.photoRightsNote ?? "").trim() === "") {
+    say("галерея без строки о правах");
   }
 
   if (fill.leaveChildFromMonths !== undefined) {

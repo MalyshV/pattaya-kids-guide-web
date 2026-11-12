@@ -31,6 +31,8 @@ function state(overrides: Partial<PlaceFillState> = {}): PlaceFillState {
       canLeaveChild: null,
     },
     leaveChildFromMonths: null,
+    imageUrl: null,
+    photoCount: 0,
     ...overrides,
   };
 }
@@ -197,6 +199,101 @@ describe("validatePlaceFill", () => {
       "coco-play: строка цен «Вход» без цены",
       "coco-play: подпись к ценам только на одном языке",
       "coco-play: возраст «можно оставить» задан, а сам признак — нет",
+    ]);
+  });
+});
+
+describe("обложка и галерея", () => {
+  const withPhotos = fill({
+    cover: {
+      url: "/images/places/coco-play.jpg",
+      rightsNote: "Своё фото (визит 2026-02)",
+    },
+    photos: [{ url: "/images/places/coco-play-slides.jpg", caption: "Горки" }],
+    photoRightsNote: "Своё фото (визит 2026-02)",
+  });
+
+  it("у места без фото ставит и обложку, и галерею", () => {
+    const plan = planPlaceFill(state(), withPhotos);
+    expect(plan.cover).toBe(true);
+    expect(plan.photos).toBe(true);
+    expect(isEmptyPlan(plan)).toBe(false);
+  });
+
+  it("обложку и галерею, загруженные в админке, не трогает", () => {
+    const plan = planPlaceFill(
+      state({ imageUrl: "/images/uploads/abc-1200x800.jpg", photoCount: 3 }),
+      withPhotos,
+    );
+    expect(plan.cover).toBe(false);
+    expect(plan.photos).toBe(false);
+    expect(plan.skipped).toEqual(expect.arrayContaining(["обложка", "галерея"]));
+  });
+
+  it("обложка есть, галереи нет — добавляет только галерею", () => {
+    const plan = planPlaceFill(
+      state({ imageUrl: "/images/places/coco-play.jpg" }),
+      withPhotos,
+    );
+    expect(plan.cover).toBe(false);
+    expect(plan.photos).toBe(true);
+  });
+
+  it("заготовка только с фото для заполненной карточки — план не пустой", () => {
+    const filled = state({
+      description: "Уютная игровая у моря.",
+      tipsCount: 2,
+      scheduleCount: 7,
+      entryPriceCount: 1,
+      categoryCount: 1,
+      flags: { ...state().flags, indoor: true, hasAirCon: true, hasParking: false },
+    });
+    const plan = planPlaceFill(filled, withPhotos);
+    expect(plan.description).toBe(false);
+    expect(plan.cover).toBe(true);
+    expect(isEmptyPlan(plan)).toBe(false);
+  });
+
+  it("ловит чужой путь, пустую подпись, дубль и галерею без строки о правах", () => {
+    const problems = validatePlaceFill(
+      fill({
+        cover: { url: "/uploads/x.jpg", rightsNote: " " },
+        photos: [
+          { url: "/images/places/a.jpg", caption: "" },
+          { url: "/images/places/a.jpg", caption: "Зал" },
+        ],
+      }),
+    );
+    expect(problems).toEqual([
+      "coco-play: обложка: путь не из /images/places — /uploads/x.jpg",
+      "coco-play: обложка без строки о правах",
+      "coco-play: фото /images/places/a.jpg без подписи",
+      "coco-play: одно фото в галерее дважды",
+      "coco-play: галерея без строки о правах",
+    ]);
+  });
+});
+
+describe("заготовка без описания", () => {
+  const photosOnly: PlaceFill = {
+    slug: "coco-play",
+    cover: {
+      url: "/images/places/coco-play.jpg",
+      rightsNote: "Своё фото (визит 2026-02)",
+    },
+  };
+
+  it("описание-черновик не трогает и в «оставлено» его не пишет", () => {
+    const plan = planPlaceFill(state(), photosOnly);
+    expect(plan.description).toBe(false);
+    expect(plan.cover).toBe(true);
+    expect(plan.skipped).toEqual([]);
+  });
+
+  it("проходит проверку; описание только на одном языке — ошибка", () => {
+    expect(validatePlaceFill(photosOnly)).toEqual([]);
+    expect(validatePlaceFill({ ...photosOnly, description: "Игровая у моря." })).toEqual([
+      "coco-play: описание только на одном языке",
     ]);
   });
 });
