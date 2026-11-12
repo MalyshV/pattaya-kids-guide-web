@@ -4,6 +4,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 import { applyThaiTranslations } from "./apply-thai";
 import { LARIDEA_BIRTHDAY } from "./places/laridea-birthday";
+import { upsertGoldenBrainNorthPattaya } from "./programs/golden-brain-north-pattaya";
 import { upsertPhoenixOctoberCamp } from "./programs/phoenix-october-camp";
 import { upsertSkippyLandLotusNorth } from "./places/skippy-land-lotus-north";
 import { upsertSkippyLandLotusSouth } from "./places/skippy-land-lotus-south";
@@ -1719,6 +1720,14 @@ async function main() {
   // (один модуль для seed и точечного add-phoenix-camp.ts)
   // =========================
   await upsertPhoenixOctoberCamp(prisma, pattaya.id);
+
+  // =========================
+  // РЕАЛЬНОЕ ЗАНЯТИЕ (безместное): ментальная арифметика Golden Brain,
+  // филиал North Pattaya — данные и источники в
+  // prisma/programs/golden-brain-north-pattaya.ts (один модуль для seed
+  // и точечного add-golden-brain.ts)
+  // =========================
+  await upsertGoldenBrainNorthPattaya(prisma, pattaya.id);
 
   // =========================
   // [ДЕМО] РАЗВИВАШКА В САДУ — занятие БЕЗ каталожного места (п.9 финал).
