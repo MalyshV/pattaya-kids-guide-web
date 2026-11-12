@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getDictionary, langFromPath } from "@/content/dictionary";
+import { ScrollToHash } from "@/components/common/scroll-to-hash";
 
 // Возраст спрашивает общий AgeQuestion над этим блоком (сквозной вход по всему
 // сайту) — здесь остаётся только фильтр по типу занятий.
@@ -56,7 +57,10 @@ export function ActivityFilters({
   }
 
   return (
-    <section className="filters-panel">
+    // id — якорь для чипов категорий со страницы занятия: переход ведёт сразу
+    // к «Типу занятий», а не к началу страницы
+    <section className="filters-panel" id="activity-type">
+      <ScrollToHash id="activity-type" />
       <div className="activity-filter-row">
         <span className="filter-group-label">{dict.activities.filterTypeTitle}</span>
         <div className="filter-chips">

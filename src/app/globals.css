@@ -3577,6 +3577,24 @@ a.tip-source:hover {
   white-space: nowrap;
 }
 
+/* чип-ссылка (категория на странице занятия): в покое — как обычный чип,
+   при наведении темнеет до туши */
+.category-chip-link {
+  text-decoration: none;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.category-chip-link:hover {
+  color: var(--foreground);
+  border-color: var(--foreground);
+}
+
+.category-chip-link:focus-visible {
+  outline-offset: 3px;
+}
+
 /* linked place on event details */
 
 .linked-place {
@@ -4167,7 +4185,8 @@ a.tip-source:hover {
 }
 
 /* якорь результатов для пагинации: «Далее» начинает страницу с карточек */
-#results {
+#results,
+#activity-type {
   scroll-margin-top: 16px;
 }
 
