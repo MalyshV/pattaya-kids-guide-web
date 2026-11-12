@@ -250,10 +250,15 @@ export default async function ActivityDetailsPage({
         <section className="details-section">
           <h2 className="section-title">{dict.placeDetails.categoriesTitle}</h2>
           <div className="category-list">
+            {/* чип ведёт ко всем занятиям того же вида — к блоку «Тип занятий» */}
             {dto.categories.map((category) => (
-              <span key={category.id} className="category-chip">
+              <Link
+                key={category.id}
+                href={`${basePath}/activities?category=${encodeURIComponent(category.slug)}#activity-type`}
+                className="category-chip category-chip-link"
+              >
                 {category.name}
-              </span>
+              </Link>
             ))}
           </div>
         </section>
