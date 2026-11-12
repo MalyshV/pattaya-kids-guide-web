@@ -116,9 +116,14 @@ export const TOP20_2026_11: readonly PlaceFill[] = [
           "The club closes for a break from 12:30 to 13:30 — come in the morning or after lunch.",
       },
       {
-        text: "С ребёнком 2–4 лет внутри должен оставаться взрослый — один на каждого малыша.",
+        text: "С ребёнком 2–4 лет внутри должен оставаться взрослый — один на каждого малыша. Детей младше года не пускают.",
         textEn:
-          "A child aged 2–4 must have an adult inside with them — one adult per toddler.",
+          "A child aged 2–4 must have an adult inside with them — one adult per toddler. Children under one are not admitted.",
+      },
+      {
+        text: "Детей 5–12 лет оставляют в клубе одних: родителям внутри быть не нужно, а остаться можно, только оплатив вход за себя по тому же тарифу.",
+        textEn:
+          "Children aged 5–12 stay in the club on their own: parents need not be inside, and may stay only by paying the same hourly entry for themselves.",
       },
       {
         text: "Мастер-классы оплачиваются отдельно от почасового входа: от 150 до 500 ฿ за занятие.",
@@ -129,17 +134,23 @@ export const TOP20_2026_11: readonly PlaceFill[] = [
         text: "Кулинарный класс (для 8–12 лет) бронируйте минимум за два дня.",
         textEn: "Book the cooking class (ages 8–12) at least two days ahead.",
       },
+      {
+        text: "Если хочется провести в отеле весь день: Royal Cliff продаёт дневной пропуск Daycation Pass — бассейны (есть детский), пляж, спортзал — 800–1 200 ฿, детям до 12 лет полцены (плакат в отеле, июль 2026).",
+        textEn:
+          "To spend the whole day at the hotel: Royal Cliff sells a Daycation Pass — pools (including a kids' pool), the beach, the gym — 800–1,200 ฿, half price for children under 12 (poster at the hotel, July 2026).",
+      },
     ],
     hours: {
       MON: "closed",
-      TUE: { open: "09:00", close: "17:30" },
-      WED: { open: "09:00", close: "17:30" },
-      THU: { open: "09:00", close: "17:30" },
-      FRI: { open: "09:00", close: "17:30" },
-      SAT: { open: "09:00", close: "17:30" },
-      SUN: { open: "09:00", close: "17:30" },
+      TUE: { open: "09:00", close: "17:00" },
+      WED: { open: "09:00", close: "17:00" },
+      THU: { open: "09:00", close: "17:00" },
+      FRI: { open: "09:00", close: "17:00" },
+      SAT: { open: "09:00", close: "17:00" },
+      SUN: { open: "09:00", close: "17:00" },
     },
-    flags: { indoor: true, hasAirCon: true },
+    flags: { indoor: true, hasAirCon: true, canLeaveChild: true },
+    leaveChildFromMonths: 60,
     categorySlugs: ["indoor-playground"],
     entryRows: [
       {
@@ -155,9 +166,9 @@ export const TOP20_2026_11: readonly PlaceFill[] = [
         adult: null,
       },
     ],
-    note: "Цена за человека в час. Мастер-классы — отдельно: 150–380 ฿ за занятие, кулинарный класс — 500 ฿.",
+    note: "Цена за ребёнка в час. Взрослый, который остаётся с ребёнком 5–12 лет, платит за себя столько же. Мастер-классы — отдельно: 150–380 ฿ за занятие, кулинарный класс — 500 ฿.",
     noteEn:
-      "Price per person per hour. Workshops are extra: 150–380 ฿ per session, the cooking class is 500 ฿.",
+      "Price per child per hour. An adult staying with a child aged 5–12 pays the same for themselves. Workshops are extra: 150–380 ฿ per session, the cooking class is 500 ฿.",
     contacts: [
       { type: "facebook", value: "https://www.facebook.com/funtasea.royalcliff/" },
       { type: "phone", value: "038 250 421 (доб. 2064)" },
