@@ -38,13 +38,23 @@ const WEEKEND_SLOTS = "9:00–10:30 · 11:00–12:30 · 13:30–15:00 · 15:30�
 
 /**
  * Таблица «Классы и расписание» — по афише филиала. Группа ходит два дня
- * подряд в одно и то же время (у PlaceClass нет перевода названия, поэтому
- * дни — коротко по-английски, как у Phoenix; время одинаково на всех языках).
+ * подряд в одно и то же время: дни — в названии строки (на языке страницы),
+ * время одинаково на всех языках.
  */
 export const GOLDEN_BRAIN_CLASSES = [
-  { name: "Tue + Wed", schedule: WEEKDAY_SLOTS },
-  { name: "Thu + Fri", schedule: WEEKDAY_SLOTS },
-  { name: "Sat + Sun", schedule: WEEKEND_SLOTS },
+  { name: "Вт и Ср", nameEn: "Tue & Wed", nameTh: "อังคาร–พุธ", schedule: WEEKDAY_SLOTS },
+  {
+    name: "Чт и Пт",
+    nameEn: "Thu & Fri",
+    nameTh: "พฤหัส–ศุกร์",
+    schedule: WEEKDAY_SLOTS,
+  },
+  {
+    name: "Сб и Вс",
+    nameEn: "Sat & Sun",
+    nameTh: "เสาร์–อาทิตย์",
+    schedule: WEEKEND_SLOTS,
+  },
 ] as const;
 
 const SEEN_AT_DOOR = new Date("2026-11-12T05:00:00Z");

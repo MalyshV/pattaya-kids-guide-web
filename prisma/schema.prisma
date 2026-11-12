@@ -299,7 +299,11 @@ model PlaceProgram {
 model PlaceClass {
   id             String       @id @default(cuid())
   programId      String
+  /// название строки таблицы («Bugs», «Вт и Ср»); переводы — если название
+  /// не имя собственное (null = как по-русски)
   name           String
+  nameEn         String?
+  nameTh         String?
   /// человекочитаемый возраст с постера («4–10 мес», «5–6 лет»)
   ageLabel       String
   ageLabelEn     String?

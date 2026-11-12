@@ -61,7 +61,7 @@ export function mapActivityToListItem(
     })),
     classes: activity.classes.map((cls) => ({
       id: cls.id,
-      name: cls.name,
+      name: pickLocalized(cls.name, cls.nameEn, cls.nameTh, lang),
       ageLabel: pickLocalized(cls.ageLabel, cls.ageLabelEn, cls.ageLabelTh, lang),
       minAgeMonths: cls.minAgeMonths,
       maxAgeMonths: cls.maxAgeMonths,

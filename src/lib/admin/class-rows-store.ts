@@ -15,6 +15,8 @@ export async function saveClassRows(
     where: { programId },
     select: {
       id: true,
+      name: true,
+      nameTh: true,
       ageLabel: true,
       ageLabelTh: true,
       minAgeMonths: true,

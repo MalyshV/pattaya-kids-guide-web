@@ -4,6 +4,7 @@ import { AgeMonthsInput } from "@/app/admin/age-months-input";
 export type ClassFieldsItem = {
   id: string;
   name: string;
+  nameEn: string | null;
   minAgeMonths: number;
   maxAgeMonths: number;
   ageLabel: string;
@@ -43,8 +44,8 @@ export function ClassFields({ classes }: ClassFieldsProps): React.ReactElement {
         Для занятий с делением по возрастам (как у The Little Gym). Класс — это строка с
         названием: стёрли название и сохранили — класс удалится. Порядок на сайте — как
         здесь. Возраст — в месяцах (5 лет = 60). Подпись возраста можно не писать:
-        соберётся из месяцев. Поменяли время в расписании — тайский перевод этой строки
-        сбросится.
+        соберётся из месяцев. Поменяли название или время в расписании — тайский перевод
+        этого поля сбросится.
       </p>
       <div className="admin-classes">
         {rows.map((item, index) => (
@@ -62,6 +63,15 @@ export function ClassFields({ classes }: ClassFieldsProps): React.ReactElement {
                   name={classFieldName(index, "name")}
                   maxLength={CLASS_LIMITS.name}
                   defaultValue={item?.name ?? ""}
+                />
+              </label>
+              <label className="admin-field">
+                <span>Name (en) — пусто = как по-русски</span>
+                <input
+                  type="text"
+                  name={classFieldName(index, "nameEn")}
+                  maxLength={CLASS_LIMITS.name}
+                  defaultValue={item?.nameEn ?? ""}
                 />
               </label>
               <AgeMonthsInput
