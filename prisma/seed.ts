@@ -109,6 +109,15 @@ async function main() {
     },
     { slug: "cafe", name: "Кафе", nameEn: "Café", order: 2 },
     { slug: "playground", name: "Игровая площадка", nameEn: "Playground", order: 3 },
+    // обычное кафе с уголком, где дети рисуют и играют, пока родители едят или
+    // пьют кофе, — не полноценное детское кафе
+    {
+      slug: "cafe-kids-zone",
+      name: "Кафе с детским уголком",
+      nameEn: "Café with a kids' corner",
+      order: 4,
+    },
+    { slug: "waterpark", name: "Аквапарк", nameEn: "Waterpark", order: 5 },
   ];
   for (const category of placeCategoriesData) {
     await prisma.category.upsert({

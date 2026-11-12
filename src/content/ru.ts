@@ -217,6 +217,9 @@ export const ru = {
     heroDescription:
       "Спокойно выбирайте места для детей: фильтры по крытым площадкам, еде, Wi-Fi и другим полезным мелочам.",
     sectionTitle: "Места",
+    // строка чипов по категории места (чип категории на странице места ведёт сюда)
+    filterTypeTitle: "Тип места",
+    filterTypeAll: "Все",
     count: (total: number): string =>
       `${total} ${plural(total, ["место", "места", "мест"])}`,
     emptyTitle: "Ничего не нашлось",

@@ -183,6 +183,8 @@ export const en: Dictionary = {
     heroDescription:
       "Calmly pick places for kids: filters for indoor playgrounds, food, Wi-Fi and other useful details.",
     sectionTitle: "Places",
+    filterTypeTitle: "Place type",
+    filterTypeAll: "All",
     count: (total: number): string => `${total} ${total === 1 ? "place" : "places"}`,
     emptyTitle: "Nothing found",
     emptyHint: "Try removing one of the filters.",

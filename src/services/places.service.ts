@@ -16,9 +16,13 @@ export type PlacesPaginationParams = {
 // (сквозной фильтр «Сколько лет ребёнку?») и slug района — он нужен только
 // для ручного выбора из админки; район «по координатам» считается на показе.
 // district необязателен: в кэше между запросами может лежать старая выборка.
+// categories — для строки «Тип места»; необязательны по той же причине.
 export type PlaceListItem = Prisma.PlaceGetPayload<{
   include: { schedules: true; ageGroups: { include: { ageGroup: true } } };
-}> & { district?: { slug: string } | null };
+}> & {
+  district?: { slug: string } | null;
+  categories?: Prisma.PlaceCategoryGetPayload<{ include: { category: true } }>[];
+};
 
 export type PaginatedPlacesResult = {
   items: PlaceListItem[];
@@ -121,6 +125,7 @@ export const getAllApprovedPlaces = cachedQuery(
         schedules: true,
         ageGroups: { include: { ageGroup: true } },
         district: { select: { slug: true } },
+        categories: { include: { category: true } },
       },
     });
   },

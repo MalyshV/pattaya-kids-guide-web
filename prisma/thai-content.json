@@ -8,7 +8,9 @@
     "placeCategories": [
       { "slug": "indoor-playground", "th": "สนามเด็กเล่นในร่ม" },
       { "slug": "cafe", "th": "คาเฟ่" },
-      { "slug": "playground", "th": "สนามเด็กเล่น" }
+      { "slug": "playground", "th": "สนามเด็กเล่น" },
+      { "slug": "cafe-kids-zone", "th": "คาเฟ่ที่มีมุมเด็กเล่น" },
+      { "slug": "waterpark", "th": "สวนน้ำ" }
     ],
     "activityCategories": [
       { "slug": "early-development", "th": "เสริมพัฒนาการ" },

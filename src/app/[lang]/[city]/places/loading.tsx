@@ -1,5 +1,6 @@
 import {
   SkeletonCardGrid,
+  SkeletonChipFilterRow,
   SkeletonChips,
   SkeletonFiltersPanel,
   SkeletonHero,
@@ -10,8 +11,8 @@ import {
 /**
  * Скелетон каталога мест — бывший скелетон корня города, переехал сюда вместе
  * с самим каталогом, когда корень стал посадочной. Формы повторяют страницу
- * (hero → поиск → вопрос возраста → чипы сценариев → панель фасетов → сетка
- * карточек) — переход в настоящий контент не прыгает. 6 карточек = размер
+ * (hero → вопрос возраста → чипы сценариев → «Тип места» → панель фасетов →
+ * сетка карточек) — переход в настоящий контент не прыгает. 6 карточек = размер
  * страницы каталога (LIST_PAGE_SIZE).
  */
 export default function CityPlacesLoading(): React.ReactElement {
@@ -23,6 +24,8 @@ export default function CityPlacesLoading(): React.ReactElement {
       <SkeletonChips count={4} withLabel />
       <SkeletonChips count={5} />
 
+      {/* «Тип места» — строка маленьких чипов («Все» + категории) */}
+      <SkeletonChipFilterRow count={6} />
       <SkeletonFiltersPanel toggles={6} />
 
       <SkeletonResultsHeader />

@@ -483,6 +483,16 @@ input[type="checkbox"]:focus-visible {
   border-bottom: 1px solid var(--border);
 }
 
+/* две панели подряд («Тип места» над «Фильтрами») — один блок: тушь только
+   сверху над первой, между ними — волосяная линия первой, без зазора */
+.filters-panel:has(+ .filters-panel) {
+  margin-bottom: 0;
+}
+
+.filters-panel + .filters-panel {
+  border-top: 0;
+}
+
 .filters-panel-header,
 .results-header,
 .place-card-header,
@@ -4185,10 +4195,11 @@ a.tip-source:hover {
 }
 
 /* якорь результатов: «Далее» начинает страницу с карточек, «на карте» с
-   посадочной — с карты; #activity-type — блок «Тип занятий» (чипы
-   категорий со страницы занятия) */
+   посадочной — с карты; #activity-type и #place-type — строки «Тип занятий» и
+   «Тип места» (чипы категорий со страниц занятия и места) */
 #results,
-#activity-type {
+#activity-type,
+#place-type {
   scroll-margin-top: 16px;
 }
 
