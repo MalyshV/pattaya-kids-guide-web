@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { ScrollToHash } from "@/components/common/scroll-to-hash";
+import { CategoryFilterRow } from "@/components/common/category-filter-row";
+import { localizedCityName, pickLocalized } from "@/lib/i18n/localize";
 import { SuggestLink } from "@/components/suggest/suggest-link";
 import { notFound } from "next/navigation";
 import { AgeQuestion } from "@/components/common/age-question";
@@ -24,9 +26,9 @@ import {
   opensEarlyNextMorning,
 } from "@/lib/schedule/open-status";
 import { compareCatalogOrder } from "@/lib/places/catalog-order";
+import { placeHasCategory } from "@/lib/places/place-category";
 import { computePlaceStatus, isClosureStatus } from "@/lib/places/closure";
 import { getDictionary } from "@/content/dictionary";
-import { localizedCityName } from "@/lib/i18n/localize";
 import { LIST_PAGE_SIZE } from "@/lib/constants/pagination";
 import { pageAlternates } from "@/lib/seo/meta";
 import {
@@ -112,6 +114,9 @@ export default async function CityPlacesPage({
     districtDefinitions,
   );
   const districtParam = activeDistrict ?? undefined;
+  // ?category= — тип места (строка «Тип места»; сюда же ведут чипы категорий
+  // со страницы места)
+  const category = getSingleSearchParam(resolvedSearchParams.category);
   const pageParam = getSingleSearchParam(resolvedSearchParams.page);
   // ?visited= — фильтр по ✓-отметкам; сервер список НЕ фильтрует (отметки в
   // localStorage), только проносит параметр — фильтрует клиент PlacesResults
@@ -137,6 +142,7 @@ export default async function CityPlacesPage({
     visited,
     view: viewParam,
     district: districtParam,
+    category,
     indoor,
     outdoor,
     hasFood,
@@ -149,7 +155,7 @@ export default async function CityPlacesPage({
 
   // поиск живёт в шапке (лупа на всех страницах) — строка на странице каталога
   // дублировала его один в один и убрана (решение Вероники 21.09)
-  const allPlaces = await getAllApprovedPlaces(
+  const filteredPlacesPromise = getAllApprovedPlaces(
     {
       indoor: parseBooleanParam(indoor),
       outdoor: parseBooleanParam(outdoor),
@@ -164,6 +170,31 @@ export default async function CityPlacesPage({
     },
     city.id,
   );
+  // все места города (выборка кэширована) — только ради строки «Тип места»:
+  // её чипы не должны пропадать от галочек в «Фильтрах»
+  const [allPlaces, cityPlaces] = await Promise.all([
+    filteredPlacesPromise,
+    getAllApprovedPlaces({}, city.id),
+  ]);
+
+  // Категории для строки «Тип места» — из всех мест города, имя локализуем
+  // как в карточке, порядок — из справочника (как у занятий)
+  const categoryMap = new Map<string, { slug: string; name: string; order: number }>();
+  for (const place of cityPlaces) {
+    for (const link of place.categories ?? []) {
+      categoryMap.set(link.category.slug, {
+        slug: link.category.slug,
+        name: pickLocalized(
+          link.category.name,
+          link.category.nameEn,
+          link.category.nameTh,
+          lang,
+        ),
+        order: link.category.order,
+      });
+    }
+  }
+  const availableCategories = [...categoryMap.values()].sort((a, b) => a.order - b.order);
 
   // Живой статус + сортировка: открытые сейчас выше закрытых, а среди мест с
   // одинаковым статусом — новые (по дате добавления) первыми (решение Вероники).
@@ -206,6 +237,12 @@ export default async function CityPlacesPage({
         place.ageGroups.map((link) => link.ageGroup),
         ageBuckets,
       ),
+    );
+  }
+
+  if (category) {
+    visiblePlaces = visiblePlaces.filter(({ place }) =>
+      placeHasCategory(place, category),
     );
   }
 
@@ -280,6 +317,7 @@ export default async function CityPlacesPage({
           shelter,
           near,
           view: viewParam,
+          category,
           indoor,
           outdoor,
           hasFood,
@@ -303,6 +341,7 @@ export default async function CityPlacesPage({
           near,
           view: viewParam,
           district: districtParam,
+          category,
           indoor,
           outdoor,
           hasFood,
@@ -326,6 +365,7 @@ export default async function CityPlacesPage({
           near,
           view: viewParam,
           district: districtParam,
+          category,
           indoor,
           outdoor,
           hasFood,
@@ -349,6 +389,34 @@ export default async function CityPlacesPage({
         morningTomorrow={morningTomorrow}
       />
 
+      <CategoryFilterRow
+        title={dict.places.filterTypeTitle}
+        allLabel={dict.places.filterTypeAll}
+        pathname={listPath}
+        active={category}
+        preservedParams={{
+          age,
+          visited,
+          openNow,
+          openMorning,
+          workFriendly,
+          shelter,
+          near,
+          view: viewParam === "map" ? "map" : undefined,
+          district: districtParam,
+          indoor,
+          outdoor,
+          hasFood,
+          hasWifi,
+          hasAirCon,
+          hasParking,
+          canLeaveChild,
+          animalContact,
+        }}
+        categories={availableCategories}
+        anchorId="place-type"
+      />
+
       <PlaceFilters
         age={age}
         visited={visited}
@@ -359,6 +427,7 @@ export default async function CityPlacesPage({
         near={near}
         view={viewParam}
         district={districtParam}
+        category={category}
         indoor={indoor}
         outdoor={outdoor}
         hasFood={hasFood}
@@ -432,6 +501,7 @@ export default async function CityPlacesPage({
             workFriendly,
             near,
             district: districtParam,
+            category,
             indoor,
             outdoor,
             hasFood,

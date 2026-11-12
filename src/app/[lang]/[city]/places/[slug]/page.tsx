@@ -728,10 +728,15 @@ export default async function PlaceDetailsPage({
           <h2 className="section-title">{dict.placeDetails.categoriesTitle}</h2>
 
           <div className="category-list">
+            {/* чип ведёт ко всем местам того же типа — к строке «Тип места» */}
             {dto.categories.map((category) => (
-              <span key={category.id} className="category-chip">
+              <Link
+                key={category.id}
+                href={`${basePath}/places?category=${encodeURIComponent(category.slug)}#place-type`}
+                className="category-chip category-chip-link"
+              >
                 {category.name}
-              </span>
+              </Link>
             ))}
           </div>
         </section>

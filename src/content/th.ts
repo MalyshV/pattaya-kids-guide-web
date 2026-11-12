@@ -191,6 +191,8 @@ export const th: Dictionary = {
     heroDescription:
       "เลือกที่พาลูกไปได้อย่างสบายใจ — มีตัวกรองพื้นที่ในร่ม อาหาร Wi-Fi และรายละเอียดเล็ก ๆ ที่ช่วยได้จริง",
     sectionTitle: "สถานที่",
+    filterTypeTitle: "ประเภทสถานที่",
+    filterTypeAll: "ทั้งหมด",
     count: (total: number): string => `${total} แห่ง`,
     emptyTitle: "ไม่พบผลลัพธ์",
     emptyHint: "ลองปิดตัวกรองสักตัว",

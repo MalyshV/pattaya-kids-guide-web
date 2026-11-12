@@ -17,6 +17,8 @@ type PlaceFiltersProps = {
   near?: string;
   view?: string;
   district?: string;
+  /** ?category= — тип места из строки «Тип места»; переживает фильтры */
+  category?: string;
   indoor?: string;
   outdoor?: string;
   hasFood?: string;
@@ -147,6 +149,9 @@ export function PlaceFilters(props: PlaceFiltersProps): React.ReactElement {
     }
     if (props.district) {
       params.set("district", props.district);
+    }
+    if (props.category) {
+      params.set("category", props.category);
     }
     return params;
   }
