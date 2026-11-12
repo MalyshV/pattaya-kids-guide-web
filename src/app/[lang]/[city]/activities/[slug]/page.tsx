@@ -7,13 +7,14 @@ import Link from "next/link";
 import { ExternalArrow } from "@/components/common/external-arrow";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { mapActivityToListItem } from "@/mappers/activity.mapper";
+import { mapActivityPhotos, mapActivityToListItem } from "@/mappers/activity.mapper";
 import { getActivityBySlug } from "@/services/activities.service";
 import { ShareButton } from "@/components/common/share-button";
 import { SmartBackLink } from "@/components/common/smart-back-link";
 import { MemoryButtons } from "@/components/memory/memory-buttons";
 import { PlanButton } from "@/components/plan/plan-button";
 import { ZoomableImage } from "@/components/common/zoomable-image";
+import { PhotoGallery } from "@/components/common/photo-gallery";
 import { cityBasePath, getCityBySlug, getSiteUrl } from "@/lib/geo/city";
 import { mapsSearchUrl } from "@/lib/geo/maps-search";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -110,6 +111,7 @@ export default async function ActivityDetailsPage({
 
   const dto = mapActivityToListItem(activity, lang);
   const tips = mapTipsToDto(activity.tips, lang);
+  const photos = mapActivityPhotos(activity.photos);
   const typeLabel =
     (dict.placeDetails.programTypes as Record<string, string>)[dto.type] ?? dto.type;
 
@@ -215,6 +217,13 @@ export default async function ActivityDetailsPage({
         ) : null}
         {dto.description ? <p className="hero-description">{dto.description}</p> : null}
       </section>
+
+      {photos.length > 0 ? (
+        <section className="details-section">
+          <h2 className="section-title">{dict.activityDetails.photosTitle}</h2>
+          <PhotoGallery photos={photos} placeName={dto.name} />
+        </section>
+      ) : null}
 
       <section className="details-section">
         <h2 className="section-title">{dict.placeDetails.detailsTitle}</h2>

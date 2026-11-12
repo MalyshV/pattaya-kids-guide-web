@@ -6,7 +6,7 @@ import type { PrismaClient } from "@prisma/client";
  *
  * Источники (12.11.2026):
  * - фото входа: две афиши на двери (расписание групп, бесплатное пробное
- *   занятие, телефон филиала 082 108 3528) и фасад — обложка;
+ *   занятие, телефон филиала 082 108 3528) — в галерее; фасад — обложка;
  * - сайт сети goldenbrainschool.com: страница контактов (адрес филиала
  *   «221/8-9 หมู่ 5 ต.นาเกลือ», тот же телефон) и FAQ (возраст 4–9, группы
  *   5–8 детей, 2 раза в неделю по 1,5 часа, 6 уровней ≈ 3 года, цены сети);
@@ -38,14 +38,30 @@ const WEEKEND_SLOTS = "9:00–10:30 · 11:00–12:30 · 13:30–15:00 · 15:30�
 
 /**
  * Таблица «Классы и расписание» — по афише филиала. Группа ходит два дня
- * подряд в одно и то же время (у PlaceClass нет перевода названия, поэтому
- * дни — коротко по-английски, как у Phoenix; время одинаково на всех языках).
+ * подряд в одно и то же время: дни — в названии строки (на языке страницы),
+ * время одинаково на всех языках.
  */
 export const GOLDEN_BRAIN_CLASSES = [
-  { name: "Tue + Wed", schedule: WEEKDAY_SLOTS },
-  { name: "Thu + Fri", schedule: WEEKDAY_SLOTS },
-  { name: "Sat + Sun", schedule: WEEKEND_SLOTS },
+  { name: "Вт и Ср", nameEn: "Tue & Wed", nameTh: "อังคาร–พุธ", schedule: WEEKDAY_SLOTS },
+  {
+    name: "Чт и Пт",
+    nameEn: "Thu & Fri",
+    nameTh: "พฤหัส–ศุกร์",
+    schedule: WEEKDAY_SLOTS,
+  },
+  {
+    name: "Сб и Вс",
+    nameEn: "Sat & Sun",
+    nameTh: "เสาร์–อาทิตย์",
+    schedule: WEEKEND_SLOTS,
+  },
 ] as const;
+
+/** галерея: афиши на двери филиала (отражение в стекле убрано) */
+const PHOTOS = [
+  "/images/activities/golden-brain-north-pattaya-schedule.jpg",
+  "/images/activities/golden-brain-north-pattaya-trial.jpg",
+];
 
 const SEEN_AT_DOOR = new Date("2026-11-12T05:00:00Z");
 
@@ -90,7 +106,7 @@ const TIPS = [
 export async function upsertGoldenBrainNorthPattaya(
   prisma: PrismaClient,
   cityId: string,
-): Promise<{ id: string; classes: number; tips: number }> {
+): Promise<{ id: string; classes: number; tips: number; photos: number }> {
   // идемпотентно: снести прежнюю запись со связями и создать заново
   const old = await prisma.placeProgram.findMany({
     where: { slug: GOLDEN_BRAIN_SLUG },
@@ -99,6 +115,7 @@ export async function upsertGoldenBrainNorthPattaya(
   const oldIds = old.map((p) => p.id);
   await prisma.placeClass.deleteMany({ where: { programId: { in: oldIds } } });
   await prisma.programTip.deleteMany({ where: { programId: { in: oldIds } } });
+  await prisma.programPhoto.deleteMany({ where: { programId: { in: oldIds } } });
   await prisma.programActivityCategory.deleteMany({
     where: { programId: { in: oldIds } },
   });
@@ -146,6 +163,14 @@ export async function upsertGoldenBrainNorthPattaya(
           order: index + 1,
         })),
       },
+      photos: {
+        create: PHOTOS.map((url, index) => ({
+          url,
+          source: "OWN" as const,
+          rightsNote: "Своё фото у входа, 2026-11",
+          order: index + 1,
+        })),
+      },
       tips: {
         create: TIPS.map((tip, index) => ({ ...tip, order: index + 1 })),
       },
@@ -158,5 +183,10 @@ export async function upsertGoldenBrainNorthPattaya(
     });
   }
 
-  return { id: program.id, classes: GOLDEN_BRAIN_CLASSES.length, tips: TIPS.length };
+  return {
+    id: program.id,
+    classes: GOLDEN_BRAIN_CLASSES.length,
+    tips: TIPS.length,
+    photos: PHOTOS.length,
+  };
 }

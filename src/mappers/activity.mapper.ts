@@ -1,5 +1,8 @@
-import type { ActivityListItemDto } from "@/dto/activity-list-item.dto";
-import type { ActivityWithPlace } from "@/services/activities.service";
+import type { ActivityListItemDto, ActivityPhotoDto } from "@/dto/activity-list-item.dto";
+import type {
+  ActivityDetailsResult,
+  ActivityWithPlace,
+} from "@/services/activities.service";
 import { pickLocalized } from "@/lib/i18n/localize";
 import { placeDisplayName } from "@/lib/places/display-name";
 
@@ -61,7 +64,7 @@ export function mapActivityToListItem(
     })),
     classes: activity.classes.map((cls) => ({
       id: cls.id,
-      name: cls.name,
+      name: pickLocalized(cls.name, cls.nameEn, cls.nameTh, lang),
       ageLabel: pickLocalized(cls.ageLabel, cls.ageLabelEn, cls.ageLabelTh, lang),
       minAgeMonths: cls.minAgeMonths,
       maxAgeMonths: cls.maxAgeMonths,
@@ -69,4 +72,15 @@ export function mapActivityToListItem(
       schedule: pickLocalized(cls.schedule, cls.scheduleEn, cls.scheduleTh, lang),
     })),
   };
+}
+
+/** Галерея занятия для его страницы (порядок — как в базе, по order). */
+export function mapActivityPhotos(
+  photos: ActivityDetailsResult["photos"],
+): ActivityPhotoDto[] {
+  return photos.map((photo) => ({
+    id: photo.id,
+    url: photo.url,
+    caption: photo.caption,
+  }));
 }

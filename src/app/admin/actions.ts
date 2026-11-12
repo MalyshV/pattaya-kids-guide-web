@@ -545,6 +545,7 @@ export async function deletePlaceAction(formData: FormData): Promise<void> {
 
     await tx.placeClass.deleteMany({ where: { programId: { in: programIds } } });
     await tx.programTip.deleteMany({ where: { programId: { in: programIds } } });
+    await tx.programPhoto.deleteMany({ where: { programId: { in: programIds } } });
     await tx.programActivityCategory.deleteMany({
       where: { programId: { in: programIds } },
     });
@@ -1258,6 +1259,7 @@ export async function deleteActivityAction(formData: FormData): Promise<void> {
     await prisma.$transaction(async (tx) => {
       await tx.placeClass.deleteMany({ where: { programId: id } });
       await tx.programTip.deleteMany({ where: { programId: id } });
+      await tx.programPhoto.deleteMany({ where: { programId: id } });
       await tx.programActivityCategory.deleteMany({ where: { programId: id } });
       await tx.placeProgram.delete({ where: { id } });
     });

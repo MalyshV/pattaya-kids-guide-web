@@ -635,6 +635,7 @@ export const ru = {
     heroWhere: "Где:",
     whereTitle: "Где проходит",
     classesTitle: "Классы и расписание",
+    photosTitle: "Фотографии",
     classCol: "Класс",
     ageCol: "Возраст",
     timeCol: "Дни и время",

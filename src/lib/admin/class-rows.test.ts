@@ -36,6 +36,7 @@ describe("parseClassRows — строки таблицы классов", () => 
         {
           id: "c1",
           name: "Bugs",
+          nameEn: null,
           minAgeMonths: 4,
           maxAgeMonths: 10,
           ageLabel: "4–10 мес",
@@ -127,6 +128,8 @@ describe("planClasses — что создать, обновить и удали�
   const existing = [
     {
       id: "c1",
+      name: "Bugs",
+      nameTh: "บักส์",
       ageLabel: "4–10 мес",
       ageLabelTh: "4–10 เดือน",
       minAgeMonths: 4,
@@ -136,6 +139,8 @@ describe("planClasses — что создать, обновить и удали�
     },
     {
       id: "c2",
+      name: "Birds",
+      nameTh: null,
       ageLabel: "10–19 мес",
       ageLabelTh: null,
       minAgeMonths: 10,
@@ -166,6 +171,19 @@ describe("planClasses — что создать, обновить и удали�
     const plan = planClasses(existing, [row({ schedule: "Ср 11:00 · Вс 09:15" })]);
     expect(plan.update[0].data.scheduleTh).toBeNull();
     expect(plan.update[0].data.ageLabelTh).toBe("4–10 เดือน");
+  });
+
+  it("название не меняли — тайское остаётся; поменяли — сбрасывается", () => {
+    expect(planClasses(existing, [row({})]).update[0].data.nameTh).toBe("บักส์");
+    expect(
+      planClasses(existing, [row({ name: "Beetles" })]).update[0].data.nameTh,
+    ).toBeNull();
+  });
+
+  it("английское название из формы доходит до записи; новый класс — без тайского", () => {
+    const plan = planClasses(existing, [row({ id: "", nameEn: "Tue & Wed" })]);
+    expect(plan.create[0].nameEn).toBe("Tue & Wed");
+    expect(plan.create[0].nameTh).toBeNull();
   });
 
   it("опечатка в расписании при тех же цифрах — перевод остаётся", () => {

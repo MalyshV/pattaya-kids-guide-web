@@ -545,6 +545,7 @@ export const th: Dictionary = {
     heroWhere: "สถานที่:",
     whereTitle: "จัดที่ไหน",
     classesTitle: "คลาสและตารางเวลา",
+    photosTitle: "รูปภาพ",
     classCol: "คลาส",
     ageCol: "อายุ",
     timeCol: "วันและเวลา",

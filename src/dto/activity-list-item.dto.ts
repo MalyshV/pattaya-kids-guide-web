@@ -15,6 +15,13 @@ export type ActivityClassDto = {
   schedule: string;
 };
 
+/** Фото из галереи занятия (только на странице занятия, не в ленте). */
+export type ActivityPhotoDto = {
+  id: string;
+  url: string;
+  caption: string | null;
+};
+
 /**
  * Занятие в сквозной ленте «Занятия»: программа места (COURSE/CAMP) вместе с
  * местом (обязательно — в ленте место не очевидно) и категориями.

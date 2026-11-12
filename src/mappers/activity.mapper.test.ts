@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ActivityWithPlace } from "@/services/activities.service";
-import { mapActivityToListItem } from "@/mappers/activity.mapper";
+import { mapActivityPhotos, mapActivityToListItem } from "@/mappers/activity.mapper";
 
 const ACTIVITY = {
   id: "a1",
@@ -99,5 +99,40 @@ describe("mapActivityToListItem — цены и расписание", () => {
       address: "ул. 2",
     });
     expect(mapActivityToListItem(ACTIVITY).place).toBeNull();
+  });
+});
+
+describe("mapActivityPhotos — галерея занятия", () => {
+  it("отдаёт только то, что нужно странице, в порядке из базы", () => {
+    const photos = [
+      {
+        id: "p1",
+        programId: "a1",
+        url: "/images/activities/poster.jpg",
+        caption: null,
+        order: 1,
+        source: "OWN" as const,
+        author: null,
+        rightsNote: "Своё фото",
+      },
+      {
+        id: "p2",
+        programId: "a1",
+        url: "/images/activities/door.jpg",
+        caption: "Вход",
+        order: 2,
+        source: null,
+        author: null,
+        rightsNote: null,
+      },
+    ];
+    expect(mapActivityPhotos(photos)).toEqual([
+      { id: "p1", url: "/images/activities/poster.jpg", caption: null },
+      { id: "p2", url: "/images/activities/door.jpg", caption: "Вход" },
+    ]);
+  });
+
+  it("нет фото — пустая галерея (секция на странице не рисуется)", () => {
+    expect(mapActivityPhotos([])).toEqual([]);
   });
 });

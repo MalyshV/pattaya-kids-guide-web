@@ -552,6 +552,7 @@ export const en: Dictionary = {
     heroWhere: "Where:",
     whereTitle: "Where it happens",
     classesTitle: "Classes and schedule",
+    photosTitle: "Photos",
     classCol: "Class",
     ageCol: "Age",
     timeCol: "Days and times",
