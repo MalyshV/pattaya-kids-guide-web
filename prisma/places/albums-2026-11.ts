@@ -144,6 +144,38 @@ export const ALBUMS_2026_11_NEW_PLACES: readonly DraftPlace[] = [
 
 const OWN = (visit: string): string => `Своё фото (визит ${visit})`;
 
+/**
+ * Skoop — дополнение 12.11.2026 (личный визит): тем, кто не живёт в отеле
+ * Veranda, на входе продают ваучер 100 ฿ с каждого взрослого — он
+ * засчитывается в заказ. Обложка — вход в сумерках, без людей. Вынесено в
+ * константы: их же дозаписывает prisma/fix-skoop-2026-11.ts, если карточку
+ * уже занесли.
+ */
+export const SKOOP_PREVIOUS_COVER_URL = "/images/places/skoop-beach-cafe.jpg";
+
+export const SKOOP_COVER = {
+  url: "/images/places/skoop-beach-cafe-entrance.jpg",
+  rightsNote: "Своё фото",
+} as const;
+
+export const SKOOP_VOUCHER_TIP = {
+  text: "Если вы не живёте в отеле Veranda, на входе покупают ваучер — 100 ฿ с каждого взрослого. Его засчитывают в заказ в кафе: если заказ дороже, возвращаться за ваучерами не нужно — доплатите наличными или переводом.",
+  textEn:
+    "If you are not staying at the Veranda hotel, you buy a voucher at the entrance — 100 ฿ per adult. It counts towards your order at the café: if the order costs more, no need to go back for more vouchers — just pay the difference in cash or by bank transfer.",
+} as const;
+
+export const SKOOP_VOUCHER_ENTRY = {
+  row: {
+    label: "Ваучер на входе — засчитывается в заказ",
+    labelEn: "Entrance voucher — counts towards your order",
+    child: null,
+    adult: 100,
+  },
+  note: "Для тех, кто не живёт в отеле Veranda: ваучер берут с каждого взрослого и засчитывают в заказ в кафе.",
+  noteEn:
+    "For those not staying at the Veranda hotel: the voucher is charged per adult and counts towards your order at the café.",
+} as const;
+
 /** Наполнение новых мест — те же slug, что в ALBUMS_2026_11_NEW_PLACES. */
 export const ALBUMS_2026_11_NEW_FILLS: readonly PlaceFill[] = [
   {
@@ -166,6 +198,7 @@ export const ALBUMS_2026_11_NEW_FILLS: readonly PlaceFill[] = [
         textEn:
           "You can walk to the café through the grounds of the Veranda Resort Pattaya – MGallery hotel.",
       },
+      SKOOP_VOUCHER_TIP,
       {
         text: "Возьмите детский транспорт — самокат или беговел: у столиков ровное покрытие, есть где покататься.",
         textEn:
@@ -203,7 +236,10 @@ export const ALBUMS_2026_11_NEW_FILLS: readonly PlaceFill[] = [
       hasFood: true,
       hasCafeSeating: true,
     },
-    cover: { url: "/images/places/skoop-beach-cafe.jpg", rightsNote: OWN("2025-07") },
+    entryRows: [SKOOP_VOUCHER_ENTRY.row],
+    note: SKOOP_VOUCHER_ENTRY.note,
+    noteEn: SKOOP_VOUCHER_ENTRY.noteEn,
+    cover: SKOOP_COVER,
     photos: [
       {
         url: "/images/places/skoop-beach-cafe-castle.jpg",
