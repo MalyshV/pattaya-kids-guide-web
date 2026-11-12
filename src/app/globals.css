@@ -483,6 +483,16 @@ input[type="checkbox"]:focus-visible {
   border-bottom: 1px solid var(--border);
 }
 
+/* две панели подряд («Тип места» над «Фильтрами») — один блок: тушь только
+   сверху над первой, между ними — волосяная линия первой, без зазора */
+.filters-panel:has(+ .filters-panel) {
+  margin-bottom: 0;
+}
+
+.filters-panel + .filters-panel {
+  border-top: 0;
+}
+
 .filters-panel-header,
 .results-header,
 .place-card-header,
