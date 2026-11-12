@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 import { applyThaiTranslations } from "./apply-thai";
+import { LARIDEA_BIRTHDAY } from "./places/laridea-birthday";
 import { upsertPhoenixOctoberCamp } from "./programs/phoenix-october-camp";
 import { upsertSkippyLandLotusNorth } from "./places/skippy-land-lotus-north";
 import { upsertSkippyLandLotusSouth } from "./places/skippy-land-lotus-south";
@@ -758,33 +759,28 @@ async function main() {
     }
   }
 
-  // День рождения LariDea (официальные пакеты из Instagram, март 2026)
-  // переносы строк осмысленные: каждый пакет с новой строки (вёрстка
-  // birthday-card-notes рендерит pre-line — простыня из трёх пакетов нечитаема)
-  const lariDeaBirthdayNotes =
-    "«Little Joy» — от 946 ฿ за ребёнка (от 5 детей, 2 часа)\n«Happy Moments» — 1 166 ฿ (от 10 детей)\n«Magic Day» — 1 496 ฿ (от 10 детей, 4 часа, приватная игровая)\nДепозит 50%, к ценам добавляется НДС 7%. Допы: декор — 2 500 ฿, фотограф — 6 000 ฿, шоу фокусов — 6 000 ฿.";
-  const lariDeaBirthdayNotesEn =
-    "“Little Joy” — from 946 ฿ per child (from 5 kids, 2 hours)\n“Happy Moments” — 1,166 ฿ (from 10 kids)\n“Magic Day” — 1,496 ฿ (from 10 kids, 4 hours, private playground)\n50% deposit; 7% VAT is added to the prices. Add-ons: decorations — 2,500 ฿, photographer — 6,000 ฿, magic show — 6,000 ฿.";
+  // День рождения LariDea: один пакет на 3 часа (пост в Instagram 22.09.2026),
+  // текст и источник — prisma/places/laridea-birthday.ts
   await prisma.placeBirthdayInfo.upsert({
     where: { placeId: lariDea.id },
     update: {
       hasPackages: true,
-      minGuests: 5,
+      minGuests: LARIDEA_BIRTHDAY.minGuests,
       maxGuests: null,
       depositRequired: true,
       preBookingDays: null,
-      notes: lariDeaBirthdayNotes,
-      notesEn: lariDeaBirthdayNotesEn,
+      notes: LARIDEA_BIRTHDAY.notes,
+      notesEn: LARIDEA_BIRTHDAY.notesEn,
     },
     create: {
       placeId: lariDea.id,
       hasPackages: true,
-      minGuests: 5,
+      minGuests: LARIDEA_BIRTHDAY.minGuests,
       maxGuests: null,
       depositRequired: true,
       preBookingDays: null,
-      notes: lariDeaBirthdayNotes,
-      notesEn: lariDeaBirthdayNotesEn,
+      notes: LARIDEA_BIRTHDAY.notes,
+      notesEn: LARIDEA_BIRTHDAY.notesEn,
     },
   });
 
