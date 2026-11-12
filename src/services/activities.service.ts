@@ -16,9 +16,9 @@ export type ActivityWithPlace = Prisma.PlaceProgramGetPayload<{
   };
 }>;
 
-/** Страница занятия: то же + «Полезно знать». */
+/** Страница занятия: то же + «Полезно знать» и галерея. */
 export type ActivityDetailsResult = ActivityWithPlace &
-  Prisma.PlaceProgramGetPayload<{ include: { tips: true } }>;
+  Prisma.PlaceProgramGetPayload<{ include: { tips: true; photos: true } }>;
 
 /**
  * Сквозная витрина «Занятия» (вторая ось продукта, activity-first): все
@@ -97,6 +97,7 @@ export const getActivityBySlug = cache(
           },
           classes: { orderBy: { order: "asc" } },
           tips: { orderBy: { order: "asc" } },
+          photos: { orderBy: { order: "asc" } },
         },
       });
     },

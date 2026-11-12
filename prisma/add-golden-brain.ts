@@ -4,7 +4,8 @@
  * запись с таблицей групп и «Полезно знать» — остальное не трогает.
  * Повторный запуск безопасен (запись пересоздаётся).
  *
- * Нужны новые колонки PlaceClass.nameEn/nameTh, поэтому порядок такой:
+ * Нужны новые колонки PlaceClass.nameEn/nameTh и таблица ProgramPhoto
+ * (галерея занятия), поэтому порядок такой:
  *   1) до мержа, с ветки PR: npx prisma db push
  *   2) мерж PR (Vercel задеплоит обложку и код)
  *   3) npx tsx prisma/add-golden-brain.ts
@@ -30,8 +31,13 @@ async function main(): Promise<void> {
   if (!pattaya) {
     throw new Error("Город pattaya не найден — сначала общий seed");
   }
-  const { classes, tips } = await upsertGoldenBrainNorthPattaya(prisma, pattaya.id);
-  console.log(`✓ Golden Brain North Pattaya: ${classes} строки групп, ${tips} совета`);
+  const { classes, tips, photos } = await upsertGoldenBrainNorthPattaya(
+    prisma,
+    pattaya.id,
+  );
+  console.log(
+    `✓ Golden Brain North Pattaya: ${classes} строки групп, ${tips} совета, ${photos} фото в галерее`,
+  );
   console.log(`\nГотово. Открой на проде: /ru/pattaya/activities/${GOLDEN_BRAIN_SLUG}`);
 }
 

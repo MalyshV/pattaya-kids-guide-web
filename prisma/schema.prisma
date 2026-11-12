@@ -177,6 +177,22 @@ model PlacePhoto {
   @@index([placeId])
 }
 
+/// Фото в галерее занятия — как PlacePhoto (тот же провенанс прав): афиши,
+/// вход, классы. Обложка занятия — отдельно, PlaceProgram.imageUrl.
+model ProgramPhoto {
+  id         String           @id @default(cuid())
+  programId  String
+  url        String
+  caption    String?
+  order      Int              @default(0)
+  source     PhotoSourceType?
+  author     String?
+  rightsNote String?
+  program    PlaceProgram     @relation(fields: [programId], references: [id])
+
+  @@index([programId])
+}
+
 model PlacePricing {
   id        String          @id @default(cuid())
   placeId   String
@@ -270,6 +286,8 @@ model PlaceProgram {
   categories    ProgramActivityCategory[]
   classes       PlaceClass[]
   tips          ProgramTip[]
+  /// галерея занятия (обложка — imageUrl); как PlacePhoto, с провенансом
+  photos        ProgramPhoto[]
   /// текстовое место проведения (когда нет каталожного place — напр. сад)
   venueName     String?
   venueNameEn   String?
