@@ -11,8 +11,9 @@ import { isTypoFix } from "@/lib/admin/tips";
  * строки «под новый класс» в конце таблицы.
  *
  * Сохранение бережное, как у советов: у класса есть тайские подписи, которых
- * в форме нет. Класс находим по id строки; тайское расписание остаётся, пока
- * русское не поменяли по смыслу (исправленная опечатка — не в счёт).
+ * в форме нет. Класс находим по id строки; тайские название и расписание
+ * остаются, пока русские не поменяли по смыслу (исправленная опечатка — не в
+ * счёт).
  */
 
 export const CLASS_LIMITS = {
@@ -31,6 +32,7 @@ export const EXTRA_CLASS_ROWS = 3;
 export const CLASS_FIELDS = [
   "id",
   "name",
+  "nameEn",
   "minAgeMonths",
   "maxAgeMonths",
   "ageLabel",
@@ -50,6 +52,8 @@ export type ClassRow = {
   /** id существующего класса; null — новая строка */
   id: string | null;
   name: string;
+  /// английское название; null — на английской странице как по-русски
+  nameEn: string | null;
   minAgeMonths: number;
   maxAgeMonths: number;
   ageLabel: string;
@@ -118,8 +122,10 @@ export function parseClassRows(
       clean(read(index, "ageLabel")) || (formatAgeRange(min, max, "ru") ?? "");
     const ageLabelEn = clean(read(index, "ageLabelEn")) || formatAgeRange(min, max, "en");
     const scheduleEn = clean(read(index, "scheduleEn")) || null;
+    const nameEn = clean(read(index, "nameEn")) || null;
     if (
       name.length > CLASS_LIMITS.name ||
+      (nameEn ?? "").length > CLASS_LIMITS.name ||
       ageLabel.length > CLASS_LIMITS.ageLabel ||
       (ageLabelEn ?? "").length > CLASS_LIMITS.ageLabel ||
       schedule.length > CLASS_LIMITS.schedule ||
@@ -132,6 +138,7 @@ export function parseClassRows(
     rows.push({
       id: clean(read(index, "id")) || null,
       name,
+      nameEn,
       minAgeMonths: min,
       maxAgeMonths: max,
       ageLabel,
@@ -147,6 +154,8 @@ export function parseClassRows(
 
 export type ExistingClass = {
   id: string;
+  name: string;
+  nameTh: string | null;
   ageLabel: string;
   ageLabelTh: string | null;
   minAgeMonths: number;
@@ -156,6 +165,7 @@ export type ExistingClass = {
 };
 
 type ClassData = Omit<ClassRow, "id"> & {
+  nameTh: string | null;
   ageLabelTh: string | null;
   scheduleTh: string | null;
   order: number;
@@ -175,7 +185,7 @@ function stillSame(before: string, after: string): boolean {
 /**
  * Что создать, обновить и удалить. Порядок классов — порядок строк формы.
  * Тайская подпись возраста собирается из месяцев (если возраст меняли);
- * тайское расписание остаётся только при прежнем русском.
+ * тайские название и расписание остаются только при прежнем русском.
  */
 export function planClasses(
   existing: readonly ExistingClass[],
@@ -189,7 +199,13 @@ export function planClasses(
     const before = id && !kept.has(id) ? byId.get(id) : undefined;
     const ageTh = formatAgeRange(row.minAgeMonths, row.maxAgeMonths, "th");
     if (!before) {
-      plan.create.push({ ...row, ageLabelTh: ageTh, scheduleTh: null, order: index + 1 });
+      plan.create.push({
+        ...row,
+        nameTh: null,
+        ageLabelTh: ageTh,
+        scheduleTh: null,
+        order: index + 1,
+      });
       return;
     }
     kept.add(before.id);
@@ -201,6 +217,7 @@ export function planClasses(
       id: before.id,
       data: {
         ...row,
+        nameTh: stillSame(before.name, row.name) ? before.nameTh : null,
         ageLabelTh: sameAge ? (before.ageLabelTh ?? ageTh) : ageTh,
         scheduleTh: stillSame(before.schedule, row.schedule) ? before.scheduleTh : null,
         order: index + 1,
