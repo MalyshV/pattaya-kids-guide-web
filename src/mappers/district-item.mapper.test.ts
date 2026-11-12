@@ -86,7 +86,10 @@ describe("eventItemMeta", () => {
   it("место события важнее текстовой площадки", () => {
     expect(
       eventItemMeta(
-        { ...EVENT, place: { id: "p1", name: "Kids Land", slug: "kids-land" } },
+        {
+          ...EVENT,
+          place: { id: "p1", name: "Kids Land", slug: "kids-land", address: "Soi 2" },
+        },
         "en",
         "Asia/Bangkok",
       ),

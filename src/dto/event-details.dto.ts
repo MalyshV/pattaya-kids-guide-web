@@ -1,11 +1,6 @@
 import type { TipDto } from "@/dto/tip.dto";
 import type { EventDto } from "@/dto/event.dto";
-
-export type EventPlacePreviewDto = {
-  id: string;
-  name: string;
-  slug: string;
-};
+import type { EventPlacePreviewDto } from "@/dto/event-list-item.dto";
 
 export type EventDetailsDto = EventDto & {
   place: EventPlacePreviewDto | null;

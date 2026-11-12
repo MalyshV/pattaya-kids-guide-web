@@ -102,7 +102,7 @@ describe("buildEventPost", () => {
     const post = buildEventPost(
       eventDto({
         locationName: "Где-то ещё",
-        place: { id: "p1", name: "Play Barn", slug: "play-barn" },
+        place: { id: "p1", name: "Play Barn", slug: "play-barn", address: "Soi 1" },
       }),
     );
     expect(post.text).toContain("📍 Play Barn");

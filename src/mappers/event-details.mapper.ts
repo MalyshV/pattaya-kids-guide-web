@@ -15,6 +15,7 @@ export function mapEventDetailsToDto(
           id: event.place.id,
           name: placeDisplayName(event.place, lang),
           slug: event.place.slug,
+          address: event.place.address,
         }
       : null,
     tips: mapTipsToDto(event.tips, lang),

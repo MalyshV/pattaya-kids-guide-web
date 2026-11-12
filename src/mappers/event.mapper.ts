@@ -75,6 +75,7 @@ export function mapEventListItemToDto(
           id: event.place.id,
           name: placeDisplayName(event.place, lang),
           slug: event.place.slug,
+          address: event.place.address,
         }
       : null,
   };
