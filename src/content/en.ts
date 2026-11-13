@@ -352,6 +352,8 @@ export const en: Dictionary = {
     },
     openNowTitle: "Open now",
     allPlaces: "All places",
+    carouselPrev: "Previous places",
+    carouselNext: "Next places",
     soonTitle: "Coming up",
     soonHint: "Things you can still make it to.",
     allEvents: "All events",
