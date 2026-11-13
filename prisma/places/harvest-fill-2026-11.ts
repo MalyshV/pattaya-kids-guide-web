@@ -292,6 +292,48 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
       { type: "phone", value: "098 349 9927" },
     ],
   },
+  // Picnic Ground Cafe & BBQ
+  {
+    slug: "picnic-ground-cafe",
+    description:
+      "Ресторан-сад в Нонгплалае, к северу от Паттайи, в стороне от шоссе 36. Большая часть мест — в саду под деревьями, там же детская площадка с домиком на дереве и горкой; есть и закрытый зал на случай дождя. Меню широкое: тайская кухня, японские блюда и суши, пицца, паста, салаты, сэндвичи, барбекю-сеты, кофе и коктейли. Сюда приезжают семьями на неспешный обед, пока дети играют в саду, и устраивают детские дни рождения — с играми в саду и тортом, по запросу через сообщения страницы. Место тихое и немного спрятанное, без машины добираться неудобно.",
+    descriptionEn:
+      "A garden restaurant in Nong Pla Lai, north of Pattaya, set back from Highway 36. Most of the seating is out in the garden under the trees, where there is also a playground with a treehouse and a slide; there is an indoor dining room for rainy days too. The menu is wide: Thai food, Japanese dishes and sushi, pizza, pasta, salads, sandwiches, BBQ sets, coffee and shakes. Families come for an unhurried lunch while the children play in the garden, and the restaurant hosts kids' birthday parties with garden games and cake — ask through the page's messages. It is quiet and a little hidden away, so a car makes it much easier to get to.",
+    tips: [
+      {
+        text: "С понедельника по пятницу при оплате можно показать акционный пост кафе в Facebook и получить скидку 10% (акция ноября 2026, не суммируется с другими).",
+        textEn:
+          "Monday to Friday, show the café's promo post on Facebook when paying to get 10% off (November 2026 offer, not combined with other deals).",
+      },
+      {
+        text: "С шоссе 36 сворачивайте на дорогу между ресторанами Krua Pa Boon 4 и 5 и едьте до Peter Pan Resort — кафе сразу за поворотом. Короткий путь со стороны овечьей фермы идёт по грунтовке и через канал.",
+        textEn:
+          "From Highway 36, turn onto the road between the Krua Pa Boon 4 and 5 restaurants and drive to Peter Pan Resort — the café is just past the bend. The shortcut from the sheep farm side is a dirt road with a canal crossing.",
+      },
+      {
+        text: "Детский день рождения в саду заказывают через сообщения страницы в Facebook или LINE @picnicgroundcafe.",
+        textEn:
+          "Book a kids' birthday party in the garden through the Facebook page messages or LINE @picnicgroundcafe.",
+      },
+    ],
+    hours: {
+      MON: { open: "09:00", close: "21:00" },
+      TUE: { open: "09:00", close: "21:00" },
+      WED: { open: "09:00", close: "21:00" },
+      THU: { open: "09:00", close: "21:00" },
+      FRI: { open: "09:00", close: "21:00" },
+      SAT: { open: "09:00", close: "21:00" },
+      SUN: { open: "09:00", close: "21:00" },
+    },
+    flags: { outdoor: true, hasFood: true, hasCafeSeating: true },
+    categorySlugs: ["cafe-kids-zone"],
+    contacts: [
+      { type: "facebook", value: "https://www.facebook.com/picnicgroundcafe" },
+      { type: "instagram", value: "https://www.instagram.com/picnic__ground/" },
+      { type: "line", value: "@picnicgroundcafe" },
+      { type: "phone", value: "065 580 2915" },
+    ],
+  },
   // Rain Forest Cafe
   {
     slug: "rain-forest-cafe-pattaya",
@@ -541,6 +583,28 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
     categorySlugs: ["playground"],
     free: true,
   },
+  // Spielplatz (Jomtien)
+  {
+    slug: "spielplatz-playground-jomtien",
+    description:
+      "Небольшая уличная детская площадка в парке у Тепразит, в переулке Soi Thepprasit 7, — по картам, на территории городского молодёжного центра (Youth Center Pattaya), между Джомтьеном и Тепразитом. По отзывам, здесь пара горок и конструкции, по которым можно полазать, а рядом — несколько новых уличных тренажёров для взрослых. Площадка чистая, сам парк небольшой и спокойный. Навеса над площадкой нет, поэтому приходить лучше утром или ближе к вечеру, когда спадает жара. Это не большой игровой парк, а площадка «у дома» — чтобы погулять час, если вы живёте неподалёку.",
+    descriptionEn:
+      "A small outdoor playground in a park off Thepprasit Road, on Soi Thepprasit 7 — according to the map, within the grounds of the city's Youth Center Pattaya, between Jomtien and Thepprasit. Reviews mention a couple of slides and frames to climb on, plus a few new outdoor exercise machines for adults nearby. The playground is clean, and the park itself is small and quiet. There is no shade over the play area, so mornings or late afternoons, once the heat drops, are best. It is not a big play park but a neighbourhood playground — good for an hour outdoors if you live nearby.",
+    tips: [
+      {
+        text: "По отзывам, навеса над площадкой нет — приходите утром или после 16:00, возьмите воду и панаму.",
+        textEn:
+          "According to reviews, there is no shade over the playground — come in the morning or after 4 pm, and bring water and a sun hat.",
+      },
+      {
+        text: "Рядом с площадкой — уличные тренажёры: взрослый может позаниматься, пока ребёнок играет.",
+        textEn:
+          "There are outdoor exercise machines next to the playground, so an adult can work out while the child plays.",
+      },
+    ],
+    flags: { outdoor: true, hasCoveredArea: false },
+    categorySlugs: ["playground"],
+  },
   // Bang Lamung Wildlife Breeding Station
   {
     slug: "bang-lamung-wildlife-breeding-station",
@@ -571,44 +635,6 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
       },
     ],
     flags: { outdoor: true, indoor: false },
-  },
-  // Camp Chang Adventure Park
-  {
-    slug: "camp-chang-adventure-park",
-    description:
-      "Парк активного отдыха со слонами у горы Кхао Чи Чан (Саттахип, к югу от Паттайи): заезд по сою Khao Malako — Wihan Sian, не доезжая до изображения Будды на скале. На территории живут слоны, в том числе слонёнок, козы, черепахи и крокодил; животных можно кормить. Кроме животных здесь ATV, зиплайн, стрельба из лука и тир, а также кафе Elephant Valley Café в домике на дереве посреди сада. Место задумано на полдня-день и рассчитано скорее на семьи со школьниками: часть развлечений взрослая. Парк предлагает и катание на слонах — решите заранее, нужен ли вам этот формат.",
-    descriptionEn:
-      "An outdoor adventure park with elephants near Khao Chi Chan (Sattahip, south of Pattaya): you reach it via Soi Khao Malako – Wihan Sian, just before the Buddha image carved into the cliff. The park keeps elephants, including a baby elephant, plus goats, tortoises and a crocodile, and you can feed the animals. Beyond the animals there are ATVs, a zipline, archery and a shooting range, as well as Elephant Valley Café, a treehouse café in a garden. It is set up for a half or full day and suits families with school-age children best, since some activities are adult-oriented. The park also offers elephant rides — decide in advance whether that is something you want.",
-    tips: [
-      {
-        text: "Почти всё время проходит на улице: возьмите головные уборы, воду и крем от солнца.",
-        textEn: "Almost everything happens outdoors: bring hats, water and sunscreen.",
-      },
-      {
-        text: "Цены на активности на официальной странице не опубликованы — уточните заранее по телефону 094 030 2555 или 090 246 6555.",
-        textEn:
-          "Activity prices are not published on the official page — ask in advance by phone: 094 030 2555 or 090 246 6555.",
-      },
-      {
-        text: "Рядом — изображение Будды на скале Кхао Чи Чан: их удобно совместить в одной поездке.",
-        textEn:
-          "The Khao Chi Chan cliff Buddha is next door, so the two are easy to combine in one trip.",
-      },
-    ],
-    hours: {
-      MON: { open: "09:00", close: "17:30" },
-      TUE: { open: "09:00", close: "17:30" },
-      WED: { open: "09:00", close: "17:30" },
-      THU: { open: "09:00", close: "17:30" },
-      FRI: { open: "09:00", close: "17:30" },
-      SAT: { open: "09:00", close: "17:30" },
-      SUN: { open: "09:00", close: "17:30" },
-    },
-    flags: { outdoor: true, animalContact: true, hasFood: true },
-    contacts: [
-      { type: "facebook", value: "https://www.facebook.com/campchangadventure" },
-      { type: "phone", value: "094 030 2555" },
-    ],
   },
   // Capybara Coffee
   {
@@ -856,6 +882,12 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
       },
       { type: "phone", value: "097 227 7194" },
     ],
+    cover: {
+      url: "/images/places/dog-club-pattaya.jpg",
+      rightsNote:
+        "Обложка официальной страницы места в Facebook (facebook.com/profile.php?id=100063673312916), взято 13.11.2026.",
+    },
+    photoSource: "PLACE_OWNER",
   },
   // Dog'C Blog Felicita
   {
@@ -1083,83 +1115,6 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
       { type: "phone", value: "091 730 6131" },
     ],
   },
-  // Khao Chi Chan Elephant Village
-  {
-    slug: "khao-chi-chan-elephant-village",
-    description:
-      "Слоновья деревня в На Чом Тхиан, к югу от Паттайи, — у горы Кхао Чи Чан с золотым изображением Будды на скале, почти напротив Viharn Sien. Здесь кормят слонов и крокодилов и катаются на слонах по лесной тропе; для групп и школ проводят экскурсии. В 2024 году деревня получила от Департамента животноводства Таиланда сертификат стандарта GAP для слоновьих лагерей. Обратите внимание: здесь есть катание на слонах, которое многие защитники животных не одобряют, — если для вас это важно, можно ограничиться кормлением. По отзывам, территория чистая и зелёная, есть просторная парковка.",
-    descriptionEn:
-      "An elephant village in Na Jomtien, south of Pattaya — by Khao Chi Chan hill with the golden Buddha image on the cliff, almost opposite Viharn Sien. Visitors feed elephants and crocodiles and ride elephants along a forest trail; tours are arranged for groups and schools. In 2024 the village received the GAP elephant-camp standard certificate from Thailand's Department of Livestock Development. Note that elephant riding is offered here, which many animal-welfare groups discourage — if that matters to you, you can stick to feeding. Reviewers describe the grounds as clean and green, with plenty of parking.",
-    tips: [
-      {
-        text: "Цены на сайте и в соцсетях не опубликованы — уточните по телефону 096-747-4663 или 081-377-7698 до поездки.",
-        textEn:
-          "Prices aren't published online — check by phone at 096-747-4663 or 081-377-7698 before you go.",
-      },
-      {
-        text: "Наденьте закрытую обувь и одежду, которую не жалко испачкать.",
-        textEn: "Wear closed shoes and clothes you don't mind getting dirty.",
-      },
-      {
-        text: "Рядом — Viharn Sien, Swiss Sheep Farm и смотровая у Будды на скале Кхао Чи Чан: удобно объединить в одну поездку.",
-        textEn:
-          "Viharn Sien, Swiss Sheep Farm and the Khao Chi Chan Buddha cliff are nearby — easy to combine into one trip.",
-      },
-      {
-        text: "Добираться удобнее на машине или такси: от центра Паттайи — около 30–40 минут.",
-        textEn: "It's easiest by car or taxi: about 30–40 minutes from central Pattaya.",
-      },
-    ],
-    hours: {
-      MON: { open: "08:30", close: "17:30" },
-      TUE: { open: "08:30", close: "17:30" },
-      WED: { open: "08:30", close: "17:30" },
-      THU: { open: "08:30", close: "17:30" },
-      FRI: { open: "08:30", close: "17:30" },
-      SAT: { open: "08:30", close: "17:30" },
-      SUN: { open: "08:30", close: "17:30" },
-    },
-    flags: { outdoor: true, hasParking: true, animalContact: true },
-    contacts: [
-      { type: "facebook", value: "https://www.facebook.com/pattayaelephanttrekking" },
-      { type: "phone", value: "096-747-4663" },
-      { type: "phone", value: "081-377-7698" },
-    ],
-  },
-  // Little Fields
-  {
-    slug: "little-fields-pattaya",
-    description:
-      "Маленькая детская ферма в Понге, в зелени к востоку от города, работающая с 2019 года: здесь дети бегают на воле, трогают землю, возятся в грязи на специальной площадке и знакомятся с природой руками. После перерыва ферма открывается заново — мягкое открытие назначено на 21 ноября 2026 года. Обещают сохранить прежнюю «детскую ферму» — площадку для игр в грязи, детские занятия и обучение через природу — и добавить творческие мастер-классы и wellness-программы (йога, саунд-хилинг) для взрослых, чтобы приезжать можно было всей семьёй. Территория — сад и поле под открытым небом.",
-    descriptionEn:
-      "A small children's farm in Pong, in the green countryside east of the city, running since 2019: kids play freely outdoors, get muddy on a dedicated mud play area and learn about nature hands-on. After a break the farm is reopening — a soft opening is set for 21 November 2026. The plan is to keep the familiar children's farm — the mud play area, kids' activities and learning through nature — and add creative workshops and wellness sessions (yoga, sound healing) for adults, so the whole family can come together. The grounds are an open-air garden and field.",
-    tips: [
-      {
-        text: "Мягкое открытие — 21 ноября 2026 года, 09:00–17:00. Программу для детей ферма присылает в сообщениях страницы в Facebook — спросите заранее.",
-        textEn:
-          "Soft opening: 21 November 2026, 09:00–17:00. The farm sends details of the kids' programme via its Facebook page messages — ask in advance.",
-      },
-      {
-        text: "Возьмите ребёнку сменную одежду и обувь, которую не жалко: на ферме есть площадка для игр в грязи.",
-        textEn:
-          "Bring a change of clothes and shoes you don't mind getting dirty: the farm has a mud play area.",
-      },
-      {
-        text: "Почти всё время — на улице: шляпа, крем от солнца, репеллент и вода пригодятся.",
-        textEn:
-          "Most of the time is spent outdoors: bring a hat, sunscreen, insect repellent and water.",
-      },
-      {
-        text: "Ферма за городом, в Понге — удобнее всего ехать на машине.",
-        textEn: "The farm is out of town in Pong — it's easiest to get there by car.",
-      },
-    ],
-    flags: { outdoor: true },
-    contacts: [
-      { type: "facebook", value: "https://www.facebook.com/littlefieldspattaya" },
-      { type: "phone", value: "065 636 4990" },
-    ],
-  },
   // Le Refuge Cafe & Animal Sanctuary
   {
     slug: "le-refuge-pattaya",
@@ -1219,6 +1174,18 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
       { type: "line", value: "https://line.me/R/ti/p/@292bqmqn" },
       { type: "phone", value: "093 325 0233" },
     ],
+    cover: {
+      url: "/images/places/le-refuge-pattaya.jpg",
+      rightsNote:
+        "Фото с официальной страницы приюта на tarzandz.com/pages/le-refuge-pattaya, взято 13.11.2026.",
+    },
+    photos: [
+      { url: "/images/places/le-refuge-pattaya-cafe.jpg", caption: "Зал кафе" },
+      { url: "/images/places/le-refuge-pattaya-goat.jpg", caption: "Козлёнок из приюта" },
+    ],
+    photoRightsNote:
+      "Фото с официальной страницы приюта на tarzandz.com/pages/le-refuge-pattaya, взято 13.11.2026.",
+    photoSource: "PLACE_OWNER",
   },
   // Loftbit Park
   {
@@ -1272,6 +1239,12 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
       { type: "facebook", value: "https://www.facebook.com/loftbitpark/" },
       { type: "phone", value: "083 879 0411" },
     ],
+    cover: {
+      url: "/images/places/loftbit-park.jpg",
+      rightsNote:
+        "Обложка официальной страницы места в Facebook (facebook.com/loftbitpark), взято 13.11.2026.",
+    },
+    photoSource: "PLACE_OWNER",
   },
   // Maine Coon Cat Cafe
   {
@@ -1404,6 +1377,91 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
       { type: "facebook", value: "https://www.facebook.com/RabbitCafePattaya/" },
       { type: "instagram", value: "https://www.instagram.com/rabbitcafepattaya/" },
       { type: "phone", value: "095 417 7888" },
+    ],
+  },
+  // Thaithani Cultural Village & Elephant
+  {
+    slug: "thaithani-cultural-village",
+    description:
+      "Культурная деревня в Банг Сарае, недалеко от Нонг Нуча: традиционные тайские дома четырёх регионов страны, исторический музей, сцена и ресторан кхантоке. Сюда приезжают на полдня или на целый день: можно переодеться в тайский костюм и погулять по деревне, посмотреть культурное шоу и пообедать тайским буфетом. Есть мастер-классы, к которым присоединяются и дети: гирлянды малай, кратонги, тай-дай, свечи, тайские десерты, украшение торта, кулинарный класс, тайский бокс. Здесь же живут слоны: в программу входят приготовление корма для слонов и прогулка со слонами. Билеты продают пакетами; детский — вдвое дешевле взрослого.",
+    descriptionEn:
+      "A cultural village in Bang Saray, near Nong Nooch: traditional Thai houses from the country's four regions, a history museum, a stage and a khantoke restaurant. People come for half a day or a full day: you can change into a Thai costume and wander the village, watch a cultural show and have a Thai buffet lunch. There are hands-on workshops that children can join too: malai garlands, krathongs, tie-dye, candles, Thai desserts, cake decorating, a cooking class and Muay Thai. Elephants also live here: the programme includes making elephant food and an elephant walk. Tickets are sold as packages; a child ticket is half the adult price.",
+    tips: [
+      {
+        text: "Детский билет — для роста 90–120 см и стоит половину взрослого.",
+        textEn:
+          "The child ticket is for children 90–120 cm tall and costs half the adult price.",
+      },
+      {
+        text: "Прокат тайского костюма продаётся и отдельно: 300 ฿ взрослым и 150 ฿ детям — с аксессуарами, причёской и зонтиком.",
+        textEn:
+          "Thai costume rental is also sold on its own: 300 ฿ for adults and 150 ฿ for children, with accessories, hairstyling and an umbrella.",
+      },
+      {
+        text: "В программу «на целый день» входит Royal Elephant Journey — если вы против катания на слонах, уточните заранее, что входит в эту часть.",
+        textEn:
+          "The full-day package includes the Royal Elephant Journey — if you'd rather avoid elephant riding, ask in advance what it involves.",
+      },
+      {
+        text: "Парковка большая, помещается и автобус.",
+        textEn: "The car park is large and fits buses too.",
+      },
+      {
+        text: "Деревня принимает школьные экскурсии и праздники — для группы лучше заранее позвонить: 096-062-1188.",
+        textEn:
+          "The village hosts school trips and parties — for a group, call ahead: 096-062-1188.",
+      },
+    ],
+    flags: {
+      indoor: true,
+      outdoor: true,
+      hasFood: true,
+      hasParking: true,
+      animalContact: true,
+    },
+    entryRows: [
+      {
+        label: "Пакет A (полдня): вход, музей, буфет кхантоке, шоу",
+        labelEn: "Package A (half day): entry, museum, khantoke buffet, show",
+        child: 250,
+        adult: 499,
+      },
+      {
+        label: "Пакет B (полдня): + тайский костюм и 2 мастер-класса",
+        labelEn: "Package B (half day): + Thai costume and 2 workshops",
+        child: 445,
+        adult: 890,
+      },
+      {
+        label: "Пакет C (весь день): + костюм и 2 мастер-класса на выбор",
+        labelEn: "Package C (full day): + costume and 2 workshops of your choice",
+        child: 945,
+        adult: 1890,
+      },
+      {
+        label:
+          "Весь день: все мастер-классы, корм для слонов, Royal Elephant Journey, костюм, буфет и шоу",
+        labelEn:
+          "Full day: all workshops, elephant food making, Royal Elephant Journey, costume, buffet and show",
+        child: 1495,
+        adult: 2990,
+      },
+      {
+        label: "Только тайский костюм (Silver)",
+        labelEn: "Thai costume only (Silver)",
+        child: 150,
+        adult: 300,
+      },
+    ],
+    note: "Детский тариф — рост 90–120 см. Цены — из поста деревни от 25.06.2026.",
+    noteEn:
+      "Child rate applies to children 90–120 cm tall. Prices from the village's post of 25 June 2026.",
+    contacts: [
+      { type: "website", value: "https://www.thaithaniculturevillage.com/" },
+      { type: "facebook", value: "https://www.facebook.com/thaithani.culturevillage" },
+      { type: "instagram", value: "https://www.instagram.com/thaithani.culturevillage/" },
+      { type: "line", value: "https://lin.ee/AlMvmHb" },
+      { type: "phone", value: "096-062-1188" },
     ],
   },
   // Annethong Public Park
@@ -1693,6 +1751,12 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
       { type: "line", value: "@fairysweetvillage" },
       { type: "phone", value: "095-675-1724" },
     ],
+    cover: {
+      url: "/images/places/fairy-sweet-village.jpg",
+      rightsNote:
+        "Обложка официальной страницы места в Facebook (facebook.com/fairysweetvillage), взято 13.11.2026.",
+    },
+    photoSource: "PLACE_OWNER",
   },
   // Jomtien Fishing Park
   {
@@ -1907,6 +1971,7 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
       { type: "instagram", value: "https://instagram.com/level3hub" },
       { type: "line", value: "https://line.me/R/ti/p/@170aiegt" },
       { type: "phone", value: "+66 99 379 8842" },
+      { type: "telegram", value: "https://telegram.me/level3hub" },
     ],
   },
   // Naklua Chalermprakiat Park
@@ -2116,37 +2181,6 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
       { type: "phone", value: "095 776 4698" },
     ],
   },
-  // Pattaya Water Space
-  {
-    slug: "pattaya-water-space",
-    description:
-      "Вечернее шоу-площадка в районе Чакнок (восточнее Сукхумвита) в духе Сонгкрана круглый год: «водная вечеринка 365 дней в году». Под открытым небом идёт световое и музыкальное шоу с водой, зрители обливаются и танцуют вместе с артистами, рядом работает ночной рынок с едой. Формат больше похож на вечеринку с танцевальной музыкой для туристов, чем на детский аттракцион; детям постарше, которые любят Сонгкран, может понравиться, малышам — громко и поздно. Площадка рассчитана на большие группы, до нескольких тысяч гостей.",
-    descriptionEn:
-      'An evening show venue in the Chaknok area (east of Sukhumvit Road) built around Songkran all year round — a "365-day splashing party". Outdoors there is a light, music and water show; the audience splashes and dances along with the performers, and a night market with food runs alongside. It feels more like a dance-music party for tourists than a children\'s attraction; older kids who love Songkran may enjoy it, but for little ones it is loud and late. The venue is built for big crowds of up to several thousand guests.',
-    tips: [
-      {
-        text: "Здесь обливают водой: возьмите сменную одежду, полотенце и непромокаемый чехол для телефона.",
-        textEn:
-          "You will get splashed: bring a change of clothes, a towel and a waterproof phone pouch.",
-      },
-      {
-        text: "Музыка громкая — маленьким детям пригодятся защитные наушники.",
-        textEn: "The music is loud — ear defenders help for small children.",
-      },
-      {
-        text: "Время шоу и цены на странице не опубликованы — уточните по телефону 038-051-888 или в LINE перед поездкой.",
-        textEn:
-          "Show times and prices aren't published — check by phone at 038-051-888 or on LINE before you go.",
-      },
-    ],
-    flags: { outdoor: true, hasFood: true },
-    contacts: [
-      { type: "facebook", value: "https://www.facebook.com/Pattayawaterspace/" },
-      { type: "instagram", value: "https://www.instagram.com/pattayawaterspace/" },
-      { type: "line", value: "https://lin.ee/EgNaHnu" },
-      { type: "phone", value: "038-051-888" },
-    ],
-  },
   // Piya Silpakarn Art Gallery
   {
     slug: "piya-silpakarn-art-gallery",
@@ -2228,6 +2262,43 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
       { type: "facebook", value: "https://www.facebook.com/pinnkidsclub" },
       { type: "instagram", value: "https://www.instagram.com/pinnkidsclubpattaya" },
     ],
+  },
+  // Queen Sirikit Health Garden
+  {
+    slug: "queen-sirikit-health-garden",
+    description:
+      "Небольшой районный парк здоровья в Нонг Прыу, к востоку от Сукхумвита, рядом со школой. По отзывам, вокруг парка идёт дорожка для прогулок и бега, по пути стоят уличные тренажёры, есть детская площадка с горками, питьевые фонтанчики и туалеты, а большие деревья дают много тени. В центре — старый тайский дом и памятник. Это не место «на полдня», а спокойный парк для жителей ближайших кварталов: погулять с коляской, дать ребёнку побегать и покататься с горки утром или ближе к вечеру. Вход свободный.",
+    descriptionEn:
+      "A small neighbourhood health park in Nong Prue, east of Sukhumvit, next to a school. According to reviews, a walking and running path loops around the park with outdoor exercise machines along the way, and there is a children's playground with slides, drinking fountains and toilets, plus plenty of shade from big trees. In the middle stand an old Thai house and a statue. It is not a half-day outing but a quiet park for people living nearby: a stroll with a pushchair, a run-around and a few turns on the slide in the morning or towards evening. Entry is free.",
+    tips: [
+      {
+        text: "Рядом школа: по отзывам, в будни в часы занятий и после уроков в парке много школьников — с малышом спокойнее прийти в выходные или утром.",
+        textEn:
+          "There is a school next door: reviewers say the park fills with schoolchildren on weekdays — with a toddler it is calmer at weekends or in the morning.",
+      },
+      {
+        text: "Тренажёры старые, по отзывам, но рабочие; инструкций на них почти нет.",
+        textEn:
+          "Reviewers say the exercise machines are old but still usable; most have no instructions.",
+      },
+      {
+        text: "Парк открыт с раннего утра до вечера (по карте — 04:00–21:00); днём на площадке жарко, лучше утро или вечер.",
+        textEn:
+          "The park is open from early morning to evening (04:00–21:00 per the map); the playground gets hot at midday, so mornings or evenings are better.",
+      },
+    ],
+    hours: {
+      MON: { open: "04:00", close: "21:00" },
+      TUE: { open: "04:00", close: "21:00" },
+      WED: { open: "04:00", close: "21:00" },
+      THU: { open: "04:00", close: "21:00" },
+      FRI: { open: "04:00", close: "21:00" },
+      SAT: { open: "04:00", close: "21:00" },
+      SUN: { open: "04:00", close: "21:00" },
+    },
+    flags: { outdoor: true },
+    categorySlugs: ["playground"],
+    free: true,
   },
   // Public Park Soi Chaiyapruek 4
   {
@@ -2339,6 +2410,50 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
         value: "https://www.facebook.com/profile.php?id=61591994723409",
       },
       { type: "phone", value: "082 420 0008" },
+    ],
+  },
+  // Suriyaland
+  {
+    slug: "suriyaland",
+    description:
+      "Необычное место «полумузей» в Банг Сарае: в долине у водохранилища Хуай Ту, за горой Кхао Чи Чан. Главный ориентир — огромная гитара-здание, которую хозяева называют самой большой в мире; за ней — смотровая терраса с видом на холмы. Внутри и вокруг — собранные со всего света диковины и коллекции, винтажные вещи, магазин секонд-хенда и кафе, которое постепенно зарастает зеленью. Для детей здесь интереснее всего музыкальные инструменты, выставленные специально, чтобы на них можно было поиграть и сфотографироваться, — в том числе старые электроорганы. Вход бесплатный; поесть можно в кафе. Место скорее на час по дороге к Кхао Чи Чан или в Саттахип, чем на целый день.",
+    descriptionEn:
+      "An unusual 'semi-museum' in Bang Saray, in a valley by the Huai Tu reservoir behind Khao Chi Chan. The landmark is a huge guitar-shaped building that the owners call the biggest in the world; behind it is a viewing terrace overlooking the hills. In and around it are curiosities and collections gathered from all over the world, vintage pieces, a second-hand shop and a café slowly being taken over by greenery. Children usually like the musical instruments best — they are set out on purpose for anyone to play and take photos with, including old electric organs. Entry is free and there is food at the café. It is more of an hour's stop on the way to Khao Chi Chan or Sattahip than a full day out.",
+    tips: [
+      {
+        text: "Вход свободный, билеты не продают. Открыто ежедневно с 08:00 до 18:00.",
+        textEn: "Entry is free; no tickets are sold. Open daily from 08:00 to 18:00.",
+      },
+      {
+        text: "В кафе всего три блюда: пад тай, жареный рис со скумбрией и травами, кра-пао с сушёным перцем — для детей пад тай или рис, остальное может быть острым.",
+        textEn:
+          "The café has just three dishes: pad thai, fried rice with mackerel and herbs, and krapao with dried chilli — for kids, pad thai or the rice; the rest may be spicy.",
+      },
+      {
+        text: "Среди коллекций много хрупких и старинных вещей — маленьких детей лучше держать за руку.",
+        textEn:
+          "Many of the collected items are old and fragile — keep small children close.",
+      },
+      {
+        text: "Удобно совместить с поездкой к изображению Будды на скале Кхао Чи Чан — оно рядом.",
+        textEn: "Easy to combine with a visit to the Khao Chi Chan cliff Buddha nearby.",
+      },
+    ],
+    hours: {
+      MON: { open: "08:00", close: "18:00" },
+      TUE: { open: "08:00", close: "18:00" },
+      WED: { open: "08:00", close: "18:00" },
+      THU: { open: "08:00", close: "18:00" },
+      FRI: { open: "08:00", close: "18:00" },
+      SAT: { open: "08:00", close: "18:00" },
+      SUN: { open: "08:00", close: "18:00" },
+    },
+    flags: { hasFood: true, hasParking: true },
+    free: true,
+    contacts: [
+      { type: "facebook", value: "https://www.facebook.com/Suriyaland/" },
+      { type: "instagram", value: "https://www.instagram.com/suriyaland_cafe/" },
+      { type: "phone", value: "081 741 9969" },
     ],
   },
   // The Wave Bowl
