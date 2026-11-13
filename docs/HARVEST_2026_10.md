@@ -313,3 +313,64 @@ npx tsx --env-file=.env prisma/publish-harvest-2026-10.ts --revert --write
 **Спортивные секции** (1)
 
 - [Royal Varuna Yacht Club — парусный спорт](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/royal-varuna-yacht-club)
+
+## Наполнение 13.11.2026
+
+Вторая партия наполнения — `prisma/places/harvest-fill-2026-11.ts` (58 мест: описание RU/EN/TH, «Полезно знать», часы, признаки, цены, контакты, у части — обложки). Ещё 48 мест с пометкой «[черновик]» не наполнены — ниже, почему. Источники и сомнения по каждому месту — в описании PR. Скрывать или оставлять — решение по каждой карточке в админке.
+
+### Похоже, закрыто (13)
+
+- [The Backyard Pumptrack](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/backyard-pumptrack) — Последний собственный пост — 25.06.2023: площадка объявила о временном закрытии из-за ремонта дороги и обещала сообщить об открытии.
+- [Bang Lamung Wildlife Breeding Station](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/bang-lamung-wildlife-breeding-station) — Станция временно закрыта для посетителей как минимум с апреля 2026 из-за ремонта вольеров медведей; на 02.09.2026 дата открытия не объявлена, Google Maps тоже показывает «временно закрыто».
+- [Flower Land](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/flower-land-pattaya) — Похоже на закрытое: Google Maps — «временно закрыто», по свежему отзыву (≈сентябрь 2026) — закрыто на ремонт без видимых работ, официальный домен flowerlandpattaya.com перенаправляет на посторонний сайт, а ещё….
+- [Games — playroom for children](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/games-playroom-jomtien) — Похоже, закрыто: Google помечает «Temporarily closed», единственный официальный канал (Instagram lego_games_pattaya) удалён, других страниц (Facebook, сайт) и свежих упоминаний не нашли.
+- [Ka-Ting-Lai Skatepark](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/ka-ting-lai-skatepark) — Похоже, скейт-парка как такового больше нет: по отзыву на картах (≈2025) осталась одна маленькая рампа, площадку «разрушили годы назад», покрытие с ямами.
+- [Midori Melon Farm](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/midori-melon-farm) — Это не кафе и не место для семейных визитов, а небольшая ферма-теплица, которая продавала дыни партиями по объявлениям в Facebook.
+- [Nexustriad](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/nexustriad) — Никаких признаков, что это работающий музей для посетителей: кроме метки на картах, нигде ни слова; адрес — квартира в жилом комплексе Arcadia Beach Resort, номер 162/1141 похож на номер юнита.
+- [OnlyDogs](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/onlydogs-cafe) — Никаких подтверждений, что это работающее кафе с собаками для посетителей: на карте ноль отзывов и фото-следов, режим «24 часа» (для кафе неправдоподобно — похоже на автоматически заполненную или частную метку,….
+- [Pixmie Cafe](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/pixmie-cafe-bang-saray) — Похоже на закрытое: официальная страница Facebook удалена или скрыта, последние упоминания — май 2023 года, в веб-поиске место не находится.
+- [Splashdown Action Park](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/splashdown-action-park) — Похоже, закрыт навсегда: путеводитель Pattaya Unlimited с 12.2023 пишет «закрыт навсегда», в пересказе отзывов — «площадку разобрали».
+- [Tanoshii Playground](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/tanoshii-playground) — Похоже на закрытое: Google Maps — «временно закрыто», содержательных отзывов не было 6 лет, свежий отзыв (≈октябрь 2026) спрашивает, когда откроются.
+- [Wonder Farm](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/wonder-farm-bang-saray) — Ферма с животными у Банг Сарая, по двум англоязычным гидам, закрыта навсегда (Pattaya Unlimited — обновлено 01.05.2025; The Bear Travelers — «PERMANENTLY CLOSED»).
+- [Zhao Wei Cat Cafe](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/zhao-wei-cat-cafe) — Похоже на закрытое: на Google Maps — «временно закрыто», свежих отзывов нет около года.
+
+### Не детское место (11)
+
+- [Active Kids Farm](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/active-kids-farm) — Несмотря на название, это не детское место для визита, а сдаваемый целиком загородный дом-фармстей (Soi Kuan U): деревянный дом с одной спальней у пруда с лотосами, терраса с грилем, площадка для частных вечеринок с….
+- [Bann Thai Food Museum](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/bann-thai-food-museum) — Это ресторан-остановка для туристических групп (продаётся через Trip.com/Expedia/KKday пакетом с едой и массажем), а не место для детей.
+- [Ban Chang Khon Thawee Sin (บ้านช่างโขนทวีศิลป์)](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/ban-chang-khon-thawee-sin) — Это не музей, а домашняя мастерская семьи мастеров кхон (маски и костюмы на заказ и на продажу); страница в Facebook живая (пост 05.10.2026).
+- [Daddy Hug Farm & Cafe](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/daddy-hug-farm-cafe) — По всем найденным следам это обычная небольшая кофейня (Нонг Пла Лай, север Паттайи) — «farm» в названии означает свой сад/огород с фруктами и овощами, а не животных.
+- [Farm & Friends](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/farm-and-friends-na-jomtien) — Это не семейная ферма с животными, а хозяйство, выращивающее органические овощи и, судя по зоне обслуживания на странице, развозящее их по провинции.
+- [KiDs Meow Cafe](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/kids-meow-cafe) — Детского формата не видно: это маленькая кофейня с кошачьим декором (живых кошек и детской зоны ни в одном отзыве нет), торгует в том числе через доставку.
+- [The Lunar Beach House](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/lunar-beach-house) — Обычное кафе-ресторан с баром и видом на море — для детей ничего специального не нашли.
+- [Pattaya Snake Show](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/pattaya-snake-show) — Работает (часы на картах, свежие отзывы), но по формату это не семейное место: типичная экскурсионная «змеиная ферма» для туристических групп — по свежим отзывам, змей убивают на глазах у зрителей, а основная часть….
+- [Sunplay Club Bangsaray](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/sunplay-club-bangsaray) — Это клубный дом жилого комплекса Sunplay Bangsaray (бассейн, фитнес, теннис, итальянский ресторан Paradiso) для жителей и их гостей, а не детское место.
+- [Wasana Family Lake](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/wasana-family-lake) — «Wasana Family Lake» — вторая карточка на картах того же места, что и Wasana Fishing Park (адрес и координаты совпадают).
+- [VOID café & hub](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/void-cafe-hub) — По часам (19:00–03:00), живой музыке и барной зоне это ночное заведение для взрослых, а не кафе с кошками для семей: ни в одном из прочитанных отзывов нет кошек и детей.
+
+### Решить по формату или проверить звонком (24)
+
+- [Big Robot Pattaya](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/big-robot-pattaya) — мастерская-продажа металлических скульптур, гостей принимают только по звонку; отзывов семей нет — решить, нужно ли в гиде.
+- [Camp Chang Adventure Park](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/camp-chang-adventure-park) — в программе катание на слонах и тир — решить по формату; цен нигде нет.
+- [Chang Thai Thappraya Safari](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/chang-thai-thappraya-safari) — по отзывам — катание на слонах и «погладить тигра»: брать ли такое место, решать вам.
+- [Chang Siam Zoo](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/chang-siam-zoo) — катание на слонах, кормление тигров, шоу крокодилов и обезьян; For Tigers (2025) пишет о плохом содержании тигров — решить по формату.
+- [Chill at the Hill](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/chill-at-the-hill-skatepark) — самодельная скейт-чаша сообщества, открытие в конце 10.2026 с пивом и барбекю — для детей разве что подросткам; решить, оставлять ли.
+- [Greta Resort & Sport Club](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/greta-resort-sport-club) — теннисный клуб с отелем; детская площадка и комната подтверждены только обзором 2018 года — нужен звонок (063 187 6331).
+- [Khao Chi Chan Elephant Village](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/khao-chi-chan-elephant-village) — классический слоновий лагерь с катанием на слонах — решить по формату; цены официально нет.
+- [Koh Samae San Nature Museum (พิพิธภัณฑ์ธรรมชาติเกาะแสมสาร)](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/koh-samae-san-nature-museum) — точка в базе (12.748, 100.9245) — пустая карточка на картах, а настоящий Thai Island and Sea Natural History Museum стоит около 12.6027, 100.9501: сначала поправить координаты, название и ссылку на карту; описание и….
+- [Little Fields](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/little-fields-pattaya) — ферма открывается заново 21.11.2026 (мягкое открытие): животные, цены и постоянные часы ещё не объявлены — наполнить после открытия.
+- [Legend Siam](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/legend-siam) — отложено ещё в топ-20 (11.11) до звонка: нет публикаций 2026 года; часы в источниках расходятся.
+- [Mercury Cat Coffee](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/mercury-cat-coffee) — Никаких источников, кроме карточки на картах, нет: ни сайта, ни Facebook, ни Instagram, ни отзывов.
+- [Mini Golf Pattaya](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/mini-golf-pattaya) — отложено ещё в топ-20 (11.11) до звонка: сайт без дат, свежих отзывов нет.
+- [Mini Zoo Na Jomtien](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/mini-zoo-na-jomtien) — Почти наверняка дубль уже существующего места swiss-sheep-farm-pattaya (оно в базе и в топ-20): точка на карте в ~50 м от Swiss Sheep Farm, те же животные (овцы, пони, ослики), тот же формат «вход бесплатный, корм за….
+- [Narak Pets Cafe](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/narak-pets-cafe) — маленькое котокафе, только личный профиль в Facebook (26 подписчиков); пишет «недавно открылись в Джомтьене» — проверить, актуален ли адрес.
+- [Mongchang Cafe](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/mongchang-cafe) — при кафе катание на слонах; в отзыве лета 2026 — вялые, будто больные животные в мини-зоопарке; цена входа расходится — решить, оставлять ли.
+- [Nine Rabbit House Cafe by Legend Siam](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/nine-rabbit-house-cafe) — кроличья зона внутри Legend Siam; все источники — июнь 2024, свежих постов нет; неясно, работает ли и нужен ли билет в парк.
+- [Pa Thip Sheep Farm](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/pa-thip-sheep-farm) — Ни официальной страницы, ни отзывов, ни упоминаний в обзорах не нашёл — неизвестно, принимает ли «ферма тёти Тхип» посетителей или это частное хозяйство с меткой на карте.
+- [Pattaya Art Museum](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/pattaya-art-museum) — сайт пишет «готовится к открытию», постов и отзывов почти нет — подтвердить, что работает.
+- [Pattaya Elephant Village](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/pattaya-elephant-village) — катание на слонах и шоу с животными — решить по формату; цены и часы только из агрегатора.
+- [Phornprapha Botanic Garden](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/phornprapha-botanic-garden) — похоже на дубль Datsun & Nissan Museum (одна территория Siam Motors, точки в ~150 м) — решить, оставлять ли обе.
+- [Pattaya Water Space](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/pattaya-water-space) — вечерняя водная вечеринка для туристов (шоу, музыка, ночной рынок); часы противоречат друг другу, цен нет — решить, нужна ли в гиде.
+- [Pettopia Cafe](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/pettopia-cafe) — страница кафе общая с пиццерией; из животных упомянута только коза; нет часов, цен и отзывов — нужен звонок.
+- [Pinn Kid's Club](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/pinn-kids-club) — Facebook и Instagram клуба молчат с 2020 года; пускают ли детей не из отеля и сколько стоит — нигде нет, нужен звонок (097 243 1265).
+- [Wisdom Skate Park](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/wisdom-skate-park) — бетонный скейт-парк в посёлке Wisdom Valley; последний пост — ноябрь 2022, часов нет — неизвестно, работает ли.
