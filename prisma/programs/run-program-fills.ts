@@ -19,7 +19,16 @@ import {
   type ProgramFill,
 } from "../../src/lib/import/program-fill";
 
-export async function runProgramFills(fills: readonly ProgramFill[]): Promise<void> {
+export type ProgramFillRunOptions = {
+  /// занятия, которые этот же запуск создаёт черновиками: в проверке без
+  /// записи их в базе ещё нет — это не ошибка
+  createdInSameRun?: ReadonlySet<string>;
+};
+
+export async function runProgramFills(
+  fills: readonly ProgramFill[],
+  options: ProgramFillRunOptions = {},
+): Promise<void> {
   if (!process.env.DATABASE_URL) {
     throw new Error("DATABASE_URL is not defined");
   }
@@ -32,7 +41,7 @@ export async function runProgramFills(fills: readonly ProgramFill[]): Promise<vo
   const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
 
   try {
-    await fillPrograms(prisma, fills, write);
+    await fillPrograms(prisma, fills, write, options.createdInSameRun ?? new Set());
   } finally {
     await prisma.$disconnect();
     await pool.end();
@@ -43,6 +52,7 @@ async function fillPrograms(
   prisma: PrismaClient,
   fills: readonly ProgramFill[],
   write: boolean,
+  createdInSameRun: ReadonlySet<string>,
 ): Promise<void> {
   const categories = await prisma.activityCategory.findMany({
     select: { id: true, slug: true },
@@ -71,6 +81,13 @@ async function fillPrograms(
       },
     });
     if (!program) {
+      if (!write && createdInSameRun.has(fill.slug)) {
+        touched += 1;
+        console.log(
+          `· ${fill.slug}: занятие создаётся этим же запуском — наполнится при записи`,
+        );
+        continue;
+      }
       missing += 1;
       console.log(`— нет занятия «${fill.slug}»: пропуск`);
       continue;
