@@ -235,6 +235,62 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
       { type: "phone", value: "099 151 7990" },
     ],
   },
+  // Nazzy Kids Cafe
+  {
+    slug: "nazzy-kids-cafe",
+    description:
+      "Небольшое семейное детское кафе-игровая в Нонг Прю (Восточная Паттайя): в начале переулка к Siam Country Club, со стороны Сой Пхонпрапханимит, не доезжая железной дороги. Внутри — сухой бассейн с шариками, горка, игрушки для сюжетных игр («магазин», «кухня») и развивающие игрушки; рассчитано на детей от 1 до 9 лет. Оплата за время игры ребёнка, взрослые заходят бесплатно; одновременно пускают до 10 детей. Для родителей есть кофе, напитки и закуски (кухня халяль), так что можно посидеть рядом, пока ребёнок играет. Есть и мастер-классы: раскраска гипсовых фигурок и рамок, «заливка» мишек краской — от 49 ฿.",
+    descriptionEn:
+      "A small, family-run kids' play café in Nong Prue (East Pattaya), at the start of the lane to Siam Country Club off Soi Pornprapanimit, just before the railway line. Inside there is a ball pit, a slide, pretend-play sets (shop, kitchen) and educational toys; it is aimed at children aged 1 to 9. You pay for your child's play time, adults go in free, and up to 10 children are allowed at a time. There is coffee, drinks and snacks for parents (halal kitchen), so you can sit nearby while your child plays. Craft sessions such as painting plaster figures and frames or pour-painting bears are also offered, from 49 ฿.",
+    tips: [
+      {
+        text: "Нужны нескользящие носки — если забыли, их продают на месте (20 ฿ за пару).",
+        textEn:
+          "Non-slip socks are required — if you forget, they sell them on site (20 ฿ a pair).",
+      },
+      {
+        text: "Одновременно пускают не больше 10 детей — в выходные лучше написать в Facebook заранее.",
+        textEn:
+          "No more than 10 children at a time — at weekends it is worth messaging them on Facebook first.",
+      },
+      {
+        text: "Иногда кафе закрывается на отдельные дни — о выходных пишут на странице в Facebook, проверьте перед поездкой.",
+        textEn:
+          "The café occasionally closes for a day — closures are posted on its Facebook page, so check before you go.",
+      },
+      {
+        text: "Машину можно оставить прямо у входа или у соседней аптеки.",
+        textEn: "You can park right in front or by the pharmacy next door.",
+      },
+      {
+        text: "Мастер-классы (раскраска гипса, рамок, мишек) — от 49 ฿, оплачиваются отдельно от времени игры.",
+        textEn:
+          "Craft sessions (painting plaster figures, frames, bears) start at 49 ฿ and are paid separately from play time.",
+      },
+    ],
+    hours: {
+      MON: { open: "10:00", close: "20:00" },
+      TUE: { open: "10:00", close: "20:00" },
+      WED: { open: "10:00", close: "20:00" },
+      THU: { open: "10:00", close: "20:00" },
+      FRI: { open: "10:00", close: "20:00" },
+      SAT: { open: "10:00", close: "20:00" },
+      SUN: { open: "10:00", close: "20:00" },
+    },
+    flags: { indoor: true, hasFood: true, hasParking: true, hasCafeSeating: true },
+    categorySlugs: ["indoor-playground", "cafe"],
+    entryRows: [
+      { label: "1 час", labelEn: "1 hour", child: 80, adult: null },
+      { label: "2 часа", labelEn: "2 hours", child: 150, adult: null },
+      { label: "3 часа", labelEn: "3 hours", child: 200, adult: null },
+    ],
+    note: "Для детей 1–9 лет. Взрослые — бесплатно.",
+    noteEn: "For children aged 1–9. Adults go in free.",
+    contacts: [
+      { type: "facebook", value: "https://www.facebook.com/Naazzeekidscafe/" },
+      { type: "phone", value: "081 510 8559" },
+    ],
+  },
   // Outback Sports Bar & Restaurant
   {
     slug: "outback-mabprachan",
@@ -427,36 +483,6 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
     categorySlugs: ["playground"],
     free: true,
   },
-  // Greta Resort & Sport Club
-  {
-    slug: "greta-resort-sport-club",
-    description:
-      "Загородный курорт и спортивный клуб в На Джомтьене, у дороги к храму Ват Ян (Wat Yansangwararam). Сейчас это прежде всего теннисный клуб: корты для обычного и пляжного тенниса, клубный дом, тайский ресторан и небольшой отель с бассейном; здесь регулярно проходят турниры. В старых русскоязычных обзорах место называли «фермой Грета»: на большой зелёной территории была бесплатная детская площадка, платная детская комната и тайские деревянные домики, а животных с фермы позже убрали. Есть ли детская площадка сейчас, официальные страницы не говорят. Добираться нужно на машине — заехать можно по пути к Ват Яну.",
-    descriptionEn:
-      "A countryside resort and sports club in Na Jomtien, on the road to Wat Yansangwararam (Wat Yan). Today it is above all a tennis club: tennis and beach-tennis courts, a clubhouse, a Thai restaurant and a small hotel with a pool, and it regularly hosts tournaments. Older Russian-language guides called it “Greta Farm”: the large green grounds had a free playground, a paid kids' room and traditional Thai wooden houses, and the farm animals were later removed. The official pages do not say whether the playground is still there. You need a car to get here — it is easy to combine with a visit to Wat Yan.",
-    tips: [
-      {
-        text: "Перед поездкой ради детской площадки позвоните в клуб: 063 187 6331 — по официальным страницам её наличие не подтверждено.",
-        textEn:
-          "If you are going for the playground, call the club first: 063 187 6331 — the official pages do not confirm it.",
-      },
-      {
-        text: "В дни турниров на территории много людей и машин — расписание публикуют на странице клуба в Facebook.",
-        textEn:
-          "On tournament days the grounds are busy — the schedule is posted on the club's Facebook page.",
-      },
-      {
-        text: "Парковка большая (по отзывам).",
-        textEn: "There is plenty of parking (according to reviews).",
-      },
-    ],
-    flags: { outdoor: true, hasFood: true, hasParking: true },
-    categorySlugs: ["playground"],
-    contacts: [
-      { type: "facebook", value: "https://www.facebook.com/gretaresortandsportclub" },
-      { type: "phone", value: "063 187 6331" },
-    ],
-  },
   // Jomtien Night Market
   {
     slug: "jomtien-night-market",
@@ -604,37 +630,6 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
     ],
     flags: { outdoor: true, hasCoveredArea: false },
     categorySlugs: ["playground"],
-  },
-  // Bang Lamung Wildlife Breeding Station
-  {
-    slug: "bang-lamung-wildlife-breeding-station",
-    description:
-      "Государственная станция разведения и содержания диких животных на юге Паттайи, примерно в 2 км от горы Khao Chi Chan с изображением Будды. Это не зоопарк с шоу, а место, где живут животные, изъятые у браконьеров и из незаконного содержания, — прежде всего гималайские медведи; по отзывам, на территории есть ещё олени и обезьяны. С ребёнком сюда едут спокойно погулять по ухоженной территории и посмотреть на медведей в вольерах. По отзывам, вход бесплатный, пожертвования — по желанию. Удобно совместить с поездкой к Khao Chi Chan.",
-    descriptionEn:
-      "A state-run wildlife breeding and care station in south Pattaya, about 2 km from Khao Chi Chan, the hillside Buddha image. It is not a zoo with shows but a place for animals confiscated from poachers and illegal owners — mostly Asiatic black bears; reviewers also mention deer and monkeys on the grounds. With a child, it is a quiet walk around well-kept grounds and a chance to watch the bears in their enclosures. According to reviews, entry is free and donations are optional. It pairs easily with a trip to Khao Chi Chan.",
-    tips: [
-      {
-        text: "По отзывам, оленей на территории лучше не трогать и держаться от них на расстоянии — об этом предупреждают сотрудники.",
-        textEn:
-          "According to reviews, staff ask visitors to keep their distance from the deer roaming the grounds.",
-      },
-      {
-        text: "По отзывам, медведей можно угостить фруктами или овощами — свежими, без сиропа и сладостей. Уточните правила у сотрудников на месте.",
-        textEn:
-          "According to reviews, you can offer the bears fresh fruit or vegetables — no syrup or sweets. Check the rules with staff on site.",
-      },
-      {
-        text: "Гулять придётся на улице: возьмите головной убор, воду и удобную обувь; лучшее время — утро.",
-        textEn:
-          "The visit is all outdoors: bring hats, water and comfortable shoes; mornings are best.",
-      },
-      {
-        text: "Официального сайта и часов работы нет; по отзывам, в отдельные периоды пускают только по выходным — лучше уточнить заранее.",
-        textEn:
-          "There is no official website or published opening hours; reviewers say public access is sometimes limited to weekends, so check before you go.",
-      },
-    ],
-    flags: { outdoor: true, indoor: false },
   },
   // Capybara Coffee
   {
@@ -806,26 +801,58 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
     },
     photoSource: "PLACE_OWNER",
   },
-  // Chang Siam Zoo
+  // Creep&Crawl Snake Cafe
   {
-    slug: "chang-siam-zoo",
+    slug: "creep-crawl-snake-cafe",
     description:
-      "Туристический парк с животными в Нонгплалае, к северо-востоку от Паттайи; в продаже билетов встречается под названиями Chang Siam Park и Chang Siam Krating Lai. Главное здесь — слоны: катание на слоне по 10–30 минут, кормление и купание слонов. Кроме того, в программе — кормление тигров, шоу крокодилов и обезьян, катание в конной повозке, фото в тайских костюмах, квадроциклы. Это не зоопарк в привычном смысле, а площадка с шоу и аттракционами с участием животных; заранее посмотрите, какие из них вам подходят, — билеты продают пакетами с разным набором занятий. Добираться удобнее на такси или машине.",
+      "Маленькое кафе с рептилиями на 2-м этаже отеля Maytara, в переулках между Soi Buakhao и Pattaya Tai. Здесь живут королевские питоны, толстохвостые гекконы и рогатые лягушки; змей показывают вблизи, а по отзывам гостей, их можно подержать в руках при сотрудниках. Вход платный и включает напиток, сидеть можно сколько угодно. Это камерное место на полчаса-час для ребёнка, которому интересны змеи и ящерицы; маленьким лучше смотреть с рук взрослого.",
     descriptionEn:
-      "A tourist animal park in Nong Pla Lai, north-east of Pattaya; ticket sellers list it as Chang Siam Park or Chang Siam Krating Lai. Elephants are the main attraction: rides of 10–30 minutes, feeding and bathing elephants. The programme also includes tiger feeding, crocodile and monkey shows, a horse-cart ride, photos in Thai costume and ATV rides. It is not a zoo in the usual sense but a venue with animal shows and rides, so look through the activities beforehand and decide which suit you — tickets are sold as packages with different combinations. A taxi or car is the easiest way to get there.",
+      "A small reptile café on the 2nd floor of the Maytara Hotel, in the lanes between Soi Buakhao and Pattaya Tai. It is home to ball pythons, fat-tailed geckos and horned frogs; the snakes are shown up close, and according to visitors you can hold them with staff supervising. Entry is paid and includes a drink, with no time limit. It is a quiet half hour to an hour for a child who is curious about snakes and lizards; little ones are best kept on an adult's lap.",
     tips: [
       {
-        text: "Билеты продают пакетами: катание на слоне 10, 15, 20 или 30 минут, к нему по выбору — повозка, кормление тигров, шоу. Сравните состав, прежде чем покупать.",
+        text: "Открыто с пятницы по понедельник, 11:00–19:00; иногда кафе закрывается на выездные выставки — проверьте страницу в Facebook перед поездкой.",
         textEn:
-          "Tickets come as packages: an elephant ride of 10, 15, 20 or 30 minutes, plus optional extras such as a cart ride, tiger feeding or shows. Compare what is included before you buy.",
+          "Open Friday to Monday, 11:00–19:00; the café sometimes closes for off-site expos — check the Facebook page before going.",
       },
       {
-        text: "Добираться — на такси или Grab: место за городом, общественного транспорта рядом нет.",
+        text: "Вход 190 ฿ с человека, в цену входит один напиток.",
+        textEn: "Entry is 190 THB per person, including one drink.",
+      },
+      {
+        text: "Перед тем как взять змею, спросите сотрудника и вымойте руки до и после.",
+        textEn: "Ask staff before handling a snake and wash hands before and after.",
+      },
+      {
+        text: "Кафе на втором этаже отеля — ищите вход через Maytara Hotel.",
         textEn:
-          "Get there by taxi or Grab: the park is out of town with no public transport nearby.",
+          "The café is on the hotel's second floor — go in through the Maytara Hotel.",
       },
     ],
-    flags: { outdoor: true, animalContact: true },
+    hours: {
+      MON: { open: "11:00", close: "19:00" },
+      FRI: { open: "11:00", close: "19:00" },
+      SAT: { open: "11:00", close: "19:00" },
+      SUN: { open: "11:00", close: "19:00" },
+    },
+    flags: { indoor: true, animalContact: true, hasCafeSeating: true },
+    entryRows: [
+      {
+        label: "Вход с напитком",
+        labelEn: "Entry with a drink",
+        child: null,
+        adult: 190,
+      },
+    ],
+    note: "Цена за человека; отдельного детского тарифа на страницах кафе нет.",
+    noteEn: "Price per person; the café's pages list no separate child rate.",
+    contacts: [
+      {
+        type: "facebook",
+        value: "https://www.facebook.com/profile.php?id=61555004320253",
+      },
+      { type: "instagram", value: "https://www.instagram.com/creepandcrawl.snakecafe/" },
+      { type: "phone", value: "081 191 8741" },
+    ],
   },
   // Dog Club Pattaya
   {
@@ -1289,46 +1316,46 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
       { type: "phone", value: "061 243 0221" },
     ],
   },
-  // Narak Pets Cafe
+  // On Ground Cafe & Farm
   {
-    slug: "narak-pets-cafe",
+    slug: "on-ground-cafe-farm",
     description:
-      "Небольшое котокафе на Thappraya Road, на пути из Паттайи в Джомтьен. По фото в соцсетях кафе, здесь живут в основном кошки, в том числе рэгдоллы, на одном снимке есть и собака; с животными можно поиграть и посидеть рядом. Кафе пишет, что открыто каждый день. Подробностей о ценах, часах и правилах для детей на официальной странице нет — перед визитом лучше написать кафе в Facebook.",
+      "Небольшое кафе в саду на трассе 36, напротив автодрома Bira Circuit в Кхао Май Кэо, у поворота на голубиный стадион. Сейчас сюда едут в основном ради лошадей: можно взять урок верховой езды или поехать на конную прогулку по тропам вокруг, а с августа 2026 года — покататься на квадроцикле. При открытии рядом с кафе была мини-ферма с кроликами, мини-пигами, козами и овцами. Само кафе небольшое: по описанию страницы — только напитки, без еды. Катание бронируют заранее через LINE.",
     descriptionEn:
-      "A small cat café on Thappraya Road, on the way from Pattaya to Jomtien. Judging by the café's social media photos, it is mostly home to cats, including ragdolls, with a dog in one shot; you can play with the animals and sit with them. The café says it is open every day. Its official page gives no details on prices, hours or rules for children — it's best to message the café on Facebook before you go.",
+      "A small garden café on Highway 36, opposite the Bira Circuit racetrack in Khao Mai Kaeo, at the turn-off to the pigeon-racing ground. These days people mostly come for the horses: you can book a riding lesson or a trail ride through the surrounding countryside, and since August 2026 there are ATV rides too. When it opened, the café also had a mini farm with rabbits, mini pigs, goats and sheep. The café itself is small and, according to its page, serves drinks only, no food. Rides are booked in advance via LINE.",
     tips: [
       {
-        text: "Цены и часы кафе не публикует — уточните в сообщениях на странице в Facebook.",
-        textEn: "The café doesn't publish prices or hours — ask via its Facebook page.",
-      },
-    ],
-    flags: { indoor: true, animalContact: true },
-    contacts: [
-      {
-        type: "facebook",
-        value: "https://www.facebook.com/profile.php?id=61574272525295",
-      },
-    ],
-  },
-  // Pettopia Cafe
-  {
-    slug: "pettopia-cafe",
-    description:
-      "Небольшое кафе в Восточной Паттайе, на улице Thung Klom-Talman (сой 18), за Сукхумвитом. На своей странице кафе называет себя Pet-Topia Cafe и одновременно пиццерией Pizza Service: тонкая и толстая пицца, еда и напитки. На картах место отмечено как кафе с животными, а в свежих постах кафе пишет от лица своей козы, которая зовёт гостей «поиграть». Сколько животных и можно ли их кормить, официальные страницы не говорят — перед поездкой с ребёнком лучше позвонить.",
-    descriptionEn:
-      "A small café in East Pattaya, on Thung Klom-Talman Road (Soi 18), east of Sukhumvit. On its page it calls itself Pet-Topia Cafe and also runs as the pizzeria Pizza Service: thin- and thick-crust pizza, food and drinks. Maps list it as an animal café, and recent posts are written in the voice of the café's goat, inviting guests to “come and play”. The official pages do not say how many animals there are or whether you can feed them — call ahead before going with a child.",
-    tips: [
-      {
-        text: "Перед поездкой позвоните: 082 978 3556 или 086 555 7777 — уточните, какие животные сейчас в кафе.",
+        text: "Катание на лошади и квадроцикле бронируют только через LINE (@464hhmct); при брони минимум за 2 часа обещают скидку.",
         textEn:
-          "Call before you go: 082 978 3556 or 086 555 7777 — ask which animals are at the café now.",
+          "Horse and ATV rides are booked only via LINE (@464hhmct); booking at least 2 hours ahead gets a discount.",
+      },
+      {
+        text: "Конная прогулка по тропам длится 1,5–2 часа — для маленького ребёнка лучше спросить про короткий урок.",
+        textEn:
+          "The trail ride lasts 1.5–2 hours — for a young child, ask about a short lesson instead.",
+      },
+      {
+        text: "Еды на месте, по описанию страницы, нет — только напитки; перекус возьмите с собой или поешьте по дороге.",
+        textEn:
+          "According to the page there is no food, only drinks — bring a snack or eat on the way.",
+      },
+      {
+        text: "Метка в Facebook стоит неточно — ориентируйтесь по Google Maps: напротив Bira Circuit на трассе 36.",
+        textEn:
+          "The Facebook pin is off — use Google Maps: opposite Bira Circuit on Highway 36.",
+      },
+      {
+        text: "Работают каждый день, выходные объявляют на странице в Facebook; по одному отзыву, в будний день в полдень было закрыто — перед поездкой напишите в LINE.",
+        textEn:
+          "Open daily, with days off announced on the Facebook page; one reviewer found it locked at noon on a weekday — message on LINE before you go.",
       },
     ],
-    flags: { hasFood: true },
+    flags: { outdoor: true, animalContact: true },
     contacts: [
-      { type: "facebook", value: "https://www.facebook.com/Pettopiacafepattaya" },
-      { type: "phone", value: "082 978 3556" },
-      { type: "phone", value: "086 555 7777" },
+      { type: "facebook", value: "https://www.facebook.com/Ongroundpattaya" },
+      { type: "instagram", value: "https://www.instagram.com/onground.pattaya" },
+      { type: "line", value: "https://lin.ee/z78calV" },
+      { type: "website", value: "https://sites.google.com/view/onground" },
     ],
   },
   // RABBiT Café
@@ -1492,7 +1519,21 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
         textEn:
           "There is no proper car park — reviewers say people park at the roadside.",
       },
+      {
+        text: "Детской площадки здесь нет — ни в отзывах, ни на фото на картах её не видно; это место для прогулки, а не для игр.",
+        textEn:
+          "There is no children's playground — none shows up in reviews or map photos; this is a place for a walk rather than for play.",
+      },
     ],
+    hours: {
+      MON: { open: "04:00", close: "22:00" },
+      TUE: { open: "04:00", close: "22:00" },
+      WED: { open: "04:00", close: "22:00" },
+      THU: { open: "04:00", close: "22:00" },
+      FRI: { open: "04:00", close: "22:00" },
+      SAT: { open: "04:00", close: "22:00" },
+      SUN: { open: "04:00", close: "22:00" },
+    },
     flags: { outdoor: true },
     free: true,
   },
@@ -1597,6 +1638,50 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
     categorySlugs: ["playground"],
     free: true,
   },
+  // Chalerm Rajakumari Public Library
+  {
+    slug: "chalerm-rajakumari-library-naklua",
+    description:
+      "Небольшая районная публичная библиотека «Chalerm Rajakumari» в старой части Наклуа: стоит в углу территории храма Wat Photi Samphan, рядом со школой Pattaya City School 9 (сой Naklua 12). Книги в основном на тайском, вход свободный. Библиотека живая: ведёт страницу в Facebook (посты осенью 2026 года) и проводит занятия для школьников — настольные игры, поделки, чтение; по статье The Kommon (07.2025), для детей и подростков бывают IT-занятия и съёмка коротких видео о своём районе. Отдельного детского зала по открытым источникам не видно, а по давнему отзыву игрушек и детских книг немного. Это скорее тихое место на полчаса с книжкой, если вы живёте рядом, чем повод для отдельной поездки.",
+    descriptionEn:
+      "A small district public library, Chalerm Rajakumari, in old Naklua: it sits in a corner of the Wat Photi Samphan temple grounds next to Pattaya City School 9 (Naklua Soi 12). Books are mostly in Thai and entry is free. The library is active: it runs a Facebook page (posts in autumn 2026) and holds activities for schoolchildren — board games, crafts and reading; according to a July 2025 article in The Kommon, children and teenagers have also done IT sessions and made short videos about their neighbourhood. Open sources show no separate children's room, and an older review says there are few toys and children's books. It is more a quiet half-hour with a book if you live nearby than a destination in itself.",
+    tips: [
+      {
+        text: "Заходите через территорию храма Wat Photi Samphan: по отзыву, навигатор иногда ведёт в узкий проход между школой и храмом.",
+        textEn:
+          "Go in through the Wat Photi Samphan temple grounds: a reviewer says navigation apps sometimes send you down a narrow passage between the school and the temple.",
+      },
+      {
+        text: "Книги почти все на тайском: ребёнку, который не читает по-тайски, лучше взять свою книжку.",
+        textEn:
+          "Nearly all books are in Thai: if your child does not read Thai, bring your own book.",
+      },
+      {
+        text: "Часы указаны только на картах — перед визитом лучше позвонить: 038 225 821.",
+        textEn:
+          "Opening hours are only listed on the map — call before you go: 038 225 821.",
+      },
+    ],
+    hours: {
+      MON: { open: "09:00", close: "17:00" },
+      TUE: { open: "09:00", close: "17:00" },
+      WED: { open: "09:00", close: "17:00" },
+      THU: { open: "09:00", close: "17:00" },
+      FRI: { open: "09:00", close: "17:00" },
+      SAT: { open: "09:00", close: "17:00" },
+      SUN: { open: "09:00", close: "17:00" },
+    },
+    flags: { indoor: true },
+    free: true,
+    contacts: [
+      {
+        type: "facebook",
+        value:
+          "https://www.facebook.com/p/%E0%B8%AB%E0%B9%89%E0%B8%AD%E0%B8%87%E0%B8%AA%E0%B8%A1%E0%B8%B8%E0%B8%94%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%8A%E0%B8%B2%E0%B8%8A%E0%B8%99-%E0%B9%80%E0%B8%89%E0%B8%A5%E0%B8%B4%E0%B8%A1%E0%B8%A3%E0%B8%B2%E0%B8%8A%E0%B8%81%E0%B8%B8%E0%B8%A1%E0%B8%B2%E0%B8%A3%E0%B8%B5-%E0%B8%AD%E0%B8%B3%E0%B9%80%E0%B8%A0%E0%B8%AD%E0%B8%9A%E0%B8%B2%E0%B8%87%E0%B8%A5%E0%B8%B0%E0%B8%A1%E0%B8%B8%E0%B8%87-100066457614970/",
+      },
+      { type: "phone", value: "038 225 821" },
+    ],
+  },
   // Datsun & Nissan Museum
   {
     slug: "datsun-nissan-museum-pong",
@@ -1663,14 +1748,14 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
   {
     slug: "escape-room-thailand-central",
     description:
-      "Квест-комнаты сети Escape Room Thailand на 6-м этаже Central Festival Pattaya Beach (вторая точка сети — в MBK в Бангкоке). Команда запирается в оформленной комнате и за отведённое время разгадывает загадки, чтобы выбраться. В Паттайе на сайте сейчас несколько сюжетов: «заколдованный домик ведьмы» (The Enchanted Cottage), побег с чужой планеты (Alien Cavern), побег из тюрьмы, «рай и ад» и хоррор Caged с декорациями «маньяка» — последний явно не для детей. Атмосфера у всех комнат тёмная и пугающая, так что это скорее занятие для подростков вместе со взрослыми, чем для младших школьников. Цены и возрастные правила на сайте не опубликованы — уточняйте при бронировании по телефону.",
+      "Квест-комнаты сети Escape Room Thailand на 6-м этаже Central Festival Pattaya Beach, рядом с кинотеатром; открылись в конце октября 2025 года (вторая точка сети — в MBK в Бангкоке). Команда запирается в оформленной комнате и за 45 минут разгадывает загадки, чтобы выбраться. В Паттайе три сюжета: «заколдованный домик ведьмы» (The Enchanted Cottage), побег из пещеры на чужой планете (Alien Cavern) и хоррор Caged с декорациями «маньяка» — последний явно не для детей. Атмосфера у комнат тёмная и таинственная, так что это скорее занятие для подростков вместе со взрослыми, чем для младших школьников. Минимальный возраст и цены на сайте не опубликованы — уточняйте при бронировании.",
     descriptionEn:
-      "Escape rooms by Escape Room Thailand on the 6th floor of Central Festival Pattaya Beach (the chain's other branch is at MBK in Bangkok). Your team is locked in a themed room and has a set time to solve puzzles and get out. The Pattaya branch currently lists several stories: a witch's cottage (The Enchanted Cottage), an escape from an alien planet (Alien Cavern), a prison break, Heaven and Hell, and Caged, a horror room with a serial-killer set that is clearly not for children. All the rooms are dark and spooky, so this suits teenagers playing with adults rather than younger children. Prices and age rules are not published on the website — ask when you book by phone.",
+      "Escape rooms by the Escape Room Thailand chain on the 6th floor of Central Festival Pattaya Beach, next to the cinema; the branch opened in late October 2025 (the chain's other venue is at MBK in Bangkok). Your team is locked in a themed room and has 45 minutes to solve the puzzles and get out. Pattaya has three stories: a witch's cottage (The Enchanted Cottage), an escape from a cave on an alien planet (Alien Cavern) and Caged, a horror room with a serial-killer set that is clearly not for children. The rooms are dark and mysterious, so this suits teenagers playing with adults rather than younger children. The minimum age and prices are not published on the website — ask when you book.",
     tips: [
       {
-        text: "Бронируйте заранее по телефону +66 63 210 8724 или через сайт — и сразу спросите, с какого возраста пускают и какая комната спокойнее.",
+        text: "Бронируйте заранее по телефону 063 210 8724 или через сайт — и сразу спросите, с какого возраста пускают и какая комната спокойнее.",
         textEn:
-          "Book ahead by phone on +66 63 210 8724 or via the website — and ask about the minimum age and which room is the least scary.",
+          "Book ahead by phone on 063 210 8724 or via the website — and ask about the minimum age and which room is the least scary.",
       },
       {
         text: "Комната Caged — хоррор с «маньяком» и бутафорскими частями тел: с детьми её не выбирайте.",
@@ -1678,9 +1763,14 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
           "The Caged room is a horror set with a 'killer' theme and fake body parts: do not pick it with children.",
       },
       {
-        text: "На сайте есть купон на скидку 150 ฿ на одну игру в паттайском филиале — покажите его персоналу до начала игры.",
+        text: "По отзывам, уровень «страшности» можно обсудить с ведущим до начала игры.",
         textEn:
-          "The website has a 150 ฿ discount coupon for one game at the Pattaya branch — show it to staff before the game starts.",
+          "Reviewers say you can discuss how scary to make it with the host before the game.",
+      },
+      {
+        text: "Вечером, особенно около 19:00, здесь больше всего народу — с детьми удобнее прийти днём.",
+        textEn:
+          "Evenings, especially around 7 pm, are the busiest — daytime is easier with children.",
       },
       {
         text: "Это 6-й этаж торгового центра: до или после игры можно поесть в фудкорте и ресторанах Central.",
@@ -1688,10 +1778,19 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
           "It is on the 6th floor of the mall: you can eat before or after at Central's food court and restaurants.",
       },
     ],
+    hours: {
+      MON: { open: "11:00", close: "22:00" },
+      TUE: { open: "11:00", close: "22:00" },
+      WED: { open: "11:00", close: "22:00" },
+      THU: { open: "11:00", close: "22:00" },
+      FRI: { open: "11:00", close: "22:00" },
+      SAT: { open: "11:00", close: "23:00" },
+      SUN: { open: "11:00", close: "23:00" },
+    },
     flags: { indoor: true, hasAirCon: true, hasFood: true, hasParking: true },
     contacts: [
       { type: "website", value: "https://www.escaperoomthailand.com/pattaya/" },
-      { type: "phone", value: "+66 63 210 8724" },
+      { type: "phone", value: "063 210 8724" },
       { type: "facebook", value: "https://www.facebook.com/Escaperoomthailand" },
       { type: "instagram", value: "https://www.instagram.com/escaperoomthailand/" },
     ],
@@ -1758,6 +1857,42 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
     },
     photoSource: "PLACE_OWNER",
   },
+  // Fun City (Central Pattaya)
+  {
+    slug: "fun-city-central-pattaya",
+    description:
+      "Зал игровых автоматов Fun City на 6-м этаже торгового центра Central Pattaya на Beach Road. Внутри — автоматы с монетками и картой: гонки, тиры, музыкальные и спортивные игры, «хваталки» с игрушками и автоматы с билетиками на призы. Играют по пополняемой карте, которую прикладывают к автомату. По отзывам, автоматы новые и в зале обычно не людно. Это развлечение на час для ребёнка постарше — например, после обеда или кино в том же ТЦ; удобно в жару и в дождь.",
+    descriptionEn:
+      "The Fun City game arcade on the 6th floor of Central Pattaya mall on Beach Road. Inside are coin and card games: racing and shooting machines, music and sports games, claw machines and ticket games with prizes. You play with a top-up card that you tap on each machine. Reviewers say the machines are new and it is usually not crowded. It is an hour of fun for an older child — after lunch or a film in the same mall, for example — and handy in the heat or rain.",
+    tips: [
+      {
+        text: "Зал на 6-м этаже Central Pattaya; по карте Google — ежедневно 11:00–21:00, это раньше, чем закрывается сам ТЦ.",
+        textEn:
+          "The arcade is on the 6th floor of Central Pattaya; Google Maps lists it as open daily 11:00–21:00, earlier than the mall itself closes.",
+      },
+      {
+        text: "По отзывам, карта иногда не срабатывает или автомат списывает деньги без запуска игры — пополняйте понемногу и при сбое сразу зовите сотрудника.",
+        textEn:
+          "Reviewers mention the card sometimes not registering or a machine taking credit without starting — top up a little at a time and call staff straight away if it happens.",
+      },
+      {
+        text: "Парковка — в самом ТЦ Central Pattaya; поесть можно на фудкорте и в ресторанах ТЦ.",
+        textEn:
+          "Park in the Central Pattaya mall; for food there are the mall's food court and restaurants.",
+      },
+    ],
+    hours: {
+      MON: { open: "11:00", close: "21:00" },
+      TUE: { open: "11:00", close: "21:00" },
+      WED: { open: "11:00", close: "21:00" },
+      THU: { open: "11:00", close: "21:00" },
+      FRI: { open: "11:00", close: "21:00" },
+      SAT: { open: "11:00", close: "21:00" },
+      SUN: { open: "11:00", close: "21:00" },
+    },
+    flags: { indoor: true, hasAirCon: true, hasFood: true, hasParking: true },
+    contacts: [{ type: "website", value: "http://www.hahama.co.th/" }],
+  },
   // Jomtien Fishing Park
   {
     slug: "jomtien-fishing-park",
@@ -1788,10 +1923,15 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
   {
     slug: "junglekart-off-road",
     description:
-      "Внедорожный картинг на электрических картах в JungleKart Adventure Park, за городом к востоку от Сукхумвита. Это не гладкая трасса, а грунт: виражи, неровности, а в длинных программах — выезд на тропы в джунглях с подъёмами и грязью. Три формата: 30 минут на собственной грунтовой трассе, час на лесных тропах или полтора часа — и то и другое. Перед заездом проводят инструктаж по безопасности, выдают шлемы; в одном заезде не больше пяти картов, поэтому время бронируют заранее. Это развлечение для подростков и взрослых: минимальный возраст и можно ли ехать ребёнку пассажиром, на сайте не сказано — уточните при бронировании.",
+      "Внедорожный картинг на электрических картах в JungleKart Adventure Park, за городом к востоку от Сукхумвита. Это не гладкая трасса, а грунт: виражи, неровности, а в длинных программах — выезд на тропы в джунглях с подъёмами и грязью. Три формата: 30 минут на собственной грунтовой трассе, час на лесных тропах или полтора часа — и то и другое. Перед заездом проводят инструктаж и выдают шлемы; в одном заезде не больше пяти картов, поэтому время бронируют заранее. Это развлечение для подростков и взрослых; правила для детей на официальном сайте не указаны, у одного из реселлеров стоит минимум 14 лет — уточните при бронировании.",
     descriptionEn:
-      "Off-road karting in electric karts at JungleKart Adventure Park, out of town east of Sukhumvit. This is no smooth circuit but dirt: berms, rough ground and, on the longer options, real jungle trails with climbs and mud. There are three formats: 30 minutes on the purpose-built dirt track, an hour on the jungle trails, or 90 minutes of both. Every session starts with a safety briefing and helmets; there are at most five karts per session, so book a time in advance. It is aimed at teenagers and adults: the website does not give a minimum age or say whether a child can ride as a passenger, so ask when booking.",
+      "Off-road karting in electric karts at JungleKart Adventure Park, out of town east of Sukhumvit. This is no smooth circuit but dirt: berms, rough ground and, on the longer options, real jungle trails with climbs and mud. There are three formats: 30 minutes on the purpose-built dirt track, an hour on the jungle trails, or 90 minutes of both. Every session starts with a safety briefing and helmets; there are at most five karts per session, so book a time in advance. It is aimed at teenagers and adults; the official website gives no rules for children, and one reseller lists a minimum age of 14 — check when booking.",
     tips: [
+      {
+        text: "Про возраст спросите заранее: официальных правил нет, у реселлера Click A Tour указано «от 14 лет»; на странице JungleKart в Facebook встречались посты про детские и двухместные карты — уточните, относятся ли они к внедорожной трассе.",
+        textEn:
+          "Ask about age in advance: there are no official rules, the reseller Click A Tour lists 14+, and JungleKart's Facebook page has mentioned kids' and two-seater karts — check whether these apply to the off-road track.",
+      },
       {
         text: "Нужна закрытая обувь; длинные волосы собирают. Шлем застёгнут всё время на трассе.",
         textEn:
@@ -1817,6 +1957,11 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
         textEn:
           "On their birthday, the birthday person rides free with two paying friends (ID required).",
       },
+      {
+        text: "По посту в Facebook (сентябрь 2026), заезды каждый день в 10:00, 13:00 и 16:00.",
+        textEn:
+          "According to a Facebook post (September 2026), sessions run daily at 10:00, 13:00 and 16:00.",
+      },
     ],
     flags: { outdoor: true },
     entryRows: [
@@ -1839,50 +1984,21 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
         adult: 3450,
       },
     ],
-    note: "Цена за человека (за карт). Детских тарифов и минимального возраста на сайте нет — уточняйте при бронировании.",
+    note: "Цена за человека (за карт), с официального сайта. Детских тарифов на сайте нет; сайт советует спрашивать о текущих акциях.",
     noteEn:
-      "Price per person (per kart). The website lists no child rates or minimum age — ask when booking.",
+      "Price per person (per kart), from the official website. No child rates are listed; the site suggests asking about current promotions.",
     contacts: [
       { type: "website", value: "https://www.junglekart.shop/go-karting-pattaya" },
       { type: "phone", value: "+66 (0)83 818 1344" },
       { type: "facebook", value: "https://www.facebook.com/JungleKartOfficial" },
       { type: "instagram", value: "https://www.instagram.com/junglekartofficial" },
     ],
-  },
-  // Koh Samae San Nature Museum (พิพิธภัณฑ์ธรรมชาติเกาะแสมสาร)
-  {
-    slug: "koh-samae-san-nature-museum",
-    description:
-      "Музей естественной истории островов и моря Таиланда — на материке, у горы Кхао Ма Чо в Самэсане (район Саттахип), южнее Банг Сарая, примерно в часе езды от Паттайи. Здание стоит прямо напротив пирса, откуда идут лодки на остров Самэсан; музей ведает этим островом, и билеты на остров продают у его входа. Внутри — коллекции раковин и кораллов, геологические образцы и окаменелости, экспозиции об экосистемах островов и леса; живого аквариума нет. С верхнего этажа открывается вид на острова Самэсан и Кхам и побережье Саттахипа. На осмотр обычно хватает около часа — удобно совместить с поездкой на остров или на пляжи Самэсана; интереснее всего детям школьного возраста, которым нравятся ракушки, камни и «настоящие» коллекции.",
-    descriptionEn:
-      "The Thai Island and Sea Natural History Museum is on the mainland, at Khao Ma Jor in Samae San (Sattahip district), south of Bang Saray, roughly an hour's drive from Pattaya. The building stands right opposite the pier for boats to Koh Samae San; the museum oversees the island, and island tickets are sold at its entrance. Inside are shell and coral collections, geological specimens and fossils, and displays on island and forest ecosystems; there is no live aquarium. The top floor looks out over Koh Samae San, Koh Kham and the Sattahip coast. About an hour is enough for a visit — it pairs well with a trip to the island or the Samae San beaches, and school-age children who like shells, rocks and 'real' collections will get the most out of it.",
-    tips: [
-      {
-        text: "Живых рыб и аквариумов здесь нет — это коллекции и стенды. Если ребёнок ждёт океанариум, предупредите заранее.",
-        textEn:
-          "There are no live fish or aquariums — it is collections and displays. If your child is expecting an aquarium, tell them beforehand.",
-      },
-      {
-        text: "Если хотите на остров Самэсан, билеты на лодку продают у входа в музей, и число гостей на острове ограничено — в выходные приезжайте с утра или бронируйте заранее (сайт tis-museum.org, тел. 038 432 471).",
-        textEn:
-          "If you want to go to Koh Samae San, boat tickets are sold at the museum entrance and visitor numbers on the island are capped — on weekends come early or book ahead (tis-museum.org, tel. 038 432 471).",
-      },
-      {
-        text: "Это территория флота: на острове и вокруг пирса действуют правила военно-морской базы — слушайте указания персонала.",
-        textEn:
-          "This is a navy-run area: navy rules apply on the island and around the pier — follow staff instructions.",
-      },
-      {
-        text: "Ехать от Паттайи около часа на машине по Сукхумвиту на юг — удобно сделать из этого выезд на целый день.",
-        textEn:
-          "It is about an hour's drive south from Pattaya along Sukhumvit Road — easy to make a full day trip of it.",
-      },
-    ],
-    flags: { indoor: true },
-    contacts: [
-      { type: "website", value: "https://www.tis-museum.org/" },
-      { type: "phone", value: "038 432 471" },
-    ],
+    cover: {
+      url: "/images/places/junglekart-off-road.jpg",
+      rightsNote:
+        "Фото с официального сайта JungleKart Adventure Park, взято 13.11.2026.",
+    },
+    photoSource: "PLACE_OWNER",
   },
   // Level3 Hub
   {
@@ -2221,48 +2337,6 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
       { type: "phone", value: "094 427 3939" },
     ],
   },
-  // Pinn Kid's Club
-  {
-    slug: "pinn-kids-club",
-    description:
-      "Детский клуб при отеле Pinnacle Grand Jomtien в На Джомтьене (Сукхумвит, сой Na Jomtien 8), открылся в конце 2024 года. Занятия ведут педагог и аниматор: игры, поделки, английский и плавание в игровой форме, а по выходным — отдельные мастер-классы: роспись по фарфору, робототехника, соревнования по стрельбе из лука. Часть программы проходит на улице — на газоне и деревянной игровой площадке в саду отеля. Клуб помогает и с детскими праздниками. Открыт со вторника по воскресенье; можно ли прийти, не живя в отеле, и сколько это стоит, на сайте не сказано — уточняйте по телефону.",
-    descriptionEn:
-      "A kids' club at the Pinnacle Grand Jomtien resort in Na Jomtien (Sukhumvit Road, Na Jomtien Soi 8), opened in late 2024. Sessions are run by a teacher and an animator: games, crafts, and English and swimming taught through play, plus special weekend workshops such as porcelain painting, robotics and an archery contest. Part of the programme is outdoors, on the lawn and the wooden play structure in the resort garden. The club also helps with children's parties. It is open Tuesday to Sunday; whether non-guests can join and what it costs is not stated on the website — call to check.",
-    tips: [
-      {
-        text: "Перед визитом позвоните (097 243 1265): спросите, пускают ли детей не из отеля, сколько стоит и какие занятия в этот день.",
-        textEn:
-          "Call before you go (097 243 1265): ask whether non-guests are welcome, what it costs and what is on that day.",
-      },
-      { text: "По понедельникам клуб закрыт.", textEn: "The club is closed on Mondays." },
-      {
-        text: "Мастер-классы (фарфор, робототехника, стрельба из лука) — по выходным; расписание лучше уточнить заранее.",
-        textEn:
-          "Workshops (porcelain painting, robotics, archery) run at weekends; check the schedule in advance.",
-      },
-      {
-        text: "Часть игр проходит на улице — возьмите ребёнку панаму и бутылку воды.",
-        textEn:
-          "Some games are outdoors — bring a sun hat and a water bottle for your child.",
-      },
-    ],
-    hours: {
-      MON: "closed",
-      TUE: { open: "09:30", close: "18:00" },
-      WED: { open: "09:30", close: "18:00" },
-      THU: { open: "09:30", close: "18:00" },
-      FRI: { open: "09:30", close: "18:00" },
-      SAT: { open: "09:30", close: "18:00" },
-      SUN: { open: "09:30", close: "18:00" },
-    },
-    flags: { indoor: true, outdoor: true },
-    contacts: [
-      { type: "website", value: "https://pattaya.pinnaclehotels.com/pinn-kids-club/" },
-      { type: "phone", value: "097 243 1265" },
-      { type: "facebook", value: "https://www.facebook.com/pinnkidsclub" },
-      { type: "instagram", value: "https://www.instagram.com/pinnkidsclubpattaya" },
-    ],
-  },
   // Queen Sirikit Health Garden
   {
     slug: "queen-sirikit-health-garden",
@@ -2456,6 +2530,52 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
       { type: "phone", value: "081 741 9969" },
     ],
   },
+  // Tarzan Trail Adventure Park
+  {
+    slug: "tarzan-trail-horseshoe-point",
+    description:
+      "Верёвочный парк в кронах деревьев на территории конного курорта Horseshoe Point в Понге, в стороне от больших дорог. Трасса с зиплайнами, подвесными мостиками, качелями, вертикальной лестницей и велосипедом на тросе; проходят её со страховкой и инструктором. Есть два варианта: короткий на 15 станций — его сам парк советует семьям и тем, кто пробует впервые, — и полный на 25 станций. Подойдёт детям постарше и подросткам, которые не боятся высоты; условия по возрасту, росту и весу парк просит уточнять при бронировании.",
+    descriptionEn:
+      "A treetop ropes course on the grounds of the Horseshoe Point equestrian resort in Pong, set back from the main roads. The course has ziplines, suspended bridges, swings, a vertical ladder and a sky bike on a cable, all done on a safety line with a guide. There are two options: a shorter 15-station route, which the park itself recommends for families and first-timers, and the full 25 stations. It suits older children and teenagers who are fine with heights; the park asks you to check age, height and weight requirements when booking.",
+    tips: [
+      {
+        text: "Для первого раза и с ребёнком парк советует короткую трассу на 15 станций.",
+        textEn:
+          "For a first time or with a child, the park recommends the shorter 15-station route.",
+      },
+      {
+        text: "Ограничения по возрасту, росту и весу не опубликованы — спросите при бронировании (063 994 7165).",
+        textEn:
+          "Age, height and weight limits are not published — ask when booking (063 994 7165).",
+      },
+      {
+        text: "Наденьте закрытую обувь и удобную спортивную одежду.",
+        textEn: "Wear closed-toe shoes and comfortable sportswear.",
+      },
+      {
+        text: "Открываются в 08:30 (по карте Google); утром в лесу прохладнее.",
+        textEn: "Opens at 08:30 (per Google Maps); mornings are cooler in the forest.",
+      },
+      {
+        text: "По отзывам, курорт непросто найти — проложите маршрут заранее.",
+        textEn:
+          "According to reviews, the resort is hard to find — plan your route in advance.",
+      },
+    ],
+    flags: { outdoor: true },
+    entryRows: [
+      { label: "15 станций", labelEn: "15 stations", child: null, adult: 1200 },
+      { label: "25 станций", labelEn: "25 stations", child: null, adult: 1600 },
+    ],
+    note: "Цена за человека, по посту парка от 11.11.2026. Отдельного детского тарифа нет; условия для детей уточняйте при бронировании.",
+    noteEn:
+      "Price per person, from the park's post of 11 Nov 2026. There is no separate child rate; check the conditions for children when booking.",
+    contacts: [
+      { type: "facebook", value: "https://www.facebook.com/tarzantrailathorseshoepoint" },
+      { type: "phone", value: "063 994 7165" },
+      { type: "website", value: "https://horseshoepoint.com/en" },
+    ],
+  },
   // The Wave Bowl
   {
     slug: "the-wave-bowl",
@@ -2544,5 +2664,50 @@ export const HARVEST_FILL_2026_11: readonly PlaceFill[] = [
       },
     ],
     flags: { indoor: true, hasParking: true, hasFans: true, hasAirCon: false },
+  },
+  // Wonder Space
+  {
+    slug: "wonder-space-pattaya",
+    description:
+      "Семейный комплекс в Нонгпрю, восточнее Сукхумвита: под открытым небом — скейт-парк, а вокруг — детские студии и секции. Скейт-парк рассчитан на любой уровень: ровные дорожки, памп-трек с отдельной детской и взрослой частью, боул и рампы; катаются на скейтах, серф-скейтах, роликах, самокатах, BMX и беговелах. Тем, кто только учится, помогают тренеры, есть индивидуальные уроки и курсы. В том же комплексе работают студии: балет и танцы, скрипка, фортепиано и вокал, тхэквондо и йога, детская футбольная академия с полем из искусственной травы, рисование, настольные игры, китайский язык. Можно снять площадку под детский день рождения; по вечерам иногда проходят ярмарки и праздники.",
+    descriptionEn:
+      "A family complex in Nong Prue, east of Sukhumvit: an open-air skate park surrounded by children's studios and clubs. The skate park suits every level — flat lanes, a pump track with separate kids' and adults' sections, a bowl and ramps — and is used by skateboards, surfskates, roller skates, scooters, BMX bikes and balance bikes. Coaches help beginners, and there are private lessons and courses. Around the park are studios for ballet and dance, violin, piano and singing, taekwondo and yoga, a kids' football academy with an artificial-turf pitch, art, board games and Chinese lessons. The grounds can be rented for a kids' birthday party, and some evenings there are markets and events.",
+    tips: [
+      {
+        text: "Новичкам — бесплатный пробный урок 15 минут с тренером скейт-парка.",
+        textEn: "Newcomers get a free 15-minute trial lesson with a skate park coach.",
+      },
+      {
+        text: "Скейт-парк открытый, без крыши: днём жарко — приходите ближе к вечеру, комплекс открывается в 12:00.",
+        textEn:
+          "The skate park is open-air with no roof: it gets hot by day, so come towards evening — the complex opens at 12:00.",
+      },
+      {
+        text: "Площадку под день рождения или праздник бронируют через LINE или по телефону 093 565 6899.",
+        textEn: "Book the grounds for a birthday or event via LINE or on 093 565 6899.",
+      },
+      {
+        text: "Здесь проходит вечерняя ярмарка Full Moon Market: еда, рукоделие, зумба, занятия для всех возрастов — ближайшую дату смотрите на странице места.",
+        textEn:
+          "The evening Full Moon Market is held here: food, crafts, Zumba and activities for all ages — check the venue's page for the next date.",
+      },
+    ],
+    hours: {
+      MON: { open: "12:00", close: "21:00" },
+      TUE: { open: "12:00", close: "21:00" },
+      WED: { open: "12:00", close: "21:00" },
+      THU: { open: "12:00", close: "21:00" },
+      FRI: { open: "12:00", close: "21:00" },
+      SAT: { open: "12:00", close: "21:00" },
+      SUN: { open: "12:00", close: "21:00" },
+    },
+    flags: { outdoor: true },
+    contacts: [
+      { type: "facebook", value: "https://www.facebook.com/wonderspacepattaya" },
+      { type: "instagram", value: "https://www.instagram.com/wonderspace.pattaya/" },
+      { type: "line", value: "https://lin.ee/QDVa9SH" },
+      { type: "phone", value: "095 724 1777" },
+      { type: "phone", value: "093 565 6899" },
+    ],
   },
 ];
