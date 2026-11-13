@@ -374,3 +374,43 @@ npx tsx --env-file=.env prisma/publish-harvest-2026-10.ts --revert --write
 - [Pettopia Cafe](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/pettopia-cafe) — страница кафе общая с пиццерией; из животных упомянута только коза; нет часов, цен и отзывов — нужен звонок.
 - [Pinn Kid's Club](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/pinn-kids-club) — Facebook и Instagram клуба молчат с 2020 года; пускают ли детей не из отеля и сколько стоит — нигде нет, нужен звонок (097 243 1265).
 - [Wisdom Skate Park](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/places/wisdom-skate-park) — бетонный скейт-парк в посёлке Wisdom Valley; последний пост — ноябрь 2022, часов нет — неизвестно, работает ли.
+
+## Наполнение занятий 13.11.2026
+
+Партия наполнения занятий — `prisma/programs/activities-fill-2026-11.ts` (64 занятия: название и описание RU/EN/TH, «Полезно знать», возраст, группы и расписание, где есть — цена, у 18 — фото со страниц самих школ). Источники — Instagram и Facebook школ (со входом), их сайты, LINE, карты. Ещё 27 занятий с пометкой «[черновик]» не наполнены — ниже, почему. Скрывать или оставлять — решение по каждой карточке в админке.
+
+### Похоже, закрыто или приостановлено (8)
+
+- [A-Little Chef Cooking Studio — кулинария](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/a-little-chef-cooking-studio) — Пост от 03.11.2026 (на английском и тайском): «classes are temporarily suspended until further notice». Карточку стоит скрыть или отложить, пока не будет объявления о возобновлении. Цен и расписания на странице нет (только…
+- [Center of Rhythmic Gymnastics — художественная гимнастика](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/center-of-rhythmic-gymnastics) — Похоже, секция закрыта: на Facebook нет постов с марта 2022 года, Instagram не найден, а свежий отзыв на Google Картах (~11 месяцев назад) прямо говорит, что такого места нет. Карты при этом показывают часы работы и телефон 091…
+- [EnJoy Math Pattaya](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/enjoy-math-pattaya) — Последний пост в Facebook — 26.10.2023, с 2024 года ничего; в поиске Google — ни одного упоминания. Возможно, закрыт — проверить звонком 092 451 4591 или визитом. Возраст и цены не указаны. Описание дала коротко, по посту 2023…
+- [KPN Music School Harbor Pattaya](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/kpn-music-school-harbor-pattaya) — Похоже, филиал закрыт или так и не заработал: на официальном сайте сети в списке филиалов Паттайи нет, страница филиала в Facebook с одной записью 2020 года и без постов, Instagram не найден. Описание не писал. Проверить на месте…
+- [Mathplus](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/mathplus-pattaya) — Признаков жизни не нашёл: на Google Картах только 2 отзыва, последний — около 6 лет назад, нет часов, сайта, фото от владельца. Поиск в Facebook («Mathplus Pattaya», «แมทพลัส พัทยา», по телефону 038371302) и Instagram («mathplus…
+- [Patchy Guitar Studio](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/patchy-guitar-studio) — Почти ничего не нашлось. Страница Facebook из наших данных (krupatguitar) удалена или скрыта; Instagram instagram.com/krupatguitar — «страница недоступна», другого профиля не нашёл; веб-поиск по «Patchy Guitar» Pattaya ничего не…
+- [Pattaya TKD Team Training — тхэквондо](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/pattaya-tkd-team-training) — Ни Facebook, ни Instagram, ни сайта, ни телефона у «Pattaya TKD Team Training» нет; на Google Картах только неподтверждённая точка с часами «с 17:00» и пятью оценками без текста. Кто тренирует, есть ли детские группы и работает…
+- [Vienna Music Academy Pattaya](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/vienna-music-academy-pattaya) — Филиал, похоже, затих: собственных постов нет с января 2025 года, в 2026-м — ни одной записи, Instagram не найден, сайта нет. Утверждать, что закрыт, не могу — 06.2025–2026 могли просто не вести страницу. Проверить звонком 063…
+
+### Не детское (1)
+
+- [Sityodtong Muay Thai Camp](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/sityodtong-muay-thai-camp) — Это профессиональный бойцовский лагерь для туристов и бойцов: на официальном сайте уровни «новичок / средний / продвинутый», прайс для взрослых, детских групп, возраста и детского расписания нет ни на сайте, ни в Facebook, ни в…
+
+### Решить или проверить звонком (18)
+
+- [Baan Cartoon Son Silp (บ้านการ์ตูนสอนศิลป์) — рисование](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/baan-cartoon-art-school) — Последнее объявление о занятиях — июнь 2024.
+- [Champ Language Center](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/champ-language-center-pattaya) — Посты филиала — для взрослых, детские группы не подтверждены.
+- [Drumclub by Ahnon](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/drumclub-by-ahnon) — Только карточка на картах и один отзыв двухлетней давности.
+- [Global Taekwondo Federation — тхэквондо](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/global-taekwondo-federation) — Связь Telegram-канала с этой точкой — только через карты; возраст и цены неизвестны.
+- [Goodsound — музыкальная студия](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/goodsound-music-studio) — В основном студия звукозаписи; уроки подтверждает только страница сайта без даты.
+- [Kru Ped Muay Thai Gym — муай-тай](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/kru-ped-muay-thai-gym) — Отдельной детской группы нет («в любом возрасте»), дети только на фото 2024 года.
+- [Lillini Music School (โรงเรียนสอนดนตรี ลิลลินิย์)](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/lillini-music-school) — Детские занятия не подтверждены: ни соцсетей, ни сайта — проверить звонком.
+- [Pattaya Archery Club — стрельба из лука](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/pattaya-archery-club) — Последний пост в Facebook — ноябрь 2024; клуб, вероятно, работает — проверить звонком.
+- [Pattaya Tutor School](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/pattaya-tutor-school) — Последний пост — август 2024, сайт не открывается.
+- [Pesuso Taekwondo — Harbor Pattaya](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/pesuso-taekwondo-harbor) — Школа пишет, что занимается в Lotus North Pattaya — похоже на дубль карточки pesuso-taekwondo-lotus-north.
+- [Pesuso Taekwondo — Soi Siam Country Club](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/pesuso-taekwondo-siam-country-club) — Все посты и сайт говорят о зале в Lotus North — похоже на дубль карточки pesuso-taekwondo-lotus-north.
+- [Piano Class by Kru Namhom](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/piano-class-kru-namhom) — Преподаватель теперь ведёт уроки в Playtune Music Studio (у неё своя карточка), точка — старый адрес.
+- [Primo Football Academy](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/primo-football-academy) — Неясно, какая страница его: телефон на картах и в Facebook не совпадают, расписания нет.
+- [Pun Piano Studio](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/pun-piano-studio) — Ничего не нашлось ни в Facebook, ни в Instagram, ни в поиске.
+- [Salasil — керамика](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/salasil-pattaya) — Арт-кафе без детских групп (роспись без записи) — скорее место, чем занятие.
+- [Somchai Dontri Thai Pattaya (สมชัยดนตรีไทย)](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/somchai-dontri-thai-pattaya) — Нашлась только фабрика инструментов в Канчанабури (посты до 2020), уроков в Паттайе не видно.
+- [Sudsakorn Muay Thai Gym](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/sudsakorn-muay-thai-gym) — Зал для взрослых и туристов; детская группа Muay Thai Kids (вт и чт 16:00–17:00, 250 ฿ за занятие, 2 500 ฿ в месяц) есть только в подсветке KIDS начала 2023 года — идёт ли она сейчас, проверить звонком.
+- [The Ark Learning Centre](https://pattaya-kids-guide-web.vercel.app/ru/pattaya/activities/the-ark-learning-centre) — Альтернативная школа для 3–16 лет, а не кружок — решить, в каком разделе.
