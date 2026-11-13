@@ -3863,6 +3863,36 @@ a.tip-source:hover {
   background: var(--surface-muted);
 }
 
+/* Ячейка ленты: карточка тянется на всю высоту ряда (низ соседних карточек
+   на одном уровне, как без обёртки). Свежая партия проявляется, как тушь
+   на мокрой бумаге, — без рывка. Только прозрачность и сдвиг: раскладку
+   это не трогает, прокрутка не прыгает. */
+.grid-cell {
+  display: grid;
+  min-width: 0;
+}
+
+.grid-cell-fresh {
+  animation: grid-cell-in 0.45s ease-out both;
+}
+
+@keyframes grid-cell-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-cell-fresh {
+    animation: none;
+  }
+}
+
 /* конец ленты: партии раскрываются сами при прокрутке; ссылка — запас
    (без JS, у роботов), обычно до неё не доходят. Тихая, как подпись. */
 
@@ -5039,6 +5069,15 @@ html[lang="th"] .landing-sentence {
   grid-auto-columns: calc((100% - 3 * var(--carousel-gap)) / 3.3);
 }
 
+/* Трекпад и мышь: строгая привязка дёргала ленту назад после каждого
+   короткого жеста. Мягкая — лента едет свободно и докатывается до карточки,
+   только если остановилась рядом. */
+@media (hover: hover) and (pointer: fine) {
+  .carousel-track {
+    scroll-snap-type: x proximity;
+  }
+}
+
 .carousel-slide {
   min-width: 0;
   scroll-snap-align: start;
@@ -5067,6 +5106,11 @@ html[lang="th"] .landing-sentence {
     margin-inline: -12px;
     padding-inline: 12px;
     scroll-padding-inline: 12px;
+  }
+
+  /* палец: один взмах — одна карточка, точки идут ровно по одной */
+  .carousel-slide {
+    scroll-snap-stop: always;
   }
 
   .carousel-arrows {

@@ -17,14 +17,26 @@ export function InfiniteGrid({
   items,
   pageSize,
 }: InfiniteGridProps): React.ReactElement {
-  const { count, hasMore, nextHref, loadMore } = useInfiniteReveal(
+  const { count, freshFrom, hasMore, nextHref, loadMore } = useInfiniteReveal(
     items.length,
     pageSize,
   );
 
   return (
     <>
-      <section className={className}>{items.slice(0, count)}</section>
+      <section className={className}>
+        {items.slice(0, count).map((item, index) => (
+          // обёртка-ячейка: карточки приходят с сервера готовыми, класс
+          // проявления вешаем на неё; позиция стабильна — список не
+          // переставляется, только дорастает
+          <div
+            key={index}
+            className={index >= freshFrom ? "grid-cell grid-cell-fresh" : "grid-cell"}
+          >
+            {item}
+          </div>
+        ))}
+      </section>
       <LoadMore
         hasMore={hasMore}
         nextHref={nextHref}
