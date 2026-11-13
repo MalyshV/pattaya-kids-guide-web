@@ -494,15 +494,21 @@ export function PlacesResults({
       {filterNote}
 
       <section className="places-grid">
-        {pageItems.map(({ place, status, schedules }) => (
-          <PlaceCard
+        {pageItems.map(({ place, status, schedules }, index) => (
+          <div
             key={place.id}
-            place={place}
-            basePath={basePath}
-            status={status}
-            schedules={schedules}
-            timezone={timezone}
-          />
+            className={
+              index >= reveal.freshFrom ? "grid-cell grid-cell-fresh" : "grid-cell"
+            }
+          >
+            <PlaceCard
+              place={place}
+              basePath={basePath}
+              status={status}
+              schedules={schedules}
+              timezone={timezone}
+            />
+          </div>
         ))}
       </section>
 
