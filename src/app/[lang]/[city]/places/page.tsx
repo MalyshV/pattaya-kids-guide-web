@@ -31,10 +31,7 @@ import { computePlaceStatus, isClosureStatus } from "@/lib/places/closure";
 import { getDictionary } from "@/content/dictionary";
 import { LIST_PAGE_SIZE } from "@/lib/constants/pagination";
 import { pageAlternates } from "@/lib/seo/meta";
-import {
-  getSingleSearchParam,
-  parsePositiveNumberParam,
-} from "@/lib/params/search-params";
+import { getSingleSearchParam } from "@/lib/params/search-params";
 import type { Metadata } from "next";
 
 type PageProps = {
@@ -117,7 +114,6 @@ export default async function CityPlacesPage({
   // ?category= — тип места (строка «Тип места»; сюда же ведут чипы категорий
   // со страницы места)
   const category = getSingleSearchParam(resolvedSearchParams.category);
-  const pageParam = getSingleSearchParam(resolvedSearchParams.page);
   // ?visited= — фильтр по ✓-отметкам; сервер список НЕ фильтрует (отметки в
   // localStorage), только проносит параметр — фильтрует клиент PlacesResults
   const visitedFilter = parseVisitedParam(
@@ -125,7 +121,6 @@ export default async function CityPlacesPage({
   );
   const visited = visitedFilter ?? undefined;
 
-  const currentPage = parsePositiveNumberParam(pageParam) ?? 1;
   const isWorkFriendly = parseBooleanParam(workFriendly) === true;
   const isOpenNow = parseBooleanParam(openNow) === true;
   const isOpenMorning = parseBooleanParam(openMorning) === true;
@@ -262,8 +257,6 @@ export default async function CityPlacesPage({
   visiblePlaces = districtView.entries;
 
   const total = visiblePlaces.length;
-  const totalPages = Math.max(1, Math.ceil(total / LIST_PAGE_SIZE));
-  const safePage = Math.min(currentPage, totalPages);
 
   // Пустое состояние честно объясняет причину — приоритет у активного сценария.
   const emptyTitle = isOpenNow
@@ -489,8 +482,6 @@ export default async function CityPlacesPage({
           view={view}
           basePath={basePath}
           listPath={listPath}
-          currentPage={safePage}
-          totalPages={totalPages}
           pageSize={LIST_PAGE_SIZE}
           pagination={{
             age,

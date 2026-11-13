@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { AgeQuestion } from "@/components/common/age-question";
 import { EventCard } from "@/components/events/event-card";
 import { EventFilters } from "@/components/events/event-filters";
-import { EventsPagination } from "@/components/events/events-pagination";
+import { InfiniteGrid } from "@/components/common/infinite-grid";
 import { ViewToggle } from "@/components/common/view-toggle";
 import { MapEmpty } from "@/components/common/map-empty";
 import { PlacesMap, type PlaceMapMarker } from "@/components/places/places-map";
@@ -27,10 +27,7 @@ import { getDictionary } from "@/content/dictionary";
 import { localizedCityName } from "@/lib/i18n/localize";
 import { LIST_PAGE_SIZE } from "@/lib/constants/pagination";
 import { pageAlternates } from "@/lib/seo/meta";
-import {
-  getSingleSearchParam,
-  parsePositiveNumberParam,
-} from "@/lib/params/search-params";
+import { getSingleSearchParam } from "@/lib/params/search-params";
 import { parseListView, viewHref } from "@/lib/params/view-href";
 import type { Metadata } from "next";
 
@@ -80,14 +77,12 @@ export default async function CityEventsPage({
   const resolvedSearchParams = (await searchParams) ?? {};
 
   const typeParam = getSingleSearchParam(resolvedSearchParams.type);
-  const pageParam = getSingleSearchParam(resolvedSearchParams.page);
   const ageParam = getSingleSearchParam(resolvedSearchParams.age);
   // ?view=map — карта вместо списка (те же вкладка и возраст)
   const viewParam = getSingleSearchParam(resolvedSearchParams.view);
   const view = parseListView(viewParam);
 
   const type = parseEventType(typeParam);
-  const currentPage = parsePositiveNumberParam(pageParam) ?? 1;
   const ageBuckets = parseAgeBuckets(ageParam);
   // ?district= — район; незнакомый slug фильтром не считается
   const districtDefinitions = getCityDistrictDefinitions(citySlug);
@@ -156,12 +151,6 @@ export default async function CityEventsPage({
   });
 
   const total = eventsWithStatus.length;
-  const totalPages = Math.max(1, Math.ceil(total / LIST_PAGE_SIZE));
-  const safePage = Math.min(currentPage, totalPages);
-  const pageItems = eventsWithStatus.slice(
-    (safePage - 1) * LIST_PAGE_SIZE,
-    safePage * LIST_PAGE_SIZE,
-  );
 
   // Карта — события вкладки без пагинации, но БЕЗ прошедших (решение
   // Вероники 22.09: на карте ищут, куда пойти; прошедшие остаются в списке)
@@ -299,8 +288,11 @@ export default async function CityEventsPage({
       ) : (
         <>
           {viewToggle}
-          <section className="events-grid">
-            {pageItems.map(({ event, status }) => (
+          {/* лента дорастает партиями при прокрутке; длина — в ?page */}
+          <InfiniteGrid
+            className="events-grid"
+            pageSize={LIST_PAGE_SIZE}
+            items={eventsWithStatus.map(({ event, status }) => (
               <EventCard
                 key={event.id}
                 event={event}
@@ -309,15 +301,6 @@ export default async function CityEventsPage({
                 status={status}
               />
             ))}
-          </section>
-
-          <EventsPagination
-            currentPage={safePage}
-            totalPages={totalPages}
-            type={type}
-            age={ageParam}
-            district={districtParam}
-            basePath={basePath}
           />
         </>
       )}

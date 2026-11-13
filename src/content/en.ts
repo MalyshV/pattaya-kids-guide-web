@@ -600,13 +600,8 @@ export const en: Dictionary = {
   },
 
   pagination: {
-    pageOf: (current: number, totalPages: number): string =>
-      `Page ${current} of ${totalPages}`,
-    previous: "Back",
-    next: "Next",
-    placesAria: "Places pagination",
-    eventsAria: "Events pagination",
-    activitiesAria: "Activities pagination",
+    loadMore: "Show more",
+    shownOf: (shown: number, total: number): string => `Showing ${shown} of ${total}`,
   },
 
   suggest: {

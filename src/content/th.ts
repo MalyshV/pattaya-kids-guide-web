@@ -593,13 +593,8 @@ export const th: Dictionary = {
   },
 
   pagination: {
-    pageOf: (current: number, totalPages: number): string =>
-      `หน้า ${current} จาก ${totalPages}`,
-    previous: "ก่อนหน้า",
-    next: "ถัดไป",
-    placesAria: "การแบ่งหน้ารายการสถานที่",
-    eventsAria: "การแบ่งหน้ารายการอีเวนต์",
-    activitiesAria: "การแบ่งหน้ารายการคลาสเรียน",
+    loadMore: "แสดงเพิ่มเติม",
+    shownOf: (shown: number, total: number): string => `แสดง ${shown} จาก ${total}`,
   },
 
   suggest: {

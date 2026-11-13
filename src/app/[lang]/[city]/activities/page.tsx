@@ -4,7 +4,7 @@ import { SuggestLink } from "@/components/suggest/suggest-link";
 import { notFound } from "next/navigation";
 import { ActivityCard } from "@/components/activities/activity-card";
 import { ActivityFilters } from "@/components/activities/activity-filters";
-import { ActivitiesPagination } from "@/components/activities/activities-pagination";
+import { InfiniteGrid } from "@/components/common/infinite-grid";
 import { AgeQuestion } from "@/components/common/age-question";
 import { MapEmpty } from "@/components/common/map-empty";
 import { ViewToggle } from "@/components/common/view-toggle";
@@ -27,10 +27,7 @@ import { getDictionary } from "@/content/dictionary";
 import { localizedCityName, pickLocalized } from "@/lib/i18n/localize";
 import { LIST_PAGE_SIZE } from "@/lib/constants/pagination";
 import { pageAlternates } from "@/lib/seo/meta";
-import {
-  getSingleSearchParam,
-  parsePositiveNumberParam,
-} from "@/lib/params/search-params";
+import { getSingleSearchParam } from "@/lib/params/search-params";
 import { parseListView, viewHref } from "@/lib/params/view-href";
 import type { Metadata } from "next";
 
@@ -78,8 +75,6 @@ export default async function CityActivitiesPage({
     districtDefinitions,
   );
   const districtParam = activeDistrict ?? undefined;
-  const currentPage =
-    parsePositiveNumberParam(getSingleSearchParam(resolvedSearchParams.page)) ?? 1;
   // ?view=map — карта вместо списка (те же возраст и тип)
   const viewParam = getSingleSearchParam(resolvedSearchParams.view);
   const view = parseListView(viewParam);
@@ -137,13 +132,6 @@ export default async function CityActivitiesPage({
     (a, b) => activitySortRank(a.item, now) - activitySortRank(b.item, now),
   );
   const items = entries.map(({ item }) => item);
-
-  const totalPages = Math.max(1, Math.ceil(items.length / LIST_PAGE_SIZE));
-  const safePage = Math.min(currentPage, totalPages);
-  const pageItems = items.slice(
-    (safePage - 1) * LIST_PAGE_SIZE,
-    safePage * LIST_PAGE_SIZE,
-  );
 
   // Карта — все занятия фильтра без пагинации, кроме прошедших лагерей: как у
   // событий, на карте ищут, куда пойти, прошедшее остаётся в списке
@@ -279,19 +267,13 @@ export default async function CityActivitiesPage({
       ) : (
         <>
           {viewToggle}
-          <section className="activities-grid">
-            {pageItems.map((activity) => (
+          {/* лента дорастает партиями при прокрутке; длина — в ?page */}
+          <InfiniteGrid
+            className="activities-grid"
+            pageSize={LIST_PAGE_SIZE}
+            items={items.map((activity) => (
               <ActivityCard key={activity.id} activity={activity} basePath={basePath} />
             ))}
-          </section>
-
-          <ActivitiesPagination
-            currentPage={safePage}
-            totalPages={totalPages}
-            basePath={basePath}
-            age={age}
-            category={activeCategory}
-            district={districtParam}
           />
         </>
       )}
