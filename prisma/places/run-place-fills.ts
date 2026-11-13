@@ -268,7 +268,7 @@ async function fillPlaces(
             url: photo.url,
             caption: photo.caption,
             order: index + 1,
-            source: "OWN" as const,
+            source: fill.photoSource ?? "OWN",
             rightsNote: fill.photoRightsNote ?? null,
           })),
         });

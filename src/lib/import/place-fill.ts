@@ -84,6 +84,8 @@ export type PlaceFill = {
   /// галерея; провенанс один на все снимки — photoRightsNote
   photos?: readonly FillPhoto[];
   photoRightsNote?: string;
+  /// чьи снимки галереи: свои (по умолчанию) или со страниц самого места
+  photoSource?: "OWN" | "PLACE_OWNER";
 };
 
 /** Что сейчас у места в базе — ровно то, что нужно для решения. */
