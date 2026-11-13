@@ -417,6 +417,8 @@ export const ru = {
     },
     openNowTitle: "Открыто сейчас",
     allPlaces: "Все места",
+    carouselPrev: "Предыдущие места",
+    carouselNext: "Следующие места",
     soonTitle: "Ближайшие события",
     soonHint: "То, на что ещё можно успеть.",
     allEvents: "Вся афиша",

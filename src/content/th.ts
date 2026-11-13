@@ -353,6 +353,8 @@ export const th: Dictionary = {
     },
     openNowTitle: "เปิดอยู่ตอนนี้",
     allPlaces: "สถานที่ทั้งหมด",
+    carouselPrev: "สถานที่ก่อนหน้า",
+    carouselNext: "สถานที่ถัดไป",
     soonTitle: "เร็ว ๆ นี้",
     soonHint: "กิจกรรมที่ยังไปทัน",
     allEvents: "กิจกรรมทั้งหมด",

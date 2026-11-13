@@ -4973,6 +4973,139 @@ html[lang="th"] .landing-sentence {
   text-transform: uppercase;
 }
 
+/* «Открыто сейчас» — лента вбок. Десктоп: три карточки и край четвёртой
+   (c = (W − 3·зазор) / 3.3), планшет — две и край, телефон — одна и край.
+   Родная прокрутка с привязкой к карточке; полосу прокрутки прячем —
+   о ленте говорят выглядывающий край, стрелки (десктоп) и точки (телефон). */
+.landing-block-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.carousel-arrows {
+  display: flex;
+  gap: 8px;
+}
+
+.carousel-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--chip-border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.carousel-arrow:hover:not(:disabled) {
+  background: var(--tint-hover);
+}
+
+.carousel-arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.carousel-arrow:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.carousel-track {
+  --carousel-gap: 36px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 2 * var(--carousel-gap)) / 3);
+  gap: var(--carousel-gap);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-track-peek {
+  grid-auto-columns: calc((100% - 3 * var(--carousel-gap)) / 3.3);
+}
+
+.carousel-slide {
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+/* точки — только на телефоне */
+.carousel-dots {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .carousel-track,
+  .carousel-track-peek {
+    --carousel-gap: 24px;
+    grid-auto-columns: calc((100% - 2 * var(--carousel-gap)) / 2.3);
+  }
+}
+
+@media (max-width: 640px) {
+  /* лента — до краёв экрана: край следующей карточки упирается в край
+     телефона, а не в поле страницы */
+  .carousel-track,
+  .carousel-track-peek {
+    --carousel-gap: 14px;
+    grid-auto-columns: 84%;
+    margin-inline: -12px;
+    padding-inline: 12px;
+    scroll-padding-inline: 12px;
+  }
+
+  .carousel-arrows {
+    display: none;
+  }
+
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 18px;
+  }
+
+  .carousel-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    opacity: 0.35;
+    transition:
+      background 0.2s ease,
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .carousel-dot-active {
+    background: var(--dot);
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel-dot {
+    transition: none;
+  }
+}
+
 /* ближайшие события — список, как в журнале */
 .landing-soon {
   display: grid;

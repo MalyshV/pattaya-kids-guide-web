@@ -12,6 +12,7 @@ import {
   type LandingSectionDto,
 } from "@/components/landing/landing-sections";
 import { LandingSoon } from "@/components/landing/landing-soon";
+import { OpenNowCarousel } from "@/components/landing/open-now-carousel";
 import { PlaceCard } from "@/components/places/place-card";
 import { mapEventListItemToDto } from "@/mappers/event.mapper";
 import { LazyMount } from "@/components/common/lazy-mount";
@@ -89,6 +90,9 @@ export async function generateMetadata({
 
 /** Параметры каталога: старые расшаренные ссылки на корень города с
  *  фильтрами тихо уводим в каталог, не показывая посадочную с «мёртвым» query. */
+/** сколько мест в ленте «Открыто сейчас»: есть что листать, а главная лёгкая */
+const OPEN_NOW_LIMIT = 12;
+
 const CATALOG_PARAMS = new Set([
   "age",
   "visited",
@@ -206,7 +210,8 @@ export default async function CityLandingPage({
     .filter((key) => quickKeys.has(key))
     .map((key) => ({ key: key as LandingQuickKey, href: scenarioHrefs[key].href }));
 
-  // «Открыто сейчас»: три места, куда можно пойти в эту минуту; с фото — вперёд
+  // «Открыто сейчас»: лента до 12 мест, куда можно пойти в эту минуту (листают
+  // вбок); с фото — вперёд. Остальные — по ссылке «Все места».
   const openNowCards = places
     .map((place) => ({
       place,
@@ -214,7 +219,7 @@ export default async function CityLandingPage({
     }))
     .filter(({ status }) => isGoNowStatus(status))
     .sort((a, b) => Number(Boolean(b.place.imageUrl)) - Number(Boolean(a.place.imageUrl)))
-    .slice(0, 3);
+    .slice(0, OPEN_NOW_LIMIT);
 
   // районы для предложения: только те, где есть места. По-русски у района
   // своя форма «где?» (предлог и падеж разные), в остальных языках — шаблон.
@@ -440,18 +445,14 @@ export default async function CityLandingPage({
       <LandingSections ariaLabel={dict.nav.sectionsAria} sections={sections} />
 
       {openNowCards.length > 0 ? (
-        <section className="landing-block">
-          <div className="landing-block-header">
-            <h2 className="landing-block-title">{dict.landing.openNowTitle}</h2>
-            <Link href={`${listPath}?openNow=true`} className="landing-more-link">
-              {dict.landing.allPlaces}
-              <span aria-hidden="true"> →</span>
-            </Link>
-          </div>
-          <div className="places-grid">
-            {openNowCards.map(({ place, status }) => (
+        <OpenNowCarousel
+          title={dict.landing.openNowTitle}
+          moreHref={`${listPath}?openNow=true`}
+          moreLabel={dict.landing.allPlaces}
+          cards={openNowCards.map(({ place, status }) => ({
+            id: place.id,
+            node: (
               <PlaceCard
-                key={place.id}
                 place={mapPlaceToListItemDto(place, lang, districtDefinitions)}
                 basePath={basePath}
                 status={status}
@@ -463,9 +464,9 @@ export default async function CityLandingPage({
                 }))}
                 timezone={city.timezone}
               />
-            ))}
-          </div>
-        </section>
+            ),
+          }))}
+        />
       ) : null}
 
       {soonEvents.length > 0 ? (
