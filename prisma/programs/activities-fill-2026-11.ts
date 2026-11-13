@@ -881,6 +881,13 @@ export const ACTIVITIES_FILL_2026_11: readonly ProgramFill[] = [
         textTh:
           "KIBERone มี 2 สาขาในพัทยา คือถนนเทพประสิทธิ์และถนนสุขุมวิท (หนองปรือ) ตอนจองควรถามว่ากลุ่มเรียนที่สาขาไหน",
       },
+      {
+        text: "Можно взять сразу полгода: 26 400 ฿ за 6 месяцев и седьмой месяц в подарок (по подсветке «Цены» в Instagram школы, 2024 год) — актуальность уточняйте.",
+        textEn:
+          "You can pay for six months at once: 26,400 ฿ for 6 months plus a seventh month free (per the school's Instagram highlight “Prices”, 2024) — please check it still applies.",
+        textTh:
+          "สมัครครั้งเดียว 6 เดือนได้ 26,400 บาท แถมเดือนที่ 7 ฟรี (ตามไฮไลต์ “ราคา” ใน Instagram ของโรงเรียน ปี 2024) กรุณาสอบถามว่ายังใช้ได้หรือไม่",
+      },
     ],
     minAgeMonths: 72,
     maxAgeMonths: 179,
@@ -1492,11 +1499,11 @@ export const ACTIVITIES_FILL_2026_11: readonly ProgramFill[] = [
     nameEn: "Kids boxing and MMA at MixFight Pattaya",
     nameTh: "มวยและ MMA สำหรับเด็ก MixFight Pattaya",
     description:
-      "Клуб единоборств MixFight Pattaya на Thappraya Soi 15 (между Пратамнаком и Джомтьеном) работает с 2012 года: бокс, муай-тай, кикбоксинг, MMA и бразильское джиу-джитсу. Детские группы — с 5 лет, любой уровень подготовки. Тренировка для детей построена как игра: разминка, ловкость, равновесие и реакция, затем основы техники — стойка, передвижения, первые удары и защита; контакт мягкий и под контролем тренера. Детей ведут два тренера: группы «Дети» — в понедельник, среду и пятницу в 17:00, группы до 12 лет — во вторник и четверг в 17:00 и в субботу в 10:00 (по расписанию на сайте). Сайт клуба на русском, английском, тайском и китайском. Первую тренировку бронируют заранее; цены на детские группы не опубликованы — уточняйте. WhatsApp и телефон: +66 94 567 8106, Telegram: telegram.me/mixfight_pattaya, Instagram: @mixfight.pattaya, сайт: mixfightpattaya.com.",
+      "Клуб единоборств MixFight Pattaya на Thappraya Soi 15 (между Пратамнаком и Джомтьеном) работает с 2012 года: бокс, муай-тай, кикбоксинг, MMA и бразильское джиу-джитсу. Детские группы — с 5 лет, любой уровень подготовки. Тренировка для детей построена как игра: разминка, ловкость, равновесие и реакция, затем основы техники — стойка, передвижения, первые удары и защита; контакт мягкий и под контролем тренера. Детей ведут два тренера: группы «Дети» — в понедельник, среду и пятницу в 17:00, группы до 12 лет — во вторник и четверг в 17:00 и в субботу в 10:00 (по расписанию на сайте). Сайт клуба на русском, английском, тайском и китайском. Первую тренировку бронируют заранее; месяц детских тренировок (12 занятий) — 3 500 ฿, по подсветке «Schedule&price» в Instagram клуба (осень 2025), — уточняйте. WhatsApp и телефон: +66 94 567 8106, Telegram: telegram.me/mixfight_pattaya, Instagram: @mixfight.pattaya, сайт: mixfightpattaya.com.",
     descriptionEn:
-      "MixFight Pattaya, a combat sports club on Thappraya Soi 15 (between Pratamnak and Jomtien), has been running since 2012: boxing, Muay Thai, kickboxing, MMA and Brazilian jiu-jitsu. Kids' groups start at age 5, any level. Children's sessions are play-based: a warm-up, agility, balance and reaction drills, then basic technique — stance, footwork, first punches and defence; contact is soft and supervised by the coach. Two coaches run the kids' classes: \"Kids\" groups on Monday, Wednesday and Friday at 17:00, and under-12 groups on Tuesday and Thursday at 17:00 and Saturday at 10:00 (per the club's online schedule). The club's website is in Russian, English, Thai and Chinese. Book the first session in advance; prices for kids' groups aren't published — please ask. WhatsApp and phone: +66 94 567 8106, Telegram: telegram.me/mixfight_pattaya, Instagram: @mixfight.pattaya, website: mixfightpattaya.com.",
+      "MixFight Pattaya, a combat sports club on Thappraya Soi 15 (between Pratamnak and Jomtien), has been running since 2012: boxing, Muay Thai, kickboxing, MMA and Brazilian jiu-jitsu. Kids' groups start at age 5, any level. Children's sessions are play-based: a warm-up, agility, balance and reaction drills, then basic technique — stance, footwork, first punches and defence; contact is soft and supervised by the coach. Two coaches run the kids' classes: \"Kids\" groups on Monday, Wednesday and Friday at 17:00, and under-12 groups on Tuesday and Thursday at 17:00 and Saturday at 10:00 (per the club's online schedule). The club's website is in Russian, English, Thai and Chinese. Book the first session in advance; a month of kids' classes (12 sessions) is 3,500 ฿ according to the club's Instagram highlight “Schedule&price” (autumn 2025) — please confirm. WhatsApp and phone: +66 94 567 8106, Telegram: telegram.me/mixfight_pattaya, Instagram: @mixfight.pattaya, website: mixfightpattaya.com.",
     descriptionTh:
-      'MixFight Pattaya สโมสรศิลปะการต่อสู้ ทัพพระยา ซอย 15 (ระหว่างพระตำหนักกับจอมเทียน) เปิดมาตั้งแต่ปี 2012 สอนมวยสากล มวยไทย คิกบ็อกซิ่ง MMA และบราซิลเลียนยิวยิตสู กลุ่มเด็กรับตั้งแต่อายุ 5 ปี ทุกระดับ การฝึกสำหรับเด็กเน้นเกมและความสนุก มีวอร์มอัพ ฝึกความคล่องตัว การทรงตัว และปฏิกิริยา จากนั้นเรียนพื้นฐาน ท่ายืน ฟุตเวิร์ก หมัดแรก และการป้องกัน การปะทะเบาและอยู่ในการดูแลของโค้ช มีโค้ชดูแลเด็ก 2 คน กลุ่ม "เด็ก" วันจันทร์ พุธ ศุกร์ 17:00 น. และกลุ่มอายุไม่เกิน 12 ปี วันอังคาร พฤหัสบดี 17:00 น. และวันเสาร์ 10:00 น. (ตามตารางบนเว็บไซต์) เว็บไซต์มีภาษารัสเซีย อังกฤษ ไทย และจีน กรุณาจองครั้งแรกล่วงหน้า ค่าเรียนกลุ่มเด็กไม่ได้ประกาศไว้ กรุณาสอบถาม WhatsApp และโทร +66 94 567 8106 Telegram: telegram.me/mixfight_pattaya Instagram: @mixfight.pattaya เว็บไซต์ mixfightpattaya.com',
+      'MixFight Pattaya สโมสรศิลปะการต่อสู้ ทัพพระยา ซอย 15 (ระหว่างพระตำหนักกับจอมเทียน) เปิดมาตั้งแต่ปี 2012 สอนมวยสากล มวยไทย คิกบ็อกซิ่ง MMA และบราซิลเลียนยิวยิตสู กลุ่มเด็กรับตั้งแต่อายุ 5 ปี ทุกระดับ การฝึกสำหรับเด็กเน้นเกมและความสนุก มีวอร์มอัพ ฝึกความคล่องตัว การทรงตัว และปฏิกิริยา จากนั้นเรียนพื้นฐาน ท่ายืน ฟุตเวิร์ก หมัดแรก และการป้องกัน การปะทะเบาและอยู่ในการดูแลของโค้ช มีโค้ชดูแลเด็ก 2 คน กลุ่ม "เด็ก" วันจันทร์ พุธ ศุกร์ 17:00 น. และกลุ่มอายุไม่เกิน 12 ปี วันอังคาร พฤหัสบดี 17:00 น. และวันเสาร์ 10:00 น. (ตามตารางบนเว็บไซต์) เว็บไซต์มีภาษารัสเซีย อังกฤษ ไทย และจีน กรุณาจองครั้งแรกล่วงหน้า ค่าเรียนกลุ่มเด็ก 3,500 บาทต่อเดือน (12 ครั้ง) ตามไฮไลต์ “Schedule&price” ใน Instagram ของสโมสร (ปลายปี 2025) กรุณาสอบถามอีกครั้ง WhatsApp และโทร +66 94 567 8106 Telegram: telegram.me/mixfight_pattaya Instagram: @mixfight.pattaya เว็บไซต์ mixfightpattaya.com',
     tips: [
       {
         text: "На первую тренировку возьмите спортивную форму, воду и полотенце; перчатки на первое время можно взять в клубе.",
@@ -1527,6 +1534,10 @@ export const ACTIVITIES_FILL_2026_11: readonly ProgramFill[] = [
       },
     ],
     minAgeMonths: 60,
+    price: 3500,
+    priceUnit: "/ месяц (12 занятий)",
+    priceUnitEn: "/ month (12 sessions)",
+    priceUnitTh: "/ เดือน (12 ครั้ง)",
     classes: [
       {
         name: "Пн, Ср, Пт",
