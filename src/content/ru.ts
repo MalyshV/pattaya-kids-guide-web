@@ -685,13 +685,8 @@ export const ru = {
   },
 
   pagination: {
-    pageOf: (current: number, totalPages: number): string =>
-      `Страница ${current} из ${totalPages}`,
-    previous: "Назад",
-    next: "Дальше",
-    placesAria: "Постраничная навигация по местам",
-    eventsAria: "Постраничная навигация по событиям",
-    activitiesAria: "Постраничная навигация по занятиям",
+    loadMore: "Показать ещё",
+    shownOf: (shown: number, total: number): string => `Показано ${shown} из ${total}`,
   },
 
   // форма «Предложить своё» (22.09): минимум полей, спокойный тон, ничего

@@ -5,11 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PlaceCard } from "@/components/places/place-card";
 import { PlacesMap, type PlaceMapMarker } from "@/components/places/places-map";
-import { PlacesPagination } from "@/components/places/places-pagination";
+import { LoadMore } from "@/components/common/load-more";
 import { ViewToggle } from "@/components/common/view-toggle";
 import { formatDistance, sortByDistance, type GeoPoint } from "@/lib/geo/distance";
 import { useDictionary, useLang } from "@/lib/i18n/use-dictionary";
 import { useParentMemory } from "@/lib/memory/use-parent-memory";
+import { useInfiniteReveal } from "@/lib/infinite/use-infinite-reveal";
 import { useCitySlug } from "@/lib/geo/use-city-slug";
 import {
   filterByVisited,
@@ -22,8 +23,9 @@ import { isClosureStatus } from "@/lib/places/closure";
 import type { OpenStatus, ScheduleInput } from "@/lib/schedule/open-status";
 
 /**
- * Результаты списка мест. Обычный режим — серверная сортировка и пагинация,
- * как раньше. Режим «Рядом со мной» (?near=true) — геопозиция запрашивается
+ * Результаты списка мест. Обычный режим — серверная сортировка, лента
+ * дорастает партиями при прокрутке (длина ленты — в ?page). Режим «Рядом со
+ * мной» (?near=true) — геопозиция запрашивается
  * ТОЛЬКО в браузере и никуда не отправляется: сортировка по близости и
  * расстояния считаются на клиенте, в URL и на сервер координаты не попадают.
  *
@@ -51,12 +53,11 @@ type PlacesResultsProps = {
   basePath: string;
   /** пояс города — живой статус считается по его часам */
   timezone: string;
-  /** путь списка `/ru/pattaya/places` — ссылки фильтров/пагинации/сброса */
+  /** путь списка `/ru/pattaya/places` — ссылки фильтров/вида/сброса */
   listPath: string;
-  currentPage: number;
-  totalPages: number;
+  /** размер партии ленты */
   pageSize: number;
-  /** параметры для ссылок пагинации (сохраняются между страницами) */
+  /** активные фильтры — для ссылок «список/карта» и «Показывать все» */
   pagination: Record<string, string | undefined>;
 };
 
@@ -78,8 +79,6 @@ export function PlacesResults({
   basePath,
   timezone,
   listPath,
-  currentPage,
-  totalPages: serverTotalPages,
   pageSize,
   pagination,
 }: PlacesResultsProps): React.ReactElement {
@@ -90,7 +89,7 @@ export function PlacesResults({
   // ✓-фильтр: отметки в localStorage, SSR их не знает — до гидрации памяти
   // вместо серверного списка рендерим скелетон (иначе первый кадр мигал бы
   // ПОЛНЫМ каталогом, который тут же схлопывается), после — честно фильтруем
-  // и пересчитываем пагинацию по видимому списку
+  // и пересчитываем длину ленты по видимому списку
   const memory = useParentMemory();
   const city = useCitySlug();
   const visitedSlugs = useMemo(
@@ -102,11 +101,8 @@ export function PlacesResults({
     ? filterByVisited(serverItems, visitedFilter, ({ place }) => place.slug, visitedSlugs)
     : serverItems;
   const hiddenByFilter = serverItems.length - items.length;
-  const totalPages = filterActive
-    ? Math.max(1, Math.ceil(items.length / pageSize))
-    : serverTotalPages;
-  // ?page мог указывать за конец укоротившегося списка — тихо клампим
-  const safePage = Math.min(currentPage, totalPages);
+  // ?page за концом укоротившегося списка хук тихо клампит сам
+  const reveal = useInfiniteReveal(items.length, pageSize);
   const [geo, setGeo] = useState<GeoState>({ kind: "idle" });
   // Подстройка состояния при смене пропа near — во время рендера (паттерн
   // React «adjusting state when props change», эффект для этого не нужен).
@@ -196,7 +192,7 @@ export function PlacesResults({
   const nearActive = near && geo.kind === "ready";
   const sortedTopRef = useRef<HTMLParagraphElement | null>(null);
 
-  // ?page бессмыслен в режиме «ближайшие» (показываем всё без пагинации) —
+  // ?page бессмыслен в режиме «ближайшие» (показываем всё одной лентой) —
   // тихо убираем его из URL, чтобы перезагрузка/шеринг не открывали страницу 3
   useEffect(() => {
     if (!nearActive) {
@@ -489,7 +485,7 @@ export function PlacesResults({
     );
   }
 
-  const pageItems = items.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const pageItems = items.slice(0, reveal.count);
 
   return (
     <>
@@ -510,11 +506,12 @@ export function PlacesResults({
         ))}
       </section>
 
-      <PlacesPagination
-        currentPage={safePage}
-        totalPages={totalPages}
-        listPath={listPath}
-        {...pagination}
+      <LoadMore
+        hasMore={reveal.hasMore}
+        nextHref={reveal.nextHref}
+        onLoadMore={reveal.loadMore}
+        shown={reveal.count}
+        total={items.length}
       />
     </>
   );
