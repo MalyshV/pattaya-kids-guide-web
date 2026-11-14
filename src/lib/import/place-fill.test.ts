@@ -25,6 +25,7 @@ function state(overrides: Partial<PlaceFillState> = {}): PlaceFillState {
       hasParking: null,
       hasWifi: null,
       hasCafeSeating: null,
+      hasPowerOutlets: null,
       hasCoveredArea: null,
       hasFans: null,
       animalContact: null,

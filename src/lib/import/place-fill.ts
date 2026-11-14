@@ -31,6 +31,7 @@ export const FILL_FLAGS = [
   "hasParking",
   "hasWifi",
   "hasCafeSeating",
+  "hasPowerOutlets",
   "hasCoveredArea",
   "hasFans",
   "animalContact",
