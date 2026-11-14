@@ -10,7 +10,9 @@
  *   2025–2026), копия сайта igcenter-pattaya.com 2024 г. в Internet Archive
  *   (сейчас сайт — заглушка «Coming soon»);
  * - часы — с карточки центра на карте, сверены с постами 13.11.2026.
- * Цен на сам двор и кафе нигде нет — признак «бесплатно» не ставим.
+ * Цен на сам двор нигде нет — признак «бесплатно» не ставим. Кафе G Café &
+ * Restaurant (две части: стойка в холле и отдельный домик у площадки) —
+ * внутри этой карточки, не отдельным местом: тот же адрес и двор (решение 14.11).
  * Фото — свои, уменьшены до 1024 px, без метаданных; лица тренеров и
  * посетителей смазаны (решение 11–12.11: семья автора в кадре — можно).
  */
@@ -47,8 +49,9 @@ export const IG_CENTER_FILL: PlaceFill = {
     "Центр кружков и занятий в Хуай Яй, где легко провести полдня. Под одной крышей — школа плавания G Swim Academy " +
     "с крытым бассейном (раньше здесь была Manta Kids), развивающие занятия G Bright Kids, робототехника с LEGO, " +
     "музыкальная студия G Clef, художественная студия Perfect Art и фитнес-зал G Fitness для взрослых. " +
-    "Пока ребёнок на занятии, родители ждут в кафе G Café: там кондиционер, Wi-Fi и розетки, обычное и детское меню, " +
-    "а через стеклянную стену видно бассейн. Во дворе на искусственном газоне — площадка с горками и каруселью, " +
+    "Пока ребёнок на занятии, родители ждут в кафе G Café & Restaurant. У него две части: стойка с кофе и сладостями " +
+    "прямо в холле центра, откуда через стеклянную стену видно бассейн, и отдельный домик со столиками внутри и на террасе — " +
+    "рядом с детской площадкой. В кафе кондиционер, Wi-Fi и розетки, есть детские стульчики, обычное и детское меню. Во дворе на искусственном газоне — площадка с горками и каруселью, " +
     "горка-самолёт, пруд с карпами кои и вольер с кроликами и черепахой; есть детские велосипеды, беговелы и самокаты, " +
     "чтобы покататься. По нашему опыту, во двор и в кафе можно прийти и без записи на занятия. " +
     "Внутри — игровая комната для учеников. Рядом с центром большая парковка.",
@@ -56,19 +59,20 @@ export const IG_CENTER_FILL: PlaceFill = {
     "A hub of children's classes and activities in Huai Yai where it is easy to spend half a day. Under one roof: " +
     "the G Swim Academy swimming school with an indoor pool (this used to be Manta Kids), G Bright Kids early-learning classes, " +
     "LEGO robotics, the G Clef music studio, the Perfect Art studio and the G Fitness gym for adults. " +
-    "While children are in class, parents wait in G Café: it has air conditioning, Wi-Fi and power sockets, a regular and a kids' menu, " +
-    "and the pool is visible through a glass wall. Outside, on artificial grass, there is a playground with slides and a carousel, " +
+    "While children are in class, parents wait in G Café & Restaurant. It has two parts: a coffee and sweets counter " +
+    "right in the centre's lobby, where the pool is visible through a glass wall, and a separate building with tables inside and on a terrace, " +
+    "next to the playground. The café has air conditioning, Wi-Fi and power sockets, high chairs, a regular and a kids' menu. Outside, on artificial grass, there is a playground with slides and a carousel, " +
     "an aeroplane slide, a koi pond and an enclosure with rabbits and a tortoise; children's bikes, balance bikes and scooters are there to ride. " +
     "In our experience you can come to the garden and the café without booking a class. " +
     "Inside there is a playroom for students. There is a large car park next to the centre.",
   tips: [
     {
       text:
-        "В понедельник центр закрыт. У студий свои часы: кафе по выходным закрывается в 17:30, " +
-        "рисование — со вторника по субботу, 10:00–17:00, музыка в будни — до 19:30.",
+        "В понедельник центр и кафе закрыты. У студий свои часы: рисование — со вторника по субботу, 10:00–17:00, " +
+        "музыка в будни — до 19:30. Кафе работает до 18:00, но по выходным, судя по его постам, может закрыться в 17:30.",
       textEn:
-        "The centre is closed on Mondays. Studios keep their own hours: the café closes at 17:30 at weekends, " +
-        "art classes run Tuesday to Saturday, 10:00–17:00, and music lessons go on until 19:30 on weekdays.",
+        "The centre and the café are closed on Mondays. Studios keep their own hours: art classes run Tuesday to Saturday, " +
+        "10:00–17:00, and music lessons go on until 19:30 on weekdays. The café is open until 18:00, but its posts say it may close at 17:30 at weekends.",
     },
     {
       text:
@@ -90,6 +94,19 @@ export const IG_CENTER_FILL: PlaceFill = {
       textEn:
         "Children go barefoot inside the centre — shoes come off at the door. The café works for remote work: " +
         "there is Wi-Fi, power sockets and air conditioning.",
+    },
+    {
+      text:
+        "Детское меню в кафе — сеты: паста, рис или макароны с наггетсами, крылышками или сосиской и картошкой фри, " +
+        "около 130 ฿ (по меню 2024 года; по нашему опыту, сейчас примерно так же). Есть доставка через Grab.",
+      textEn:
+        "The café's kids' menu is set meals: pasta, rice or macaroni with nuggets, wings or a sausage and fries, " +
+        "about 130 ฿ (per the 2024 menu; in our experience it is about the same now). Delivery is available via Grab.",
+    },
+    {
+      text: "В кафе отмечают детские дни рождения — условия уточняйте по телефону кафе 062 479 4040.",
+      textEn:
+        "The café hosts children's birthday parties — ask about the terms by phone: 062 479 4040.",
     },
     {
       text:
